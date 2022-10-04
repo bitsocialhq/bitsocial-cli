@@ -1,9 +1,11 @@
 import { program } from "commander";
-import constants from "./constants";
-import * as actions from "./actions";
-import { version } from "../package.json";
+import constants from "./cli/constants.js";
+import * as actions from "./cli/actions.js";
+import fs from "fs-extra";
 
-program.name("plebbit-cli").description(constants.PLEBBIT_CLI_DESCRIPTION).version(version);
+const packageJson = JSON.parse((await fs.promises.readFile("package.json")).toString());
+
+program.name("plebbit-cli").description(constants.PLEBBIT_CLI_DESCRIPTION).version(packageJson.version);
 
 program
     .command("get")
