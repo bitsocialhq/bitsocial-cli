@@ -13,4 +13,6 @@ program
     .argument("<cid/domain>", "CID of comment/page/subplebbit or domain for subplebbit")
     .action(actions.get);
 
+program.command("daemon").description(constants.CMD_DAEMON).action(actions.daemon);
+
 program.parse(process.argv);
