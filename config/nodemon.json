@@ -1,0 +1,5 @@
+{
+    "exec": "tsoa spec-and-routes -c config/tsoa.json && node dist/src/api/server.js",
+    "watch": ["dist/src/api"],
+    "ext": "ts"
+}

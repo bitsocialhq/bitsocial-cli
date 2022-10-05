@@ -2,7 +2,22 @@
     "compilerOptions": {
         "outDir": "../dist",
         "declaration": true,
-        "noUnusedLocals": false
+        "incremental": true,
+        "strict": true,
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "strictFunctionTypes": true,
+        "strictBindCallApply": true,
+        "strictPropertyInitialization": true,
+        "noImplicitThis": true,
+        "alwaysStrict": true,
+        "importsNotUsedAsValues": "remove",    
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+
+        "moduleResolution": "Node16",
+        "baseUrl": ".",
+        "esModuleInterop": true,
     },
     "include": ["../src/**/*"],
     "exclude": ["../node_modules"],
