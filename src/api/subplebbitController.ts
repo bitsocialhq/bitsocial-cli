@@ -1,10 +1,15 @@
 import { Controller, Post, Route } from "tsoa";
-import { SubplebbitList, SubplebbitService } from "./subplebbitService.js";
+import { SubplebbitList } from "../types.js";
+import { sharedSingleton } from "./server.js";
 
-@Route("subplebbit")
+@Route("/api/v0/subplebbit")
 export class SubplebbitController extends Controller {
-    @Post()
+    @Post("/list")
     public async list(): Promise<SubplebbitList> {
-        return new SubplebbitService().list();
+        return Promise.all(
+            (await sharedSingleton.plebbit.listSubplebbits()).map((subAddress) => {
+                return { title: "TODO", address: subAddress, status: "off" };
+            })
+        );
     }
 }
