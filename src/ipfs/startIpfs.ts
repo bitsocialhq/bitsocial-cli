@@ -5,7 +5,7 @@ import Logger from "@plebbit/plebbit-logger";
 import fs from "fs-extra";
 import assert from "assert";
 
-const paths = envPaths("plebbit");
+const paths = envPaths("plebbit", { suffix: "" });
 
 function _getIpfsExecutablePath(): string {
     const platform: "linux" | "mac" | "win" | undefined =
