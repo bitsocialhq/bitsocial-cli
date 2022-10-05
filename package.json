@@ -13,11 +13,12 @@
         "plebbit": "./dist/index.js"
     },
     "scripts": {
-        "dev": "nodemon --config config/nodemon.json",
+        "dev": "IPFS_API_ENDPOINT=http://localhost:32429/api/v0 PLEBBIT_API_PORT=32431 nodemon --config config/nodemon.json",
         "build": "tsoa spec-and-routes -c config/tsoa.json && tsc --project config/tsconfig.json",
         "build:watch": "tsc --project config/tsconfig.json --watch",
         "build:executables": "pkg . --out-path executables/",
-        "startApi": "node dist/src/api/server.js"
+        "startApi": " node dist/src/api/server.js",
+        "startIpfs": "IPFS_API_PORT=32429 IPFS_GATEWAY_PORT=32430 node dist/src/ipfs/startIpfs.js"
     },
     "devDependencies": {
         "@tsconfig/node16-strictest-esm": "1.0.3",

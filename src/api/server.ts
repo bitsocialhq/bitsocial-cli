@@ -20,4 +20,6 @@ export function startApi(apiPort: number) {
     app.listen(apiPort, () => console.log(`Example app listening at http://localhost:${apiPort}`));
 }
 
-startApi(parseInt(<string>process.env["PORT"]) || 32431);
+if (typeof process.env["PLEBBIT_API_PORT"] !== "string" || typeof process.env["IPFS_API_ENDPOINT"] !== "string")
+    throw Error("You need to set both env variables PLEBBIT_API_PORT and IPFS_API_ENDPOINT");
+startApi(parseInt(process.env["PLEBBIT_API_PORT"]), process.env["IPFS_API_ENDPOINT"]);
