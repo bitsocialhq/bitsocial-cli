@@ -2,9 +2,6 @@
     "compilerOptions": {
         "outDir": "../dist",
         "declaration": true,
-        "resolveJsonModule": true,
-        "allowSyntheticDefaultImports": true,
-        "sourceMap": true,
         "noUnusedLocals": false
     },
     "include": ["../src/**/*"],
