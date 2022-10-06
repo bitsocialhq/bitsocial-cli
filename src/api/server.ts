@@ -25,6 +25,12 @@ export async function startApi(apiPort: number, ipfsApiEndpoint: string) {
         return res.send(swaggerHtml);
     });
 
+    app.use(function notFoundHandler(_req, res: ExResponse) {
+        res.status(404).send({
+            message: "Not Found"
+        });
+    });
+
     app.listen(apiPort, () =>
         console.log(
             `Plebbit API listening at http://localhost:${apiPort}\nYou can find API documentation at: http://localhost:${apiPort}/api/v0/docs`
