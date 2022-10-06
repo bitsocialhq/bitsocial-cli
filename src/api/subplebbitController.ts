@@ -1,3 +1,4 @@
+import { RUNNING_SUBPLEBBITS } from "@plebbit/plebbit-js/dist/node/subplebbit.js";
 import { Controller, Post, Route } from "tsoa";
 import { SubplebbitList } from "../types.js";
 import { sharedSingleton } from "./server.js";
@@ -8,7 +9,7 @@ export class SubplebbitController extends Controller {
     public async list(): Promise<SubplebbitList> {
         return Promise.all(
             (await sharedSingleton.plebbit.listSubplebbits()).map((subAddress) => {
-                return { title: "TODO", address: subAddress, status: "off" };
+                return { address: subAddress, started: Boolean(RUNNING_SUBPLEBBITS[subAddress]) };
             })
         );
     }
