@@ -36,6 +36,8 @@ async function startIpfsNode(apiPortNumber: number, gatewayPortNumber: number): 
     return new Promise(async (resolve, reject) => {
         const log = Logger("plebbit-cli:startIpfsNode");
 
+        await fs.mkdirp(paths.data);
+
         const ipfsDataPath = path.join(paths.data, "ipfs");
         const ipfsExePath = _getIpfsExecutablePath();
         log.trace(`IpfsDataPath (${ipfsDataPath}), ipfsExePath (${ipfsExePath})`);
