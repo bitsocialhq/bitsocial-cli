@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
 import { expect } from "chai";
 import { CreateSubplebbitOptions, SubplebbitType } from "@plebbit/plebbit-js/dist/node/types.js";
+import { SubplebbitList } from "../../src/types.js";
 const baseUrl = `http://localhost:${process.env["PLEBBIT_API_PORT"]}/api/v0/subplebbit`;
 let createdSubplebbit: SubplebbitType;
 describe("/api/v0/subplebbit/create", async () => {
@@ -34,5 +35,16 @@ describe("/api/v0/subplebbit/create", async () => {
 });
 
 describe(`/api/v0/subplebbit/list`, async () => {
-    
+    const listUrl = `${baseUrl}/list`;
+
+    it(`Newly created subplebbit is listed`, async () => {
+        const res = await fetch(listUrl, {
+            method: "POST"
+        });
+        const subs: SubplebbitList = <SubplebbitList>await res.json();
+        const createdSubFromList = subs.filter((sub) => sub.address === createdSubplebbit.address)[0];
+        expect(createdSubFromList).to.be.a("object");
+        expect(createdSubFromList?.address).to.equal(createdSubplebbit.address);
+        expect(createdSubFromList?.started).to.be.false;
+    });
 });
