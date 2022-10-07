@@ -13,7 +13,7 @@ describe("/api/v0/subplebbit/create", async () => {
         expect(res.statusText).to.equal("Request body is invalid as a JSON");
     });
 
-    it(`Can create a subplebbit successfully`, async () => {
+    it(`Can create a new subplebbit successfully`, async () => {
         const subProps: CreateSubplebbitOptions = {
             title: "Memes" + Date.now(),
             description: "Post your memes here."
@@ -31,6 +31,21 @@ describe("/api/v0/subplebbit/create", async () => {
         expect(createdSubplebbit.encryption).to.include.all.keys(["type", "publicKey"]);
         expect(createdSubplebbit.pubsubTopic).to.be.equal(createdSubplebbit.address);
         expect(createdSubplebbit.title).to.equal(subProps.title);
+    });
+
+    it(`Can retrieve a subplebbit instance with only {address}`, async () => {
+        const subProps: CreateSubplebbitOptions = {
+            address: createdSubplebbit.address
+        };
+        const res = await fetch(createUrl, {
+            method: "POST",
+            body: JSON.stringify(subProps),
+            headers: { "content-type": "application/json" }
+        });
+        expect(res.status).to.equal(200);
+        const retrievedSubplebbit: SubplebbitType = <SubplebbitType>await res.json();
+
+        expect(retrievedSubplebbit).to.deep.equal(createdSubplebbit);
     });
 });
 
