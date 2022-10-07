@@ -11,14 +11,14 @@
         "strictPropertyInitialization": true,
         "noImplicitThis": true,
         "alwaysStrict": true,
-        "importsNotUsedAsValues": "remove",    
+        "importsNotUsedAsValues": "remove",
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "exactOptionalPropertyTypes": false,
 
         "moduleResolution": "Node16",
         "baseUrl": ".",
-        "esModuleInterop": true,
+        "esModuleInterop": true
     },
     "include": ["../src/**/*"],
     "exclude": ["../node_modules"],
