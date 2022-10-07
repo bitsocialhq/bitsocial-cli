@@ -1,0 +1,37 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "args": [
+                "--timeout",
+                "999999",
+                "--config",
+                "config/.mocharc.json",
+                "-p",
+                "${workspaceFolder}/config/tsconfig.json",
+                "${workspaceFolder}/test/api/subplebbit.test.ts"
+            ],
+            "internalConsoleOptions": "openOnFirstSessionStart",
+            "console": "integratedTerminal",
+            "name": "(API) subplebbit.test.ts",
+            "program": "${workspaceFolder}/node_modules/ts-mocha/bin/ts-mocha",
+            "request": "launch",
+            "skipFiles": ["<node_internals>/**"],
+            "type": "node",
+            "env": { "DEBUG": "plebbit*", "PLEBBIT_API_PORT": "32431" }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "API dev",
+            "skipFiles": ["<node_internals>/**"],
+            "program": "${workspaceFolder}/dist/src/api/server.js",
+            "console": "integratedTerminal",
+
+            "env": { "IPFS_API_ENDPOINT": "http://localhost:32429/api/v0", "PLEBBIT_API_PORT": "32431" }
+        }
+    ]
+}
