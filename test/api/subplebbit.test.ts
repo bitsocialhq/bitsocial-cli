@@ -61,7 +61,7 @@ describe("/api/v0/subplebbit/create", async () => {
     });
 });
 
-describe(`/api/v0/subplebbit/start`, async () => {
+describe(`/api/v0/subplebbit/{start, stop}`, async () => {
     let startedSubplebbit: SubplebbitType;
     before(async () => {
         startedSubplebbit = <SubplebbitType>await (
@@ -95,15 +95,33 @@ describe(`/api/v0/subplebbit/start`, async () => {
         });
     });
 
-    it(`Request fails with documented error if subplebbit is already started`, async () => {
+    it(`Start fails with documented error if subplebbit is already started`, async () => {
         const startRes = await fetch(`${baseUrl}/start?address=${startedSubplebbit.address}`, { method: "POST" });
         expect(startRes.status).to.equal(statusCodes.ERR_SUB_ALREADY_STARTED);
         expect(startRes.statusText).to.equal(statusMessages.ERR_SUB_ALREADY_STARTED);
     });
-    it(`Request fails with documented error if subplebbit has not been created`, async () => {
+    it(`Start fails with documented error if subplebbit has not been created`, async () => {
         const startRes = await fetch(`${baseUrl}/start?address=gibbreish`, { method: "POST" });
         expect(startRes.status).to.equal(statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
         expect(startRes.statusText).to.equal(statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
+    });
+
+    it(`Stop fails with documented error if subplebbit has not been created`, async () => {
+        const stopRes = await fetch(`${baseUrl}/stop?address=gibbreish`, { method: "POST" });
+        expect(stopRes.status).to.equal(statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
+        expect(stopRes.statusText).to.equal(statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
+    });
+
+    it(`Can stop subplebbit successfully`, async () => {
+        const stopRes = await fetch(`${baseUrl}/stop?address=${startedSubplebbit.address}`, { method: "POST" });
+        expect(stopRes.status).to.equal(statusCodes.SUCCESS_SUBPLEBBIT_STOPPED);
+        expect(stopRes.statusText).to.equal(statusMessages.SUCCESS_SUBPLEBBIT_STOPPED);
+    });
+
+    it(`Stop fails with documented error if subplebbit has already been stopped`, async () => {
+        const stopRes = await fetch(`${baseUrl}/stop?address=${startedSubplebbit.address}`, { method: "POST" });
+        expect(stopRes.status).to.equal(statusCodes.ERR_SUBPLEBBIT_NOT_RUNNING);
+        expect(stopRes.statusText).to.equal(statusMessages.ERR_SUBPLEBBIT_NOT_RUNNING);
     });
 });
 
