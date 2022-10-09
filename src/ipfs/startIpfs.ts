@@ -57,8 +57,8 @@ async function startIpfsNode(apiPortNumber: number, gatewayPortNumber: number): 
 
         await _spawnAsync(ipfsExePath, ["config", "Addresses.API", `/ip4/127.0.0.1/tcp/${apiPortNumber}`], { env, hideWindows: true });
 
-        const ipfsProcess: ChildProcessWithoutNullStreams = spawn(
-            ipfsExePath,
+        await _spawnAsync(ipfsExePath, ["bootstrap", "rm", "--all"], { env });
+
         const daemonArgs = process.env["OFFLINE_MODE"] === "1" ? ["--offline"] : ["--enable-pubsub-experiment", "--enable-namesys-pubsub"];
 
         const ipfsProcess: ChildProcessWithoutNullStreams = spawn(ipfsExePath, ["daemon", ...daemonArgs], { env });
