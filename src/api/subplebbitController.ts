@@ -6,7 +6,7 @@ import { Request as ExRequest } from "express";
 
 import { SubplebbitList } from "../types.js";
 import { sharedSingleton } from "./server.js";
-import { statusCodes, statusMessages } from "./ResponseStatuses.js";
+import { statusCodes, statusMessages } from "./responseStatuses.js";
 import { ApiError } from "./apiError.js";
 import { ApiResponse } from "./apiResponse.js";
 
