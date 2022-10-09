@@ -1,5 +1,6 @@
 // import PlebbitIndex from "@plebbit/plebbit-js";
 import Logger from "@plebbit/plebbit-logger";
+import envPaths from "env-paths";
 import { startApi } from "../api/server.js";
 import startIpfsNode from "../ipfs/startIpfs.js";
 
@@ -39,6 +40,12 @@ export async function get(input: string, options: any) {
 }
 
 export async function daemon() {
-    await startIpfsNode(defaultIpfsApiPort, defaultIpfsGatewayPort); // TODO permit user to provide their own api and gateway port number
-    await startApi(defaultIpfsApiPort, `http://localhost:${defaultIpfsApiPort}/api/v0`, `http://localhost:${defaultIpfsApiPort}/api/v0`);
+    const defaultPlebbitDataPath = envPaths("plebbit", { suffix: "" }).data;
+    await startIpfsNode(defaultIpfsApiPort, defaultIpfsGatewayPort); // TODO permit user to provide their own api and gateway and also plebbit data path port number
+    await startApi(
+        defaultIpfsApiPort,
+        `http://localhost:${defaultIpfsApiPort}/api/v0`,
+        `http://localhost:${defaultIpfsApiPort}/api/v0`,
+        defaultPlebbitDataPath
+    );
 }

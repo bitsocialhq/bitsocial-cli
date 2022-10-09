@@ -40,7 +40,8 @@ export class SubplebbitController extends Controller {
 
     /**
      * Start a subplebbit that has been created before. Subplebbit will be receiving new challenges through pubsub and publish a new IPNS record to be consumed by end users
-     * Note: If this is the first time you're starting the subplebbit, expect It will take minutes to respond.
+     *
+     *  Note: If this the first time you're starting the subplebbit, you should expect a a response within 2 minutes.
      * @param address The address of the subplebbit to be started
      *
      */

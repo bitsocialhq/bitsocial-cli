@@ -2,7 +2,6 @@ import express, { Response as ExResponse, Request as ExRequest, json, NextFuncti
 import { RegisterRoutes } from "../../build/routes.js";
 import swaggerUi from "swagger-ui-express";
 import fs from "fs-extra";
-import envPaths from "env-paths";
 import Plebbit from "@plebbit/plebbit-js";
 import { SharedSingleton } from "../types.js";
 import { ValidateError } from "tsoa";
@@ -14,17 +13,15 @@ import { ApiResponse } from "./apiResponse.js";
 
 const swaggerHtml = swaggerUi.generateHTML(JSON.parse((await fs.promises.readFile("build/swagger.json")).toString()));
 
-const paths = envPaths("plebbit", { suffix: "" });
-
 export let sharedSingleton: SharedSingleton;
 
-export async function startApi(apiPort: number, ipfsApiEndpoint: string, ipfsPubsubApiEndpoint: string) {
+export async function startApi(apiPort: number, ipfsApiEndpoint: string, ipfsPubsubApiEndpoint: string, plebbitDataPath: string) {
     const log = Logger("plebbit-cli:server");
     sharedSingleton = {
         plebbit: await Plebbit({
             ipfsHttpClientOptions: ipfsApiEndpoint,
             pubsubHttpClientOptions: ipfsPubsubApiEndpoint,
-            dataPath: paths.data
+            dataPath: plebbitDataPath
         }),
         subs: {}
     };
@@ -95,11 +92,13 @@ export async function startApi(apiPort: number, ipfsApiEndpoint: string, ipfsPub
 if (
     typeof process.env["PLEBBIT_API_PORT"] !== "string" ||
     typeof process.env["IPFS_PUBSUB_PORT"] !== "string" ||
-    typeof process.env["IPFS_PORT"] !== "string"
+    typeof process.env["IPFS_PORT"] !== "string" ||
+    typeof process.env["PLEBBIT_DATA_PATH"] !== "string"
 )
-    throw Error("You need to set all env variables PLEBBIT_API_PORT, IPFS_PUBSUB_PORT, IPFS_PORT");
+    throw Error("You need to set all env variables PLEBBIT_API_PORT, IPFS_PUBSUB_PORT, IPFS_PORT, PLEBBIT_DATA_PATH");
 startApi(
     parseInt(process.env["PLEBBIT_API_PORT"]),
     `http://localhost:${process.env["IPFS_PORT"]}/api/v0`,
-    `http://localhost:${process.env["IPFS_PUBSUB_PORT"]}/api/v0`
+    `http://localhost:${process.env["IPFS_PUBSUB_PORT"]}/api/v0`,
+    process.env["PLEBBIT_DATA_PATH"]
 );
