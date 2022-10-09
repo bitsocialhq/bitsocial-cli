@@ -18,11 +18,12 @@ const paths = envPaths("plebbit", { suffix: "" });
 
 export let sharedSingleton: SharedSingleton;
 
-export async function startApi(apiPort: number, ipfsApiEndpoint: string) {
+export async function startApi(apiPort: number, ipfsApiEndpoint: string, ipfsPubsubApiEndpoint: string) {
     const log = Logger("plebbit-cli:server");
     sharedSingleton = {
         plebbit: await Plebbit({
             ipfsHttpClientOptions: ipfsApiEndpoint,
+            pubsubHttpClientOptions: ipfsPubsubApiEndpoint,
             dataPath: paths.data
         }),
         subs: {}
@@ -91,6 +92,14 @@ export async function startApi(apiPort: number, ipfsApiEndpoint: string) {
     );
 }
 
-if (typeof process.env["PLEBBIT_API_PORT"] !== "string" || typeof process.env["IPFS_API_ENDPOINT"] !== "string")
-    throw Error("You need to set both env variables PLEBBIT_API_PORT and IPFS_API_ENDPOINT");
-startApi(parseInt(process.env["PLEBBIT_API_PORT"]), process.env["IPFS_API_ENDPOINT"]);
+if (
+    typeof process.env["PLEBBIT_API_PORT"] !== "string" ||
+    typeof process.env["IPFS_PUBSUB_PORT"] !== "string" ||
+    typeof process.env["IPFS_PORT"] !== "string"
+)
+    throw Error("You need to set all env variables PLEBBIT_API_PORT, IPFS_PUBSUB_PORT, IPFS_PORT");
+startApi(
+    parseInt(process.env["PLEBBIT_API_PORT"]),
+    `http://localhost:${process.env["IPFS_PORT"]}/api/v0`,
+    `http://localhost:${process.env["IPFS_PUBSUB_PORT"]}/api/v0`
+);

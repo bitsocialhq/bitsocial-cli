@@ -38,7 +38,7 @@ async function startIpfsNode(apiPortNumber: number, gatewayPortNumber: number): 
 
         await fs.mkdirp(paths.data);
 
-        const ipfsDataPath = path.join(paths.data, "ipfs");
+        const ipfsDataPath = process.env["IPFS_PATH"] || path.join(paths.data, "ipfs");
         const ipfsExePath = _getIpfsExecutablePath();
         log.trace(`IpfsDataPath (${ipfsDataPath}), ipfsExePath (${ipfsExePath})`);
         await fs.ensureDir(ipfsDataPath);
@@ -59,9 +59,9 @@ async function startIpfsNode(apiPortNumber: number, gatewayPortNumber: number): 
 
         const ipfsProcess: ChildProcessWithoutNullStreams = spawn(
             ipfsExePath,
-            ["daemon", "--enable-pubsub-experiment", "--enable-namesys-pubsub"],
-            { env }
-        );
+        const daemonArgs = process.env["OFFLINE_MODE"] === "1" ? ["--offline"] : ["--enable-pubsub-experiment", "--enable-namesys-pubsub"];
+
+        const ipfsProcess: ChildProcessWithoutNullStreams = spawn(ipfsExePath, ["daemon", ...daemonArgs], { env });
         console.log(`ipfs daemon process started with pid ${ipfsProcess.pid}`);
         let lastError: string;
         ipfsProcess.stderr.on("data", (data) => {

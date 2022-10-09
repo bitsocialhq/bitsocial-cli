@@ -1,7 +1,7 @@
 // import PlebbitIndex from "@plebbit/plebbit-js";
 import Logger from "@plebbit/plebbit-logger";
+import { startApi } from "../api/server.js";
 import startIpfsNode from "../ipfs/startIpfs.js";
-import * as isIPFS from "is-ipfs";
 
 const [defaultIpfsApiPort, defaultIpfsGatewayPort] = [32429, 32430];
 
@@ -40,4 +40,5 @@ export async function get(input: string, options: any) {
 
 export async function daemon() {
     await startIpfsNode(defaultIpfsApiPort, defaultIpfsGatewayPort); // TODO permit user to provide their own api and gateway port number
+    await startApi(defaultIpfsApiPort, `http://localhost:${defaultIpfsApiPort}/api/v0`, `http://localhost:${defaultIpfsApiPort}/api/v0`);
 }

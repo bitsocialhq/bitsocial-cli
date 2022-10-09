@@ -13,13 +13,13 @@
         "plebbit": "./dist/index.js"
     },
     "scripts": {
-        "apiDev": "IPFS_API_ENDPOINT=http://localhost:32429/api/v0 PLEBBIT_API_PORT=32431 nodemon --config config/apiDev.nodemon.json",
         "build": "tsoa spec-and-routes -c config/tsoa.json && tsc --project config/tsconfig.json",
         "build:watch": "nodemon --config config/build.nodemon.json",
         "build:executables": "pkg . --out-path executables/",
-        "startApi": " node dist/src/api/server.js",
-        "startIpfs": "IPFS_API_PORT=32429 IPFS_GATEWAY_PORT=32430 node dist/src/ipfs/startIpfs.js",
-        "test:api": "PLEBBIT_API_PORT=32431 ts-mocha --config config/.mocharc.json -p config/tsconfig.json test/api/*.test.ts"
+        "start:api": "IPFS_PORT=32429 IPFS_PUBSUB_PORT=32427 PLEBBIT_API_PORT=32431 node dist/src/api/server.js",
+        "start:api:watch": "IPFS_PORT=32429 IPFS_PUBSUB_PORT=32427 PLEBBIT_API_PORT=32431 nodemon --config config/apiDev.nodemon.json",
+        "start:ipfs": "IPFS_API_PORT=32429 IPFS_GATEWAY_PORT=32430 IPFS_PATH=/tmp/.ipfs1 OFFLINE_MODE=1 node dist/src/ipfs/startIpfs.js & IPFS_API_PORT=32427 IPFS_GATEWAY_PORT=32428 node dist/src/ipfs/startIpfs.js",
+        "test:api": "PLEBBIT_API_PORT=32431 IPFS_PORT=32429 IPFS_PUBSUB_PORT=32427 ts-mocha --config config/.mocharc.json -p config/tsconfig.json test/api/*.test.ts"
     },
     "devDependencies": {
         "@tsconfig/node16-strictest-esm": "1.0.3",
