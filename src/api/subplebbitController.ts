@@ -56,7 +56,7 @@ export class SubplebbitController extends Controller {
             await sharedSingleton.subs[address].start();
         } catch (e) {
             if (e instanceof Error && e.message === plebbitErrorMessages.ERR_SUB_ALREADY_STARTED)
-                throw new ApiError(e.message, statusCodes.ERR_SUB_ALREADY_STARTED);
+                throw new ApiError(statusMessages.ERR_SUB_ALREADY_STARTED, statusCodes.ERR_SUB_ALREADY_STARTED);
             else throw e;
         }
         throw new ApiResponse(statusMessages.SUCCESS_SUBPLEBBIT_STARTED, statusCodes.SUCCESS_SUBPLEBBIT_STARTED, undefined);
