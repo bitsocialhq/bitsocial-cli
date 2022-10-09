@@ -70,10 +70,14 @@ export class SubplebbitController extends Controller {
      */
     @SuccessResponse(statusCodes.SUCCESS_SUBPLEBBIT_STOPPED, statusMessages.SUCCESS_SUBPLEBBIT_STOPPED)
     @Response(statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST, statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST)
+    @Response(statusCodes.ERR_SUBPLEBBIT_NOT_RUNNING, statusMessages.ERR_SUBPLEBBIT_NOT_RUNNING)
     @Post("stop")
     public async stop(@Query("address") address: string): Promise<void> {
         if (!(address in sharedSingleton.subs))
             throw new ApiError(statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
+        if (sharedSingleton.subs[address]?.dbHandler === undefined)
+            // If db handler is undefined that means the subplebbit is not running
+            throw new ApiError(statusMessages.ERR_SUBPLEBBIT_NOT_RUNNING, statusCodes.ERR_SUBPLEBBIT_NOT_RUNNING);
         await sharedSingleton.subs[address]?.stop();
         throw new ApiResponse(statusMessages.SUCCESS_SUBPLEBBIT_STOPPED, statusCodes.SUCCESS_SUBPLEBBIT_STOPPED, undefined);
     }
