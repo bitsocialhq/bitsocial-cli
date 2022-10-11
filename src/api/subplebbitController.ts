@@ -1,8 +1,7 @@
 import { RUNNING_SUBPLEBBITS } from "@plebbit/plebbit-js/dist/node/subplebbit.js";
-import { CreateSubplebbitOptions, SubplebbitType } from "@plebbit/plebbit-js/dist/node/types.js";
+import { CreateSubplebbitOptions, SubplebbitEditOptions, SubplebbitType } from "@plebbit/plebbit-js/dist/node/types.js";
 import { messages as plebbitErrorMessages } from "@plebbit/plebbit-js/dist/node/errors.js";
-import { Controller, Post, Route, Body, Query, SuccessResponse, Response, Request } from "tsoa";
-import { Request as ExRequest } from "express";
+import { Controller, Post, Route, Body, Query, SuccessResponse, Response } from "tsoa";
 
 import { SubplebbitList } from "../types.js";
 import { sharedSingleton } from "./server.js";
@@ -29,11 +28,9 @@ export class SubplebbitController extends Controller {
     @SuccessResponse(statusCodes.SUCCESS_SUBPLEBBIT_CREATED, statusMessages.SUCCESS_SUBPLEBBIT_CREATED)
     @Response(statusCodes.ERR_INVALID_JSON_FOR_REQUEST_BODY, statusMessages.ERR_INVALID_JSON_FOR_REQUEST_BODY)
     @Post("create")
-    public async create(@Body() requestBody: CreateSubplebbitOptions, @Request() request: ExRequest): Promise<SubplebbitType> {
+    public async create(@Body() requestBody: CreateSubplebbitOptions): Promise<SubplebbitType> {
         const sub = await sharedSingleton.plebbit.createSubplebbit(requestBody);
         sharedSingleton.subs[sub.address] = sub;
-
-        request.statusMessage = statusMessages.SUCCESS_SUBPLEBBIT_CREATED;
 
         throw new ApiResponse(statusMessages.SUCCESS_SUBPLEBBIT_CREATED, statusCodes.SUCCESS_SUBPLEBBIT_CREATED, sub.toJSON());
     }
@@ -68,7 +65,7 @@ export class SubplebbitController extends Controller {
     /**
      * Stop a running subplebbit
      *
-     * @param address The address of the subplebbit to be started
+     * @param address The address of the subplebbit to be stopped
      *
      */
     @SuccessResponse(statusCodes.SUCCESS_SUBPLEBBIT_STOPPED, statusMessages.SUCCESS_SUBPLEBBIT_STOPPED)
@@ -83,5 +80,25 @@ export class SubplebbitController extends Controller {
             throw new ApiError(statusMessages.ERR_SUBPLEBBIT_NOT_RUNNING, statusCodes.ERR_SUBPLEBBIT_NOT_RUNNING);
         await sharedSingleton.subs[address]?.stop();
         throw new ApiResponse(statusMessages.SUCCESS_SUBPLEBBIT_STOPPED, statusCodes.SUCCESS_SUBPLEBBIT_STOPPED, undefined);
+    }
+
+    /**
+     * Edit subplebbit fields
+     *
+     * @param requestBody The fields to change within subplebbit
+     * @param address The address of the subplebbit to be edited
+     *
+     */
+    @SuccessResponse(statusCodes.SUCCESS_SUBPLEBBIT_EDITED, statusMessages.SUCCESS_SUBPLEBBIT_EDITED)
+    @Response(statusCodes.ERR_INVALID_JSON_FOR_REQUEST_BODY, statusMessages.ERR_INVALID_JSON_FOR_REQUEST_BODY)
+    @Response(statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST, statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST)
+    @Post("edit")
+    public async edit(@Query("address") address: string, @Body() requestBody: SubplebbitEditOptions): Promise<void> {
+        if (!(address in sharedSingleton.subs) && address in (await sharedSingleton.plebbit.listSubplebbits()))
+            sharedSingleton.subs[address] = await sharedSingleton.plebbit.createSubplebbit({ address });
+        if (!(address in sharedSingleton.subs))
+            throw new ApiError(statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
+        await sharedSingleton.subs[address]?.edit(requestBody);
+        throw new ApiResponse(statusMessages.SUCCESS_SUBPLEBBIT_EDITED, statusCodes.SUCCESS_SUBPLEBBIT_EDITED, undefined);
     }
 }
