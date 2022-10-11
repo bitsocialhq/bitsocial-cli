@@ -161,3 +161,46 @@ describe(`/api/v0/subplebbit/list`, async () => {
         expect(createdSubFromList?.started).to.be.false;
     });
 });
+
+describe(`/api/v0/subplebbit/edit`, async () => {
+    let subplebbit: SubplebbitType;
+    before(async () => {
+        subplebbit = <SubplebbitType>await (await fetch(`${baseUrl}/create`, { method: "POST" })).json();
+    });
+
+    it(`Can edit successfully`, async () => {
+        const newTitle = "title" + Date.now();
+        const editRes = await fetch(`${baseUrl}/edit?address=${subplebbit.address}`, {
+            method: "POST",
+            body: JSON.stringify({ title: newTitle }),
+            headers: { "content-type": "application/json" }
+        });
+        expect(editRes.status).to.equal(statusCodes.SUCCESS_SUBPLEBBIT_EDITED);
+        expect(editRes.statusText).to.equal(statusMessages.SUCCESS_SUBPLEBBIT_EDITED);
+        const subplebbitRecreated = <SubplebbitType>await (
+            await fetch(`${baseUrl}/create?address=${subplebbit.address}`, {
+                method: "POST",
+                body: JSON.stringify({ address: subplebbit.address }),
+                headers: { "content-type": "application/json" }
+            })
+        ).json();
+        expect(subplebbitRecreated.title).to.equal(newTitle);
+    });
+
+    it(`Edit fails with documented error if subplebbit has not been created`, async () => {
+        const startRes = await fetch(`${baseUrl}/edit?address=gibbreish`, { method: "POST" });
+        expect(startRes.status).to.equal(statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
+        expect(startRes.statusText).to.equal(statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
+    });
+
+    it("Edit Request fails with documented error if invalid json was provided", async () => {
+        const invalidJson: string = JSON.stringify({ test: "zz" }).slice(1); // Delete first character, should make the string unparsable
+        const res = await fetch(`${baseUrl}/edit?address=${subplebbit.address}`, {
+            method: "POST",
+            body: invalidJson,
+            headers: { "content-type": "application/json" }
+        });
+        expect(res.status).to.equal(statusCodes.ERR_INVALID_JSON_FOR_REQUEST_BODY);
+        expect(res.statusText).to.equal(statusMessages.ERR_INVALID_JSON_FOR_REQUEST_BODY);
+    });
+});
