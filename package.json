@@ -2,16 +2,17 @@
     "name": "plebbit-cli",
     "version": "0.0.1",
     "description": "Command line interface to Plebbit API",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
+    "main": "./dist/src/cli/index.js",
+    "types": "./dist/src/cli/index.d.ts",
     "repository": "git@github.com:plebbit/plebbit-cli.git",
     "author": "Esteban Abaroa, Rinse",
     "license": "GPL-2.0-only",
     "type": "module",
     "private": false,
     "bin": {
-        "plebbit": "./dist/index.js"
+        "plebbit": "./dist/src/cli/index.js"
     },
+    "exports": "./dist/src/cli/index.js",
     "scripts": {
         "build": "tsoa spec-and-routes -c config/tsoa.json && tsc --project config/tsconfig.json",
         "build:watch": "nodemon --config config/build.nodemon.json",
