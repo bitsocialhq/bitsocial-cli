@@ -32,7 +32,7 @@ function _spawnAsync(...args: any[]) {
         spawedProcess.on("error", (data) => console.error(data.toString()));
     });
 }
-async function startIpfsNode(apiPortNumber: number, gatewayPortNumber: number): Promise<{ pid: number }> {
+export async function startIpfsNode(apiPortNumber: number, gatewayPortNumber: number, testing: boolean): Promise<{ pid: number }> {
     return new Promise(async (resolve, reject) => {
         const log = Logger("plebbit-cli:startIpfsNode");
 
@@ -57,7 +57,7 @@ async function startIpfsNode(apiPortNumber: number, gatewayPortNumber: number): 
 
         await _spawnAsync(ipfsExePath, ["config", "Addresses.API", `/ip4/127.0.0.1/tcp/${apiPortNumber}`], { env, hideWindows: true });
 
-        await _spawnAsync(ipfsExePath, ["bootstrap", "rm", "--all"], { env });
+        if (testing) await _spawnAsync(ipfsExePath, ["bootstrap", "rm", "--all"], { env });
 
         const daemonArgs = process.env["OFFLINE_MODE"] === "1" ? ["--offline"] : ["--enable-pubsub-experiment", "--enable-namesys-pubsub"];
 
@@ -83,10 +83,3 @@ async function startIpfsNode(apiPortNumber: number, gatewayPortNumber: number): 
         });
     });
 }
-
-export default startIpfsNode;
-
-if (typeof process.env["IPFS_API_PORT"] !== "string" || typeof process.env["IPFS_GATEWAY_PORT"] !== "string")
-    throw Error("You need to set both env variables IPFS_API_PORT and IPFS_GATEWAY_PORT");
-
-await startIpfsNode(parseInt(process.env["IPFS_API_PORT"]), parseInt(process.env["IPFS_GATEWAY_PORT"])); // For "yarn dev"
