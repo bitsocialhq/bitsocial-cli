@@ -17,9 +17,7 @@ export async function get(input: string, options: any) {
 }
 
 export async function daemon(options: { plebbitDataPath: string; plebbitApiPort: string; ipfsApiPort: string; ipfsGatewayPort: string }) {
-    console.log(options);
     await startIpfsNode(parseInt(options.ipfsApiPort), parseInt(options.ipfsGatewayPort), false); // TODO permit user to provide their own api and gateway and also plebbit data path port number
-    console.log(`Resolved ipfs node startup`);
     await startApi(
         parseInt(options.plebbitApiPort),
         `http://localhost:${options.ipfsApiPort}/api/v0`,

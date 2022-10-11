@@ -6,6 +6,7 @@ import fs from "fs-extra";
 import assert from "assert";
 
 const paths = envPaths("plebbit", { suffix: "" });
+const log = Logger("plebbit-cli:startIpfsNode");
 
 function _getIpfsExecutablePath(): string {
     const platform: "linux" | "mac" | "win" | undefined =
@@ -26,16 +27,14 @@ function _spawnAsync(...args: any[]) {
             if (exitCode === 0) resolve(null);
             else reject(Error(`spawnAsync process '${spawedProcess.pid}' exited with code '${exitCode}' signal '${signal}'`));
         });
-        spawedProcess.stderr.on("data", (data) => console.error(data.toString()));
-        spawedProcess.stdin.on("data", (data) => console.log(data.toString()));
-        spawedProcess.stdout.on("data", (data) => console.log(data.toString()));
-        spawedProcess.on("error", (data) => console.error(data.toString()));
+        spawedProcess.stderr.on("data", (data) => log.trace(data.toString()));
+        spawedProcess.stdin.on("data", (data) => log.trace(data.toString()));
+        spawedProcess.stdout.on("data", (data) => log.trace(data.toString()));
+        spawedProcess.on("error", (data) => log.error(data.toString()));
     });
 }
 export async function startIpfsNode(apiPortNumber: number, gatewayPortNumber: number, testing: boolean): Promise<{ pid: number }> {
     return new Promise(async (resolve, reject) => {
-        const log = Logger("plebbit-cli:startIpfsNode");
-
         await fs.mkdirp(paths.data);
 
         const ipfsDataPath = process.env["IPFS_PATH"] || path.join(paths.data, "ipfs");
@@ -62,21 +61,20 @@ export async function startIpfsNode(apiPortNumber: number, gatewayPortNumber: nu
         const daemonArgs = process.env["OFFLINE_MODE"] === "1" ? ["--offline"] : ["--enable-pubsub-experiment", "--enable-namesys-pubsub"];
 
         const ipfsProcess: ChildProcessWithoutNullStreams = spawn(ipfsExePath, ["daemon", ...daemonArgs], { env });
-        console.log(`ipfs daemon process started with pid ${ipfsProcess.pid}`);
+        log.trace(`ipfs daemon process started with pid ${ipfsProcess.pid}`);
         let lastError: string;
         ipfsProcess.stderr.on("data", (data) => {
             lastError = data.toString();
-            console.error(data.toString());
+            log.error(data.toString());
         });
-        ipfsProcess.stdin.on("data", (data) => console.log(data.toString()));
+        ipfsProcess.stdin.on("data", (data) => log.trace(data.toString()));
         ipfsProcess.stdout.on("data", (data) => {
-            console.log(data.toString());
-            if (typeof data === "string" && data.match("Daemon is ready")) {
+            if (data.toString().match("Daemon is ready")) {
                 assert(typeof ipfsProcess.pid === "number", `ipfsProcess.pid (${ipfsProcess.pid}) is not a valid pid`);
                 resolve({ pid: ipfsProcess.pid });
             }
         });
-        ipfsProcess.on("error", (data) => console.error(data.toString()));
+        ipfsProcess.on("error", (data) => log.error(data.toString()));
         ipfsProcess.on("exit", () => {
             console.error(`ipfs process with pid ${ipfsProcess.pid} exited`);
             reject(Error(lastError));
