@@ -50,6 +50,8 @@ export class SubplebbitController extends Controller {
     @Response(statusCodes.ERR_SUB_ALREADY_STARTED, statusMessages.ERR_SUB_ALREADY_STARTED)
     @Post("start")
     public async start(@Query("address") address: string): Promise<void> {
+        if (!(address in sharedSingleton.subs) && address in (await sharedSingleton.plebbit.listSubplebbits()))
+            sharedSingleton.subs[address] = await sharedSingleton.plebbit.createSubplebbit({ address });
         if (!(address in sharedSingleton.subs))
             throw new ApiError(statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
         try {
