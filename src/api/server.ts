@@ -15,7 +15,7 @@ const swaggerHtml = swaggerUi.generateHTML(JSON.parse((await fs.promises.readFil
 
 export let sharedSingleton: SharedSingleton;
 
-export async function startApi(apiPort: number, ipfsApiEndpoint: string, ipfsPubsubApiEndpoint: string, plebbitDataPath: string) {
+export async function startApi(plebbitApiPort: number, ipfsApiEndpoint: string, ipfsPubsubApiEndpoint: string, plebbitDataPath: string) {
     const log = Logger("plebbit-cli:server");
     sharedSingleton = {
         plebbit: await Plebbit({
@@ -82,9 +82,9 @@ export async function startApi(apiPort: number, ipfsApiEndpoint: string, ipfsPub
         await Promise.all(Object.values(sharedSingleton.subs).map((sub) => sub.stop())); // Stop all running subs
     });
 
-    app.listen(apiPort, () =>
+    app.listen(plebbitApiPort, () =>
         console.log(
-            `Plebbit API listening at http://localhost:${apiPort}\nYou can find API documentation at: http://localhost:${apiPort}/api/v0/docs`
+            `Plebbit API listening at http://localhost:${plebbitApiPort}\nYou can find API documentation at: http://localhost:${plebbitApiPort}/api/v0/docs`
         )
     );
 }
