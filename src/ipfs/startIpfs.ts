@@ -71,6 +71,7 @@ export async function startIpfsNode(apiPortNumber: number, gatewayPortNumber: nu
         ipfsProcess.stdout.on("data", (data) => {
             if (data.toString().match("Daemon is ready")) {
                 assert(typeof ipfsProcess.pid === "number", `ipfsProcess.pid (${ipfsProcess.pid}) is not a valid pid`);
+                if (testing) console.log(data.toString());
                 resolve({ pid: ipfsProcess.pid });
             }
         });
