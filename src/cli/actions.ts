@@ -2,6 +2,7 @@
 import Logger from "@plebbit/plebbit-logger";
 import { startApi } from "../api/server.js";
 import { startIpfsNode } from "../ipfs/startIpfs.js";
+import { DaemonOptions } from "../types.js";
 
 async function _isDaemonUp(): Promise<boolean> {
     return false;
@@ -16,7 +17,7 @@ export async function get(input: string, options: any) {
     // Make a request to /api/v0/get and print response here
 }
 
-export async function daemon(options: { plebbitDataPath: string; plebbitApiPort: string; ipfsApiPort: string; ipfsGatewayPort: string }) {
+export async function daemon(options: DaemonOptions) {
     await startIpfsNode(parseInt(options.ipfsApiPort), parseInt(options.ipfsGatewayPort), false); // TODO permit user to provide their own api and gateway and also plebbit data path port number
     await startApi(
         parseInt(options.plebbitApiPort),
