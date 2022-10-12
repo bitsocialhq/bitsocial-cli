@@ -1,12 +1,20 @@
+#!/usr/bin/env node
 import { program } from "commander";
 import constants from "./constants.js";
 import * as actions from "./actions.js";
 import fs from "fs-extra";
 import defaults from "./defaults.js";
+import { DaemonOptions } from "../types.js";
 
 const packageJson = JSON.parse((await fs.promises.readFile("package.json")).toString());
 
 program.name("plebbit-cli").description(constants.PLEBBIT_CLI_DESCRIPTION).version(packageJson.version);
+
+// 'plebbit' options that will be passed to all commands
+
+program.option("--plebbit-api-url <url>", "URL to Plebbit API", `http://localhost:${defaults.PLEBBIT_API_PORT}`);
+
+// Root commands
 
 program
     .command("get")
@@ -29,6 +37,15 @@ program
         "Specify the gateway port of the ipfs node that will be ran",
         String(defaults.IPFS_GATEWAY_PORT)
     )
-    .action(actions.daemon);
+    .action((options: DaemonOptions) => actions.daemon({ ...program.opts(), ...options }));
+
+const subplebbitCommand = program.command("subplebbit").description(constants.CMD_SUBPLEBBIT);
+
+// Commander under "plebbit subplebbit"
+
+subplebbitCommand
+    .command("list")
+    .description(constants.CMD_SUBPLEBBIT_LIST)
+    .action(() => actions.subplebbitList(program.opts()));
 
 program.parse(process.argv);

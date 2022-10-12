@@ -2,7 +2,8 @@
 import Logger from "@plebbit/plebbit-logger";
 import { startApi } from "../api/server.js";
 import { startIpfsNode } from "../ipfs/startIpfs.js";
-import { DaemonOptions } from "../types.js";
+import { BasePlebbitOptions, DaemonOptions, SubplebbitList } from "../types.js";
+import fetch from "node-fetch";
 
 async function _isDaemonUp(): Promise<boolean> {
     return false;
@@ -25,4 +26,16 @@ export async function daemon(options: DaemonOptions) {
         `http://localhost:${options.ipfsApiPort}/api/v0`,
         options.plebbitDataPath
     );
+}
+
+export async function subplebbitList(options: BasePlebbitOptions) {
+    const url = `${options.plebbitApiUrl}/api/v0/subplebbit/list`;
+
+    const subs: SubplebbitList = <SubplebbitList>await (
+        await fetch(url, {
+            method: "POST"
+        })
+    ).json();
+
+    console.table(subs);
 }
