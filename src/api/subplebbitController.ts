@@ -8,16 +8,18 @@ import { sharedSingleton } from "./server.js";
 import { statusCodes, statusMessages } from "./responseStatuses.js";
 import { ApiError } from "./apiError.js";
 import { ApiResponse } from "./apiResponse.js";
+import { pendingSubplebbitCreations } from "@plebbit/plebbit-js/dist/node/plebbit.js";
 
 @Route("/api/v0/subplebbit")
 export class SubplebbitController extends Controller {
     @Post("list")
     public async list(): Promise<SubplebbitList> {
-        return Promise.all(
-            (await sharedSingleton.plebbit.listSubplebbits()).map((subAddress) => {
-                return { address: subAddress, started: Boolean(RUNNING_SUBPLEBBITS[subAddress]) };
-            })
-        );
+        const subsFromPlebbit = await sharedSingleton.plebbit.listSubplebbits();
+        const pendingSubs = Object.keys(pendingSubplebbitCreations).filter((address) => pendingSubplebbitCreations[address]); // Subs that are pending creations. They're omitted from plebbit.listSubplebbits so we need to add them here
+        return [
+            ...subsFromPlebbit.map((address) => ({ started: Boolean(RUNNING_SUBPLEBBITS[address]), address })),
+            ...pendingSubs.map((address) => ({ started: true, address }))
+        ];
     }
 
     /**
