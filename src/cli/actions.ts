@@ -5,15 +5,28 @@ import { startIpfsNode } from "../ipfs/startIpfs.js";
 import { BasePlebbitOptions, DaemonOptions, SubplebbitList } from "../types.js";
 import fetch from "node-fetch";
 
-async function _isDaemonUp(): Promise<boolean> {
+async function _isDaemonUp(options: BasePlebbitOptions): Promise<boolean> {
+    try {
+        const url = `${options.plebbitApiUrl}/api/v0/subplebbit/list`;
+        await (await fetch(url, { method: "POST" })).json();
+        return true;
+    } catch (e) {
     return false;
+}
+}
+
+async function _stopIfDaemonIsDown(options: BasePlebbitOptions) {
+    if (!(await _isDaemonUp(options))) {
+        console.error(`Daemon is down. Please run 'plebbit daemon' before executing this command`); // TODO move this string to a separate file
+        process.exit(1);
+    }
 }
 export async function get(input: string, options: any) {
     const log = Logger("plebbit-cli:actions:get");
 
     log.trace(`(input: ${input}, options:`, options);
 
-    if (!(await _isDaemonUp())) throw Error("Daemon is needed to execute this command. Run 'plebbit daemon' in another terminal and retry");
+    // await _stopIfDaemonIsDown()
 
     // Make a request to /api/v0/get and print response here
 }
@@ -28,7 +41,7 @@ export async function daemon(options: DaemonOptions) {
     );
 }
 
-export async function subplebbitList(options: BasePlebbitOptions) {
+    await _stopIfDaemonIsDown(options);
     const url = `${options.plebbitApiUrl}/api/v0/subplebbit/list`;
 
     const subs: SubplebbitList = <SubplebbitList>await (
