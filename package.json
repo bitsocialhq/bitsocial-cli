@@ -20,7 +20,8 @@
         "start:api": "IPFS_PORT=32429 IPFS_PUBSUB_PORT=32427 PLEBBIT_API_PORT=32431 PLEBBIT_DATA_PATH=/tmp/.plebbit node dist/test/run-test-server.js",
         "start:api:watch": "nodemon --config config/apiDev.nodemon.json",
         "start:ipfs": "IPFS_API_PORT=32429 IPFS_GATEWAY_PORT=32430 IPFS_PATH=/tmp/.ipfs1 OFFLINE_MODE=1 node dist/test/run-test-ipfs.js & IPFS_API_PORT=32427 IPFS_GATEWAY_PORT=32428 node dist/test/run-test-ipfs.js",
-        "test:api": "PLEBBIT_API_PORT=32431 IPFS_PORT=32429 IPFS_PUBSUB_PORT=32427 ts-mocha --config config/.mocharc.json -p config/tsconfig.json test/api/*.test.ts"
+        "test:api": "PLEBBIT_API_PORT=32431 IPFS_PORT=32429 IPFS_PUBSUB_PORT=32427 ts-mocha --config config/.mocharc.json -p config/tsconfig.json test/api/*.test.ts",
+        "test:cli": "PLEBBIT_API_PORT=32431 IPFS_PORT=32429 IPFS_PUBSUB_PORT=32427 ts-mocha --config config/.mocharc.json -p config/tsconfig.json test/cli/*.test.ts"
     },
     "devDependencies": {
         "@tsconfig/node16-strictest-esm": "1.0.3",
