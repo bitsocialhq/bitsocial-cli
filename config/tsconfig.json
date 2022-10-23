@@ -20,7 +20,7 @@
         "baseUrl": ".",
         "esModuleInterop": true
     },
-    "include": ["../src/**/*"],
+    "include": ["../src/**/*", "../test/**/run*.ts"],
     "exclude": ["../node_modules"],
     "extends": "@tsconfig/node16-strictest-esm/tsconfig.json"
 }
