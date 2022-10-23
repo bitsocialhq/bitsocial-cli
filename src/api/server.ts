@@ -78,9 +78,13 @@ export async function startApi(plebbitApiPort: number, ipfsApiEndpoint: string, 
         });
     });
 
-    process.on("exit", async () => {
+    const handleExit = async (signal: NodeJS.Signals) => {
+        log(`in handle exit (${signal})`);
         await Promise.all(Object.values(sharedSingleton.subs).map((sub) => sub.stop())); // Stop all running subs
-    });
+        process.exit();
+    };
+
+    ["SIGINT", "SIGTERM", "SIGHUP", "beforeExit"].forEach((exitSignal) => process.on(exitSignal, handleExit));
 
     app.listen(plebbitApiPort, () =>
         console.log(
@@ -88,5 +92,3 @@ export async function startApi(plebbitApiPort: number, ipfsApiEndpoint: string, 
         )
     );
 }
-
-

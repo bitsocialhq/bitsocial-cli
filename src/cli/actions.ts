@@ -32,7 +32,10 @@ export async function get(input: string, options: any) {
 }
 
 export async function daemon(options: DaemonOptions) {
-    await startIpfsNode(parseInt(options.ipfsApiPort), parseInt(options.ipfsGatewayPort), false); // TODO permit user to provide their own api and gateway and also plebbit data path port number
+    const log = Logger("plebbit-cli:actions:daemon");
+    log(`options: `, options);
+    const { pid: ipfsPid } = await startIpfsNode(parseInt(options.ipfsApiPort), parseInt(options.ipfsGatewayPort), false);
+    process.on("exit", () => process.kill(ipfsPid));
     await startApi(
         parseInt(options.plebbitApiPort),
         `http://localhost:${options.ipfsApiPort}/api/v0`,
