@@ -48,6 +48,9 @@ export class SubplebbitController extends Controller {
             sharedSingleton.subs[address] = await sharedSingleton.plebbit.createSubplebbit({ address });
         if (!(address in sharedSingleton.subs))
             throw new ApiError(statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
+
+        //@ts-ignore
+        if (process.env["SYNC_INTERVAL_MS"]) sharedSingleton.subs[address]._syncIntervalMs = parseInt(process.env["SYNC_INTERVAL_MS"]);
         try {
             //@ts-ignore
             await sharedSingleton.subs[address].start();
