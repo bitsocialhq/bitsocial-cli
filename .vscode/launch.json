@@ -40,7 +40,7 @@
             "request": "launch",
             "skipFiles": ["<node_internals>/**"],
             "type": "node",
-            "env": { "DEBUG": "plebbit*", "PLEBBIT_API_PORT": "32431", "IPFS_PORT": "32429", "IPFS_PUBSUB_PORT": "32427" }
+            "env": { "DEBUG": "plebbit*", "PLEBBIT_API_PORT": "32441", "IPFS_PORT": "32449", "IPFS_PUBSUB_PORT": "32447" }
         },
         {
             "type": "node",
@@ -50,7 +50,7 @@
             "program": "${workspaceFolder}/dist/src/api/server.js",
             "console": "integratedTerminal",
 
-            "env": { "IPFS_PORT": "32429", "IPFS_PUBSUB_PORT": "32427", "PLEBBIT_API_PORT": "32431" }
+            "env": { "IPFS_PORT": "32449", "IPFS_PUBSUB_PORT": "32447", "PLEBBIT_API_PORT": "32441" }
         }
     ]
 }
