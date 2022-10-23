@@ -89,7 +89,7 @@ describe(`/api/v0/subplebbit/{start, stop}`, async () => {
                 signer: await plebbit.createSigner()
             });
 
-            await mockPost.publish({});
+            await mockPost.publish();
 
             mockPost.once("challenge", resolve); // This test is done once we receive a challenge
         });
