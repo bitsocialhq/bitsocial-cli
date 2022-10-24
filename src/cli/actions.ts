@@ -7,7 +7,7 @@ import fetch from "node-fetch";
 
 async function _isDaemonUp(options: BasePlebbitOptions): Promise<boolean> {
     try {
-        const url = `${options.plebbitApiUrl}/api/v0/subplebbit/list`;
+        const url = `${options.plebbitApiUrl}/subplebbit/list`;
         await (await fetch(url, { method: "POST" })).json();
         return true;
     } catch (e) {
@@ -45,7 +45,7 @@ export async function daemon(options: DaemonOptions) {
 }
 
     await _stopIfDaemonIsDown(options);
-    const url = `${options.plebbitApiUrl}/api/v0/subplebbit/list`;
+    const url = `${options.plebbitApiUrl}/subplebbit/list`;
 
     const subs: SubplebbitList = <SubplebbitList>await (
         await fetch(url, {

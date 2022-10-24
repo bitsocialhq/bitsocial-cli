@@ -12,7 +12,7 @@ program.name("plebbit-cli").description(constants.PLEBBIT_CLI_DESCRIPTION).versi
 
 // 'plebbit' options that will be passed to all commands
 
-program.option("--plebbit-api-url <url>", "URL to Plebbit API", `http://localhost:${defaults.PLEBBIT_API_PORT}`);
+program.option("--plebbit-api-url <url>", "URL to Plebbit API", `http://localhost:${defaults.PLEBBIT_API_PORT}/api/v0`);
 
 // Root commands
 
