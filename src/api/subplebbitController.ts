@@ -8,11 +8,15 @@ import { sharedSingleton } from "./server.js";
 import { statusCodes, statusMessages } from "./responseStatuses.js";
 import { ApiError } from "./apiError.js";
 import { ApiResponse } from "./apiResponse.js";
+import Logger from "@plebbit/plebbit-logger";
 
 @Route("/api/v0/subplebbit")
 export class SubplebbitController extends Controller {
     @Post("list")
     public async list(): Promise<SubplebbitList> {
+        const log = Logger("plebbit-cli:api:subplebbit:list");
+        log(`Received request to list subplebbits`);
+
         const subsFromPlebbit = await sharedSingleton.plebbit.listSubplebbits();
         return subsFromPlebbit.map((address) => ({ started: Boolean(RUNNING_SUBPLEBBITS[address]), address }));
     }
@@ -26,6 +30,8 @@ export class SubplebbitController extends Controller {
     @Response(statusCodes.ERR_INVALID_JSON_FOR_REQUEST_BODY, statusMessages.ERR_INVALID_JSON_FOR_REQUEST_BODY)
     @Post("create")
     public async create(@Body() requestBody: CreateSubplebbitOptions): Promise<SubplebbitType> {
+        const log = Logger("plebbit-cli:api:subplebbit:create");
+        log(`Received request to create with body, `, requestBody);
         const sub = await sharedSingleton.plebbit.createSubplebbit(requestBody);
         sharedSingleton.subs[sub.address] = sub;
 
@@ -44,6 +50,8 @@ export class SubplebbitController extends Controller {
     @Response(statusCodes.ERR_SUB_ALREADY_STARTED, statusMessages.ERR_SUB_ALREADY_STARTED)
     @Post("start")
     public async start(@Query("address") address: string): Promise<void> {
+        const log = Logger("plebbit-cli:api:subplebbit:start");
+        log(`Received request to start subplebbit ${address}`);
         if (!(address in sharedSingleton.subs) && (await sharedSingleton.plebbit.listSubplebbits()).includes(address))
             sharedSingleton.subs[address] = await sharedSingleton.plebbit.createSubplebbit({ address });
         if (!(address in sharedSingleton.subs))
@@ -73,6 +81,9 @@ export class SubplebbitController extends Controller {
     @Response(statusCodes.ERR_SUBPLEBBIT_NOT_RUNNING, statusMessages.ERR_SUBPLEBBIT_NOT_RUNNING)
     @Post("stop")
     public async stop(@Query("address") address: string): Promise<void> {
+        const log = Logger("plebbit-cli:api:subplebbit:stop");
+        log(`Received request to stop subplebbit ${address}`);
+
         if (!(address in sharedSingleton.subs))
             throw new ApiError(statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
         if (sharedSingleton.subs[address]?.dbHandler === undefined)
@@ -94,6 +105,9 @@ export class SubplebbitController extends Controller {
     @Response(statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST, statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST)
     @Post("edit")
     public async edit(@Query("address") address: string, @Body() requestBody: SubplebbitEditOptions): Promise<void> {
+        const log = Logger("plebbit-cli:api:subplebbit:edit");
+        log(`Received request to edit subplebbit ${address} with request body, `, requestBody);
+
         if (!(address in sharedSingleton.subs) && (await sharedSingleton.plebbit.listSubplebbits()).includes(address))
             sharedSingleton.subs[address] = await sharedSingleton.plebbit.createSubplebbit({ address });
         if (!(address in sharedSingleton.subs))
