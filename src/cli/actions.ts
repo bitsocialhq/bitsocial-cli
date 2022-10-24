@@ -2,8 +2,18 @@
 import Logger from "@plebbit/plebbit-logger";
 import { startApi } from "../api/server.js";
 import { startIpfsNode } from "../ipfs/startIpfs.js";
-import { BasePlebbitOptions, DaemonOptions, SubplebbitList } from "../types.js";
+import {
+    BasePlebbitOptions,
+    CreateSubplebbitOptions,
+    DaemonOptions,
+    ListSubplebbitOptions,
+    StartSubplebbitOptions,
+    SubplebbitList
+} from "../types.js";
+
+import { CreateSubplebbitOptions as PlebbitCreateSubplebbitOptions } from "@plebbit/plebbit-js/dist/node/types.js";
 import fetch from "node-fetch";
+import { statusCodes } from "../api/responseStatuses.js";
 
 async function _isDaemonUp(options: BasePlebbitOptions): Promise<boolean> {
     try {
@@ -17,10 +27,11 @@ async function _isDaemonUp(options: BasePlebbitOptions): Promise<boolean> {
 
 async function _stopIfDaemonIsDown(options: BasePlebbitOptions) {
     if (!(await _isDaemonUp(options))) {
-        console.error(`Daemon is down. Please run 'plebbit daemon' before executing this command`); // TODO move this string to a separate file
+        console.error(`Daemon is down. Please run 'plebbit daemon' before executing this command`); // TODO move this error string to a separate file
         process.exit(1);
     }
 }
+
 export async function get(input: string, options: any) {
     const log = Logger("plebbit-cli:actions:get");
 
@@ -68,5 +79,23 @@ export async function subplebbitList(options: ListSubplebbitOptions) {
     }
 }
 
-    console.table(subs);
+export async function subplebbitCreate(options: CreateSubplebbitOptions) {
+    const log = Logger("plebbit-cli:actions:subplebbitCreate");
+    log(`Options: `, options);
+    await _stopIfDaemonIsDown(options);
+
+    const optionsParsed: PlebbitCreateSubplebbitOptions = JSON.parse(options.createOptions);
+
+    const res = await fetch(`${options.plebbitApiUrl}/subplebbit/create`, {
+        body: JSON.stringify(optionsParsed),
+        method: "POST",
+        headers: { "content-type": "application/json" }
+    });
+    if (res.status !== statusCodes.SUCCESS_SUBPLEBBIT_CREATED) {
+        console.error(res.statusText);
+        process.exit(1);
+    } else if (options.prettyPrint) {
+        console.dir(await res.json(), { depth: null, colors: true });
+    } else console.log(await res.text());
+}
 }

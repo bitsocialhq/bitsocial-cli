@@ -4,6 +4,9 @@ export default {
     `,
     CMD_GET: "Get the JSON representation of comment/page/subplebbit",
     CMD_DAEMON: "Run a network-connected Plebbit node",
+
+    // Subplebbit commands
     CMD_SUBPLEBBIT: "Access and manage your subplebbits",
-    CMD_SUBPLEBBIT_LIST: "List your subplebbits"
+    CMD_SUBPLEBBIT_CREATE: "Create a subplebbit",
+    CMD_SUBPLEBBIT_LIST: "List your subplebbits",
 };

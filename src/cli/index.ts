@@ -4,7 +4,7 @@ import constants from "./constants.js";
 import * as actions from "./actions.js";
 import fs from "fs-extra";
 import defaults from "./defaults.js";
-import { DaemonOptions, ListSubplebbitOptions } from "../types.js";
+import { CreateSubplebbitOptions, DaemonOptions, ListSubplebbitOptions } from "../types.js";
 
 const packageJson = JSON.parse((await fs.promises.readFile("package.json")).toString());
 
@@ -49,5 +49,13 @@ subplebbitCommand
     .option("-q, --quiet", "Only display subplebbit addresses", false)
     .action((options: ListSubplebbitOptions) => actions.subplebbitList({ ...program.opts(), ...options }));
 
+subplebbitCommand
+    .command("create")
+    .description(constants.CMD_SUBPLEBBIT_CREATE)
+    .option("-pp, --pretty-print", "Pretty print the JSON output", false)
+    .argument("<json>", 'Options for the subplebbit instance. Use "{"address": "Qm.."}" to retrieve an already created subplebbit')
+    .action((createOptions: string, options: Omit<CreateSubplebbitOptions, "createOptions">) =>
+        actions.subplebbitCreate({ ...program.opts(), ...options, createOptions })
+    );
 
 program.parse(process.argv);

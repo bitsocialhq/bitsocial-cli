@@ -8,7 +8,7 @@ export interface BasePlebbitOptions {
     plebbitApiUrl: string;
 }
 
-export interface DaemonOptions extends BasePlebbitOptions {
+export interface DaemonOptions {
     plebbitDataPath: string;
     plebbitApiPort: string;
     ipfsApiPort: string;
@@ -17,6 +17,11 @@ export interface DaemonOptions extends BasePlebbitOptions {
 
 export interface ListSubplebbitOptions extends BasePlebbitOptions {
     quiet: boolean;
+}
+
+export interface CreateSubplebbitOptions extends BasePlebbitOptions {
+    createOptions: string; // options is a JSON string representing CreateSubplebbitOptions from plebbit-js
+    prettyPrint: boolean;
 }
 export type SharedSingleton = {
     plebbit: Plebbit;
