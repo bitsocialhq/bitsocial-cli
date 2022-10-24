@@ -44,6 +44,9 @@ export async function daemon(options: DaemonOptions) {
     );
 }
 
+export async function subplebbitList(options: ListSubplebbitOptions) {
+    const log = Logger("plebbit-cli:actions:subplebbitList");
+    log(`Options: `, options);
     await _stopIfDaemonIsDown(options);
     const url = `${options.plebbitApiUrl}/subplebbit/list`;
 
@@ -52,6 +55,18 @@ export async function daemon(options: DaemonOptions) {
             method: "POST"
         })
     ).json();
+    const sortedSubs = [...subs].sort((subA, subB) => {
+        if (subA.started && !subB.started) return -1;
+        else if (subA.started === subB.started) return subA.address.length - subB.address.length;
+        else if (!subA.started && subB.started) return 1;
+        else return 0;
+    });
+    if (options.quiet) sortedSubs.forEach((sub) => console.log(sub.address));
+    else {
+        console.log(`started\t address`);
+        sortedSubs.forEach((sub) => console.log(`${sub.started}\t ${sub.address}`));
+    }
+}
 
     console.table(subs);
 }

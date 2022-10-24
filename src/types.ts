@@ -15,6 +15,9 @@ export interface DaemonOptions extends BasePlebbitOptions {
     ipfsGatewayPort: string;
 }
 
+export interface ListSubplebbitOptions extends BasePlebbitOptions {
+    quiet: boolean;
+}
 export type SharedSingleton = {
     plebbit: Plebbit;
     subs: Record<string, Subplebbit>;

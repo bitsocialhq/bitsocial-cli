@@ -4,7 +4,7 @@ import constants from "./constants.js";
 import * as actions from "./actions.js";
 import fs from "fs-extra";
 import defaults from "./defaults.js";
-import { DaemonOptions } from "../types.js";
+import { DaemonOptions, ListSubplebbitOptions } from "../types.js";
 
 const packageJson = JSON.parse((await fs.promises.readFile("package.json")).toString());
 
@@ -37,15 +37,17 @@ program
         "Specify the gateway port of the ipfs node that will be ran",
         String(defaults.IPFS_GATEWAY_PORT)
     )
-    .action((options: DaemonOptions) => actions.daemon({ ...program.opts(), ...options }));
+    .action((options: DaemonOptions) => actions.daemon(options));
 
 const subplebbitCommand = program.command("subplebbit").description(constants.CMD_SUBPLEBBIT);
 
-// Commander under "plebbit subplebbit"
+// Commands under "plebbit subplebbit"
 
 subplebbitCommand
     .command("list")
     .description(constants.CMD_SUBPLEBBIT_LIST)
-    .action(() => actions.subplebbitList(program.opts()));
+    .option("-q, --quiet", "Only display subplebbit addresses", false)
+    .action((options: ListSubplebbitOptions) => actions.subplebbitList({ ...program.opts(), ...options }));
+
 
 program.parse(process.argv);
