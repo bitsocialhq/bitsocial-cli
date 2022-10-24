@@ -14,6 +14,7 @@ import {
 import { CreateSubplebbitOptions as PlebbitCreateSubplebbitOptions } from "@plebbit/plebbit-js/dist/node/types.js";
 import fetch from "node-fetch";
 import { statusCodes } from "../api/responseStatuses.js";
+import prettier from "prettier";
 
 async function _isDaemonUp(options: BasePlebbitOptions): Promise<boolean> {
     try {
@@ -94,8 +95,7 @@ export async function subplebbitCreate(options: CreateSubplebbitOptions) {
     if (res.status !== statusCodes.SUCCESS_SUBPLEBBIT_CREATED) {
         console.error(res.statusText);
         process.exit(1);
-    } else if (options.prettyPrint) {
-        console.dir(await res.json(), { depth: null, colors: true });
-    } else console.log(await res.text());
+    } else if (options.prettyPrint) console.log(prettier.format(await res.text(), { parser: "json" }));
+    else console.log(await res.text());
 }
 }
