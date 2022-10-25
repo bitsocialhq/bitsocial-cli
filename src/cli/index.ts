@@ -5,6 +5,8 @@ import * as actions from "./actions.js";
 import fs from "fs-extra";
 import defaults from "./defaults.js";
 import { CreateSubplebbitOptions, DaemonOptions, ListSubplebbitOptions } from "../types.js";
+//@ts-ignore
+import DataObjectParser from "dataobject-parser";
 
 const packageJson = JSON.parse((await fs.promises.readFile("package.json")).toString());
 
@@ -49,13 +51,38 @@ subplebbitCommand
     .option("-q, --quiet", "Only display subplebbit addresses", false)
     .action((options: ListSubplebbitOptions) => actions.subplebbitList({ ...program.opts(), ...options }));
 
+// TODO implement flairs, challenges, and roles separately
 subplebbitCommand
     .command("create")
     .description(constants.CMD_SUBPLEBBIT_CREATE)
     .option("-pp, --pretty-print", "Pretty print the JSON output", false)
-    .argument("<json>", 'Options for the subplebbit instance. Use "{"address": "Qm.."}" to retrieve an already created subplebbit')
-    .action((createOptions: string, options: Omit<CreateSubplebbitOptions, "createOptions">) =>
-        actions.subplebbitCreate({ ...program.opts(), ...options, createOptions })
-    );
+    .option("--address <ipns/domain>", "Address of the subplebbit. Can be used to retrieve an already existing subplebbit")
+    .option(
+        "--signer.privateKey <PEM>",
+        "Private key of the subplebbit signer that will be used to determine address (if address is not a domain). Only needed if you're creating a new subplebbit"
+    )
+    .option("--database.connection.filename <file-path>", "Path to the subplebbit sqlite file")
+    .option("--title <string>", "Title of the subplebbit")
+    .option("--description <string>", "Description of the subplebbit")
+    // .option("--roles", "Comma separated address-to-role mapping (<address>=<role>)")
+    .option("--pubsubTopic <string>", "The string to publish to in the pubsub, a public key of the subplebbit owner's choice")
+    // .option("--challengeTypes", "Comma separated ") // Not done
+    .option("--suggested.primaryColor <string>", "Primary color of the subplebbit")
+    .option("--suggested.secondaryColor <string>", "Secondary color of the subplebbit")
+    .option("--suggested.avatarUrl <URL>", "The URL of the subplebbit's avatar")
+    .option("--suggested.bannerUrl <URL>", "The URL of the subplebbit's banner")
+    .option("--suggested.backgroundUrl <URL>", "The URL of the subplebbit's background")
+    .option("--suggested.language <string>", "The language of the subplebbit")
+    // .option("--flairs.post")
+    .option(
+        "--settings.fetchThumbnailUrls",
+        "Fetch the thumbnail URLs of comments comment.link property, could reveal the IP address of the subplebbit node"
+    )
+    .option("--settings.fetchThumbnailUrlsProxyUrl", "The HTTP proxy URL used to fetch thumbnail URLs")
+    .action((options: any) => {
+        const transposedData = DataObjectParser.transpose(options)["_data"];
+        actions.subplebbitCreate({ ...program.opts(), ...(<CreateSubplebbitOptions>transposedData) });
+    });
+
 
 program.parse(process.argv);

@@ -1,5 +1,6 @@
 import { Plebbit } from "@plebbit/plebbit-js/dist/node/plebbit.js";
 import { Subplebbit } from "@plebbit/plebbit-js/dist/node/subplebbit.js";
+import { CreateSubplebbitOptions as PlebbitCreateSubplebbitOptions, SignerType } from "@plebbit/plebbit-js/dist/node/types.js";
 
 export type SubplebbitList = { address: string; started: boolean }[];
 
@@ -19,9 +20,13 @@ export interface ListSubplebbitOptions extends BasePlebbitOptions {
     quiet: boolean;
 }
 
-export interface CreateSubplebbitOptions extends BasePlebbitOptions {
-    createOptions: string; // options is a JSON string representing CreateSubplebbitOptions from plebbit-js
+// TODO add subplebbit.settings
+export interface CreateSubplebbitOptions
+    extends BasePlebbitOptions,
+        Pick<PlebbitCreateSubplebbitOptions, "address" | "title" | "description" | "pubsubTopic" | "suggested"> {
     prettyPrint: boolean;
+    signer?: Pick<SignerType, "privateKey">;
+    database?: { connection: { filename: string } };
 }
 export type SharedSingleton = {
     plebbit: Plebbit;

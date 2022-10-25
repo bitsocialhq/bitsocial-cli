@@ -11,10 +11,11 @@ import {
     SubplebbitList
 } from "../types.js";
 
-import { CreateSubplebbitOptions as PlebbitCreateSubplebbitOptions } from "@plebbit/plebbit-js/dist/node/types.js";
 import fetch from "node-fetch";
 import { statusCodes } from "../api/responseStatuses.js";
 import prettier from "prettier";
+
+import omit from "lodash/omit.js";
 
 async function _isDaemonUp(options: BasePlebbitOptions): Promise<boolean> {
     try {
@@ -85,14 +86,15 @@ export async function subplebbitCreate(options: CreateSubplebbitOptions) {
     log(`Options: `, options);
     await _stopIfDaemonIsDown(options);
 
-    const optionsParsed: PlebbitCreateSubplebbitOptions = JSON.parse(options.createOptions);
+    const createOptions = omit(options, ["plebbitApiUrl", "prettyPrint"]);
 
     const res = await fetch(`${options.plebbitApiUrl}/subplebbit/create`, {
-        body: JSON.stringify(optionsParsed),
+        body: JSON.stringify(createOptions),
         method: "POST",
         headers: { "content-type": "application/json" }
     });
     if (res.status !== statusCodes.SUCCESS_SUBPLEBBIT_CREATED) {
+        // TODO, status text is not enough to explain error. Include more info
         console.error(res.statusText);
         process.exit(1);
     } else if (options.prettyPrint) console.log(prettier.format(await res.text(), { parser: "json" }));
