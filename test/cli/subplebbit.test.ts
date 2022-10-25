@@ -27,22 +27,29 @@ describe("plebbit subplebbit create", async () => {
     it(`Can create a new subplebbit from cli json argument`, async () => {
         const options: CreateSubplebbitOptions = {
             title: `Test subplebbit create ${Date.now()}`,
-            description: "Test subplebbit description " + Date.now()
+            description: "Test subplebbit description " + Date.now(),
+            suggested: { primaryColor: "#0000" }
         };
 
         // Command in CLI would be something like this
-        // plebbit subplebbit create {\"title\": "Test subplebbit create", \"description\": "Test subplebbit description"}
         const createOutput = await execCliCommand([
             "subplebbit",
             "create",
-            `\'{\"title\": \"${options.title}\", \"description\": \"${options.description}\"}\'`
+            `--title "${options.title}"`,
+            `--description "${options.description}"`,
+            `--suggested.primaryColor "${options.suggested?.primaryColor}"`
         ]);
-        debugger;
         const subAfterCreate: SubplebbitType = JSON.parse(createOutput);
         expect(subAfterCreate.title).to.equal(options.title);
         expect(subAfterCreate.description).to.equal(options.description);
         expect(subAfterCreate.address).to.be.a.string;
         expect(subAfterCreate.encryption).to.be.an("object");
+        expect(subAfterCreate.suggested?.primaryColor).to.equal(options.suggested?.primaryColor);
+    });
+    it(`Can create new sub from json file`, async () => {});
+    it(`Can retrieve an already existing subplebbit with plebbit subplebbit create --address`);
+});
+
     });
     it(`Can create new sub from json file`);
     it(`Can retrieve an already existing subplebbit with plebbit subplebbit create '{address}'`);
