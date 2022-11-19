@@ -1,3 +1,4 @@
+// Not sure 'defaults' is the best name here
 import envPaths from "env-paths";
 
 export default {

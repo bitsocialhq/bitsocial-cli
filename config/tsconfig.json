@@ -18,7 +18,11 @@
 
         "moduleResolution": "Node16",
         "baseUrl": ".",
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "importHelpers": true
+    },
+    "ts-node": {
+        "esm": true
     },
     "include": ["../src/**/*", "../test/**/run*.ts"],
     "exclude": ["../node_modules"],
