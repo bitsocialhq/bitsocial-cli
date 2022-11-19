@@ -33,11 +33,11 @@ export default class List extends BaseCommand {
         else {
             CliUx.ux.table(
                 subs,
-                {},
+                { address: {}, started: {} },
                 {
                     printLine: this.log.bind(this),
                     ...flags,
-                    sort: "started"
+                    sort: "-started"
                 }
             );
         }
