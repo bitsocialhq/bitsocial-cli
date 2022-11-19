@@ -47,9 +47,12 @@ export default class Create extends BaseCommand {
             method: "POST",
             headers: { "content-type": "application/json" }
         });
-        if (res.status !== statusCodes.SUCCESS_SUBPLEBBIT_CREATED)
+        if (res.status !== statusCodes.SUCCESS_SUBPLEBBIT_CREATED) {
             // TODO, status text is not enough to explain error. Include more info
-            this.error(res.statusText);
-        this.toSuccessJson(<SubplebbitType>await res.json());
+            this.logToStderr(res.statusText);
+            this.exit(1);
+        }
+
+        this.log(this.toSuccessJson(<SubplebbitType>await res.json()));
     }
 }
