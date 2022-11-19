@@ -3,7 +3,7 @@ import { RegisterRoutes } from "../../build/routes.js";
 import swaggerUi from "swagger-ui-express";
 import fs from "fs-extra";
 import Plebbit from "@plebbit/plebbit-js";
-import { SharedSingleton } from "../types.js";
+import { SharedSingleton } from "./types.js";
 import { ValidateError } from "tsoa";
 import { AssertionError } from "assert";
 import Logger from "@plebbit/plebbit-logger";

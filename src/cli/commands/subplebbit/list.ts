@@ -1,6 +1,6 @@
 import { Flags, CliUx } from "@oclif/core";
 import Logger from "@plebbit/plebbit-logger";
-import { SubplebbitList } from "../../../types.js";
+import { SubplebbitList } from "../../../api/types.js";
 import { BaseCommand } from "../../base-command.js";
 import fetch from "node-fetch";
 import { EOL } from "os";

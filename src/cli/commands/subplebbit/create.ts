@@ -5,6 +5,9 @@ import lodash from "lodash";
 import { statusCodes } from "../../../api/responseStatuses.js";
 import { BaseCommand } from "../../base-command.js";
 import fetch from "node-fetch";
+import { CreateSubplebbitOptions } from "../../types.js";
+//@ts-ignore
+import DataObjectParser from "dataobject-parser";
 
 export default class Create extends BaseCommand {
     static override description = "Create a subplebbit";
@@ -40,7 +43,7 @@ export default class Create extends BaseCommand {
         const log = Logger("plebbit-cli:commands:subplebbit:create");
         log(`flags: `, flags);
         await this.stopIfDaemonIsDown(flags.apiUrl.toString());
-        const createOptions = lodash.omit(flags, ["apiUrl"]);
+        const createOptions: CreateSubplebbitOptions = DataObjectParser.transpose(lodash.omit(flags, ["apiUrl"]))["_data"];
 
         const res = await fetch(`${flags.apiUrl}/subplebbit/create`, {
             body: JSON.stringify(createOptions),

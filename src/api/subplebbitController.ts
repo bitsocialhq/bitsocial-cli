@@ -3,7 +3,7 @@ import { CreateSubplebbitOptions, SubplebbitEditOptions, SubplebbitType } from "
 import { messages as plebbitErrorMessages } from "@plebbit/plebbit-js/dist/node/errors.js";
 import { Controller, Post, Route, Body, Query, SuccessResponse, Response } from "tsoa";
 
-import { SubplebbitList } from "../types.js";
+import { SubplebbitList } from "./types.js";
 import { sharedSingleton } from "./server.js";
 import { statusCodes, statusMessages } from "./responseStatuses.js";
 import { ApiError } from "./apiError.js";
