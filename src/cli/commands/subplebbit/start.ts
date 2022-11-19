@@ -1,6 +1,7 @@
 import Logger from "@plebbit/plebbit-logger";
 import { statusCodes } from "../../../api/responseStatuses.js";
 import { BaseCommand } from "../../base-command.js";
+import fetch from "node-fetch";
 
 export default class Start extends BaseCommand {
     static override description = "Start a subplebbit";

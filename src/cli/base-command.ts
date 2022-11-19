@@ -1,5 +1,6 @@
 import { Command, Flags } from "@oclif/core";
 import { URL } from "url";
+import fetch from "node-fetch";
 import defaults from "../common-utils/defaults.js";
 export abstract class BaseCommand extends Command {
     static override globalFlags = {

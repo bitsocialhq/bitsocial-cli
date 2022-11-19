@@ -4,6 +4,7 @@ import Logger from "@plebbit/plebbit-logger";
 import lodash from "lodash";
 import { statusCodes } from "../../../api/responseStatuses.js";
 import { BaseCommand } from "../../base-command.js";
+import fetch from "node-fetch";
 
 export default class Create extends BaseCommand {
     static override description = "Create a subplebbit";
