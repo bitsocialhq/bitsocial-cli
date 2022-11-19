@@ -3,6 +3,7 @@ import Logger from "@plebbit/plebbit-logger";
 import { SubplebbitList } from "../../../types.js";
 import { BaseCommand } from "../../base-command.js";
 import fetch from "node-fetch";
+import { EOL } from "os";
 
 export default class List extends BaseCommand {
     static override description = "List your subplebbits";
@@ -28,7 +29,7 @@ export default class List extends BaseCommand {
             })
         ).json();
 
-        if (flags.quiet) this.log(subs.join("\n"));
+        if (flags.quiet) this.log(subs.map((sub) => sub.address).join(EOL));
         else {
             CliUx.ux.table(
                 subs,
