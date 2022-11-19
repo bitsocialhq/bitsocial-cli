@@ -20,14 +20,14 @@ export default class Start extends BaseCommand {
     static override examples = [];
 
     async run() {
-        const { args, flags } = await this.parse(Start);
+        const { argv, flags } = await this.parse(Start);
 
         const log = Logger("plebbit-cli:commands:subplebbit:start");
-        log(`args: `, args);
+        log(`argv: `, argv);
         log(`flags: `, flags);
 
         await this.stopIfDaemonIsDown(flags.apiUrl.toString());
-        for (const address of args["addresses"]) {
+        for (const address of argv) {
             const url = `${flags.apiUrl}/subplebbit/start?address=${address}`;
             const res = await fetch(url, { method: "POST" });
             if (res.status !== statusCodes.SUCCESS_SUBPLEBBIT_STARTED) this.error(res.statusText);
