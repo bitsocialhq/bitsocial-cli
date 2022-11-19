@@ -35,6 +35,10 @@
         "dirname": "plebbit",
         "commands": "./dist/src/cli/commands",
         "topicSeparator": " ",
+        "plugins": [
+            "@oclif/plugin-help",
+            "@oclif/plugin-not-found"
+        ],
         "topics": {
             "subplebbit": {
                 "description": "Access and manage your subplebbits"
