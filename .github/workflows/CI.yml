@@ -55,6 +55,3 @@ jobs:
       - run: yarn test:api
       - run: yarn test:cli
 
-  test-plebbit-react-hooks:
-    uses: ./.github/workflows/CI-plebbit-react-hooks.yml
-    secrets: inherit
