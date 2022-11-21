@@ -60,8 +60,7 @@ export class SubplebbitController extends Controller {
         //@ts-ignore
         if (process.env["SYNC_INTERVAL_MS"]) sharedSingleton.subs[address]._syncIntervalMs = parseInt(process.env["SYNC_INTERVAL_MS"]);
         try {
-            //@ts-ignore
-            await sharedSingleton.subs[address].start();
+            await sharedSingleton.subs[address]!.start();
         } catch (e) {
             if (e instanceof Error && e.message === plebbitErrorMessages.ERR_SUB_ALREADY_STARTED)
                 throw new ApiError(statusMessages.ERR_SUB_ALREADY_STARTED, statusCodes.ERR_SUB_ALREADY_STARTED);
