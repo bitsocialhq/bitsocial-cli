@@ -1,9 +1,9 @@
 // This file is to test root commands like `plebbit daemon` or `plebbit get`, whereas commands like `plebbit subplebbit start` are considered nested
 import Plebbit from "@plebbit/plebbit-js";
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
-import defaults from "../../src/cli/defaults.js";
+import defaults from "../../src/common-utils/defaults.js";
 import fetch from "node-fetch";
-import { SubplebbitList } from "../../src/types.js";
+import { SubplebbitList } from "../../src/api/types.js";
 import { Plebbit as PlebbitClass } from "@plebbit/plebbit-js/dist/node/plebbit.js";
 import chai from "chai";
 //@ts-ignore
