@@ -1,5 +1,5 @@
 import { Flags } from "@oclif/core";
-import { BaseCommand } from "../base-command.js";
+import { BaseCommand } from "./base-command.js";
 
 export default abstract class BaseSubplebbitOptions extends BaseCommand {
     // TODO implement roles,rules, features, flairs
@@ -8,7 +8,6 @@ export default abstract class BaseSubplebbitOptions extends BaseCommand {
         title: Flags.string({ summary: "Title of the subplebbit" }),
         description: Flags.string({ summary: "Description of the subplebbit" }),
         pubsubTopic: Flags.string({ summary: "The string to publish to in the pubsub, a public key of the subplebbit owner's choice" }),
-        
 
         "suggested.primaryColor": Flags.string({ sumamry: "Primary color of the subplebbit in hex" }),
         "suggested.secondaryColor": Flags.string({ summary: "Secondary color of the subplebbit in hex" }),

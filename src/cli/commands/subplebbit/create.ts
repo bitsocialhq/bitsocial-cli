@@ -7,7 +7,7 @@ import fetch from "node-fetch";
 import { CreateSubplebbitOptions } from "../../types.js";
 //@ts-ignore
 import DataObjectParser from "dataobject-parser";
-import BaseSubplebbitOptions from "../base-subplebbit-options.js";
+import BaseSubplebbitOptions from "../../base-subplebbit-options.js";
 
 export default class Create extends BaseSubplebbitOptions {
     static override description = "Create a subplebbit";

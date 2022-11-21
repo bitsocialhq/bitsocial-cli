@@ -5,7 +5,7 @@ import { statusCodes } from "../../../api/responseStatuses.js";
 import fetch from "node-fetch";
 //@ts-ignore
 import DataObjectParser from "dataobject-parser";
-import BaseSubplebbitOptions from "../base-subplebbit-options.js";
+import BaseSubplebbitOptions from "../../base-subplebbit-options.js";
 
 export default class Edit extends BaseSubplebbitOptions {
     static override description = "Edit a subplebbit";
