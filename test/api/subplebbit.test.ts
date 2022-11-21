@@ -2,7 +2,7 @@ import fetch from "node-fetch";
 import { expect } from "chai";
 import { statusCodes, statusMessages } from "../../src/api/responseStatuses.js";
 import { CreateSubplebbitOptions, SubplebbitType } from "@plebbit/plebbit-js/dist/node/types.js";
-import { SubplebbitList } from "../../src/types.js";
+import { SubplebbitList } from "../../src/api/types.js";
 import Plebbit from "@plebbit/plebbit-js";
 
 if (
@@ -18,10 +18,11 @@ describe("/api/v0/subplebbit/create", async () => {
     const createUrl = `${baseUrl}/create`;
     let createdSubplebbit: SubplebbitType;
     it("Request fails with documented error if invalid json was provided", async () => {
-        const invalidJson: string = JSON.stringify({ test: "zz" }).slice(1); // Delete first character, should make the string unparsable
-        const res = await fetch(createUrl, { method: "POST", body: invalidJson, headers: { "content-type": "application/json" } });
-        expect(res.status).to.equal(statusCodes.ERR_INVALID_JSON_FOR_REQUEST_BODY);
-        expect(res.statusText).to.equal(statusMessages.ERR_INVALID_JSON_FOR_REQUEST_BODY);
+        ["{title:", JSON.stringify({ test: "zz" }).slice(1)].forEach(async (invalidJson) => {
+            const res = await fetch(createUrl, { method: "POST", body: invalidJson, headers: { "content-type": "application/json" } });
+            expect(res.status).to.equal(statusCodes.ERR_INVALID_JSON_FOR_REQUEST_BODY);
+            expect(res.statusText).to.equal(statusMessages.ERR_INVALID_JSON_FOR_REQUEST_BODY);
+        });
     });
 
     it(`Can create a new subplebbit successfully`, async () => {
@@ -38,10 +39,8 @@ describe("/api/v0/subplebbit/create", async () => {
         expect(res.statusText).to.equal(statusMessages.SUCCESS_SUBPLEBBIT_CREATED);
         createdSubplebbit = <SubplebbitType>await res.json();
         expect(createdSubplebbit.address).to.be.a.string;
-        expect(createdSubplebbit.createdAt).to.be.a("number");
         expect(createdSubplebbit.description).to.equal(subProps.description);
         expect(createdSubplebbit.encryption).to.include.all.keys(["type", "publicKey"]);
-        expect(createdSubplebbit.pubsubTopic).to.be.equal(createdSubplebbit.address);
         expect(createdSubplebbit.title).to.equal(subProps.title);
     });
 
