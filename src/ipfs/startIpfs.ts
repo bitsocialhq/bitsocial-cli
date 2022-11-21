@@ -4,17 +4,11 @@ import envPaths from "env-paths";
 import Logger from "@plebbit/plebbit-logger";
 import fs from "fs-extra";
 import assert from "assert";
+//@ts-ignore
+import { path as ipfsExePathFunc } from "go-ipfs";
 
 const paths = envPaths("plebbit", { suffix: "" });
 const log = Logger("plebbit-cli:startIpfsNode");
-
-function _getIpfsExecutablePath(): string {
-    const platform: "linux" | "mac" | "win" | undefined =
-        process.platform === "win32" ? "win" : process.platform === "linux" ? "linux" : process.platform === "darwin" ? "mac" : undefined;
-    if (!platform) throw Error(`Platform (${process.platform}) is not supported`);
-
-    return path.join(process.cwd(), "assets", platform, platform === "win" ? "ipfs.exe" : "ipfs");
-}
 
 // use this custom function instead of spawnSync for better logging
 // also spawnSync might have been causing crash on start on windows
@@ -38,7 +32,7 @@ export async function startIpfsNode(apiPortNumber: number, gatewayPortNumber: nu
         const ipfsDataPath = process.env["IPFS_PATH"] || path.join(paths.data, "ipfs");
         await fs.mkdirp(ipfsDataPath);
 
-        const ipfsExePath = _getIpfsExecutablePath();
+        const ipfsExePath = ipfsExePathFunc();
         log.trace(`IpfsDataPath (${ipfsDataPath}), ipfsExePath (${ipfsExePath})`);
         await fs.ensureDir(ipfsDataPath);
         await fs.ensureFile(ipfsExePath);
