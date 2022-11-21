@@ -1,4 +1,4 @@
 {
     "node-option": ["loader=ts-node/esm"],
-    "timeout": 4000
+    "timeout": 6000
 }
