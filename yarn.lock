@@ -1201,8 +1201,9 @@
   dependencies:
     "@octokit/openapi-types" "^12.11.0"
 
-"@plebbit/plebbit-js@../plebbit-js":
+"@plebbit/plebbit-js@github:plebbit/plebbit-js":
   version "0.0.3"
+  resolved "https://codeload.github.com/plebbit/plebbit-js/tar.gz/acb69d73f931b552b32d4bd2c73a4b2211fc9611"
   dependencies:
     "@keyv/sqlite" "3.6.2"
     "@plebbit/plebbit-logger" "github:plebbit/plebbit-logger"
@@ -4077,7 +4078,7 @@ globby@^11.0.1, globby@^11.0.3, globby@^11.1.0:
     merge2 "^1.4.1"
     slash "^3.0.0"
 
-go-ipfs@^0.16.0:
+go-ipfs@0.16.0:
   version "0.16.0"
   resolved "https://registry.yarnpkg.com/go-ipfs/-/go-ipfs-0.16.0.tgz#01ddde23969810989dfaa14f8d154d9c7aadaaba"
   integrity sha512-AxA/CGZgXlU3NCIAFJKdnCcF5TmOiryxtjxH4SmT7FdquAwemgQWzOWxUZzhDDzqlk32mqoDID2sVxmAOfcfcA==
