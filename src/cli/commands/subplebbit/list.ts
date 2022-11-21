@@ -24,7 +24,7 @@ export default class List extends BaseCommand {
         const url = `${flags.apiUrl}/subplebbit/list`;
 
         const subs: SubplebbitList = <SubplebbitList>await (
-            await fetch(url, {
+            await fetch.default(url, {
                 method: "POST"
             })
         ).json();

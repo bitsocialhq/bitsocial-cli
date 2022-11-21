@@ -29,7 +29,7 @@ export default class Start extends BaseCommand {
         await this.stopIfDaemonIsDown(flags.apiUrl.toString());
         for (const address of argv) {
             const url = `${flags.apiUrl}/subplebbit/start?address=${address}`;
-            const res = await fetch(url, { method: "POST" });
+            const res = await fetch.default(url, { method: "POST" });
             if (res.status !== statusCodes.SUCCESS_SUBPLEBBIT_STARTED) this.error(res.statusText);
             else this.log(address);
         }

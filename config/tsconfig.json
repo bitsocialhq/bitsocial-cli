@@ -17,7 +17,6 @@
         "exactOptionalPropertyTypes": false,
         "noUnusedLocals": false,
         "noUnusedParameters": false,
-
         "moduleResolution": "Node16",
         "baseUrl": ".",
         "esModuleInterop": true,

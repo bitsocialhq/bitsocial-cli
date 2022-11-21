@@ -32,7 +32,7 @@ export default class Create extends BaseSubplebbitOptions {
         await this.stopIfDaemonIsDown(flags.apiUrl.toString());
         const createOptions: CreateSubplebbitOptions = DataObjectParser.transpose(lodash.omit(flags, ["apiUrl"]))["_data"];
 
-        const res = await fetch(`${flags.apiUrl}/subplebbit/create`, {
+        const res = await fetch.default(`${flags.apiUrl}/subplebbit/create`, {
             body: JSON.stringify(createOptions),
             method: "POST",
             headers: { "content-type": "application/json" }
