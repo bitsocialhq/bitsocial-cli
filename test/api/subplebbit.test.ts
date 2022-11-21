@@ -75,26 +75,27 @@ describe(`/api/v0/subplebbit/{start, stop}`, async () => {
         ).json();
     });
     it(`A started subplebbit can receive challenges`, async () => {
-        return new Promise(async (resolve) => {
-            const startRes = await fetch.default(`${baseUrl}/start?address=${startedSubplebbit.address}`, { method: "POST" });
-            expect(startRes.status).to.equal(statusCodes.SUCCESS_SUBPLEBBIT_STARTED);
-            expect(startRes.statusText).to.equal(statusMessages.SUCCESS_SUBPLEBBIT_STARTED);
+        const startRes = await fetch.default(`${baseUrl}/start?address=${startedSubplebbit.address}`, { method: "POST" });
+        expect(startRes.status).to.equal(statusCodes.SUCCESS_SUBPLEBBIT_STARTED);
+        expect(startRes.statusText).to.equal(statusMessages.SUCCESS_SUBPLEBBIT_STARTED);
 
-            const plebbit = await Plebbit({
-                ipfsHttpClientOptions: `http://localhost:${process.env["IPFS_PORT"]}/api/v0`,
-                pubsubHttpClientOptions: `http://localhost:${process.env["IPFS_PUBSUB_PORT"]}/api/v0`
-            });
-
-            const mockPost = await plebbit.createComment({
-                subplebbitAddress: startedSubplebbit.address,
-                title: "test" + Date.now(),
-                signer: await plebbit.createSigner()
-            });
-
-            await mockPost.publish();
-
-            mockPost.once("challenge", resolve); // This test is done once we receive a challenge
+        const plebbit = await Plebbit({
+            ipfsHttpClientOptions: `http://localhost:${process.env["IPFS_PORT"]}/api/v0`,
+            pubsubHttpClientOptions: `http://localhost:${process.env["IPFS_PUBSUB_PORT"]}/api/v0`
         });
+
+        const mockPost = await plebbit.createComment({
+            subplebbitAddress: startedSubplebbit.address,
+            title: "test" + Date.now(),
+            signer: await plebbit.createSigner()
+        });
+
+        await mockPost.publish();
+
+        await new Promise((resolve) => mockPost.once("challenge", resolve)); // This test is done once we receive a challenge
+
+        // Line is needed so mocha would not "hang"
+        await plebbit.pubsubIpfsClient.pubsub.unsubscribe(mockPost.subplebbitAddress);
     });
 
     it(`Start fails with documented error if subplebbit is already started`, async () => {
