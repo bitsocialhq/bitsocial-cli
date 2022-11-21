@@ -49,8 +49,8 @@ jobs:
       - run: sudo echo "255.255.255.255 cloudflare-ipfs.com" | sudo tee -a /etc/hosts
       - run: sudo echo "255.255.255.255 pubsubprovider.xyz" | sudo tee -a /etc/hosts
 
-      - run: yarn start:ipfs & yarn start:ipfs:wait-on
-      - run: yarn start:api & yarn start:api:wait-on
+      - run: yarn start:ipfs & sleep 1
+      - run: yarn start:api & sleep 1
       
       - run: yarn test:api
       - run: yarn test:cli
