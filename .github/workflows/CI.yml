@@ -1,0 +1,60 @@
+# CI for the src folder
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'test/**'
+      - 'src/**'
+      - 'config/**'
+      # - '.github/**'
+      - 'package.json'
+      - 'yarn.lock'
+  push:
+    branches:
+      - master
+    paths:
+      - 'test/**'
+      - 'src/**'
+      - 'config/**'
+      - '.github/**'
+      - 'package.json'
+      - 'yarn.lock'
+
+jobs:
+  test-plebbit-cli:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          # - macOS-latest
+        node_version:
+          - 16
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node_version }}
+          # cache: 'npm'
+
+      - run: yarn install --frozen-lockfile
+      - run: yarn build
+
+      # disable hosts we shouldn't use
+      - run: sudo echo "255.255.255.255 cloudflare-ipfs.com" | sudo tee -a /etc/hosts
+      - run: sudo echo "255.255.255.255 pubsubprovider.xyz" | sudo tee -a /etc/hosts
+
+      - run: yarn start:ipfs & yarn start:ipfs:wait-on
+      - run: yarn start:api & yarn start:api:wait-on
+      
+      - run: yarn test:api
+      - run: yarn test:cli
+
+  test-plebbit-react-hooks:
+    uses: ./.github/workflows/CI-plebbit-react-hooks.yml
+    secrets: inherit
