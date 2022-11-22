@@ -2,6 +2,7 @@ import { Command, Flags } from "@oclif/core";
 import { URL } from "url";
 import fetch from "node-fetch";
 import defaults from "../common-utils/defaults.js";
+import { exitCodes, exitMessages, exitStatuses } from "./exit-codes.js";
 export abstract class BaseCommand extends Command {
     static override globalFlags = {
         apiUrl: Flags.url({
@@ -22,9 +23,10 @@ export abstract class BaseCommand extends Command {
     };
 
     stopIfDaemonIsDown = async (apiUrl: string) => {
-        if (!(await this._isDaemonUp(apiUrl))) {
-            this.logToStderr("Daemon is down. Please run 'plebbit daemon' before executing this command");
-            this.exit(1);
-        }
+        if (!(await this._isDaemonUp(apiUrl)))
+            this.error(exitMessages.ERROR_DAEMON_IS_DOWN, {
+                code: exitCodes.ERROR_DAEMON_IS_DOWN,
+                exit: exitStatuses.ERROR_DAEMON_IS_DOWN
+            });
     };
 }
