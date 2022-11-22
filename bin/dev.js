@@ -12,7 +12,7 @@ import { register } from "ts-node";
 process.env.NODE_ENV = "development";
 
 register({
-    project: path.join(path.dirname(url.fileURLToPath(import.meta.url)), "..", "tsconfig.json")
+    project: path.join(path.dirname(url.fileURLToPath(import.meta.url)), "..", "config", "tsconfig.json")
 });
 
 // In dev mode, always show stack traces
