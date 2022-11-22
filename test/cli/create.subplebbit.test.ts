@@ -1,9 +1,10 @@
-import { expect, test } from "@oclif/test";
+import { expect, test, Config } from "@oclif/test";
 import { statusCodes } from "../../src/api/responseStatuses.js";
 import { CreateSubplebbitOptions } from "../../src/cli/types.js";
 import defaults from "../../src/common-utils/defaults.js";
 //@ts-ignore
 import DataObjectParser from "dataobject-parser";
+import { exitStatuses } from "../../src/cli/exit-codes.js";
 
 describe("plebbit subplebbit create", () => {
     const createOptions: CreateSubplebbitOptions = {
@@ -37,7 +38,13 @@ describe("plebbit subplebbit create", () => {
             expect(ctx.error).to.be.undefined;
         });
 
-    // Test: will throw error if daemon is down
+    test.loadConfig({ root: process.cwd() })
+        .nock(`http://localhost:${defaults.PLEBBIT_API_PORT}/api/v0`, (api) =>
+            api.post("/subplebbit/list").replyWithError("Any error would suffice here")
+        )
+        .command(["subplebbit create"])
+        .exit(exitStatuses.ERROR_DAEMON_IS_DOWN)
+        .it(`Fails when daemon is down`);
     // Test: show error
     // Test: Show correct output
 });
