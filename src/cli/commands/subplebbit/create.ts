@@ -43,6 +43,6 @@ export default class Create extends BaseSubplebbitOptions {
             this.exit(1);
         }
 
-        this.log(this.toSuccessJson(<SubplebbitType>await res.json()));
+        this.log(JSON.stringify(this.toSuccessJson(<SubplebbitType>await res.json())));
     }
 }
