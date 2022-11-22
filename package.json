@@ -46,7 +46,7 @@
         }
     },
     "devDependencies": {
-        "@oclif/test": "2.2.12",
+        "@oclif/test": "https://github.com/Rinse12/oclif-test",
         "@tsconfig/node16-strictest-esm": "1.0.3",
         "@types/chai": "4.3.4",
         "@types/express": "4.17.14",
