@@ -22,6 +22,7 @@ jobs:
           # cache: 'npm'
 
       # build dist folder
+      - run: yarn install --frozen-lockfile
       - run: yarn build
 
       # NOTE: doesn't work if `git add dist --force` is removed
