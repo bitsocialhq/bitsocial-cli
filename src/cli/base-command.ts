@@ -24,9 +24,9 @@ export abstract class BaseCommand extends Command {
 
     stopIfDaemonIsDown = async (apiUrl: string) => {
         if (!(await this._isDaemonUp(apiUrl)))
-            this.error(exitMessages.ERROR_DAEMON_IS_DOWN, {
-                code: exitCodes.ERROR_DAEMON_IS_DOWN,
-                exit: exitStatuses.ERROR_DAEMON_IS_DOWN
+            this.error(exitMessages.ERR_DAEMON_IS_DOWN, {
+                code: exitCodes.ERR_DAEMON_IS_DOWN,
+                exit: exitStatuses.ERR_DAEMON_IS_DOWN
             });
     };
 }
