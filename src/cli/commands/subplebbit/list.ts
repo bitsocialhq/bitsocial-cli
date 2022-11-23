@@ -30,7 +30,7 @@ export default class List extends BaseCommand {
         ).json();
 
         if (flags.quiet) this.log(subs.map((sub) => sub.address).join(EOL));
-        else {
+        else
             CliUx.ux.table(
                 subs,
                 { address: {}, started: {} },
@@ -40,6 +40,5 @@ export default class List extends BaseCommand {
                     sort: "-started"
                 }
             );
-        }
     }
 }

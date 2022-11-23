@@ -4,7 +4,6 @@ import { CreateSubplebbitOptions } from "../../src/cli/types.js";
 import defaults from "../../src/common-utils/defaults.js";
 //@ts-ignore
 import DataObjectParser from "dataobject-parser";
-import { exitStatuses } from "../../src/cli/exit-codes.js";
 
 describe("plebbit subplebbit create", () => {
     const createOptions: CreateSubplebbitOptions = {
@@ -37,12 +36,4 @@ describe("plebbit subplebbit create", () => {
             expect(JSON.parse(ctx.stdout)).to.deep.equal(createOptions);
             expect(ctx.error).to.be.undefined;
         });
-
-    test.loadConfig({ root: process.cwd() })
-        .nock(`http://localhost:${defaults.PLEBBIT_API_PORT}/api/v0`, (api) =>
-            api.post("/subplebbit/list").replyWithError("Any error would suffice here")
-        )
-        .command(["subplebbit create"])
-        .exit(exitStatuses.ERR_DAEMON_IS_DOWN)
-        .it(`Fails when daemon is down`);
 });
