@@ -1,4 +1,4 @@
-import { expect, test, Config } from "@oclif/test";
+import { expect, test } from "@oclif/test";
 import { statusCodes } from "../../src/api/response-statuses.js";
 import { CreateSubplebbitOptions } from "../../src/cli/types.js";
 import defaults from "../../src/common-utils/defaults.js";
@@ -43,8 +43,6 @@ describe("plebbit subplebbit create", () => {
             api.post("/subplebbit/list").replyWithError("Any error would suffice here")
         )
         .command(["subplebbit create"])
-        .exit(exitStatuses.ERROR_DAEMON_IS_DOWN)
+        .exit(exitStatuses.ERR_DAEMON_IS_DOWN)
         .it(`Fails when daemon is down`);
-    // Test: show error
-    // Test: Show correct output
 });
