@@ -9,5 +9,6 @@ export enum exitCodes {
 // Bash exit status. A number from 1-255. If a command exits with status '0' then it has succeeded
 export enum exitStatuses {
     ERR_DAEMON_IS_DOWN = 1,
-    ERR_SUB_ALREADY_STARTED = 2
+    ERR_SUB_ALREADY_STARTED = 2,
+    ERR_SUBPLEBBIT_DOES_NOT_EXIST = 3
 }

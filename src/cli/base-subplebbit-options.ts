@@ -2,7 +2,7 @@ import { Flags } from "@oclif/core";
 import { BaseCommand } from "./base-command.js";
 
 export default abstract class BaseSubplebbitOptions extends BaseCommand {
-    // TODO implement roles,rules, features, flairs
+    // TODO implement roles,rules, features, flairs, settings
     static baseSubplebbitFlags = {
         address: Flags.string({ summary: "Address of the subplebbit. Can be used to retrieve an already existing subplebbit" }),
         title: Flags.string({ summary: "Title of the subplebbit" }),
@@ -15,10 +15,5 @@ export default abstract class BaseSubplebbitOptions extends BaseCommand {
         "suggested.bannerUrl": Flags.url({ summary: "The URL of the subplebbit's banner" }),
         "suggested.backgroundUrl": Flags.url({ summary: "The URL of the subplebbit's background" }),
         "suggested.language": Flags.string({ summary: "The language of the subplebbit" })
-        // "settings.fetchThumbnailUrls": Flags.boolean({
-        //     summary: "Fetch the thumbnail URLs of comments comment.link property, could reveal the IP address of the subplebbit node",
-        //     default: false
-        // }),
-        // "settings.fetchThumbnailUrlsProxyUrl": Flags.url({ summary: "The HTTP proxy URL used to fetch thumbnail URLs" })
     };
 }
