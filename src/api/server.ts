@@ -7,7 +7,7 @@ import { SharedSingleton } from "./types.js";
 import { ValidateError } from "tsoa";
 import { AssertionError } from "assert";
 import Logger from "@plebbit/plebbit-logger";
-import { statusCodes, statusMessages } from "./responseStatuses.js";
+import { statusCodes, statusMessages } from "./response-statuses.js";
 import { ApiError } from "./apiError.js";
 import { ApiResponse } from "./apiResponse.js";
 

@@ -1,7 +1,7 @@
 import { SubplebbitEditOptions, SubplebbitType } from "@plebbit/plebbit-js/dist/node/types.js";
 import Logger from "@plebbit/plebbit-logger";
 import lodash from "lodash";
-import { statusCodes } from "../../../api/responseStatuses.js";
+import { statusCodes } from "../../../api/response-statuses.js";
 import fetch from "node-fetch";
 //@ts-ignore
 import DataObjectParser from "dataobject-parser";

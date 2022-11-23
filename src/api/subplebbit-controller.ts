@@ -5,7 +5,7 @@ import { Controller, Post, Route, Body, Query, SuccessResponse, Response } from 
 
 import { SubplebbitList } from "./types.js";
 import { sharedSingleton } from "./server.js";
-import { statusCodes, statusMessages } from "./responseStatuses.js";
+import { statusCodes, statusMessages } from "./response-statuses.js";
 import { ApiError } from "./apiError.js";
 import { ApiResponse } from "./apiResponse.js";
 import Logger from "@plebbit/plebbit-logger";

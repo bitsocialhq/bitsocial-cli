@@ -2,7 +2,7 @@ import { Flags } from "@oclif/core";
 import { SubplebbitType } from "@plebbit/plebbit-js/dist/node/types.js";
 import Logger from "@plebbit/plebbit-logger";
 import lodash from "lodash";
-import { statusCodes } from "../../../api/responseStatuses.js";
+import { statusCodes } from "../../../api/response-statuses.js";
 import fetch from "node-fetch";
 import { CreateSubplebbitOptions } from "../../types.js";
 //@ts-ignore

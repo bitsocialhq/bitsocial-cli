@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 import { expect } from "chai";
-import { statusCodes, statusMessages } from "../../src/api/responseStatuses.js";
+import { statusCodes, statusMessages } from "../../src/api/response-statuses.js";
 import { CreateSubplebbitOptions, SubplebbitType } from "@plebbit/plebbit-js/dist/node/types.js";
 import { SubplebbitList } from "../../src/api/types.js";
 import Plebbit from "@plebbit/plebbit-js";

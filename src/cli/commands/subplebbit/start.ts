@@ -1,5 +1,5 @@
 import Logger from "@plebbit/plebbit-logger";
-import { statusCodes } from "../../../api/responseStatuses.js";
+import { statusCodes, statusMessageKeys, statusMessages } from "../../../api/response-statuses.js";
 import { BaseCommand } from "../../base-command.js";
 import fetch from "node-fetch";
 

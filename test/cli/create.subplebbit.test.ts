@@ -1,5 +1,5 @@
 import { expect, test, Config } from "@oclif/test";
-import { statusCodes } from "../../src/api/responseStatuses.js";
+import { statusCodes } from "../../src/api/response-statuses.js";
 import { CreateSubplebbitOptions } from "../../src/cli/types.js";
 import defaults from "../../src/common-utils/defaults.js";
 //@ts-ignore
