@@ -18,7 +18,7 @@ describe("plebbit daemon", async () => {
 
     const startDaemon = (args: string[]): Promise<{ process: ChildProcessWithoutNullStreams }> => {
         return new Promise(async (resolve, reject) => {
-            const spawedProcess = spawn("node", [".", "daemon", ...args], { env: process.env });
+            const spawedProcess = spawn("node", ["./bin/run.js", "daemon", ...args], { env: process.env });
             spawedProcess.on("exit", (exitCode, signal) => {
                 reject(`spawnAsync process '${spawedProcess.pid}' exited with code '${exitCode}' signal '${signal}'`);
             });
