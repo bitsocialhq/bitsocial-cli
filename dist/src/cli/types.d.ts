@@ -1,4 +1,4 @@
-import { CreateSubplebbitOptions as PlebbitCreateSubplebbitOptions, SignerType } from "@plebbit/plebbit-js/dist/node/types.js";
+import { CreateSubplebbitOptions as PlebbitCreateSubplebbitOptions, SignerType, SubplebbitEditOptions } from "@plebbit/plebbit-js/dist/node/types.js";
 export interface CreateSubplebbitOptions extends Pick<PlebbitCreateSubplebbitOptions, "address" | "title" | "description" | "pubsubTopic" | "suggested"> {
     signer?: Pick<SignerType, "privateKey">;
     database?: {
@@ -6,4 +6,6 @@ export interface CreateSubplebbitOptions extends Pick<PlebbitCreateSubplebbitOpt
             filename: string;
         };
     };
+}
+export interface EditSubplebbitOptions extends Pick<SubplebbitEditOptions, "address" | "title" | "description" | "pubsubTopic" | "suggested"> {
 }

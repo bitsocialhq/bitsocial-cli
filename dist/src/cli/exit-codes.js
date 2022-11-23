@@ -11,4 +11,5 @@ export var exitStatuses;
 (function (exitStatuses) {
     exitStatuses[exitStatuses["ERR_DAEMON_IS_DOWN"] = 1] = "ERR_DAEMON_IS_DOWN";
     exitStatuses[exitStatuses["ERR_SUB_ALREADY_STARTED"] = 2] = "ERR_SUB_ALREADY_STARTED";
+    exitStatuses[exitStatuses["ERR_SUBPLEBBIT_DOES_NOT_EXIST"] = 3] = "ERR_SUBPLEBBIT_DOES_NOT_EXIST";
 })(exitStatuses || (exitStatuses = {}));

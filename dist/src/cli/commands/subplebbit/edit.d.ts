@@ -2,6 +2,11 @@
 import BaseSubplebbitOptions from "../../base-subplebbit-options.js";
 export default class Edit extends BaseSubplebbitOptions {
     static description: string;
+    static args: {
+        name: string;
+        required: boolean;
+        description: string;
+    }[];
     static examples: never[];
     static flags: {
         address: import("@oclif/core/lib/interfaces/parser.js").OptionFlag<string | undefined>;

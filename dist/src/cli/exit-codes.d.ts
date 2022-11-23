@@ -6,5 +6,6 @@ export declare enum exitCodes {
 }
 export declare enum exitStatuses {
     ERR_DAEMON_IS_DOWN = 1,
-    ERR_SUB_ALREADY_STARTED = 2
+    ERR_SUB_ALREADY_STARTED = 2,
+    ERR_SUBPLEBBIT_DOES_NOT_EXIST = 3
 }
