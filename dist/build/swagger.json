@@ -1,0 +1,1716 @@
+{
+    "components": {
+        "examples": {},
+        "headers": {},
+        "parameters": {},
+        "requestBodies": {},
+        "responses": {},
+        "schemas": {
+            "SubplebbitList": {
+                "items": {
+                    "properties": {
+                        "started": {
+                            "type": "boolean"
+                        },
+                        "address": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "started",
+                        "address"
+                    ],
+                    "type": "object"
+                },
+                "type": "array"
+            },
+            "CommentSignedPropertyNames": {
+                "items": {
+                    "type": "string",
+                    "enum": [
+                        "title",
+                        "subplebbitAddress",
+                        "author",
+                        "timestamp",
+                        "content",
+                        "link",
+                        "parentCid"
+                    ],
+                    "nullable": false
+                },
+                "type": "array"
+            },
+            "CommentEditSignedPropertyNames": {
+                "items": {
+                    "type": "string",
+                    "enum": [
+                        "subplebbitAddress",
+                        "author",
+                        "timestamp",
+                        "content",
+                        "commentCid",
+                        "deleted",
+                        "flair",
+                        "spoiler",
+                        "reason",
+                        "pinned",
+                        "locked",
+                        "removed",
+                        "moderatorReason",
+                        "commentAuthor"
+                    ],
+                    "nullable": false
+                },
+                "type": "array"
+            },
+            "VoteSignedPropertyNames": {
+                "items": {
+                    "type": "string",
+                    "enum": [
+                        "subplebbitAddress",
+                        "author",
+                        "timestamp",
+                        "commentCid",
+                        "vote"
+                    ],
+                    "nullable": false
+                },
+                "type": "array"
+            },
+            "SubplebbitSignedPropertyNames": {
+                "items": {
+                    "type": "string",
+                    "enum": [
+                        "createdAt",
+                        "updatedAt",
+                        "encryption",
+                        "title",
+                        "description",
+                        "roles",
+                        "rules",
+                        "lastPostCid",
+                        "posts",
+                        "pubsubTopic",
+                        "challengeTypes",
+                        "metrics",
+                        "features",
+                        "suggested",
+                        "flairs",
+                        "address",
+                        "metricsCid"
+                    ],
+                    "nullable": false
+                },
+                "type": "array"
+            },
+            "CommentUpdatedSignedPropertyNames": {
+                "items": {
+                    "type": "string",
+                    "enum": [
+                        "updatedAt",
+                        "author",
+                        "flair",
+                        "spoiler",
+                        "pinned",
+                        "locked",
+                        "removed",
+                        "moderatorReason",
+                        "upvoteCount",
+                        "downvoteCount",
+                        "replyCount",
+                        "authorEdit",
+                        "replies"
+                    ],
+                    "nullable": false
+                },
+                "type": "array"
+            },
+            "ChallengeRequestMessageSignedPropertyNames": {
+                "items": {
+                    "type": "string",
+                    "enum": [
+                        "challengeRequestId",
+                        "type",
+                        "encryptedPublication",
+                        "acceptedChallengeTypes"
+                    ],
+                    "nullable": false
+                },
+                "type": "array"
+            },
+            "ChallengeMessageSignedPropertyNames": {
+                "items": {
+                    "type": "string",
+                    "enum": [
+                        "challengeRequestId",
+                        "type",
+                        "encryptedChallenges"
+                    ],
+                    "nullable": false
+                },
+                "type": "array"
+            },
+            "ChallengeAnswerMessageSignedPropertyNames": {
+                "items": {
+                    "type": "string",
+                    "enum": [
+                        "challengeRequestId",
+                        "type",
+                        "challengeAnswerId",
+                        "encryptedChallengeAnswers"
+                    ],
+                    "nullable": false
+                },
+                "type": "array"
+            },
+            "ChallengeVerificationMessageSignedPropertyNames": {
+                "items": {
+                    "type": "string",
+                    "enum": [
+                        "reason",
+                        "challengeRequestId",
+                        "type",
+                        "encryptedPublication",
+                        "challengeAnswerId",
+                        "challengeSuccess",
+                        "challengeErrors"
+                    ],
+                    "nullable": false
+                },
+                "type": "array"
+            },
+            "SignedPropertyNames": {
+                "anyOf": [
+                    {
+                        "$ref": "#/components/schemas/CommentSignedPropertyNames"
+                    },
+                    {
+                        "$ref": "#/components/schemas/CommentEditSignedPropertyNames"
+                    },
+                    {
+                        "$ref": "#/components/schemas/VoteSignedPropertyNames"
+                    },
+                    {
+                        "$ref": "#/components/schemas/SubplebbitSignedPropertyNames"
+                    },
+                    {
+                        "$ref": "#/components/schemas/CommentUpdatedSignedPropertyNames"
+                    },
+                    {
+                        "$ref": "#/components/schemas/ChallengeRequestMessageSignedPropertyNames"
+                    },
+                    {
+                        "$ref": "#/components/schemas/ChallengeMessageSignedPropertyNames"
+                    },
+                    {
+                        "$ref": "#/components/schemas/ChallengeAnswerMessageSignedPropertyNames"
+                    },
+                    {
+                        "$ref": "#/components/schemas/ChallengeVerificationMessageSignedPropertyNames"
+                    }
+                ]
+            },
+            "SignatureType": {
+                "properties": {
+                    "signature": {
+                        "type": "string"
+                    },
+                    "publicKey": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "rsa"
+                        ],
+                        "nullable": false
+                    },
+                    "signedPropertyNames": {
+                        "$ref": "#/components/schemas/SignedPropertyNames"
+                    }
+                },
+                "required": [
+                    "signature",
+                    "publicKey",
+                    "type",
+                    "signedPropertyNames"
+                ],
+                "type": "object",
+                "additionalProperties": false
+            },
+            "SubplebbitEncryption": {
+                "properties": {
+                    "publicKey": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "aes-cbc"
+                        ],
+                        "nullable": false
+                    }
+                },
+                "required": [
+                    "publicKey",
+                    "type"
+                ],
+                "type": "object"
+            },
+            "ProtocolVersion": {
+                "type": "string",
+                "enum": [
+                    "1.0.0"
+                ],
+                "nullable": false
+            },
+            "Wallet": {
+                "properties": {
+                    "address": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "address"
+                ],
+                "type": "object"
+            },
+            "Nft": {
+                "properties": {
+                    "signature": {
+                        "type": "string"
+                    },
+                    "address": {
+                        "type": "string"
+                    },
+                    "id": {
+                        "type": "string"
+                    },
+                    "chainTicker": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "signature",
+                    "address",
+                    "id",
+                    "chainTicker"
+                ],
+                "type": "object"
+            },
+            "Flair": {
+                "properties": {
+                    "expiresAt": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "textColor": {
+                        "type": "string"
+                    },
+                    "backgroundColor": {
+                        "type": "string"
+                    },
+                    "text": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "text"
+                ],
+                "type": "object"
+            },
+            "SubplebbitAuthor": {
+                "properties": {
+                    "postScore": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "replyScore": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "lastCommentCid": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "postScore",
+                    "replyScore",
+                    "lastCommentCid"
+                ],
+                "type": "object",
+                "additionalProperties": false
+            },
+            "AuthorType": {
+                "properties": {
+                    "address": {
+                        "type": "string"
+                    },
+                    "previousCommentCid": {
+                        "type": "string"
+                    },
+                    "displayName": {
+                        "type": "string"
+                    },
+                    "wallets": {
+                        "properties": {},
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/Wallet"
+                        },
+                        "type": "object"
+                    },
+                    "avatar": {
+                        "$ref": "#/components/schemas/Nft"
+                    },
+                    "flair": {
+                        "$ref": "#/components/schemas/Flair"
+                    },
+                    "banExpiresAt": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "subplebbit": {
+                        "$ref": "#/components/schemas/SubplebbitAuthor"
+                    }
+                },
+                "required": [
+                    "address"
+                ],
+                "type": "object",
+                "additionalProperties": false
+            },
+            "Uint8Array": {
+                "description": "A typed array of 8-bit unsigned integer values. The contents are initialized to 0. If the\r\nrequested number of bytes could not be allocated an exception is raised.",
+                "properties": {},
+                "type": "object",
+                "additionalProperties": false
+            },
+            "SignerType": {
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "rsa"
+                        ],
+                        "nullable": false
+                    },
+                    "privateKey": {
+                        "type": "string"
+                    },
+                    "publicKey": {
+                        "type": "string"
+                    },
+                    "address": {
+                        "type": "string"
+                    },
+                    "ipfsKey": {
+                        "$ref": "#/components/schemas/Uint8Array"
+                    },
+                    "usage": {
+                        "type": "string",
+                        "enum": [
+                            "comment",
+                            "subplebbit"
+                        ]
+                    },
+                    "ipnsKeyName": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "type",
+                    "privateKey"
+                ],
+                "type": "object",
+                "additionalProperties": false
+            },
+            "Pick_Partial_CommentType_.author-or-content-or-flair_": {
+                "properties": {
+                    "author": {
+                        "$ref": "#/components/schemas/AuthorType"
+                    },
+                    "content": {
+                        "type": "string"
+                    },
+                    "flair": {
+                        "$ref": "#/components/schemas/Flair"
+                    }
+                },
+                "required": [
+                    "author"
+                ],
+                "type": "object",
+                "description": "From T, pick a set of properties whose keys are in the union K"
+            },
+            "AuthorCommentEdit": {
+                "properties": {
+                    "commentCid": {
+                        "type": "string"
+                    },
+                    "content": {
+                        "type": "string"
+                    },
+                    "deleted": {
+                        "type": "boolean"
+                    },
+                    "flair": {
+                        "$ref": "#/components/schemas/Flair"
+                    },
+                    "spoiler": {
+                        "type": "boolean"
+                    },
+                    "reason": {
+                        "type": "string"
+                    },
+                    "author": {
+                        "$ref": "#/components/schemas/AuthorType"
+                    },
+                    "signature": {
+                        "$ref": "#/components/schemas/SignatureType"
+                    },
+                    "protocolVersion": {
+                        "$ref": "#/components/schemas/ProtocolVersion"
+                    },
+                    "subplebbitAddress": {
+                        "type": "string"
+                    },
+                    "timestamp": {
+                        "type": "number",
+                        "format": "double"
+                    }
+                },
+                "required": [
+                    "commentCid",
+                    "content",
+                    "deleted",
+                    "flair",
+                    "spoiler",
+                    "reason",
+                    "author",
+                    "signature",
+                    "protocolVersion",
+                    "subplebbitAddress",
+                    "timestamp"
+                ],
+                "type": "object",
+                "additionalProperties": false
+            },
+            "PagesType": {
+                "properties": {
+                    "pages": {
+                        "$ref": "#/components/schemas/Partial_Record_PostSortName-or-ReplySortName.PageType__"
+                    },
+                    "pageCids": {
+                        "$ref": "#/components/schemas/Partial_Record_PostSortName-or-ReplySortName.string__"
+                    }
+                },
+                "type": "object",
+                "additionalProperties": false
+            },
+            "Pick_AuthorType.banExpiresAt-or-flair-or-subplebbit_": {
+                "properties": {
+                    "flair": {
+                        "$ref": "#/components/schemas/Flair"
+                    },
+                    "banExpiresAt": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "subplebbit": {
+                        "$ref": "#/components/schemas/SubplebbitAuthor"
+                    }
+                },
+                "type": "object",
+                "description": "From T, pick a set of properties whose keys are in the union K"
+            },
+            "Partial_Omit_AuthorType.subplebbit-or-banExpiresAt__": {
+                "properties": {
+                    "address": {
+                        "type": "string"
+                    },
+                    "flair": {
+                        "$ref": "#/components/schemas/Flair"
+                    },
+                    "previousCommentCid": {
+                        "type": "string"
+                    },
+                    "displayName": {
+                        "type": "string"
+                    },
+                    "wallets": {
+                        "properties": {},
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/Wallet"
+                        },
+                        "type": "object"
+                    },
+                    "avatar": {
+                        "$ref": "#/components/schemas/Nft"
+                    }
+                },
+                "type": "object",
+                "description": "Make all properties in T optional"
+            },
+            "Pick_CreateCommentOptions.Exclude_keyofCreateCommentOptions.signer__": {
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "subplebbitAddress": {
+                        "type": "string"
+                    },
+                    "author": {
+                        "$ref": "#/components/schemas/Partial_Omit_AuthorType.subplebbit-or-banExpiresAt__"
+                    },
+                    "timestamp": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "content": {
+                        "type": "string"
+                    },
+                    "link": {
+                        "type": "string"
+                    },
+                    "parentCid": {
+                        "type": "string"
+                    },
+                    "flair": {
+                        "$ref": "#/components/schemas/Flair"
+                    },
+                    "spoiler": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "subplebbitAddress"
+                ],
+                "type": "object",
+                "description": "From T, pick a set of properties whose keys are in the union K"
+            },
+            "CommentType": {
+                "properties": {
+                    "upvoteCount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "downvoteCount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "replyCount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "authorEdit": {
+                        "$ref": "#/components/schemas/AuthorCommentEdit"
+                    },
+                    "replies": {
+                        "$ref": "#/components/schemas/PagesType"
+                    },
+                    "flair": {
+                        "$ref": "#/components/schemas/Flair"
+                    },
+                    "spoiler": {
+                        "type": "boolean"
+                    },
+                    "pinned": {
+                        "type": "boolean"
+                    },
+                    "locked": {
+                        "type": "boolean"
+                    },
+                    "removed": {
+                        "type": "boolean"
+                    },
+                    "moderatorReason": {
+                        "type": "string"
+                    },
+                    "updatedAt": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "protocolVersion": {
+                        "$ref": "#/components/schemas/ProtocolVersion"
+                    },
+                    "signature": {
+                        "$ref": "#/components/schemas/SignatureType"
+                    },
+                    "author": {
+                        "$ref": "#/components/schemas/AuthorType"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "subplebbitAddress": {
+                        "type": "string"
+                    },
+                    "timestamp": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "content": {
+                        "type": "string"
+                    },
+                    "link": {
+                        "type": "string"
+                    },
+                    "parentCid": {
+                        "type": "string"
+                    },
+                    "commentCid": {
+                        "type": "string"
+                    },
+                    "deleted": {
+                        "type": "boolean"
+                    },
+                    "reason": {
+                        "type": "string"
+                    },
+                    "postCid": {
+                        "type": "string"
+                    },
+                    "previousCid": {
+                        "type": "string"
+                    },
+                    "ipnsKeyName": {
+                        "type": "string"
+                    },
+                    "depth": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "signer": {
+                        "$ref": "#/components/schemas/SignerType"
+                    },
+                    "original": {
+                        "$ref": "#/components/schemas/Pick_Partial_CommentType_.author-or-content-or-flair_"
+                    },
+                    "thumbnailUrl": {
+                        "type": "string"
+                    },
+                    "cid": {
+                        "type": "string"
+                    },
+                    "ipnsName": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "subplebbitAddress",
+                    "commentCid",
+                    "content",
+                    "deleted",
+                    "flair",
+                    "spoiler",
+                    "reason",
+                    "author",
+                    "signature",
+                    "protocolVersion",
+                    "timestamp"
+                ],
+                "type": "object",
+                "additionalProperties": false
+            },
+            "PageType": {
+                "properties": {
+                    "comments": {
+                        "items": {
+                            "$ref": "#/components/schemas/CommentType"
+                        },
+                        "type": "array"
+                    },
+                    "nextCid": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "comments"
+                ],
+                "type": "object",
+                "additionalProperties": false
+            },
+            "Partial_Record_PostSortName-or-ReplySortName.PageType__": {
+                "properties": {
+                    "hot": {
+                        "$ref": "#/components/schemas/PageType"
+                    },
+                    "new": {
+                        "$ref": "#/components/schemas/PageType"
+                    },
+                    "topHour": {
+                        "$ref": "#/components/schemas/PageType"
+                    },
+                    "topDay": {
+                        "$ref": "#/components/schemas/PageType"
+                    },
+                    "topWeek": {
+                        "$ref": "#/components/schemas/PageType"
+                    },
+                    "topMonth": {
+                        "$ref": "#/components/schemas/PageType"
+                    },
+                    "topYear": {
+                        "$ref": "#/components/schemas/PageType"
+                    },
+                    "topAll": {
+                        "$ref": "#/components/schemas/PageType"
+                    },
+                    "controversialHour": {
+                        "$ref": "#/components/schemas/PageType"
+                    },
+                    "controversialDay": {
+                        "$ref": "#/components/schemas/PageType"
+                    },
+                    "controversialWeek": {
+                        "$ref": "#/components/schemas/PageType"
+                    },
+                    "controversialMonth": {
+                        "$ref": "#/components/schemas/PageType"
+                    },
+                    "controversialYear": {
+                        "$ref": "#/components/schemas/PageType"
+                    },
+                    "controversialAll": {
+                        "$ref": "#/components/schemas/PageType"
+                    },
+                    "old": {
+                        "$ref": "#/components/schemas/PageType"
+                    }
+                },
+                "type": "object",
+                "description": "Make all properties in T optional"
+            },
+            "Partial_Record_PostSortName-or-ReplySortName.string__": {
+                "properties": {
+                    "hot": {
+                        "type": "string"
+                    },
+                    "new": {
+                        "type": "string"
+                    },
+                    "topHour": {
+                        "type": "string"
+                    },
+                    "topDay": {
+                        "type": "string"
+                    },
+                    "topWeek": {
+                        "type": "string"
+                    },
+                    "topMonth": {
+                        "type": "string"
+                    },
+                    "topYear": {
+                        "type": "string"
+                    },
+                    "topAll": {
+                        "type": "string"
+                    },
+                    "controversialHour": {
+                        "type": "string"
+                    },
+                    "controversialDay": {
+                        "type": "string"
+                    },
+                    "controversialWeek": {
+                        "type": "string"
+                    },
+                    "controversialMonth": {
+                        "type": "string"
+                    },
+                    "controversialYear": {
+                        "type": "string"
+                    },
+                    "controversialAll": {
+                        "type": "string"
+                    },
+                    "old": {
+                        "type": "string"
+                    }
+                },
+                "type": "object",
+                "description": "Make all properties in T optional"
+            },
+            "Pages": {
+                "$ref": "#/components/schemas/PagesType"
+            },
+            "Pick_Pages.pages-or-pageCids_": {
+                "properties": {
+                    "pages": {
+                        "$ref": "#/components/schemas/Partial_Record_PostSortName-or-ReplySortName.PageType__"
+                    },
+                    "pageCids": {
+                        "$ref": "#/components/schemas/Partial_Record_PostSortName-or-ReplySortName.string__"
+                    }
+                },
+                "type": "object",
+                "description": "From T, pick a set of properties whose keys are in the union K"
+            },
+            "SubplebbitRole": {
+                "properties": {
+                    "role": {
+                        "type": "string",
+                        "enum": [
+                            "owner",
+                            "admin",
+                            "moderator"
+                        ]
+                    }
+                },
+                "required": [
+                    "role"
+                ],
+                "type": "object"
+            },
+            "ChallengeType": {
+                "properties": {
+                    "challenge": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "image",
+                            "text",
+                            "video",
+                            "audio",
+                            "html"
+                        ]
+                    }
+                },
+                "required": [
+                    "challenge",
+                    "type"
+                ],
+                "type": "object",
+                "additionalProperties": false
+            },
+            "SubplebbitMetrics": {
+                "properties": {
+                    "allPostCount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "yearPostCount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "monthPostCount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "weekPostCount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "dayPostCount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "hourPostCount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "allActiveUserCount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "yearActiveUserCount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "monthActiveUserCount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "weekActiveUserCount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "dayActiveUserCount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "hourActiveUserCount": {
+                        "type": "number",
+                        "format": "double"
+                    }
+                },
+                "required": [
+                    "allPostCount",
+                    "yearPostCount",
+                    "monthPostCount",
+                    "weekPostCount",
+                    "dayPostCount",
+                    "hourPostCount",
+                    "allActiveUserCount",
+                    "yearActiveUserCount",
+                    "monthActiveUserCount",
+                    "weekActiveUserCount",
+                    "dayActiveUserCount",
+                    "hourActiveUserCount"
+                ],
+                "type": "object"
+            },
+            "SubplebbitFeatures": {
+                "properties": {
+                    "markdownVideoReplies": {
+                        "type": "boolean"
+                    },
+                    "markdownImageReplies": {
+                        "type": "boolean"
+                    },
+                    "noMarkdownVideos": {
+                        "type": "boolean"
+                    },
+                    "noMarkdownImages": {
+                        "type": "boolean"
+                    },
+                    "requirePostFlairs": {
+                        "type": "boolean"
+                    },
+                    "postFlairs": {
+                        "type": "boolean"
+                    },
+                    "requireAuthorFlairs": {
+                        "type": "boolean"
+                    },
+                    "authorFlairs": {
+                        "type": "boolean"
+                    },
+                    "safeForWork": {
+                        "type": "boolean"
+                    },
+                    "noNestedReplies": {
+                        "type": "boolean"
+                    },
+                    "anonymousAuthors": {
+                        "type": "boolean"
+                    },
+                    "noAuthors": {
+                        "type": "boolean"
+                    },
+                    "noDownvotes": {
+                        "type": "boolean"
+                    },
+                    "noUpvotes": {
+                        "type": "boolean"
+                    },
+                    "noCrossposts": {
+                        "type": "boolean"
+                    },
+                    "noPolls": {
+                        "type": "boolean"
+                    },
+                    "noImageReplies": {
+                        "type": "boolean"
+                    },
+                    "noSpoilerReplies": {
+                        "type": "boolean"
+                    },
+                    "noVideoReplies": {
+                        "type": "boolean"
+                    },
+                    "noImages": {
+                        "type": "boolean"
+                    },
+                    "noSpoilers": {
+                        "type": "boolean"
+                    },
+                    "noVideos": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "SubplebbitSuggested": {
+                "properties": {
+                    "language": {
+                        "type": "string"
+                    },
+                    "backgroundUrl": {
+                        "type": "string"
+                    },
+                    "bannerUrl": {
+                        "type": "string"
+                    },
+                    "avatarUrl": {
+                        "type": "string"
+                    },
+                    "secondaryColor": {
+                        "type": "string"
+                    },
+                    "primaryColor": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "Record_FlairOwner.Flair-Array_": {
+                "properties": {
+                    "author": {
+                        "items": {
+                            "$ref": "#/components/schemas/Flair"
+                        },
+                        "type": "array"
+                    },
+                    "post": {
+                        "items": {
+                            "$ref": "#/components/schemas/Flair"
+                        },
+                        "type": "array"
+                    }
+                },
+                "type": "object",
+                "description": "Construct a type with a set of properties K of type T"
+            },
+            "Pick_CreateSubplebbitOptions.Exclude_keyofCreateSubplebbitOptions.database__": {
+                "properties": {
+                    "createdAt": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "updatedAt": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "signer": {
+                        "$ref": "#/components/schemas/SignerType"
+                    },
+                    "encryption": {
+                        "$ref": "#/components/schemas/SubplebbitEncryption"
+                    },
+                    "signature": {
+                        "$ref": "#/components/schemas/SignatureType"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "roles": {
+                        "properties": {},
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/SubplebbitRole"
+                        },
+                        "type": "object"
+                    },
+                    "rules": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array"
+                    },
+                    "lastPostCid": {
+                        "type": "string"
+                    },
+                    "posts": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/Pages"
+                            },
+                            {
+                                "$ref": "#/components/schemas/Pick_Pages.pages-or-pageCids_"
+                            }
+                        ]
+                    },
+                    "pubsubTopic": {
+                        "type": "string"
+                    },
+                    "challengeTypes": {
+                        "items": {
+                            "$ref": "#/components/schemas/ChallengeType"
+                        },
+                        "type": "array"
+                    },
+                    "metrics": {
+                        "$ref": "#/components/schemas/SubplebbitMetrics"
+                    },
+                    "features": {
+                        "$ref": "#/components/schemas/SubplebbitFeatures"
+                    },
+                    "suggested": {
+                        "$ref": "#/components/schemas/SubplebbitSuggested"
+                    },
+                    "flairs": {
+                        "$ref": "#/components/schemas/Record_FlairOwner.Flair-Array_"
+                    },
+                    "address": {
+                        "type": "string"
+                    }
+                },
+                "type": "object",
+                "description": "From T, pick a set of properties whose keys are in the union K"
+            },
+            "SubplebbitType": {
+                "properties": {
+                    "createdAt": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "updatedAt": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "signer": {
+                        "$ref": "#/components/schemas/SignerType"
+                    },
+                    "encryption": {
+                        "$ref": "#/components/schemas/SubplebbitEncryption"
+                    },
+                    "signature": {
+                        "$ref": "#/components/schemas/SignatureType"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "roles": {
+                        "properties": {},
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/SubplebbitRole"
+                        },
+                        "type": "object"
+                    },
+                    "rules": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array"
+                    },
+                    "lastPostCid": {
+                        "type": "string"
+                    },
+                    "posts": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/Pages"
+                            },
+                            {
+                                "$ref": "#/components/schemas/Pick_Pages.pages-or-pageCids_"
+                            }
+                        ]
+                    },
+                    "pubsubTopic": {
+                        "type": "string"
+                    },
+                    "challengeTypes": {
+                        "items": {
+                            "$ref": "#/components/schemas/ChallengeType"
+                        },
+                        "type": "array"
+                    },
+                    "metrics": {
+                        "$ref": "#/components/schemas/SubplebbitMetrics"
+                    },
+                    "features": {
+                        "$ref": "#/components/schemas/SubplebbitFeatures"
+                    },
+                    "suggested": {
+                        "$ref": "#/components/schemas/SubplebbitSuggested"
+                    },
+                    "flairs": {
+                        "$ref": "#/components/schemas/Record_FlairOwner.Flair-Array_"
+                    },
+                    "address": {
+                        "type": "string"
+                    },
+                    "metricsCid": {
+                        "type": "string"
+                    },
+                    "protocolVersion": {
+                        "$ref": "#/components/schemas/ProtocolVersion"
+                    }
+                },
+                "required": [
+                    "signature",
+                    "encryption",
+                    "address",
+                    "createdAt",
+                    "updatedAt",
+                    "pubsubTopic",
+                    "protocolVersion",
+                    "posts"
+                ],
+                "type": "object",
+                "additionalProperties": false
+            },
+            "MigrationSource_unknown_": {
+                "properties": {},
+                "type": "object",
+                "additionalProperties": false
+            },
+            "MigratorConfig": {
+                "properties": {
+                    "database": {
+                        "type": "string"
+                    },
+                    "directory": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            }
+                        ]
+                    },
+                    "extension": {
+                        "type": "string"
+                    },
+                    "stub": {
+                        "type": "string"
+                    },
+                    "tableName": {
+                        "type": "string"
+                    },
+                    "schemaName": {
+                        "type": "string"
+                    },
+                    "disableTransactions": {
+                        "type": "boolean"
+                    },
+                    "disableMigrationsListValidation": {
+                        "type": "boolean"
+                    },
+                    "sortDirsSeparately": {
+                        "type": "boolean"
+                    },
+                    "loadExtensions": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array"
+                    },
+                    "migrationSource": {
+                        "$ref": "#/components/schemas/MigrationSource_unknown_"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "type": "object",
+                "additionalProperties": false
+            },
+            "Pick_Knex.Config.Exclude_keyofKnex.Config.client-or-connection-or-pool-or-postProcessResponse-or-wrapIdentifier-or-seeds-or-log__": {
+                "properties": {
+                    "debug": {
+                        "type": "boolean"
+                    },
+                    "dialect": {
+                        "type": "string"
+                    },
+                    "jsonbSupport": {
+                        "type": "boolean"
+                    },
+                    "version": {
+                        "type": "string"
+                    },
+                    "migrations": {
+                        "$ref": "#/components/schemas/MigratorConfig"
+                    },
+                    "acquireConnectionTimeout": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "useNullAsDefault": {
+                        "type": "boolean"
+                    },
+                    "searchPath": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            }
+                        ]
+                    },
+                    "asyncStackTraces": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object",
+                "description": "From T, pick a set of properties whose keys are in the union K"
+            },
+            "Omit_Knex.Config.client-or-connection-or-pool-or-postProcessResponse-or-wrapIdentifier-or-seeds-or-log_": {
+                "$ref": "#/components/schemas/Pick_Knex.Config.Exclude_keyofKnex.Config.client-or-connection-or-pool-or-postProcessResponse-or-wrapIdentifier-or-seeds-or-log__",
+                "description": "Construct a type with the properties of T except for those in type K."
+            },
+            "CreateSubplebbitOptions": {
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "roles": {
+                        "properties": {},
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/SubplebbitRole"
+                        },
+                        "type": "object"
+                    },
+                    "rules": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array"
+                    },
+                    "lastPostCid": {
+                        "type": "string"
+                    },
+                    "posts": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/Pages"
+                            },
+                            {
+                                "$ref": "#/components/schemas/Pick_Pages.pages-or-pageCids_"
+                            }
+                        ]
+                    },
+                    "pubsubTopic": {
+                        "type": "string"
+                    },
+                    "challengeTypes": {
+                        "items": {
+                            "$ref": "#/components/schemas/ChallengeType"
+                        },
+                        "type": "array"
+                    },
+                    "metrics": {
+                        "$ref": "#/components/schemas/SubplebbitMetrics"
+                    },
+                    "features": {
+                        "$ref": "#/components/schemas/SubplebbitFeatures"
+                    },
+                    "suggested": {
+                        "$ref": "#/components/schemas/SubplebbitSuggested"
+                    },
+                    "flairs": {
+                        "$ref": "#/components/schemas/Record_FlairOwner.Flair-Array_"
+                    },
+                    "address": {
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "updatedAt": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "signer": {
+                        "$ref": "#/components/schemas/SignerType"
+                    },
+                    "encryption": {
+                        "$ref": "#/components/schemas/SubplebbitEncryption"
+                    },
+                    "signature": {
+                        "$ref": "#/components/schemas/SignatureType"
+                    },
+                    "database": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/Omit_Knex.Config.client-or-connection-or-pool-or-postProcessResponse-or-wrapIdentifier-or-seeds-or-log_"
+                            },
+                            {
+                                "properties": {
+                                    "useNullAsDefault": {
+                                        "type": "boolean",
+                                        "enum": [
+                                            true
+                                        ],
+                                        "nullable": false
+                                    },
+                                    "client": {
+                                        "type": "string"
+                                    },
+                                    "connection": {
+                                        "properties": {
+                                            "debug": {
+                                                "type": "boolean"
+                                            },
+                                            "flags": {
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "type": "array"
+                                            },
+                                            "filename": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": [
+                                            "filename"
+                                        ],
+                                        "type": "object"
+                                    }
+                                },
+                                "required": [
+                                    "useNullAsDefault",
+                                    "client",
+                                    "connection"
+                                ],
+                                "type": "object"
+                            }
+                        ]
+                    }
+                },
+                "type": "object",
+                "additionalProperties": false
+            },
+            "SubplebbitEditOptions": {
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "roles": {
+                        "properties": {},
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/SubplebbitRole"
+                        },
+                        "type": "object"
+                    },
+                    "rules": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array"
+                    },
+                    "lastPostCid": {
+                        "type": "string"
+                    },
+                    "posts": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/Pages"
+                            },
+                            {
+                                "$ref": "#/components/schemas/Pick_Pages.pages-or-pageCids_"
+                            }
+                        ]
+                    },
+                    "pubsubTopic": {
+                        "type": "string"
+                    },
+                    "challengeTypes": {
+                        "items": {
+                            "$ref": "#/components/schemas/ChallengeType"
+                        },
+                        "type": "array"
+                    },
+                    "metrics": {
+                        "$ref": "#/components/schemas/SubplebbitMetrics"
+                    },
+                    "features": {
+                        "$ref": "#/components/schemas/SubplebbitFeatures"
+                    },
+                    "suggested": {
+                        "$ref": "#/components/schemas/SubplebbitSuggested"
+                    },
+                    "flairs": {
+                        "$ref": "#/components/schemas/Record_FlairOwner.Flair-Array_"
+                    },
+                    "address": {
+                        "type": "string"
+                    }
+                },
+                "type": "object",
+                "additionalProperties": false
+            }
+        },
+        "securitySchemes": {}
+    },
+    "info": {
+        "title": "plebbit-cli",
+        "version": "0.0.1",
+        "description": "Command line interface to Plebbit API",
+        "license": {
+            "name": "GPL-2.0-only"
+        },
+        "contact": {
+            "name": "Esteban Abaroa, Rinse"
+        }
+    },
+    "openapi": "3.0.0",
+    "paths": {
+        "/api/v0/subplebbit/list": {
+            "post": {
+                "operationId": "List",
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubplebbitList"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [],
+                "parameters": []
+            }
+        },
+        "/api/v0/subplebbit/create": {
+            "post": {
+                "operationId": "Create",
+                "responses": {
+                    "201": {
+                        "description": "Subplebbit created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubplebbitType"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Request body is invalid as a JSON"
+                    }
+                },
+                "security": [],
+                "parameters": [],
+                "requestBody": {
+                    "description": "The initial fields of the subplebbit. Could also be {address} to retrieve a subplebbit that has been created in the past",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateSubplebbitOptions",
+                                "description": "The initial fields of the subplebbit. Could also be {address} to retrieve a subplebbit that has been created in the past"
+                            },
+                            "example": {
+                                "title": "Memes",
+                                "description": "Post your memes here."
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/subplebbit/start": {
+            "post": {
+                "operationId": "Start",
+                "responses": {
+                    "200": {
+                        "description": "Subplebbit started"
+                    },
+                    "404": {
+                        "description": "Subplebbit does not exist"
+                    },
+                    "409": {
+                        "description": "Subplebbit is already started"
+                    }
+                },
+                "description": "Start a subplebbit that has been created before. Subplebbit will be receiving new challenges through pubsub and publish a new IPNS record to be consumed by end users\n\n Note: If this the first time you're starting the subplebbit, you should expect a a response within 2 minutes.",
+                "security": [],
+                "parameters": [
+                    {
+                        "description": "The address of the subplebbit to be started",
+                        "in": "query",
+                        "name": "address",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            }
+        },
+        "/api/v0/subplebbit/stop": {
+            "post": {
+                "operationId": "Stop",
+                "responses": {
+                    "200": {
+                        "description": "Subplebbit stopped"
+                    },
+                    "404": {
+                        "description": "Subplebbit does not exist"
+                    },
+                    "409": {
+                        "description": "Subplebbit is not running"
+                    }
+                },
+                "description": "Stop a running subplebbit",
+                "security": [],
+                "parameters": [
+                    {
+                        "description": "The address of the subplebbit to be stopped",
+                        "in": "query",
+                        "name": "address",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            }
+        },
+        "/api/v0/subplebbit/edit": {
+            "post": {
+                "operationId": "Edit",
+                "responses": {
+                    "200": {
+                        "description": "Subplebbit edited"
+                    },
+                    "400": {
+                        "description": "Request body is invalid as a JSON"
+                    },
+                    "404": {
+                        "description": "Subplebbit does not exist"
+                    }
+                },
+                "description": "Edit subplebbit fields",
+                "security": [],
+                "parameters": [
+                    {
+                        "description": "The address of the subplebbit to be edited",
+                        "in": "query",
+                        "name": "address",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "The fields to change within subplebbit",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SubplebbitEditOptions",
+                                "description": "The fields to change within subplebbit"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "servers": [
+        {
+            "url": "/"
+        }
+    ]
+}

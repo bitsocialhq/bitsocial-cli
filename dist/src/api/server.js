@@ -4,8 +4,8 @@ exports.startApi = exports.sharedSingleton = void 0;
 const tslib_1 = require("tslib");
 const express_1 = tslib_1.__importStar(require("express"));
 const routes_js_1 = require("../../build/routes.js");
+const swagger_json_1 = tslib_1.__importDefault(require("../../build/swagger.json"));
 const swagger_ui_express_1 = tslib_1.__importDefault(require("swagger-ui-express"));
-const fs_extra_1 = tslib_1.__importDefault(require("fs-extra"));
 const plebbit_js_1 = tslib_1.__importDefault(require("@plebbit/plebbit-js"));
 const tsoa_1 = require("tsoa");
 const assert_1 = require("assert");
@@ -57,7 +57,7 @@ async function startApi(plebbitApiPort, ipfsApiEndpoint, ipfsPubsubApiEndpoint, 
         }
         next();
     });
-    const swaggerHtml = swagger_ui_express_1.default.generateHTML(JSON.parse((await fs_extra_1.default.promises.readFile("build/swagger.json")).toString()));
+    const swaggerHtml = swagger_ui_express_1.default.generateHTML(swagger_json_1.default);
     app.use("/api/v0/docs", swagger_ui_express_1.default.serve, async (_req, res) => {
         return res.send(swaggerHtml);
     });

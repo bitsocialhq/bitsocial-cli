@@ -6,12 +6,42 @@ const child_process_1 = require("child_process");
 const path_1 = tslib_1.__importDefault(require("path"));
 const env_paths_1 = tslib_1.__importDefault(require("env-paths"));
 const plebbit_logger_1 = tslib_1.__importDefault(require("@plebbit/plebbit-logger"));
+const fs_1 = require("fs");
 const fs_extra_1 = tslib_1.__importDefault(require("fs-extra"));
 const assert_1 = tslib_1.__importDefault(require("assert"));
 //@ts-ignore
 const go_ipfs_1 = require("go-ipfs");
 const paths = (0, env_paths_1.default)("plebbit", { suffix: "" });
 const log = (0, plebbit_logger_1.default)("plebbit-cli:startIpfsNode");
+async function getIpfsExePath() {
+    // If the app is packaged with 'pkg' as a single binary, we have to copy the ipfs binary somewhere so we can execute it
+    //@ts-ignore
+    if (process.pkg) {
+        // creating a temporary folder for our executable file
+        const destinationPath = path_1.default.join(paths.data, "ipfs_binary", path_1.default.basename((0, go_ipfs_1.path)()));
+        await fs_extra_1.default.mkdir(path_1.default.dirname(destinationPath), { recursive: true });
+        const ipfsAsset = await fs_1.promises.open((0, go_ipfs_1.path)());
+        const ipfsAssetStat = await ipfsAsset.stat();
+        let dst, dstStat;
+        try {
+            dst = await fs_1.promises.open(destinationPath);
+            dstStat = await dst.stat();
+        }
+        catch { }
+        log.trace(`Ipfs asset size: ${ipfsAssetStat.size}, dst size: ${dstStat?.size}`);
+        if (dstStat?.size !== ipfsAssetStat.size) {
+            log(`Copying ipfs binary to ${destinationPath}`);
+            await fs_1.promises.copyFile((0, go_ipfs_1.path)(), destinationPath);
+            await fs_1.promises.chmod(destinationPath, 0o775);
+        }
+        await ipfsAsset.close();
+        if (dst)
+            await dst.close();
+        return destinationPath;
+    }
+    else
+        return (0, go_ipfs_1.path)();
+}
 // use this custom function instead of spawnSync for better logging
 // also spawnSync might have been causing crash on start on windows
 function _spawnAsync(...args) {
@@ -34,10 +64,9 @@ async function startIpfsNode(apiPortNumber, gatewayPortNumber, testing) {
     return new Promise(async (resolve, reject) => {
         const ipfsDataPath = process.env["IPFS_PATH"] || path_1.default.join(paths.data, "ipfs");
         await fs_extra_1.default.mkdirp(ipfsDataPath);
-        const ipfsExePath = (0, go_ipfs_1.path)();
+        const ipfsExePath = await getIpfsExePath();
         log.trace(`IpfsDataPath (${ipfsDataPath}), ipfsExePath (${ipfsExePath})`);
         await fs_extra_1.default.ensureDir(ipfsDataPath);
-        await fs_extra_1.default.ensureFile(ipfsExePath);
         const env = { IPFS_PATH: ipfsDataPath };
         try {
             await _spawnAsync(ipfsExePath, ["init"], { env, hideWindows: true });
@@ -51,7 +80,7 @@ async function startIpfsNode(apiPortNumber, gatewayPortNumber, testing) {
         if (testing)
             await _spawnAsync(ipfsExePath, ["bootstrap", "rm", "--all"], { env });
         const daemonArgs = process.env["OFFLINE_MODE"] === "1" ? ["--offline"] : ["--enable-pubsub-experiment", "--enable-namesys-pubsub"];
-        const ipfsProcess = (0, child_process_1.spawn)(ipfsExePath, ["daemon", ...daemonArgs], { env });
+        const ipfsProcess = (0, child_process_1.spawn)(ipfsExePath, ["daemon", ...daemonArgs], { env, cwd: process.cwd() });
         log.trace(`ipfs daemon process started with pid ${ipfsProcess.pid}`);
         let lastError;
         ipfsProcess.stderr.on("data", (data) => {
