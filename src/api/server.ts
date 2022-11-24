@@ -1,7 +1,7 @@
 import express, { Response as ExResponse, Request as ExRequest, json, NextFunction } from "express";
 import { RegisterRoutes } from "../../build/routes.js";
+import swaggerJson from "../../build/swagger.json";
 import swaggerUi from "swagger-ui-express";
-import fs from "fs-extra";
 import Plebbit from "@plebbit/plebbit-js";
 import { SharedSingleton } from "./types.js";
 import { ValidateError } from "tsoa";
@@ -66,8 +66,7 @@ export async function startApi(plebbitApiPort: number, ipfsApiEndpoint: string, 
         next();
     });
 
-    const swaggerHtml = swaggerUi.generateHTML(JSON.parse((await fs.promises.readFile("build/swagger.json")).toString()));
-
+    const swaggerHtml = swaggerUi.generateHTML(swaggerJson);
     app.use("/api/v0/docs", swaggerUi.serve, async (_req: ExRequest, res: ExResponse) => {
         return res.send(swaggerHtml);
     });
