@@ -13,7 +13,7 @@
     "scripts": {
         "build": "rm -rf dist/  && tsoa spec-and-routes -c config/tsoa.json && tsc --project config/tsconfig.json && yarn oclif manifest",
         "build:watch": "nodemon --config config/build.nodemon.json",
-        "build:executables": "pkg . --out-path executables/",
+        "build:executables": "yarn build && pkg . ",
         "start:api": "SYNC_INTERVAL_MS=100 IPFS_PORT=32449 IPFS_PUBSUB_PORT=32447 PLEBBIT_API_PORT=32441 PLEBBIT_DATA_PATH=/tmp/.plebbit node dist/test/run-test-server.js",
         "start:api:watch": "nodemon --config config/apiDev.nodemon.json",
         "start:ipfs": "IPFS_API_PORT=32449 IPFS_GATEWAY_PORT=32440 IPFS_PATH=/tmp/.ipfs1 OFFLINE_MODE=1 node dist/test/run-test-ipfs.js & IPFS_PATH=/tmp/.ipfs2 IPFS_API_PORT=32447 IPFS_GATEWAY_PORT=32448 node dist/test/run-test-ipfs.js",
@@ -44,6 +44,20 @@
                 "description": "Access and manage your subplebbits"
             }
         }
+    },
+    "pkg": {
+        "scripts": "./dist/**/*.js",
+        "assets": [
+            "node_modules/swagger-ui-dist/**/*"
+        ],
+        "outputPath": "exec",
+        "targets": [
+            "node16-linux-x64",
+            "node16-linux-arm64",
+            "node16-macos-x64",
+            "node16-macos-arm64",
+            "node16-win-x64"
+        ]
     },
     "devDependencies": {
         "@oclif/test": "2.2.12",
