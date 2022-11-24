@@ -1,4 +1,4 @@
-/// <reference types="node" resolution-mode="require"/>
+/// <reference types="node" />
 import BaseSubplebbitOptions from "../../base-subplebbit-options.js";
 export default class Create extends BaseSubplebbitOptions {
     static description: string;

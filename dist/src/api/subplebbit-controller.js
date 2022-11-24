@@ -1,18 +1,21 @@
-import { __decorate, __metadata, __param } from "tslib";
-import { RUNNING_SUBPLEBBITS } from "@plebbit/plebbit-js/dist/node/subplebbit.js";
-import { messages as plebbitErrorMessages } from "@plebbit/plebbit-js/dist/node/errors.js";
-import { Controller, Post, Route, Body, Query, SuccessResponse, Response } from "tsoa";
-import { sharedSingleton } from "./server.js";
-import { statusCodes, statusMessages } from "./response-statuses.js";
-import { ApiError } from "./apiError.js";
-import { ApiResponse } from "./apiResponse.js";
-import Logger from "@plebbit/plebbit-logger";
-let SubplebbitController = class SubplebbitController extends Controller {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SubplebbitController = void 0;
+const tslib_1 = require("tslib");
+const subplebbit_js_1 = require("@plebbit/plebbit-js/dist/node/subplebbit.js");
+const errors_js_1 = require("@plebbit/plebbit-js/dist/node/errors.js");
+const tsoa_1 = require("tsoa");
+const server_js_1 = require("./server.js");
+const response_statuses_js_1 = require("./response-statuses.js");
+const apiError_js_1 = require("./apiError.js");
+const apiResponse_js_1 = require("./apiResponse.js");
+const plebbit_logger_1 = tslib_1.__importDefault(require("@plebbit/plebbit-logger"));
+let SubplebbitController = class SubplebbitController extends tsoa_1.Controller {
     async list() {
-        const log = Logger("plebbit-cli:api:subplebbit:list");
+        const log = (0, plebbit_logger_1.default)("plebbit-cli:api:subplebbit:list");
         log(`Received request to list subplebbits`);
-        const subsFromPlebbit = await sharedSingleton.plebbit.listSubplebbits();
-        return subsFromPlebbit.map((address) => ({ started: Boolean(RUNNING_SUBPLEBBITS[address]), address }));
+        const subsFromPlebbit = await server_js_1.sharedSingleton.plebbit.listSubplebbits();
+        return subsFromPlebbit.map((address) => ({ started: Boolean(subplebbit_js_1.RUNNING_SUBPLEBBITS[address]), address }));
     }
     /**
      * @example requestBody { "title": "Memes", "description": "Post your memes here." }
@@ -20,11 +23,11 @@ let SubplebbitController = class SubplebbitController extends Controller {
      * @returns Subplebbit after being created. Will omit signer and senstive fields
      */
     async create(requestBody) {
-        const log = Logger("plebbit-cli:api:subplebbit:create");
+        const log = (0, plebbit_logger_1.default)("plebbit-cli:api:subplebbit:create");
         log(`Received request to create with body, `, requestBody);
-        const sub = await sharedSingleton.plebbit.createSubplebbit(requestBody);
-        sharedSingleton.subs[sub.address] = sub;
-        throw new ApiResponse(statusMessages.SUCCESS_SUBPLEBBIT_CREATED, statusCodes.SUCCESS_SUBPLEBBIT_CREATED, sub.toJSON());
+        const sub = await server_js_1.sharedSingleton.plebbit.createSubplebbit(requestBody);
+        server_js_1.sharedSingleton.subs[sub.address] = sub;
+        throw new apiResponse_js_1.ApiResponse(response_statuses_js_1.statusMessages.SUCCESS_SUBPLEBBIT_CREATED, response_statuses_js_1.statusCodes.SUCCESS_SUBPLEBBIT_CREATED, sub.toJSON());
     }
     /**
      * Start a subplebbit that has been created before. Subplebbit will be receiving new challenges through pubsub and publish a new IPNS record to be consumed by end users
@@ -34,25 +37,25 @@ let SubplebbitController = class SubplebbitController extends Controller {
      *
      */
     async start(address) {
-        const log = Logger("plebbit-cli:api:subplebbit:start");
+        const log = (0, plebbit_logger_1.default)("plebbit-cli:api:subplebbit:start");
         log(`Received request to start subplebbit ${address}`);
-        if (!(address in sharedSingleton.subs) && (await sharedSingleton.plebbit.listSubplebbits()).includes(address))
-            sharedSingleton.subs[address] = await sharedSingleton.plebbit.createSubplebbit({ address });
-        if (!(address in sharedSingleton.subs))
-            throw new ApiError(statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
+        if (!(address in server_js_1.sharedSingleton.subs) && (await server_js_1.sharedSingleton.plebbit.listSubplebbits()).includes(address))
+            server_js_1.sharedSingleton.subs[address] = await server_js_1.sharedSingleton.plebbit.createSubplebbit({ address });
+        if (!(address in server_js_1.sharedSingleton.subs))
+            throw new apiError_js_1.ApiError(response_statuses_js_1.statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, response_statuses_js_1.statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
         //@ts-ignore
         if (process.env["SYNC_INTERVAL_MS"])
-            sharedSingleton.subs[address]._syncIntervalMs = parseInt(process.env["SYNC_INTERVAL_MS"]);
+            server_js_1.sharedSingleton.subs[address]._syncIntervalMs = parseInt(process.env["SYNC_INTERVAL_MS"]);
         try {
-            await sharedSingleton.subs[address].start();
+            await server_js_1.sharedSingleton.subs[address].start();
         }
         catch (e) {
-            if (e instanceof Error && e.message === plebbitErrorMessages.ERR_SUB_ALREADY_STARTED)
-                throw new ApiError(statusMessages.ERR_SUB_ALREADY_STARTED, statusCodes.ERR_SUB_ALREADY_STARTED);
+            if (e instanceof Error && e.message === errors_js_1.messages.ERR_SUB_ALREADY_STARTED)
+                throw new apiError_js_1.ApiError(response_statuses_js_1.statusMessages.ERR_SUB_ALREADY_STARTED, response_statuses_js_1.statusCodes.ERR_SUB_ALREADY_STARTED);
             else
                 throw e;
         }
-        throw new ApiResponse(statusMessages.SUCCESS_SUBPLEBBIT_STARTED, statusCodes.SUCCESS_SUBPLEBBIT_STARTED, undefined);
+        throw new apiResponse_js_1.ApiResponse(response_statuses_js_1.statusMessages.SUCCESS_SUBPLEBBIT_STARTED, response_statuses_js_1.statusCodes.SUCCESS_SUBPLEBBIT_STARTED, undefined);
     }
     /**
      * Stop a running subplebbit
@@ -61,15 +64,15 @@ let SubplebbitController = class SubplebbitController extends Controller {
      *
      */
     async stop(address) {
-        const log = Logger("plebbit-cli:api:subplebbit:stop");
+        const log = (0, plebbit_logger_1.default)("plebbit-cli:api:subplebbit:stop");
         log(`Received request to stop subplebbit ${address}`);
-        if (!(address in sharedSingleton.subs))
-            throw new ApiError(statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
-        if (sharedSingleton.subs[address]?.dbHandler === undefined)
+        if (!(address in server_js_1.sharedSingleton.subs))
+            throw new apiError_js_1.ApiError(response_statuses_js_1.statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, response_statuses_js_1.statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
+        if (server_js_1.sharedSingleton.subs[address]?.dbHandler === undefined)
             // If db handler is undefined that means the subplebbit is not running
-            throw new ApiError(statusMessages.ERR_SUBPLEBBIT_NOT_RUNNING, statusCodes.ERR_SUBPLEBBIT_NOT_RUNNING);
-        await sharedSingleton.subs[address]?.stop();
-        throw new ApiResponse(statusMessages.SUCCESS_SUBPLEBBIT_STOPPED, statusCodes.SUCCESS_SUBPLEBBIT_STOPPED, undefined);
+            throw new apiError_js_1.ApiError(response_statuses_js_1.statusMessages.ERR_SUBPLEBBIT_NOT_RUNNING, response_statuses_js_1.statusCodes.ERR_SUBPLEBBIT_NOT_RUNNING);
+        await server_js_1.sharedSingleton.subs[address]?.stop();
+        throw new apiResponse_js_1.ApiResponse(response_statuses_js_1.statusMessages.SUCCESS_SUBPLEBBIT_STOPPED, response_statuses_js_1.statusCodes.SUCCESS_SUBPLEBBIT_STOPPED, undefined);
     }
     /**
      * Edit subplebbit fields
@@ -79,63 +82,63 @@ let SubplebbitController = class SubplebbitController extends Controller {
      *
      */
     async edit(address, requestBody) {
-        const log = Logger("plebbit-cli:api:subplebbit:edit");
+        const log = (0, plebbit_logger_1.default)("plebbit-cli:api:subplebbit:edit");
         log(`Received request to edit subplebbit ${address} with request body, `, requestBody);
-        if (!(address in sharedSingleton.subs) && (await sharedSingleton.plebbit.listSubplebbits()).includes(address))
-            sharedSingleton.subs[address] = await sharedSingleton.plebbit.createSubplebbit({ address });
-        if (!(address in sharedSingleton.subs))
-            throw new ApiError(statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
-        await sharedSingleton.subs[address]?.edit(requestBody);
-        throw new ApiResponse(statusMessages.SUCCESS_SUBPLEBBIT_EDITED, statusCodes.SUCCESS_SUBPLEBBIT_EDITED, undefined);
+        if (!(address in server_js_1.sharedSingleton.subs) && (await server_js_1.sharedSingleton.plebbit.listSubplebbits()).includes(address))
+            server_js_1.sharedSingleton.subs[address] = await server_js_1.sharedSingleton.plebbit.createSubplebbit({ address });
+        if (!(address in server_js_1.sharedSingleton.subs))
+            throw new apiError_js_1.ApiError(response_statuses_js_1.statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, response_statuses_js_1.statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
+        await server_js_1.sharedSingleton.subs[address]?.edit(requestBody);
+        throw new apiResponse_js_1.ApiResponse(response_statuses_js_1.statusMessages.SUCCESS_SUBPLEBBIT_EDITED, response_statuses_js_1.statusCodes.SUCCESS_SUBPLEBBIT_EDITED, undefined);
     }
 };
-__decorate([
-    Post("list"),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
+tslib_1.__decorate([
+    (0, tsoa_1.Post)("list"),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", []),
+    tslib_1.__metadata("design:returntype", Promise)
 ], SubplebbitController.prototype, "list", null);
-__decorate([
-    SuccessResponse(statusCodes.SUCCESS_SUBPLEBBIT_CREATED, statusMessages.SUCCESS_SUBPLEBBIT_CREATED),
-    Response(statusCodes.ERR_INVALID_JSON_FOR_REQUEST_BODY, statusMessages.ERR_INVALID_JSON_FOR_REQUEST_BODY),
-    Post("create"),
-    __param(0, Body()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
+tslib_1.__decorate([
+    (0, tsoa_1.SuccessResponse)(response_statuses_js_1.statusCodes.SUCCESS_SUBPLEBBIT_CREATED, response_statuses_js_1.statusMessages.SUCCESS_SUBPLEBBIT_CREATED),
+    (0, tsoa_1.Response)(response_statuses_js_1.statusCodes.ERR_INVALID_JSON_FOR_REQUEST_BODY, response_statuses_js_1.statusMessages.ERR_INVALID_JSON_FOR_REQUEST_BODY),
+    (0, tsoa_1.Post)("create"),
+    tslib_1.__param(0, (0, tsoa_1.Body)()),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [Object]),
+    tslib_1.__metadata("design:returntype", Promise)
 ], SubplebbitController.prototype, "create", null);
-__decorate([
-    SuccessResponse(statusCodes.SUCCESS_SUBPLEBBIT_STARTED, statusMessages.SUCCESS_SUBPLEBBIT_STARTED),
-    Response(statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST, statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST),
-    Response(statusCodes.ERR_SUB_ALREADY_STARTED, statusMessages.ERR_SUB_ALREADY_STARTED),
-    Post("start"),
-    __param(0, Query("address")),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
+tslib_1.__decorate([
+    (0, tsoa_1.SuccessResponse)(response_statuses_js_1.statusCodes.SUCCESS_SUBPLEBBIT_STARTED, response_statuses_js_1.statusMessages.SUCCESS_SUBPLEBBIT_STARTED),
+    (0, tsoa_1.Response)(response_statuses_js_1.statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST, response_statuses_js_1.statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST),
+    (0, tsoa_1.Response)(response_statuses_js_1.statusCodes.ERR_SUB_ALREADY_STARTED, response_statuses_js_1.statusMessages.ERR_SUB_ALREADY_STARTED),
+    (0, tsoa_1.Post)("start"),
+    tslib_1.__param(0, (0, tsoa_1.Query)("address")),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [String]),
+    tslib_1.__metadata("design:returntype", Promise)
 ], SubplebbitController.prototype, "start", null);
-__decorate([
-    SuccessResponse(statusCodes.SUCCESS_SUBPLEBBIT_STOPPED, statusMessages.SUCCESS_SUBPLEBBIT_STOPPED),
-    Response(statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST, statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST),
-    Response(statusCodes.ERR_SUBPLEBBIT_NOT_RUNNING, statusMessages.ERR_SUBPLEBBIT_NOT_RUNNING),
-    Post("stop"),
-    __param(0, Query("address")),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
+tslib_1.__decorate([
+    (0, tsoa_1.SuccessResponse)(response_statuses_js_1.statusCodes.SUCCESS_SUBPLEBBIT_STOPPED, response_statuses_js_1.statusMessages.SUCCESS_SUBPLEBBIT_STOPPED),
+    (0, tsoa_1.Response)(response_statuses_js_1.statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST, response_statuses_js_1.statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST),
+    (0, tsoa_1.Response)(response_statuses_js_1.statusCodes.ERR_SUBPLEBBIT_NOT_RUNNING, response_statuses_js_1.statusMessages.ERR_SUBPLEBBIT_NOT_RUNNING),
+    (0, tsoa_1.Post)("stop"),
+    tslib_1.__param(0, (0, tsoa_1.Query)("address")),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [String]),
+    tslib_1.__metadata("design:returntype", Promise)
 ], SubplebbitController.prototype, "stop", null);
-__decorate([
-    SuccessResponse(statusCodes.SUCCESS_SUBPLEBBIT_EDITED, statusMessages.SUCCESS_SUBPLEBBIT_EDITED),
-    Response(statusCodes.ERR_INVALID_JSON_FOR_REQUEST_BODY, statusMessages.ERR_INVALID_JSON_FOR_REQUEST_BODY),
-    Response(statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST, statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST),
-    Post("edit"),
-    __param(0, Query("address")),
-    __param(1, Body()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
-    __metadata("design:returntype", Promise)
+tslib_1.__decorate([
+    (0, tsoa_1.SuccessResponse)(response_statuses_js_1.statusCodes.SUCCESS_SUBPLEBBIT_EDITED, response_statuses_js_1.statusMessages.SUCCESS_SUBPLEBBIT_EDITED),
+    (0, tsoa_1.Response)(response_statuses_js_1.statusCodes.ERR_INVALID_JSON_FOR_REQUEST_BODY, response_statuses_js_1.statusMessages.ERR_INVALID_JSON_FOR_REQUEST_BODY),
+    (0, tsoa_1.Response)(response_statuses_js_1.statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST, response_statuses_js_1.statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST),
+    (0, tsoa_1.Post)("edit"),
+    tslib_1.__param(0, (0, tsoa_1.Query)("address")),
+    tslib_1.__param(1, (0, tsoa_1.Body)()),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [String, Object]),
+    tslib_1.__metadata("design:returntype", Promise)
 ], SubplebbitController.prototype, "edit", null);
-SubplebbitController = __decorate([
-    Route("/api/v0/subplebbit")
+SubplebbitController = tslib_1.__decorate([
+    (0, tsoa_1.Route)("/api/v0/subplebbit")
 ], SubplebbitController);
-export { SubplebbitController };
+exports.SubplebbitController = SubplebbitController;

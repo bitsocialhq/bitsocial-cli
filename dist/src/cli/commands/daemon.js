@@ -1,40 +1,43 @@
-import { Flags } from "@oclif/core";
-import Logger from "@plebbit/plebbit-logger";
-import { startApi } from "../../api/server.js";
-import defaults from "../../common-utils/defaults.js";
-import { startIpfsNode } from "../../ipfs/startIpfs.js";
-import { BaseCommand } from "../base-command.js";
-export default class Daemon extends BaseCommand {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const tslib_1 = require("tslib");
+const core_1 = require("@oclif/core");
+const plebbit_logger_1 = tslib_1.__importDefault(require("@plebbit/plebbit-logger"));
+const server_js_1 = require("../../api/server.js");
+const defaults_js_1 = tslib_1.__importDefault(require("../../common-utils/defaults.js"));
+const startIpfs_js_1 = require("../../ipfs/startIpfs.js");
+class Daemon extends core_1.Command {
     async run() {
         const { flags } = await this.parse(Daemon);
-        const log = Logger("plebbit-cli:daemon");
+        const log = (0, plebbit_logger_1.default)("plebbit-cli:daemon");
         log(`flags: `, flags);
-        const { pid: ipfsPid } = await startIpfsNode(flags.ipfsApiPort, flags.ipfsGatewayPort, false);
+        const { pid: ipfsPid } = await (0, startIpfs_js_1.startIpfsNode)(flags.ipfsApiPort, flags.ipfsGatewayPort, false);
         process.on("exit", () => process.kill(ipfsPid));
-        await startApi(flags.plebbitApiPort, `http://localhost:${flags.ipfsApiPort}/api/v0`, `http://localhost:${flags.ipfsApiPort}/api/v0`, flags.plebbitDataPath);
+        await (0, server_js_1.startApi)(flags.plebbitApiPort, `http://localhost:${flags.ipfsApiPort}/api/v0`, `http://localhost:${flags.ipfsApiPort}/api/v0`, flags.plebbitDataPath);
     }
 }
+exports.default = Daemon;
 Daemon.description = "Run a network-connected Plebbit node";
 Daemon.flags = {
-    plebbitDataPath: Flags.directory({
+    plebbitDataPath: core_1.Flags.directory({
         description: "Path to plebbit data path where subplebbits and ipfs node are stored",
         required: true,
-        default: defaults.PLEBBIT_DATA_PATH
+        default: defaults_js_1.default.PLEBBIT_DATA_PATH
     }),
-    plebbitApiPort: Flags.integer({
+    plebbitApiPort: core_1.Flags.integer({
         description: "Specify Plebbit API port to listen on",
         required: true,
-        default: defaults.PLEBBIT_API_PORT
+        default: defaults_js_1.default.PLEBBIT_API_PORT
     }),
-    ipfsApiPort: Flags.integer({
+    ipfsApiPort: core_1.Flags.integer({
         description: "Specify the API port of the ipfs node to listen on",
         required: true,
-        default: defaults.IPFS_API_PORT
+        default: defaults_js_1.default.IPFS_API_PORT
     }),
-    ipfsGatewayPort: Flags.integer({
+    ipfsGatewayPort: core_1.Flags.integer({
         description: "Specify the gateway port of the ipfs node to listen on",
         required: true,
-        default: defaults.IPFS_GATEWAY_PORT
+        default: defaults_js_1.default.IPFS_GATEWAY_PORT
     })
 };
 Daemon.examples = [];

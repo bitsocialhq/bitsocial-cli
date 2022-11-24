@@ -1,17 +1,20 @@
-import { Flags } from "@oclif/core";
-import { BaseCommand } from "./base-command.js";
-export default class BaseSubplebbitOptions extends BaseCommand {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const core_1 = require("@oclif/core");
+const base_command_js_1 = require("./base-command.js");
+class BaseSubplebbitOptions extends base_command_js_1.BaseCommand {
 }
+exports.default = BaseSubplebbitOptions;
 // TODO implement roles,rules, features, flairs, settings
 BaseSubplebbitOptions.baseSubplebbitFlags = {
-    address: Flags.string({ summary: "Address of the subplebbit. Can be used to retrieve an already existing subplebbit" }),
-    title: Flags.string({ summary: "Title of the subplebbit" }),
-    description: Flags.string({ summary: "Description of the subplebbit" }),
-    pubsubTopic: Flags.string({ summary: "The string to publish to in the pubsub, a public key of the subplebbit owner's choice" }),
-    "suggested.primaryColor": Flags.string({ sumamry: "Primary color of the subplebbit in hex" }),
-    "suggested.secondaryColor": Flags.string({ summary: "Secondary color of the subplebbit in hex" }),
-    "suggested.avatarUrl": Flags.url({ summary: "The URL of the subplebbit's avatar" }),
-    "suggested.bannerUrl": Flags.url({ summary: "The URL of the subplebbit's banner" }),
-    "suggested.backgroundUrl": Flags.url({ summary: "The URL of the subplebbit's background" }),
-    "suggested.language": Flags.string({ summary: "The language of the subplebbit" })
+    address: core_1.Flags.string({ summary: "Address of the subplebbit. Can be used to retrieve an already existing subplebbit" }),
+    title: core_1.Flags.string({ summary: "Title of the subplebbit" }),
+    description: core_1.Flags.string({ summary: "Description of the subplebbit" }),
+    pubsubTopic: core_1.Flags.string({ summary: "The string to publish to in the pubsub, a public key of the subplebbit owner's choice" }),
+    "suggested.primaryColor": core_1.Flags.string({ sumamry: "Primary color of the subplebbit in hex" }),
+    "suggested.secondaryColor": core_1.Flags.string({ summary: "Secondary color of the subplebbit in hex" }),
+    "suggested.avatarUrl": core_1.Flags.url({ summary: "The URL of the subplebbit's avatar" }),
+    "suggested.bannerUrl": core_1.Flags.url({ summary: "The URL of the subplebbit's banner" }),
+    "suggested.backgroundUrl": core_1.Flags.url({ summary: "The URL of the subplebbit's background" }),
+    "suggested.language": core_1.Flags.string({ summary: "The language of the subplebbit" })
 };

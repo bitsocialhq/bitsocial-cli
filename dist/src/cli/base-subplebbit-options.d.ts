@@ -1,4 +1,4 @@
-/// <reference types="node" resolution-mode="require"/>
+/// <reference types="node" />
 import { BaseCommand } from "./base-command.js";
 export default abstract class BaseSubplebbitOptions extends BaseCommand {
     static baseSubplebbitFlags: {

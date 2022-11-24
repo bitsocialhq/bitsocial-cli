@@ -1,9 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.RegisterRoutes = void 0;
 /* tslint:disable */
 /* eslint-disable */
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { ValidationService, ValidateError, fetchMiddlewares } from '@tsoa/runtime';
+const runtime_1 = require("@tsoa/runtime");
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { SubplebbitController } from './../src/api/subplebbit-controller.js';
+const subplebbit_controller_1 = require("./../src/api/subplebbit-controller");
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 const models = {
     "SubplebbitList": {
@@ -406,20 +409,20 @@ const models = {
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
-const validationService = new ValidationService(models);
+const validationService = new runtime_1.ValidationService(models);
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-export function RegisterRoutes(app) {
+function RegisterRoutes(app) {
     // ###########################################################################################################
     //  NOTE: If you do not see routes for all of your controllers in this file, then you might not have informed tsoa of where to look
     //      Please look into the "controllerPathGlobs" config option described in the readme: https://github.com/lukeautry/tsoa
     // ###########################################################################################################
-    app.post('/api/v0/subplebbit/list', ...(fetchMiddlewares(SubplebbitController)), ...(fetchMiddlewares(SubplebbitController.prototype.list)), function SubplebbitController_list(request, response, next) {
+    app.post('/api/v0/subplebbit/list', ...((0, runtime_1.fetchMiddlewares)(subplebbit_controller_1.SubplebbitController)), ...((0, runtime_1.fetchMiddlewares)(subplebbit_controller_1.SubplebbitController.prototype.list)), function SubplebbitController_list(request, response, next) {
         const args = {};
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         let validatedArgs = [];
         try {
             validatedArgs = getValidatedArgs(args, request, response);
-            const controller = new SubplebbitController();
+            const controller = new subplebbit_controller_1.SubplebbitController();
             const promise = controller.list.apply(controller, validatedArgs);
             promiseHandler(controller, promise, response, undefined, next);
         }
@@ -428,7 +431,7 @@ export function RegisterRoutes(app) {
         }
     });
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    app.post('/api/v0/subplebbit/create', ...(fetchMiddlewares(SubplebbitController)), ...(fetchMiddlewares(SubplebbitController.prototype.create)), function SubplebbitController_create(request, response, next) {
+    app.post('/api/v0/subplebbit/create', ...((0, runtime_1.fetchMiddlewares)(subplebbit_controller_1.SubplebbitController)), ...((0, runtime_1.fetchMiddlewares)(subplebbit_controller_1.SubplebbitController.prototype.create)), function SubplebbitController_create(request, response, next) {
         const args = {
             requestBody: { "in": "body", "name": "requestBody", "required": true, "ref": "CreateSubplebbitOptions" },
         };
@@ -436,7 +439,7 @@ export function RegisterRoutes(app) {
         let validatedArgs = [];
         try {
             validatedArgs = getValidatedArgs(args, request, response);
-            const controller = new SubplebbitController();
+            const controller = new subplebbit_controller_1.SubplebbitController();
             const promise = controller.create.apply(controller, validatedArgs);
             promiseHandler(controller, promise, response, 201, next);
         }
@@ -445,7 +448,7 @@ export function RegisterRoutes(app) {
         }
     });
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    app.post('/api/v0/subplebbit/start', ...(fetchMiddlewares(SubplebbitController)), ...(fetchMiddlewares(SubplebbitController.prototype.start)), function SubplebbitController_start(request, response, next) {
+    app.post('/api/v0/subplebbit/start', ...((0, runtime_1.fetchMiddlewares)(subplebbit_controller_1.SubplebbitController)), ...((0, runtime_1.fetchMiddlewares)(subplebbit_controller_1.SubplebbitController.prototype.start)), function SubplebbitController_start(request, response, next) {
         const args = {
             address: { "in": "query", "name": "address", "required": true, "dataType": "string" },
         };
@@ -453,7 +456,7 @@ export function RegisterRoutes(app) {
         let validatedArgs = [];
         try {
             validatedArgs = getValidatedArgs(args, request, response);
-            const controller = new SubplebbitController();
+            const controller = new subplebbit_controller_1.SubplebbitController();
             const promise = controller.start.apply(controller, validatedArgs);
             promiseHandler(controller, promise, response, 200, next);
         }
@@ -462,7 +465,7 @@ export function RegisterRoutes(app) {
         }
     });
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    app.post('/api/v0/subplebbit/stop', ...(fetchMiddlewares(SubplebbitController)), ...(fetchMiddlewares(SubplebbitController.prototype.stop)), function SubplebbitController_stop(request, response, next) {
+    app.post('/api/v0/subplebbit/stop', ...((0, runtime_1.fetchMiddlewares)(subplebbit_controller_1.SubplebbitController)), ...((0, runtime_1.fetchMiddlewares)(subplebbit_controller_1.SubplebbitController.prototype.stop)), function SubplebbitController_stop(request, response, next) {
         const args = {
             address: { "in": "query", "name": "address", "required": true, "dataType": "string" },
         };
@@ -470,7 +473,7 @@ export function RegisterRoutes(app) {
         let validatedArgs = [];
         try {
             validatedArgs = getValidatedArgs(args, request, response);
-            const controller = new SubplebbitController();
+            const controller = new subplebbit_controller_1.SubplebbitController();
             const promise = controller.stop.apply(controller, validatedArgs);
             promiseHandler(controller, promise, response, 200, next);
         }
@@ -479,7 +482,7 @@ export function RegisterRoutes(app) {
         }
     });
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    app.post('/api/v0/subplebbit/edit', ...(fetchMiddlewares(SubplebbitController)), ...(fetchMiddlewares(SubplebbitController.prototype.edit)), function SubplebbitController_edit(request, response, next) {
+    app.post('/api/v0/subplebbit/edit', ...((0, runtime_1.fetchMiddlewares)(subplebbit_controller_1.SubplebbitController)), ...((0, runtime_1.fetchMiddlewares)(subplebbit_controller_1.SubplebbitController.prototype.edit)), function SubplebbitController_edit(request, response, next) {
         const args = {
             address: { "in": "query", "name": "address", "required": true, "dataType": "string" },
             requestBody: { "in": "body", "name": "requestBody", "required": true, "ref": "SubplebbitEditOptions" },
@@ -488,7 +491,7 @@ export function RegisterRoutes(app) {
         let validatedArgs = [];
         try {
             validatedArgs = getValidatedArgs(args, request, response);
-            const controller = new SubplebbitController();
+            const controller = new subplebbit_controller_1.SubplebbitController();
             const promise = controller.edit.apply(controller, validatedArgs);
             promiseHandler(controller, promise, response, 200, next);
         }
@@ -574,10 +577,11 @@ export function RegisterRoutes(app) {
             }
         });
         if (Object.keys(fieldErrors).length > 0) {
-            throw new ValidateError(fieldErrors, '');
+            throw new runtime_1.ValidateError(fieldErrors, '');
         }
         return values;
     }
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 }
+exports.RegisterRoutes = RegisterRoutes;
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

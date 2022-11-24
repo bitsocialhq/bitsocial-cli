@@ -1,29 +1,32 @@
-import Logger from "@plebbit/plebbit-logger";
-import lodash from "lodash";
-import { statusCodes, statusMessageKeys, statusMessages } from "../../../api/response-statuses.js";
-import fetch from "node-fetch";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const tslib_1 = require("tslib");
+const plebbit_logger_1 = tslib_1.__importDefault(require("@plebbit/plebbit-logger"));
+const lodash_1 = tslib_1.__importDefault(require("lodash"));
+const response_statuses_js_1 = require("../../../api/response-statuses.js");
+const node_fetch_1 = tslib_1.__importDefault(require("node-fetch"));
 //@ts-ignore
-import DataObjectParser from "dataobject-parser";
-import BaseSubplebbitOptions from "../../base-subplebbit-options.js";
-import { exitStatuses } from "../../exit-codes.js";
-export default class Edit extends BaseSubplebbitOptions {
+const dataobject_parser_1 = tslib_1.__importDefault(require("dataobject-parser"));
+const base_subplebbit_options_js_1 = tslib_1.__importDefault(require("../../base-subplebbit-options.js"));
+const exit_codes_js_1 = require("../../exit-codes.js");
+class Edit extends base_subplebbit_options_js_1.default {
     async run() {
         const { flags, args } = await this.parse(Edit);
-        const log = Logger("plebbit-cli:commands:subplebbit:edit");
+        const log = (0, plebbit_logger_1.default)("plebbit-cli:commands:subplebbit:edit");
         log(`flags: `, flags);
         await this.stopIfDaemonIsDown(flags.apiUrl.toString());
-        const editOptions = DataObjectParser.transpose(lodash.omit(flags, ["apiUrl"]))["_data"];
-        const res = await fetch.default(`${flags.apiUrl}/subplebbit/edit?address=${args["address"]}`, {
+        const editOptions = dataobject_parser_1.default.transpose(lodash_1.default.omit(flags, ["apiUrl"]))["_data"];
+        const res = await (0, node_fetch_1.default)(`${flags.apiUrl}/subplebbit/edit?address=${args["address"]}`, {
             body: JSON.stringify(editOptions),
             method: "POST",
             headers: { "content-type": "application/json" }
         });
-        if (res.status === statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST)
-            this.error(statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, {
-                code: statusMessageKeys.ERR_SUBPLEBBIT_DOES_NOT_EXIST,
-                exit: exitStatuses.ERR_SUBPLEBBIT_DOES_NOT_EXIST
+        if (res.status === response_statuses_js_1.statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST)
+            this.error(response_statuses_js_1.statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, {
+                code: response_statuses_js_1.statusMessageKeys.ERR_SUBPLEBBIT_DOES_NOT_EXIST,
+                exit: exit_codes_js_1.exitStatuses.ERR_SUBPLEBBIT_DOES_NOT_EXIST
             });
-        if (res.status !== statusCodes.SUCCESS_SUBPLEBBIT_EDITED) {
+        if (res.status !== response_statuses_js_1.statusCodes.SUCCESS_SUBPLEBBIT_EDITED) {
             // TODO, status text is not enough to explain error. Include more info
             this.logToStderr(res.statusText);
             this.exit(1);
@@ -31,6 +34,7 @@ export default class Edit extends BaseSubplebbitOptions {
         this.log(JSON.stringify(this.toSuccessJson(await res.json())));
     }
 }
+exports.default = Edit;
 Edit.description = "Edit a subplebbit";
 Edit.args = [
     {
@@ -41,4 +45,4 @@ Edit.args = [
 ];
 Edit.examples = [];
 // TODO implement roles, flairs flag
-Edit.flags = { ...BaseSubplebbitOptions.baseSubplebbitFlags };
+Edit.flags = { ...base_subplebbit_options_js_1.default.baseSubplebbitFlags };

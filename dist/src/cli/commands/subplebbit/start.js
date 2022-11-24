@@ -1,33 +1,36 @@
-import Logger from "@plebbit/plebbit-logger";
-import { statusCodes, statusMessageKeys, statusMessages } from "../../../api/response-statuses.js";
-import { BaseCommand } from "../../base-command.js";
-import fetch from "node-fetch";
-import { exitStatuses } from "../../exit-codes.js";
-export default class Start extends BaseCommand {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const tslib_1 = require("tslib");
+const plebbit_logger_1 = tslib_1.__importDefault(require("@plebbit/plebbit-logger"));
+const response_statuses_js_1 = require("../../../api/response-statuses.js");
+const base_command_js_1 = require("../../base-command.js");
+const node_fetch_1 = tslib_1.__importDefault(require("node-fetch"));
+const exit_codes_js_1 = require("../../exit-codes.js");
+class Start extends base_command_js_1.BaseCommand {
     async run() {
         const { argv, flags } = await this.parse(Start);
-        const log = Logger("plebbit-cli:commands:subplebbit:start");
+        const log = (0, plebbit_logger_1.default)("plebbit-cli:commands:subplebbit:start");
         log(`argv: `, argv);
         log(`flags: `, flags);
         await this.stopIfDaemonIsDown(flags.apiUrl.toString());
         for (const address of argv) {
             const url = `${flags.apiUrl}/subplebbit/start?address=${address}`;
-            const res = await fetch.default(url, { method: "POST" });
-            if (res.status === statusCodes.ERR_SUB_ALREADY_STARTED)
-                this.error(statusMessages.ERR_SUB_ALREADY_STARTED, {
-                    code: statusMessageKeys.ERR_SUB_ALREADY_STARTED,
-                    exit: exitStatuses.ERR_SUB_ALREADY_STARTED
+            const res = await (0, node_fetch_1.default)(url, { method: "POST" });
+            if (res.status === response_statuses_js_1.statusCodes.ERR_SUB_ALREADY_STARTED)
+                this.error(response_statuses_js_1.statusMessages.ERR_SUB_ALREADY_STARTED, {
+                    code: response_statuses_js_1.statusMessageKeys.ERR_SUB_ALREADY_STARTED,
+                    exit: exit_codes_js_1.exitStatuses.ERR_SUB_ALREADY_STARTED
                 });
-            if (res.status !== statusCodes.SUCCESS_SUBPLEBBIT_STARTED)
+            if (res.status !== response_statuses_js_1.statusCodes.SUCCESS_SUBPLEBBIT_STARTED)
                 this.error(res.statusText);
             else
                 this.log(address);
         }
     }
 }
+exports.default = Start;
 Start.description = "Start a subplebbit";
 Start.strict = false; // To allow for variable length arguments
-// TODO implement auto completion for start command by providing a discrete set of subplebbit addresses to start
 Start.args = [
     {
         name: "addresses",

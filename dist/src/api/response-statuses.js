@@ -1,4 +1,7 @@
-export var statusMessages;
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.statusCodes = exports.statusMessageKeys = exports.statusMessages = void 0;
+var statusMessages;
 (function (statusMessages) {
     statusMessages["ERR_INVALID_JSON_FOR_REQUEST_BODY"] = "Request body is invalid as a JSON";
     statusMessages["ERR_SUBPLEBBIT_DOES_NOT_EXIST"] = "Subplebbit does not exist";
@@ -9,9 +12,9 @@ export var statusMessages;
     statusMessages["SUCCESS_SUBPLEBBIT_STARTED"] = "Subplebbit started";
     statusMessages["SUCCESS_SUBPLEBBIT_STOPPED"] = "Subplebbit stopped";
     statusMessages["SUCCESS_SUBPLEBBIT_EDITED"] = "Subplebbit edited";
-})(statusMessages || (statusMessages = {}));
-export const statusMessageKeys = Object.assign({}, ...Object.keys(statusMessages).map((key) => ({ [key]: key })));
-export var statusCodes;
+})(statusMessages = exports.statusMessages || (exports.statusMessages = {}));
+exports.statusMessageKeys = Object.assign({}, ...Object.keys(statusMessages).map((key) => ({ [key]: key })));
+var statusCodes;
 (function (statusCodes) {
     statusCodes[statusCodes["ERR_INVALID_JSON_FOR_REQUEST_BODY"] = 400] = "ERR_INVALID_JSON_FOR_REQUEST_BODY";
     statusCodes[statusCodes["ERR_SUB_ALREADY_STARTED"] = 409] = "ERR_SUB_ALREADY_STARTED";
@@ -22,4 +25,4 @@ export var statusCodes;
     statusCodes[statusCodes["SUCCESS_SUBPLEBBIT_STARTED"] = 200] = "SUCCESS_SUBPLEBBIT_STARTED";
     statusCodes[statusCodes["SUCCESS_SUBPLEBBIT_STOPPED"] = 200] = "SUCCESS_SUBPLEBBIT_STOPPED";
     statusCodes[statusCodes["SUCCESS_SUBPLEBBIT_EDITED"] = 200] = "SUCCESS_SUBPLEBBIT_EDITED";
-})(statusCodes || (statusCodes = {}));
+})(statusCodes = exports.statusCodes || (exports.statusCodes = {}));

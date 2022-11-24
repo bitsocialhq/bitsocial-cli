@@ -1,5 +1,5 @@
-import { BaseCommand } from "../base-command.js";
-export default class Daemon extends BaseCommand {
+import { Command } from "@oclif/core";
+export default class Daemon extends Command {
     static description: string;
     static flags: {
         plebbitDataPath: import("@oclif/core/lib/interfaces/parser.js").OptionFlag<string>;

@@ -1,4 +1,4 @@
-/// <reference types="node" resolution-mode="require"/>
+/// <reference types="node" />
 import { Command } from "@oclif/core";
 import { URL } from "url";
 export declare abstract class BaseCommand extends Command {
