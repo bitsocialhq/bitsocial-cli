@@ -27,7 +27,7 @@
         "/oclif.manifest.json"
     ],
     "bin": {
-        "plebbit": "./bin/run.js"
+        "plebbit": "./bin/run"
     },
     "main": "./dist/src/index.js",
     "oclif": {
