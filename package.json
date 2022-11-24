@@ -43,6 +43,9 @@
             "subplebbit": {
                 "description": "Access and manage your subplebbits"
             }
+        },
+        "macos": {
+            "identifier": "org.plebbit.cli"
         }
     },
     "pkg": {
