@@ -7,8 +7,7 @@
         "specVersion": 3
     },
     "routes": {
-        "routesDir": "build",
-        "esm": true
+        "routesDir": "build"
     },
     "compilerOptions": {
         "moduleResolution": 3

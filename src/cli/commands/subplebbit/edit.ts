@@ -32,7 +32,7 @@ export default class Edit extends BaseSubplebbitOptions {
         await this.stopIfDaemonIsDown(flags.apiUrl.toString());
         const editOptions: SubplebbitEditOptions = DataObjectParser.transpose(lodash.omit(flags, ["apiUrl"]))["_data"];
 
-        const res = await fetch.default(`${flags.apiUrl}/subplebbit/edit?address=${args["address"]}`, {
+        const res = await fetch(`${flags.apiUrl}/subplebbit/edit?address=${args["address"]}`, {
             body: JSON.stringify(editOptions),
             method: "POST",
             headers: { "content-type": "application/json" }

@@ -1,11 +1,10 @@
-import { Flags } from "@oclif/core";
+import { Flags, Command } from "@oclif/core";
 import Logger from "@plebbit/plebbit-logger";
 import { startApi } from "../../api/server.js";
 import defaults from "../../common-utils/defaults.js";
 import { startIpfsNode } from "../../ipfs/startIpfs.js";
-import { BaseCommand } from "../base-command.js";
 
-export default class Daemon extends BaseCommand {
+export default class Daemon extends Command {
     static override description = "Run a network-connected Plebbit node";
 
     static override flags = {

@@ -1,7 +1,7 @@
 import { expect, test } from "@oclif/test";
-import { statusCodes } from "../../src/api/response-statuses.js";
+import { statusCodes } from "../../dist/src/api/response-statuses.js";
 import { CreateSubplebbitOptions } from "../../src/cli/types.js";
-import defaults from "../../src/common-utils/defaults.js";
+import defaults from "../../dist/src/common-utils/defaults.js";
 //@ts-ignore
 import DataObjectParser from "dataobject-parser";
 

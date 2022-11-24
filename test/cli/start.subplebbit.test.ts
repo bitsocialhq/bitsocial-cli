@@ -1,7 +1,7 @@
 import { expect, test } from "@oclif/test";
-import { statusCodes, statusMessages } from "../../src/api/response-statuses.js";
-import { exitStatuses } from "../../src/cli/exit-codes.js";
-import defaults from "../../src/common-utils/defaults.js";
+import { statusCodes, statusMessages } from "../../dist/src/api/response-statuses.js";
+import { exitStatuses } from "../../dist/src/cli/exit-codes.js";
+import defaults from "../../dist/src/common-utils/defaults.js";
 
 describe("plebbit subplebbit start", () => {
     const addresses = ["plebbit.eth", "plebbit2.eth"];

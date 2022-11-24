@@ -17,15 +17,12 @@
         "exactOptionalPropertyTypes": false,
         "noUnusedLocals": false,
         "noUnusedParameters": false,
-        "moduleResolution": "Node16",
         "baseUrl": ".",
         "esModuleInterop": true,
-        "importHelpers": true
-    },
-    "ts-node": {
-        "esm": true
+        "importHelpers": true,
+        "moduleResolution": "Node16"
     },
     "include": ["../src/**/*", "../test/**/run*.ts"],
     "exclude": ["../node_modules"],
-    "extends": "@tsconfig/node16-strictest-esm/tsconfig.json"
+    "extends": "@tsconfig/node16-strictest/tsconfig.json"
 }

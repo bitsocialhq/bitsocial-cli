@@ -9,7 +9,6 @@ export default class Start extends BaseCommand {
 
     static override strict = false; // To allow for variable length arguments
 
-    // TODO implement auto completion for start command by providing a discrete set of subplebbit addresses to start
     static override args = [
         {
             name: "addresses", // name of arg to show in help and reference with args[name]
@@ -30,7 +29,7 @@ export default class Start extends BaseCommand {
         await this.stopIfDaemonIsDown(flags.apiUrl.toString());
         for (const address of argv) {
             const url = `${flags.apiUrl}/subplebbit/start?address=${address}`;
-            const res = await fetch.default(url, { method: "POST" });
+            const res = await fetch(url, { method: "POST" });
             if (res.status === statusCodes.ERR_SUB_ALREADY_STARTED)
                 this.error(statusMessages.ERR_SUB_ALREADY_STARTED, {
                     code: statusMessageKeys.ERR_SUB_ALREADY_STARTED,

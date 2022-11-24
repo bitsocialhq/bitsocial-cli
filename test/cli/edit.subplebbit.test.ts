@@ -1,10 +1,10 @@
 import { expect, test } from "@oclif/test";
-import { statusCodes, statusMessages } from "../../src/api/response-statuses.js";
-import defaults from "../../src/common-utils/defaults.js";
+import { statusCodes, statusMessages } from "../../dist/src/api/response-statuses.js";
+import defaults from "../../dist/src/common-utils/defaults.js";
 //@ts-ignore
 import DataObjectParser from "dataobject-parser";
-import { EditSubplebbitOptions } from "../../src/cli/types.js";
-import { exitStatuses } from "../../src/cli/exit-codes.js";
+import { EditSubplebbitOptions } from "../../dist/src/cli/types.js";
+import { exitStatuses } from "../../dist/src/cli/exit-codes.js";
 
 describe("plebbit subplebbit edit", () => {
     const editOptions: EditSubplebbitOptions = {

@@ -15,7 +15,7 @@ export abstract class BaseCommand extends Command {
     private _isDaemonUp = async (apiUrl: string) => {
         try {
             const url = `${apiUrl}/subplebbit/list`;
-            await (await fetch.default(url, { method: "POST" })).json();
+            await (await fetch(url, { method: "POST" })).json();
             return true;
         } catch (e) {
             return false;

@@ -32,16 +32,14 @@ export default class Create extends BaseSubplebbitOptions {
         await this.stopIfDaemonIsDown(flags.apiUrl.toString());
         const createOptions: CreateSubplebbitOptions = DataObjectParser.transpose(lodash.omit(flags, ["apiUrl"]))["_data"];
 
-        const res = await fetch.default(`${flags.apiUrl}/subplebbit/create`, {
+        const res = await fetch(`${flags.apiUrl}/subplebbit/create`, {
             body: JSON.stringify(createOptions),
             method: "POST",
             headers: { "content-type": "application/json" }
         });
-        if (res.status !== statusCodes.SUCCESS_SUBPLEBBIT_CREATED) {
+        if (res.status !== statusCodes.SUCCESS_SUBPLEBBIT_CREATED)
             // TODO, status text is not enough to explain error. Include more info
-            this.logToStderr(res.statusText);
-            this.exit(1);
-        }
+            this.error(res.statusText);
 
         this.log(JSON.stringify(this.toSuccessJson(<SubplebbitType>await res.json())));
     }

@@ -1,6 +1,6 @@
 import { expect, test } from "@oclif/test";
-import { exitStatuses } from "../../src/cli/exit-codes.js";
-import defaults from "../../src/common-utils/defaults.js";
+import { exitStatuses } from "../../dist/src/cli/exit-codes.js";
+import defaults from "../../dist/src/common-utils/defaults.js";
 
 describe("plebbit subplebbit list", () => {
     const subList = [

@@ -1,7 +1,7 @@
 // This file is to test root commands like `plebbit daemon` or `plebbit get`, whereas commands like `plebbit subplebbit start` are considered nested
 import Plebbit from "@plebbit/plebbit-js";
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
-import defaults from "../../src/common-utils/defaults.js";
+import defaults from "../../dist/src/common-utils/defaults.js";
 import fetch from "node-fetch";
 import { SubplebbitList } from "../../src/api/types.js";
 import { Plebbit as PlebbitClass } from "@plebbit/plebbit-js/dist/node/plebbit.js";
@@ -18,7 +18,7 @@ describe("plebbit daemon", async () => {
 
     const startDaemon = (args: string[]): Promise<{ process: ChildProcessWithoutNullStreams }> => {
         return new Promise(async (resolve, reject) => {
-            const spawedProcess = spawn("node", ["./bin/run.js", "daemon", ...args], { env: process.env });
+            const spawedProcess = spawn("node", ["./bin/run", "daemon", ...args], { env: process.env });
             spawedProcess.on("exit", (exitCode, signal) => {
                 reject(`spawnAsync process '${spawedProcess.pid}' exited with code '${exitCode}' signal '${signal}'`);
             });
@@ -42,7 +42,7 @@ describe("plebbit daemon", async () => {
         plebbit = await Plebbit({ ipfsHttpClientOptions: `http://localhost:${defaults.IPFS_API_PORT}` });
         expect(plebbit.ipfsGatewayUrl).to.equal(`http://127.0.0.1:${defaults.IPFS_GATEWAY_PORT}`);
         // We're able to retrieve ipfs gateway url from ipfs node, that means ipfs node was ran correctly
-        const res = await fetch.default(`http://localhost:${defaults.PLEBBIT_API_PORT}/api/v0/subplebbit/list`, {
+        const res = await fetch(`http://localhost:${defaults.PLEBBIT_API_PORT}/api/v0/subplebbit/list`, {
             method: "POST"
         });
         const subs: SubplebbitList = <SubplebbitList>await res.json();
@@ -55,7 +55,7 @@ describe("plebbit daemon", async () => {
         // Test whether daemon is reachable, it should not be reachable
         //@ts-ignore
         await assert.isRejected(
-            fetch.default(`http://localhost:${defaults.PLEBBIT_API_PORT}/api/v0/subplebbit/list`, {
+            fetch(`http://localhost:${defaults.PLEBBIT_API_PORT}/api/v0/subplebbit/list`, {
                 method: "POST"
             }),
             "ECONNRESET",

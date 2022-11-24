@@ -11,8 +11,6 @@ import { statusCodes, statusMessages } from "./response-statuses.js";
 import { ApiError } from "./apiError.js";
 import { ApiResponse } from "./apiResponse.js";
 
-const swaggerHtml = swaggerUi.generateHTML(JSON.parse((await fs.promises.readFile("build/swagger.json")).toString()));
-
 export let sharedSingleton: SharedSingleton;
 
 export async function startApi(plebbitApiPort: number, ipfsApiEndpoint: string, ipfsPubsubApiEndpoint: string, plebbitDataPath: string) {
@@ -67,6 +65,8 @@ export async function startApi(plebbitApiPort: number, ipfsApiEndpoint: string, 
 
         next();
     });
+
+    const swaggerHtml = swaggerUi.generateHTML(JSON.parse((await fs.promises.readFile("build/swagger.json")).toString()));
 
     app.use("/api/v0/docs", swaggerUi.serve, async (_req: ExRequest, res: ExResponse) => {
         return res.send(swaggerHtml);
