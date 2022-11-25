@@ -118,3 +118,5 @@ test-karma-webpack
 .test-ipfs*
 
 oclif.manifest.json
+
+exec*/
