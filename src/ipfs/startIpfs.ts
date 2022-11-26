@@ -61,7 +61,7 @@ function _spawnAsync(...args: any[]) {
 }
 export async function startIpfsNode(apiPortNumber: number, gatewayPortNumber: number, testing: boolean): Promise<{ pid: number }> {
     return new Promise(async (resolve, reject) => {
-        const ipfsDataPath = process.env["IPFS_PATH"] || path.join(paths.data, "ipfs");
+        const ipfsDataPath = process.env["IPFS_PATH"] || path.join(paths.data, ".ipfs-cli");
         await fs.mkdirp(ipfsDataPath);
 
         const ipfsExePath = await getIpfsExePath();
