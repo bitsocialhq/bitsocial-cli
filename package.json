@@ -1,6 +1,6 @@
 {
     "name": "plebbit-cli",
-    "version": "0.0.1",
+    "version": "0.0.0-development",
     "description": "Command line interface to Plebbit API",
     "types": "./dist/src/index.d.ts",
     "homepage": "https://github.com/plebbit/plebbit-cli",
@@ -20,7 +20,8 @@
         "test:api": "PLEBBIT_API_PORT=32441 IPFS_PORT=32449 IPFS_PUBSUB_PORT=32447 ts-mocha --config config/.mocharc.json -p config/tsconfig.json test/api/*.test.ts",
         "test:cli": "PLEBBIT_API_PORT=32441 ts-mocha --config config/.mocharc.json -p config/tsconfig.json test/cli/*.test.ts",
         "commit": "cz",
-        "prepare": "husky install"
+        "prepare": "husky install",
+        "semantic-release": "semantic-release"
     },
     "files": [
         "/bin",
@@ -93,6 +94,8 @@
         "nodemon": "2.0.20",
         "oclif": "3.2.27",
         "pkg": "5.8.0",
+        "semantic-release": "19.0.5",
+        "semantic-release-cli": "5.4.4",
         "shx": "0.3.4",
         "ts-mocha": "10.0.0",
         "ts-node": "10.9.1",
