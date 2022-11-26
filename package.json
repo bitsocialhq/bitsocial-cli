@@ -45,9 +45,6 @@
             "subplebbit": {
                 "description": "Access and manage your subplebbits"
             }
-        },
-        "macos": {
-            "identifier": "org.plebbit.cli"
         }
     },
     "pkg": {
@@ -65,13 +62,15 @@
     },
     "config": {
         "commitizen": {
-            "path": "./node_modules/cz-conventional-changelog"
+            "path": "cz-conventional-changelog"
         }
     },
     "engines": {
         "node": "16.18.1"
     },
     "devDependencies": {
+        "@commitlint/cli": "17.3.0",
+        "@commitlint/config-conventional": "17.3.0",
         "@oclif/test": "2.2.12",
         "@tsconfig/node16-strictest": "1.0.4",
         "@types/chai": "4.3.4",
@@ -89,6 +88,7 @@
         "eslint": "8.27.0",
         "eslint-config-oclif": "4.0.0",
         "eslint-config-oclif-typescript": "1.0.3",
+        "husky": "8.0.2",
         "mocha": "10.1.0",
         "nodemon": "2.0.20",
         "oclif": "3.2.27",
@@ -98,8 +98,7 @@
         "ts-node": "10.9.1",
         "tslib": "2.4.1",
         "typescript": "4.9.3",
-        "wait-on": "6.0.1",
-        "husky": "8.0.0"
+        "wait-on": "6.0.1"
     },
     "dependencies": {
         "@oclif/core": "1.20.4",
