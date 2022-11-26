@@ -32,6 +32,6 @@ jobs:
       # commit and push dist folder
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: CI build
+          commit_message: 'build(packaging): CI build'
           file_pattern: dist build
           add_options: '--force'
