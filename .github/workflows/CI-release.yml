@@ -53,10 +53,12 @@ jobs:
       - name: 'Get latest release tag'
         id: previoustag
         uses: "WyriHaximus/github-action-get-previous-tag@v1"
+      - name: 'Store pkg-compliant operating system name'
+        run: if [[ ${{ runner.os }} == "Windows" ]] ; then echo "osPkg=win" >> $GITHUB_ENV; else echo ${{ runner.os }} >> $GITHUB_ENV; fi 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Generate ${{ runner.os }}-${{ matrix.arch }} executable
-        run: mkdir temp && yarn pkg . -t node16-${{ runner.os }}-${{ matrix.arch }} --output-path temp/ -o plebbit && cp bin/install.sh temp/install.sh
+        run: mkdir temp && yarn pkg . -t node16-${{ env.osPkg }}-${{ matrix.arch }} --output-path temp/ -o plebbit && cp bin/install.sh temp/install.sh
       - name: Compress windows binaries
         if: runner.os == 'Windows'
         run: mv temp/plebbit temp/plebbit.exe && zip -r plebbit_${{ steps.previoustag.outputs.tag }}_${{ runner.os }}-${{ matrix.arch }}.zip temp/ && echo "exe=plebbit_${{ steps.previoustag.outputs.tag }}_${{ runner.os }}-${{ matrix.arch }}.zip" >> $GITHUB_ENV
