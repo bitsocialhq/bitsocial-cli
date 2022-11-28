@@ -62,10 +62,28 @@
     "engines": {
         "node": "16.18.1"
     },
+    "release": {
+        "branches": [
+            "master",
+            "next"
+        ],
+        "plugins": [
+            "@semantic-release/commit-analyzer",
+            "@semantic-release/release-notes-generator",
+            "@semantic-release/github",
+            [
+                "@semantic-release/changelog",
+                {
+                    "changelogFile": "docs/CHANGELOG.md"
+                }
+            ]
+        ]
+    },
     "devDependencies": {
         "@commitlint/cli": "17.3.0",
         "@commitlint/config-conventional": "17.3.0",
         "@oclif/test": "2.2.12",
+        "@semantic-release/changelog": "6.0.1",
         "@tsconfig/node16-strictest": "1.0.4",
         "@types/chai": "4.3.4",
         "@types/express": "4.17.14",

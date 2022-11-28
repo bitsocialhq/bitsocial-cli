@@ -5,16 +5,17 @@ on:
   pull_request:
     branches:
       - master
+      - next
     paths:
       - 'test/**'
       - 'src/**'
       - 'config/**'
-      # - '.github/**'
       - 'package.json'
       - 'yarn.lock'
   push:
     branches:
       - master
+      - next
     paths:
       - 'test/**'
       - 'src/**'
@@ -31,7 +32,6 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          # - macOS-latest
         node_version:
           - 16
 
