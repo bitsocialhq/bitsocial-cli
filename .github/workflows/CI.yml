@@ -26,21 +26,13 @@ on:
 
 jobs:
   test-plebbit-cli:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os:
-          - ubuntu-latest
-        node_version:
-          - 16
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
-          node-version: ${{ matrix.node_version }}
-          # cache: 'npm'
+          node-version: 16
 
       - run: yarn install --frozen-lockfile
       - run: yarn build
