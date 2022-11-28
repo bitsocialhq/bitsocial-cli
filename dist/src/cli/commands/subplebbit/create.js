@@ -29,12 +29,17 @@ class Create extends base_subplebbit_options_js_1.default {
 }
 exports.default = Create;
 Create.description = "Create a subplebbit";
-Create.examples = [];
+Create.examples = [
+    {
+        description: "Create a subplebbit with title 'Hello Plebs' and description 'Welcome'",
+        command: "<%= config.bin %> <%= command.id %> --title 'Hello Plebs' --description 'Welcome'"
+    }
+];
 // TODO implement roles, flairs flag
 Create.flags = {
     ...base_subplebbit_options_js_1.default.baseSubplebbitFlags,
     "signer.privateKey": core_1.Flags.string({
-        summary: "Private key (PEM) of the subplebbit signer that will be used to determine address (if address is not a domain). Only needed if you're creating a new subplebbit"
+        description: "Private key (PEM) of the subplebbit signer that will be used to determine address (if address is not a domain). If it's not provided then Plebbit will generate a private key"
     }),
     "database.connection.filename": core_1.Flags.file({ exists: false, summary: "Path to the subplebbit sqlite file" })
 };

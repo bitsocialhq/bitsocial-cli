@@ -2,7 +2,10 @@
 import BaseSubplebbitOptions from "../../base-subplebbit-options.js";
 export default class Create extends BaseSubplebbitOptions {
     static description: string;
-    static examples: never[];
+    static examples: {
+        description: string;
+        command: string;
+    }[];
     static flags: {
         "signer.privateKey": import("@oclif/core/lib/interfaces/parser.js").OptionFlag<string | undefined>;
         "database.connection.filename": import("@oclif/core/lib/interfaces/parser.js").OptionFlag<string | undefined>;
