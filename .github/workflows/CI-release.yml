@@ -33,7 +33,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        arch: 'x64'
+        arch: ['x64']
         include:
           - os: ubuntu-latest
           - arch: 'arm64'
@@ -53,23 +53,16 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Generate ${{ runner.os }}-${{ matrix.arch }} executable
-        run: mkdir temp
-        run: yarn pkg . -t node16-${{ runner.os }}-${{ matrix.arch }} --output-path temp/ -o plebbit
-      - name: Compress and upload executable along with install.sh
-        run: cp bin/install.sh temp/install.sh
+        run: mkdir temp && yarn pkg . -t node16-${{ runner.os }}-${{ matrix.arch }} --output-path temp/ -o plebbit && cp bin/install.sh temp/install.sh
+      - name: Compress windows binaries
         if: runner.os == 'Windows'
-          run: mv temp/plebbit temp/plebbit.exe
-          # How to get current plebbit version?
-          run: zip -r plebbit_${{ steps.previoustag.outputs.tag }}_${{ runner.os }}-${{ matrix.arch }}.zip temp/
-          - name: Upload binaries to release
-            uses: svenstaro/upload-release-action@v2
-            with:
-              file: plebbit_${{ steps.previoustag.outputs.tag }}_${{ runner.os }}-${{ matrix.arch }}.zip
+        run: mv temp/plebbit temp/plebbit.exe && zip -r plebbit_${{ steps.previoustag.outputs.tag }}_${{ runner.os }}-${{ matrix.arch }}.zip temp/ && echo "exe=plebbit_${{ steps.previoustag.outputs.tag }}_${{ runner.os }}-${{ matrix.arch }}.zip" >> $GITHUB_ENV
 
+      - name: Compress Linux/Macos binaries
         if: runner.os != 'Windows'
-          # Linux and MacOS
-          run: tar -czvf plebbit_${{ steps.previoustag.outputs.tag }}_${{ runner.os }}-${{ matrix.arch }}.tar.gz temp/
-          - name: Upload binaries to release
-            uses: svenstaro/upload-release-action@v2
-            with:
-              file: plebbit_${{ steps.previoustag.outputs.tag }}_${{ runner.os }}-${{ matrix.arch }}.tar.gz
+        run: tar -czvf plebbit_${{ steps.previoustag.outputs.tag }}_${{ runner.os }}-${{ matrix.arch }}.tar.gz temp/ && echo "exe=plebbit_${{ steps.previoustag.outputs.tag }}_${{ runner.os }}-${{ matrix.arch }}.tar.gz" >> $GITHUB_ENV
+      - name: Upload Binary releases
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file: env.exe
+
