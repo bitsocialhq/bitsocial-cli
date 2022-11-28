@@ -12,14 +12,19 @@ import BaseSubplebbitOptions from "../../base-subplebbit-options.js";
 export default class Create extends BaseSubplebbitOptions {
     static override description = "Create a subplebbit";
 
-    static override examples = [];
+    static override examples = [
+        {
+            description: "Create a subplebbit with title 'Hello Plebs' and description 'Welcome'",
+            command: "<%= config.bin %> <%= command.id %> --title 'Hello Plebs' --description 'Welcome'"
+        }
+    ];
 
     // TODO implement roles, flairs flag
     static override flags = {
         ...BaseSubplebbitOptions.baseSubplebbitFlags,
         "signer.privateKey": Flags.string({
-            summary:
-                "Private key (PEM) of the subplebbit signer that will be used to determine address (if address is not a domain). Only needed if you're creating a new subplebbit"
+            description:
+                "Private key (PEM) of the subplebbit signer that will be used to determine address (if address is not a domain). If it's not provided then Plebbit will generate a private key"
         }),
         "database.connection.filename": Flags.file({ exists: false, summary: "Path to the subplebbit sqlite file" })
     };
