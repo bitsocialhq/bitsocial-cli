@@ -1,0 +1,76 @@
+name: Release
+on:
+  workflow_run:
+    workflows:
+      - 'CI build'
+    types:
+      - 'completed'
+jobs:
+  release:
+    name: Create release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Create Github Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: yarn semantic-release
+  
+  # Generate binary executable
+# Create tar.gz (or .zip for windows) with install.sh
+  upload-executables:
+    name: Generate and upload executables to release
+    needs: 'release'
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        arch: 'x64'
+        include:
+          - os: ubuntu-latest
+          - arch: 'arm64'
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      - name: 'Get latest release tag'
+        id: previoustag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Generate ${{ runner.os }}-${{ matrix.arch }} executable
+        run: mkdir temp
+        run: yarn pkg . -t node16-${{ runner.os }}-${{ matrix.arch }} --output-path temp/ -o plebbit
+      - name: Compress and upload executable along with install.sh
+        run: cp bin/install.sh temp/install.sh
+        if: ${{ runner.os == 'Windows'}}
+          run: mv temp/plebbit temp/plebbit.exe
+          # How to get current plebbit version?
+          run: zip -r plebbit_${{ steps.previoustag.outputs.tag }}_${{ runner.os }}-${{ matrix.arch }}.zip temp/
+          - name: Upload binaries to release
+            uses: svenstaro/upload-release-action@v2
+            with:
+              repo_token: ${{ secrets.GITHUB_TOKEN }}
+              file: plebbit_${{ steps.previoustag.outputs.tag }}_${{ runner.os }}-${{ matrix.arch }}.zip
+
+        if: ${{ runner.os != 'Windows'}}
+          run: tar -czvf plebbit_${{ steps.previoustag.outputs.tag }}_${{ runner.os }}-${{ matrix.arch }}.tar.gz temp/
+          - name: Upload binaries to release
+            uses: svenstaro/upload-release-action@v2
+            with:
+              repo_token: ${{ secrets.GITHUB_TOKEN }}
+              file: plebbit_${{ steps.previoustag.outputs.tag }}_${{ runner.os }}-${{ matrix.arch }}.tar.gz
