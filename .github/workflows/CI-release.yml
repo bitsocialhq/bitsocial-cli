@@ -17,7 +17,7 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.head_ref }}
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
       - name: Install dependencies
@@ -54,7 +54,7 @@ jobs:
         id: previoustag
         uses: "WyriHaximus/github-action-get-previous-tag@v1"
       - name: 'Store pkg-compliant operating system name'
-        run: if [[ ${{ runner.os }} == "Windows" ]] ; then echo "osPkg=win" >> $GITHUB_ENV; else echo ${{ runner.os }} >> $GITHUB_ENV; fi 
+        run: if [[ "${{ runner.os }}" == "Windows" ]] ; then echo "osPkg=win" >> $GITHUB_ENV; else echo "osPkg=$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV; fi 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Generate ${{ runner.os }}-${{ matrix.arch }} executable
