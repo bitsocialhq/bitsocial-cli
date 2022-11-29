@@ -30,7 +30,7 @@ jobs:
   # Generate binary executable
 # Create tar.gz (or .zip for windows) with install.sh
   upload-executables:
-    name: Generate and upload executables to release
+    name: ${{ runner.os }}-${{ matrix.arch }}
     needs: 'release'
     strategy:
       matrix:
@@ -62,16 +62,16 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Generate ${{ runner.os }}-${{ matrix.arch }} executable
-        run: mkdir temp && yarn pkg . -t node16-${{ env.osPkg }}-${{ matrix.arch }} --output-path temp/ -o plebbit && cp bin/install.sh temp/install.sh
-      - name: Compress windows binaries
+        run: mkdir temp && yarn pkg . -t node16-${{ env.osPkg }}-${{ matrix.arch }} --output-path temp/ -o plebbit
+      - name: Move and rename generated binary (windows)
         if: runner.os == 'Windows'
-        run: mv temp/plebbit temp/plebbit.exe && zip -r plebbit_${{ steps.previoustag.outputs.tag }}_${{ runner.os }}-${{ matrix.arch }}.zip temp/ && echo "exe=plebbit_${{ steps.previoustag.outputs.tag }}_${{ runner.os }}-${{ matrix.arch }}.zip" >> $GITHUB_ENV
+        run: echo "exe=plebbit_${{ steps.previoustag.outputs.tag }}_${{ runner.os }}-${{ matrix.arch }}.exe" >> $GITHUB_ENV && mv temp/plebbit ${{ env.exe }}
 
-      - name: Compress Linux/Macos binaries
+      - name: Move and rename generated binary (MacOS/Linux)
         if: runner.os != 'Windows'
-        run: tar -czvf plebbit_${{ steps.previoustag.outputs.tag }}_${{ runner.os }}-${{ matrix.arch }}.tar.gz temp/ && echo "exe=plebbit_${{ steps.previoustag.outputs.tag }}_${{ runner.os }}-${{ matrix.arch }}.tar.gz" >> $GITHUB_ENV
+        run: echo "exe=plebbit_${{ steps.previoustag.outputs.tag }}_${{ runner.os }}-${{ matrix.arch }}" >> $GITHUB_ENV && mv temp/plebbit ${{ env.exe }}
       - name: Upload Binary releases
         uses: svenstaro/upload-release-action@v2
         with:
-          file: env.exe
+          file: ${{ env.exe}}
 
