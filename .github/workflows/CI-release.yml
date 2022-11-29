@@ -30,7 +30,7 @@ jobs:
   # Generate binary executable
 # Create tar.gz (or .zip for windows) with install.sh
   upload-executables:
-    name: ${{ runner.os }}-${{ matrix.arch }}
+    name: ${{ matrix.os }}-${{ matrix.arch }}
     needs: 'release'
     strategy:
       matrix:
