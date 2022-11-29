@@ -65,11 +65,12 @@ jobs:
         run: mkdir temp && yarn pkg . -t node16-${{ env.osPkg }}-${{ matrix.arch }} --output-path temp/ -o plebbit
       - name: Move and rename generated binary (windows)
         if: runner.os == 'Windows'
-        run: echo "exe=plebbit_${{ steps.previoustag.outputs.tag }}_${{ env.osPkg }}-${{ matrix.arch }}.exe" >> $GITHUB_ENV && mv temp/plebbit ${{ env.exe }}
+        run: echo "exe=plebbit_${{ steps.previoustag.outputs.tag }}_${{ env.osPkg }}-${{ matrix.arch }}.exe" >> $GITHUB_ENV
 
       - name: Move and rename generated binary (MacOS/Linux)
         if: runner.os != 'Windows'
-        run: echo "exe=plebbit_${{ steps.previoustag.outputs.tag }}_${{ env.osPkg }}-${{ matrix.arch }}" >> $GITHUB_ENV && mv temp/plebbit ${{ env.exe }}
+        run: echo "exe=plebbit_${{ steps.previoustag.outputs.tag }}_${{ env.osPkg }}-${{ matrix.arch }}" >> $GITHUB_ENV
+      - run: mv temp/plebbit ${{ env.exe }}
       - name: Upload Binary releases
         uses: svenstaro/upload-release-action@v2
         with:
