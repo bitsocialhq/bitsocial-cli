@@ -55,7 +55,7 @@ jobs:
         uses: "WyriHaximus/github-action-get-previous-tag@v1"
       - name: 'Store pkg-compliant Windows OS name'
         if: runner.os == 'Windows'
-        run: echo "osPkg=win" >> $GITHUB_ENV
+        run: echo "osPkg=win" | Out-File -FilePath $env:GITHUB_ENV -Append
       - name: 'Store pkg-compliant Linux and MacOS name'
         if: runner.os != 'Windows'
         run: echo "osPkg=$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
@@ -75,4 +75,5 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           file: ${{ env.exe }}
+          tag: ${{ steps.previoustag.outputs.tag }}
 
