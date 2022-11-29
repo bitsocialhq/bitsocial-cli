@@ -53,8 +53,12 @@ jobs:
       - name: 'Get latest release tag'
         id: previoustag
         uses: "WyriHaximus/github-action-get-previous-tag@v1"
-      - name: 'Store pkg-compliant operating system name'
-        run: if [[ "${{ runner.os }}" == "Windows" ]] ; then echo "osPkg=win" >> $GITHUB_ENV; else echo "osPkg=$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV; fi 
+      - name: 'Store pkg-compliant Windows OS name'
+        if: runner.os == 'Windows'
+        run: echo "win" >> $GITHUB_ENV
+      - name: 'Store pkg-compliant Linux and MacOS name'
+        if: runner.os != 'Windows'
+        run: echo "osPkg=$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Generate ${{ runner.os }}-${{ matrix.arch }} executable
