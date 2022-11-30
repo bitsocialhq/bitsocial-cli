@@ -20,6 +20,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+          cache: 'yarn'
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Create Github Release
@@ -50,6 +51,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+          cache: 'yarn'
       - name: 'Get latest release tag'
         id: previoustag
         uses: "WyriHaximus/github-action-get-previous-tag@v1"
