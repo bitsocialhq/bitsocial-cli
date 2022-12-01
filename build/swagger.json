@@ -406,13 +406,6 @@
 					"ipfsKey": {
 						"$ref": "#/components/schemas/Uint8Array"
 					},
-					"usage": {
-						"type": "string",
-						"enum": [
-							"comment",
-							"subplebbit"
-						]
-					},
 					"ipnsKeyName": {
 						"type": "string"
 					}
