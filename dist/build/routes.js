@@ -139,7 +139,6 @@ const models = {
             "publicKey": { "dataType": "string" },
             "address": { "dataType": "string" },
             "ipfsKey": { "ref": "Uint8Array" },
-            "usage": { "dataType": "union", "subSchemas": [{ "dataType": "enum", "enums": ["comment"] }, { "dataType": "enum", "enums": ["subplebbit"] }] },
             "ipnsKeyName": { "dataType": "string" },
         },
         "additionalProperties": false,
