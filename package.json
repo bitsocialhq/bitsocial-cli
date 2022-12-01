@@ -8,7 +8,7 @@
     "author": "Esteban Abaroa, Rinse",
     "license": "GPL-2.0-only",
     "type": "commonjs",
-    "private": false,
+    "private": true,
     "exports": null,
     "scripts": {
         "build": "rm -rf dist/  && tsoa spec-and-routes -c config/tsoa.json && tsc --project config/tsconfig.json && yarn oclif manifest",
@@ -102,7 +102,7 @@
         "@oclif/core": "1.20.4",
         "@oclif/plugin-help": "5",
         "@oclif/plugin-not-found": "2.3.9",
-        "@plebbit/plebbit-js": "https://github.com/plebbit/plebbit-js#4f464d925e2c720d50ae233a6a1082f052564bd6",
+        "@plebbit/plebbit-js": "https://github.com/plebbit/plebbit-js#95e63612b03d6e08210821ef8f31eb7c7b6767f9",
         "dataobject-parser": "1.2.22",
         "env-paths": "2.2.1",
         "express": "4.18.2",
