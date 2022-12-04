@@ -326,41 +326,6 @@ const models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "MigrationSource_unknown_": {
-        "dataType": "refObject",
-        "properties": {},
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "MigratorConfig": {
-        "dataType": "refObject",
-        "properties": {
-            "database": { "dataType": "string" },
-            "directory": { "dataType": "union", "subSchemas": [{ "dataType": "string" }, { "dataType": "array", "array": { "dataType": "string" } }] },
-            "extension": { "dataType": "string" },
-            "stub": { "dataType": "string" },
-            "tableName": { "dataType": "string" },
-            "schemaName": { "dataType": "string" },
-            "disableTransactions": { "dataType": "boolean" },
-            "disableMigrationsListValidation": { "dataType": "boolean" },
-            "sortDirsSeparately": { "dataType": "boolean" },
-            "loadExtensions": { "dataType": "array", "array": { "dataType": "string" } },
-            "migrationSource": { "ref": "MigrationSource_unknown_" },
-            "name": { "dataType": "string" },
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Pick_Knex.Config.Exclude_keyofKnex.Config.client-or-connection-or-pool-or-postProcessResponse-or-wrapIdentifier-or-seeds-or-log__": {
-        "dataType": "refAlias",
-        "type": { "dataType": "nestedObjectLiteral", "nestedProperties": { "debug": { "dataType": "boolean" }, "dialect": { "dataType": "string" }, "jsonbSupport": { "dataType": "boolean" }, "version": { "dataType": "string" }, "migrations": { "ref": "MigratorConfig" }, "acquireConnectionTimeout": { "dataType": "double" }, "useNullAsDefault": { "dataType": "boolean" }, "searchPath": { "dataType": "union", "subSchemas": [{ "dataType": "string" }, { "dataType": "array", "array": { "dataType": "string" } }] }, "asyncStackTraces": { "dataType": "boolean" } }, "validators": {} },
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Omit_Knex.Config.client-or-connection-or-pool-or-postProcessResponse-or-wrapIdentifier-or-seeds-or-log_": {
-        "dataType": "refAlias",
-        "type": { "ref": "Pick_Knex.Config.Exclude_keyofKnex.Config.client-or-connection-or-pool-or-postProcessResponse-or-wrapIdentifier-or-seeds-or-log__", "validators": {} },
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "CreateSubplebbitOptions": {
         "dataType": "refObject",
         "properties": {
@@ -382,7 +347,6 @@ const models = {
             "signer": { "ref": "SignerType" },
             "encryption": { "ref": "SubplebbitEncryption" },
             "signature": { "ref": "SignatureType" },
-            "database": { "dataType": "intersection", "subSchemas": [{ "ref": "Omit_Knex.Config.client-or-connection-or-pool-or-postProcessResponse-or-wrapIdentifier-or-seeds-or-log_" }, { "dataType": "nestedObjectLiteral", "nestedProperties": { "useNullAsDefault": { "dataType": "enum", "enums": [true], "required": true }, "client": { "dataType": "string", "required": true }, "connection": { "dataType": "nestedObjectLiteral", "nestedProperties": { "debug": { "dataType": "boolean" }, "flags": { "dataType": "array", "array": { "dataType": "string" } }, "filename": { "dataType": "string", "required": true } }, "required": true } } }] },
         },
         "additionalProperties": false,
     },
