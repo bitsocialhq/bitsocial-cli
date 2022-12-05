@@ -51,7 +51,8 @@
     "pkg": {
         "scripts": "./dist/**/*.js",
         "assets": [
-            "node_modules/{swagger-ui-dist, sqlite3, skia-canvas}/**/*"
+            "node_modules/{swagger-ui-dist, sqlite3, skia-canvas}/**/*",
+            "node_modules/sqlite3/lib/**/node_sqlite3.node"
         ]
     },
     "config": {
