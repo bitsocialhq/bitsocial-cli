@@ -1378,7 +1378,7 @@
     },
     "info": {
         "title": "plebbit-cli",
-        "version": "0.0.0-development",
+        "version": "1.0.0",
         "description": "Command line interface to Plebbit API",
         "license": {
             "name": "GPL-2.0-only"
