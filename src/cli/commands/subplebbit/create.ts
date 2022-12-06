@@ -25,8 +25,7 @@ export default class Create extends BaseSubplebbitOptions {
         "signer.privateKey": Flags.string({
             description:
                 "Private key (PEM) of the subplebbit signer that will be used to determine address (if address is not a domain). If it's not provided then Plebbit will generate a private key"
-        }),
-        "database.connection.filename": Flags.file({ exists: false, summary: "Path to the subplebbit sqlite file" })
+        })
     };
 
     async run(): Promise<void> {
