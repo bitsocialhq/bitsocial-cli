@@ -8,7 +8,6 @@ import DataObjectParser from "dataobject-parser";
 describe("plebbit subplebbit create", () => {
     const createOptions: CreateSubplebbitOptions = {
         signer: { privateKey: "testPrivateKey" },
-        database: { connection: { filename: "testFilename" } },
         title: "testTitle",
         description: "testDescription",
         pubsubTopic: "testPubsubTopic",
