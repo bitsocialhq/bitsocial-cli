@@ -35,9 +35,11 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+          cache: 'yarn'
 
       - run: yarn install --frozen-lockfile
       - run: yarn build
+      - run: yarn oclif manifest
 
       # disable hosts we shouldn't use
       - run: sudo echo "255.255.255.255 cloudflare-ipfs.com" | sudo tee -a /etc/hosts

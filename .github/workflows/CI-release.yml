@@ -6,32 +6,10 @@ on:
     types:
       - 'completed'
 jobs:
-  release:
-    name: Create release
-    runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          ref: ${{ github.head_ref }}
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          cache: 'yarn'
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-      - name: Create Github Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: yarn semantic-release
-  
-  # Generate binary executable
-# Create tar.gz (or .zip for windows) with install.sh
+# Generate and upload executables to Github releases
   upload-executables:
     name: ${{ matrix.os }}-${{ matrix.arch }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     needs: 'release'
     strategy:
       matrix:

@@ -26,9 +26,10 @@ jobs:
       - run: yarn install --frozen-lockfile
       - run: yarn build
 
-      # NOTE: doesn't work if `git add dist --force` is removed
-      - run: git add dist build --force
-      - run: git status
+      - name: Create Github Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: yarn semantic-release
 
       # commit and push dist folder
       - uses: stefanzweifel/git-auto-commit-action@v4

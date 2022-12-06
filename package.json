@@ -11,7 +11,7 @@
     "private": true,
     "exports": null,
     "scripts": {
-        "build": "rm -rf dist/  && tsoa spec-and-routes -c config/tsoa.json && tsc --project config/tsconfig.json && yarn oclif manifest",
+        "build": "rm -rf dist/  && tsoa spec-and-routes -c config/tsoa.json && tsc --project config/tsconfig.json",
         "build:watch": "nodemon --config config/build.nodemon.json",
         "build:executables": "yarn build && pkg . ",
         "start:api": "SYNC_INTERVAL_MS=100 IPFS_PORT=32449 IPFS_PUBSUB_PORT=32447 PLEBBIT_API_PORT=32441 PLEBBIT_DATA_PATH=/tmp/.plebbit node dist/test/run-test-server.js",
@@ -21,7 +21,8 @@
         "test:cli": "PLEBBIT_API_PORT=32441 ts-mocha --config config/.mocharc.json -p config/tsconfig.json test/cli/*.test.ts",
         "commit": "cz",
         "prepare": "husky install",
-        "semantic-release": "semantic-release"
+        "semantic-release": "semantic-release",
+        "postversion": "yarn oclif manifest"
     },
     "files": [
         "/bin",
