@@ -10,7 +10,6 @@ jobs:
   upload-executables:
     name: ${{ matrix.os }}-${{ matrix.arch }}
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    needs: 'release'
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
