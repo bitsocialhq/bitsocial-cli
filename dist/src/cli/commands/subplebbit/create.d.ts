@@ -8,7 +8,6 @@ export default class Create extends BaseSubplebbitOptions {
     }[];
     static flags: {
         "signer.privateKey": import("@oclif/core/lib/interfaces/parser.js").OptionFlag<string | undefined>;
-        "database.connection.filename": import("@oclif/core/lib/interfaces/parser.js").OptionFlag<string | undefined>;
         address: import("@oclif/core/lib/interfaces/parser.js").OptionFlag<string | undefined>;
         title: import("@oclif/core/lib/interfaces/parser.js").OptionFlag<string | undefined>;
         description: import("@oclif/core/lib/interfaces/parser.js").OptionFlag<string | undefined>;

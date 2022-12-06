@@ -40,6 +40,5 @@ Create.flags = {
     ...base_subplebbit_options_js_1.default.baseSubplebbitFlags,
     "signer.privateKey": core_1.Flags.string({
         description: "Private key (PEM) of the subplebbit signer that will be used to determine address (if address is not a domain). If it's not provided then Plebbit will generate a private key"
-    }),
-    "database.connection.filename": core_1.Flags.file({ exists: false, summary: "Path to the subplebbit sqlite file" })
+    })
 };
