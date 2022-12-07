@@ -42,11 +42,11 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Figure out binary file name (Windows)
         if: runner.os == 'Windows'
-        run: echo "exe=plebbit_${{ steps.previoustag.outputs.tag }}_${{ env.osPkg }}-${{ matrix.arch }}.exe" | Out-File -FilePath $env:GITHUB_ENV -Append
+        run: echo "exe=plebbit_${{ env.osPkg }}-${{ matrix.arch }}.exe" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Figure out binary file name (MacOS/Linux)
         if: runner.os != 'Windows'
-        run: echo "exe=plebbit_${{ steps.previoustag.outputs.tag }}_${{ env.osPkg }}-${{ matrix.arch }}" >> $GITHUB_ENV
+        run: echo "exe=plebbit_${{ env.osPkg }}-${{ matrix.arch }}" >> $GITHUB_ENV
       - name: Generate ${{ runner.os }}-${{ matrix.arch }} executable
         run: yarn pkg . -t node16-${{ env.osPkg }}-${{ matrix.arch }} -o ${{ env.exe }}
 
