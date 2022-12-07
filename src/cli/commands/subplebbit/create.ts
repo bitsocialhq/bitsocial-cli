@@ -10,7 +10,8 @@ import BaseSubplebbitOptions from "../../base-subplebbit-options.js";
 import fs from "fs";
 
 export default class Create extends BaseSubplebbitOptions {
-    static override description = "Create a subplebbit";
+    static override description =
+        "Create a subplebbit with specific properties. A newly created sub will be started after creation and be able to receive publications";
 
     static override examples = [
         {
@@ -41,15 +42,21 @@ export default class Create extends BaseSubplebbitOptions {
         if (flags.privateKeyPath)
             createOptions.signer = { privateKey: (await fs.promises.readFile(flags.privateKeyPath)).toString(), type: "rsa" };
 
-        const res = await fetch(`${flags.apiUrl}/subplebbit/create`, {
+        const createRes = await fetch(`${flags.apiUrl}/subplebbit/create`, {
             body: JSON.stringify(createOptions),
             method: "POST",
             headers: { "content-type": "application/json" }
         });
-        if (res.status !== statusCodes.SUCCESS_SUBPLEBBIT_CREATED)
+        if (createRes.status !== statusCodes.SUCCESS_SUBPLEBBIT_CREATED)
             // TODO, status text is not enough to explain error. Include more info
-            this.error(res.statusText);
+            this.error(createRes.statusText);
 
-        this.log(JSON.stringify(this.toSuccessJson(<SubplebbitType>await res.json())));
+        const createdSub: SubplebbitType = await createRes.json();
+
+        // Attempt to start the newly created sub
+        const startRes = await fetch(`${flags.apiUrl}/subplebbit/start?address=${createdSub.address}`, { method: "POST" });
+        if (startRes.status !== statusCodes.SUCCESS_SUBPLEBBIT_STARTED) this.error(startRes.statusText);
+
+        this.log(JSON.stringify(this.toSuccessJson(createdSub)));
     }
 }
