@@ -39,5 +39,23 @@ describe("plebbit subplebbit create", () => {
         .it(`Parse create options correctly`, (ctx) => {
             expect(JSON.parse(ctx.stdout)).to.deep.equal({ ...createOptions, address: signers[0]!.address });
         });
+
+    let started = false;
+    test.nock(`http://localhost:${defaults.PLEBBIT_API_PORT}/api/v0`, (api) =>
+        api
+            .post(`/subplebbit/start?address=${signers[1]!.address}`)
+            .reply((_, requestBody) => (started = true) && [statusCodes.SUCCESS_SUBPLEBBIT_STARTED, requestBody])
+            .post("/subplebbit/create")
+            .reply((_, requestBody) => [statusCodes.SUCCESS_SUBPLEBBIT_CREATED, { address: signers[1]!.address }])
+            .post("/subplebbit/list")
+            .reply(200, [])
+    )
+        .loadConfig({ root: process.cwd() })
+        .stdout()
+        .command(["subplebbit create", "--privateKeyPath=test/fixtures/sub_1_private_key.pem"])
+        .it(`Starts subplebbit after creation`, (ctx) => {
+            expect(started).to.be.true;
+            const createdSub: SubplebbitType = JSON.parse(ctx.stdout);
+            expect(createdSub.address).to.equal(signers[1]!.address);
         });
 });
