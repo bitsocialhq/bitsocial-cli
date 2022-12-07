@@ -1,3 +1,11 @@
+# [1.1.0](https://github.com/plebbit/plebbit-cli/compare/v1.0.0...v1.1.0) (2022-12-07)
+
+
+### Features
+
+* **cli-subplebbit-create:** replace privateKey option with privateKeyPath. A path to PEM file ([2f99706](https://github.com/plebbit/plebbit-cli/commit/2f99706eacbf3ad471e1364f2f399287638320a6))
+* **cli-subplebbit-create:** start subplebbit after creating automatically ([2fb0dd5](https://github.com/plebbit/plebbit-cli/commit/2fb0dd520de86721aa740df34ed18085ace0661a))
+
 # 1.0.0 (2022-12-06)
 
 
