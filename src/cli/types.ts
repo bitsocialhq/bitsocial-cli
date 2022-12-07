@@ -7,8 +7,7 @@ import {
 // TODO add subplebbit.settings
 export interface CreateSubplebbitOptions
     extends Pick<PlebbitCreateSubplebbitOptions, "address" | "title" | "description" | "pubsubTopic" | "suggested"> {
-    signer?: Pick<SignerType, "privateKey">;
-    database?: { connection: { filename: string } };
+    privateKeyPath?: string;
 }
 
 export interface EditSubplebbitOptions

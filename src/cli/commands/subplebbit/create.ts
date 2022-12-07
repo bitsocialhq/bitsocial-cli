@@ -1,13 +1,13 @@
 import { Flags } from "@oclif/core";
-import { SubplebbitType } from "@plebbit/plebbit-js/dist/node/types.js";
+import { CreateSubplebbitOptions, SubplebbitType } from "@plebbit/plebbit-js/dist/node/types.js";
 import Logger from "@plebbit/plebbit-logger";
 import lodash from "lodash";
 import { statusCodes } from "../../../api/response-statuses.js";
 import fetch from "node-fetch";
-import { CreateSubplebbitOptions } from "../../types.js";
 //@ts-ignore
 import DataObjectParser from "dataobject-parser";
 import BaseSubplebbitOptions from "../../base-subplebbit-options.js";
+import fs from "fs";
 
 export default class Create extends BaseSubplebbitOptions {
     static override description = "Create a subplebbit";
@@ -22,7 +22,8 @@ export default class Create extends BaseSubplebbitOptions {
     // TODO implement roles, flairs flag
     static override flags = {
         ...BaseSubplebbitOptions.baseSubplebbitFlags,
-        "signer.privateKey": Flags.string({
+        privateKeyPath: Flags.file({
+            exists: true,
             description:
                 "Private key (PEM) of the subplebbit signer that will be used to determine address (if address is not a domain). If it's not provided then Plebbit will generate a private key"
         })
@@ -34,7 +35,11 @@ export default class Create extends BaseSubplebbitOptions {
         const log = Logger("plebbit-cli:commands:subplebbit:create");
         log(`flags: `, flags);
         await this.stopIfDaemonIsDown(flags.apiUrl.toString());
-        const createOptions: CreateSubplebbitOptions = DataObjectParser.transpose(lodash.omit(flags, ["apiUrl"]))["_data"];
+        const createOptions: CreateSubplebbitOptions = DataObjectParser.transpose(lodash.omit(flags, ["apiUrl", "privateKeyPath"]))[
+            "_data"
+        ];
+        if (flags.privateKeyPath)
+            createOptions.signer = { privateKey: (await fs.promises.readFile(flags.privateKeyPath)).toString(), type: "rsa" };
 
         const res = await fetch(`${flags.apiUrl}/subplebbit/create`, {
             body: JSON.stringify(createOptions),
