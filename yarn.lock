@@ -1263,10 +1263,44 @@
     supports-color "^8.1.1"
     tslib "^2"
 
-"@oclif/core@1.20.4", "@oclif/core@^1.20.3", "@oclif/core@^1.20.4":
+"@oclif/core@1.20.4":
   version "1.20.4"
   resolved "https://registry.yarnpkg.com/@oclif/core/-/core-1.20.4.tgz#7378b52e1f1b502e383ffb07f95dffc9fd8588ff"
   integrity sha512-giug32M4YhSYNYKQwE1L57/+k5gp1+Bq3/0vKNQmzAY1tizFGhvBJc6GIRZasHjU+xtZLutQvrVrJo7chX3hxg==
+  dependencies:
+    "@oclif/linewrap" "^1.0.0"
+    "@oclif/screen" "^3.0.3"
+    ansi-escapes "^4.3.2"
+    ansi-styles "^4.3.0"
+    cardinal "^2.1.1"
+    chalk "^4.1.2"
+    clean-stack "^3.0.1"
+    cli-progress "^3.10.0"
+    debug "^4.3.4"
+    ejs "^3.1.6"
+    fs-extra "^9.1.0"
+    get-package-type "^0.1.0"
+    globby "^11.1.0"
+    hyperlinker "^1.0.0"
+    indent-string "^4.0.0"
+    is-wsl "^2.2.0"
+    js-yaml "^3.14.1"
+    natural-orderby "^2.0.3"
+    object-treeify "^1.1.33"
+    password-prompt "^1.1.2"
+    semver "^7.3.7"
+    string-width "^4.2.3"
+    strip-ansi "^6.0.1"
+    supports-color "^8.1.1"
+    supports-hyperlinks "^2.2.0"
+    tslib "^2.4.1"
+    widest-line "^3.1.0"
+    wrap-ansi "^7.0.0"
+
+"@oclif/core@^1.20.3", "@oclif/core@^1.20.4":
+  version "1.21.0"
+  resolved "https://registry.yarnpkg.com/@oclif/core/-/core-1.21.0.tgz#d91b2f40a4f446279ab6335c619fc1716fc23ab6"
+  integrity sha512-B/AKYfHcNRAbb6Xz2kj0FlH9gWEi8aFS4iEr7EzguP3E2DpDk4wcf7eOMOfJYEmhuVd9sOpVWSnI2yP+FL/3Sg==
   dependencies:
     "@oclif/linewrap" "^1.0.0"
     "@oclif/screen" "^3.0.3"
@@ -1542,9 +1576,9 @@
   dependencies:
     "@octokit/openapi-types" "^14.0.0"
 
-"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#0f07a98750adbb479625b068696bfda4cb003017":
+"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#46542bf96a5342af6cd8b81a2c9625a6f2b97dda":
   version "0.0.3"
-  resolved "https://github.com/plebbit/plebbit-js#0f07a98750adbb479625b068696bfda4cb003017"
+  resolved "https://github.com/plebbit/plebbit-js#46542bf96a5342af6cd8b81a2c9625a6f2b97dda"
   dependencies:
     "@keyv/sqlite" "3.6.2"
     "@plebbit/plebbit-logger" "github:plebbit/plebbit-logger"
@@ -1567,6 +1601,7 @@
     lodash-es "4.17.21"
     peer-id "0.16.0"
     safe-stable-stringify "2.4.1"
+    skia-canvas "1.0.0"
     sqlite3 "5.1.2"
     tinycache "1.1.2"
     uuid "9.0.0"
@@ -1971,9 +2006,9 @@
     form-data "^3.0.0"
 
 "@types/node@*", "@types/node@>=13.7.0":
-  version "18.11.10"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.11.10.tgz#4c64759f3c2343b7e6c4b9caf761c7a3a05cee34"
-  integrity sha512-juG3RWMBOqcOuXC643OAdSA525V44cVgGV6dUDuiFtss+8Fk5x1hI93Rsld43VeJVIeqlP9I7Fn9/qaVqoEAuQ==
+  version "18.11.11"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.11.11.tgz#1d455ac0211549a8409d3cdb371cd55cc971e8dc"
+  integrity sha512-KJ021B1nlQUBLopzZmPBVuGU9un7WJd/W4ya7Ih02B4Uwky5Nja0yGYav2EfYIk0RR2Q9oVhf60S2XR1BCWJ2g==
 
 "@types/node@16.18.1":
   version "16.18.1"
@@ -2515,9 +2550,9 @@ available-typed-arrays@^1.0.5:
   integrity sha512-DMD0KiN46eipeziST1LPP/STfDU0sufISXmjSgvVsoU2tqxctQeASejWcfNtxYKqETM1UxQ8sp2OrSBWpHY6sw==
 
 aws-sdk@^2.1231.0:
-  version "2.1267.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1267.0.tgz#8f45c7bc7efb89a757526d993c5f77a2e7208676"
-  integrity sha512-ANTtRay26WwNRbYs6eZYN71b3DURNfWaq3AD6BtVNa8fVvnSLn+NNINw2+vLRjDLPZXMAQVHm0qH/TmyBvtjRA==
+  version "2.1269.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1269.0.tgz#8f3e6379e39b41fa9ba459d13b37ec47aae482b9"
+  integrity sha512-M8pOxsIjVms3d4o89dcpNTceXTpLU4DahRXH3uddCL9ctfuOmdRKkRvKJIRVMWPQlHWdi8gW1TC+3uCrhDPN8Q==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
@@ -3973,10 +4008,30 @@ commander@^9.1.0:
   resolved "https://registry.yarnpkg.com/commander/-/commander-9.4.1.tgz#d1dd8f2ce6faf93147295c0df13c7c21141cfbdd"
   integrity sha512-5EEkTNyHNGFPD2H+c/dXXfQZYa/scCKasxWcXJaWnNJ99pnQN9Vnmqow+p+PlFPE63Q6mThaZws1T+HxfpgtPw==
 
-commitizen@4.2.5, commitizen@^4.0.3:
+commitizen@4.2.5:
   version "4.2.5"
   resolved "https://registry.yarnpkg.com/commitizen/-/commitizen-4.2.5.tgz#48e5a5c28334c6e8ed845cc24fc9f072efd3961e"
   integrity sha512-9sXju8Qrz1B4Tw7kC5KhnvwYQN88qs2zbiB8oyMsnXZyJ24PPGiNM3nHr73d32dnE3i8VJEXddBFIbOgYSEXtQ==
+  dependencies:
+    cachedir "2.3.0"
+    cz-conventional-changelog "3.3.0"
+    dedent "0.7.0"
+    detect-indent "6.1.0"
+    find-node-modules "^2.1.2"
+    find-root "1.1.0"
+    fs-extra "9.1.0"
+    glob "7.2.3"
+    inquirer "8.2.4"
+    is-utf8 "^0.2.1"
+    lodash "4.17.21"
+    minimist "1.2.6"
+    strip-bom "4.0.0"
+    strip-json-comments "3.1.1"
+
+commitizen@^4.0.3:
+  version "4.2.6"
+  resolved "https://registry.yarnpkg.com/commitizen/-/commitizen-4.2.6.tgz#c35af39e1cb5fc2de88511df802da4344dc3ca80"
+  integrity sha512-RyTM+EiD9GO01DJUn9MRRAet3XUHGfoUZoksLfr+1ym1Xt2q5EYJs9Fg2BtKSb5Mo53i0BtMBmWMHQXVlZ/L9w==
   dependencies:
     cachedir "2.3.0"
     cz-conventional-changelog "3.3.0"
@@ -4360,7 +4415,7 @@ debug@^3.1.0, debug@^3.2.7:
   dependencies:
     ms "^2.1.1"
 
-debuglog@^1.0.1:
+debuglog@*, debuglog@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/debuglog/-/debuglog-1.0.1.tgz#aa24ffb9ac3df9a2351837cfb2d279360cd78492"
   integrity sha512-syBZ+rnAK3EgMsH2aYEOLUW7mZSY9Gb+0wUMCFsZvcmiz+HigA0LOcq/HoQqVuGG+EKykunc7QG2bzrponfaSw==
@@ -6524,7 +6579,7 @@ import-lazy@^2.1.0:
   resolved "https://registry.yarnpkg.com/import-lazy/-/import-lazy-2.1.0.tgz#05698e3d45c88e8d7e9d92cb0584e77f096f3e43"
   integrity sha512-m7ZEHgtw69qOGw+jwxXkHlrlIPdTGkyh66zXZ1ajZbxkDBNjSY/LGbmjc7h0s2ELsUDTAhFr55TrPSSqJGPG0A==
 
-imurmurhash@^0.1.4:
+imurmurhash@*, imurmurhash@^0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/imurmurhash/-/imurmurhash-0.1.4.tgz#9218b9b2b928a238b13dc4fb6b6d576f231453ea"
   integrity sha512-JmXMZ6wuvDmLiHEml9ykzqO6lwFbof0GG4IkcGaENdCRDDmMVnny7s5HsIgHCbaq0w2MyPhDqkhTUgS2LU2PHA==
@@ -8031,6 +8086,11 @@ lodash-es@4.17.21:
   resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.21.tgz#43e626c46e6591b7750beb2b50117390c609e3ee"
   integrity sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==
 
+lodash._baseindexof@*:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/lodash._baseindexof/-/lodash._baseindexof-3.1.0.tgz#fe52b53a1c6761e42618d654e4a25789ed61822c"
+  integrity sha512-bSYo8Pc/f0qAkr8fPJydpJjtrHiSynYfYBjtANIgXv5xEf1WlTC63dIDlgu0s9dmTvzRu1+JJTxcIAHe+sH0FQ==
+
 lodash._baseuniq@~4.6.0:
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/lodash._baseuniq/-/lodash._baseuniq-4.6.0.tgz#0ebb44e456814af7905c6212fa2c9b2d51b841e8"
@@ -8039,10 +8099,32 @@ lodash._baseuniq@~4.6.0:
     lodash._createset "~4.0.0"
     lodash._root "~3.0.0"
 
+lodash._bindcallback@*:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/lodash._bindcallback/-/lodash._bindcallback-3.0.1.tgz#e531c27644cf8b57a99e17ed95b35c748789392e"
+  integrity sha512-2wlI0JRAGX8WEf4Gm1p/mv/SZ+jLijpj0jyaE/AXeuQphzCgD8ZQW4oSpoN8JAopujOFGU3KMuq7qfHBWlGpjQ==
+
+lodash._cacheindexof@*:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/lodash._cacheindexof/-/lodash._cacheindexof-3.0.2.tgz#3dc69ac82498d2ee5e3ce56091bafd2adc7bde92"
+  integrity sha512-S8dUjWr7SUT/X6TBIQ/OYoCHo1Stu1ZRy6uMUSKqzFnZp5G5RyQizSm6kvxD2Ewyy6AVfMg4AToeZzKfF99T5w==
+
+lodash._createcache@*:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/lodash._createcache/-/lodash._createcache-3.1.2.tgz#56d6a064017625e79ebca6b8018e17440bdcf093"
+  integrity sha512-ev5SP+iFpZOugyab/DEUQxUeZP5qyciVTlgQ1f4Vlw7VUcCD8fVnyIqVUEIaoFH9zjAqdgi69KiofzvVmda/ZQ==
+  dependencies:
+    lodash._getnative "^3.0.0"
+
 lodash._createset@~4.0.0:
   version "4.0.3"
   resolved "https://registry.yarnpkg.com/lodash._createset/-/lodash._createset-4.0.3.tgz#0f4659fbb09d75194fa9e2b88a6644d363c9fe26"
   integrity sha512-GTkC6YMprrJZCYU3zcqZj+jkXkrXzq3IPBcF/fIPpNEAB4hZEtXU8zp/RwKOvZl43NUmwDbyRk3+ZTbeRdEBXA==
+
+lodash._getnative@*, lodash._getnative@^3.0.0:
+  version "3.9.1"
+  resolved "https://registry.yarnpkg.com/lodash._getnative/-/lodash._getnative-3.9.1.tgz#570bc7dede46d61cdcde687d65d3eecbaa3aaff5"
+  integrity sha512-RrL9VxMEPyDMHOd9uFbvMe8X55X16/cGM5IgOKgRElQZutpX89iS6vwl64duTV1/16w5JY7tuFNXqoekmh1EmA==
 
 lodash._root@~3.0.0:
   version "3.0.1"
@@ -8108,6 +8190,11 @@ lodash.mergewith@^4.6.2:
   version "4.6.2"
   resolved "https://registry.yarnpkg.com/lodash.mergewith/-/lodash.mergewith-4.6.2.tgz#617121f89ac55f59047c7aec1ccd6654c6590f55"
   integrity sha512-GK3g5RPZWTRSeLSpgP8Xhra+pnjBC56q9FZYe1d5RN3TJ35dbkGy3YqBSMbyCrlbi+CM9Z3Jk5yTL7RCsqboyQ==
+
+lodash.restparam@*:
+  version "3.6.1"
+  resolved "https://registry.yarnpkg.com/lodash.restparam/-/lodash.restparam-3.6.1.tgz#936a4e309ef330a7645ed4145986c85ae5b20805"
+  integrity sha512-L4/arjjuq4noiUJpt3yS6KIKDtJwNe2fIYgMqyYYKoeIfV1iEqvPwhCx23o+R9dzouGihDAPN1dTIRWa7zk8tw==
 
 lodash.snakecase@^4.1.1:
   version "4.1.1"
@@ -8333,9 +8420,9 @@ marked-terminal@^5.0.0:
     supports-hyperlinks "^2.2.0"
 
 marked@^4.0.10:
-  version "4.2.3"
-  resolved "https://registry.yarnpkg.com/marked/-/marked-4.2.3.tgz#bd76a5eb510ff1d8421bc6c3b2f0b93488c15bea"
-  integrity sha512-slWRdJkbTZ+PjkyJnE30Uid64eHwbwa1Q25INCAYfZlK4o6ylagBy/Le9eWntqJFoFT93ikUKMv47GZ4gTwHkw==
+  version "4.2.4"
+  resolved "https://registry.yarnpkg.com/marked/-/marked-4.2.4.tgz#5a4ce6c7a1ae0c952601fce46376ee4cf1797e1c"
+  integrity sha512-Wcc9ikX7Q5E4BYDPvh1C6QNSxrjC9tBgz+A/vAhp59KXUgachw++uMvMKiSW8oA85nopmPZcEvBoex/YLMsiyA==
 
 meant@^1.0.2:
   version "1.0.3"
@@ -11434,6 +11521,18 @@ simple-update-notifier@^1.0.7:
   integrity sha512-VpsrsJSUcJEseSbMHkrsrAVSdvVS5I96Qo1QAQ4FxQ9wXFcB+pjj7FB7/us9+GcgfW4ziHtYMc1J0PLczb55mg==
   dependencies:
     semver "~7.0.0"
+
+skia-canvas@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/skia-canvas/-/skia-canvas-1.0.0.tgz#9c4cfabb65f722bb3dc27d5411eccbb153004f78"
+  integrity sha512-Ec7R7hNdJb1nES/oVryIuQ9rgcpjA1Zjjr7JG718BC7AQBJWaKHRiypOJb7g1V0Msk4YKoPIdvGYY0cnkOoDow==
+  dependencies:
+    "@mapbox/node-pre-gyp" "^1.0.9"
+    cargo-cp-artifact "^0.1"
+    glob "^8.0.3"
+    path-browserify "^1.0.1"
+    simple-get "^4.0.1"
+    string-split-by "^1.0.0"
 
 skia-canvas@^1.0.0:
   version "1.0.1"
