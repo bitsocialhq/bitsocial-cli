@@ -57,6 +57,7 @@
             "node_modules/**/skia-canvas/lib/v6/index.node",
             "node_modules/skia-canvas/lib/v6/index.node",
             "node_modules/captcha-canvas/node_modules/skia-canvas/lib/v6/index.node",
+            "node_modules/skia-canvas/lib/**/*.*",
             "node_modules/skia-canvas/**/*.*"
         ]
     },
