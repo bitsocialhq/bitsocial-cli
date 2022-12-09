@@ -55,4 +55,5 @@ jobs:
         with:
           file: ${{ env.exe }}
           tag: ${{ steps.previoustag.outputs.tag }}
+          overwrite: true
 
