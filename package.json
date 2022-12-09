@@ -54,7 +54,7 @@
         "assets": [
             "node_modules/{swagger-ui-dist, sqlite3, skia-canvas}/**/*",
             "node_modules/sqlite3/lib/**/node_sqlite3.node",
-            "node_modules/skia-canvas/lib/v6/index.node"
+            "node_modules/**/skia-canvas/lib/v6/index.node"
         ]
     },
     "config": {
