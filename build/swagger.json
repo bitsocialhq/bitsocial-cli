@@ -257,6 +257,45 @@
 				],
 				"type": "object"
 			},
+			"Uint8Array": {
+				"description": "A typed array of 8-bit unsigned integer values. The contents are initialized to 0. If the\r\nrequested number of bytes could not be allocated an exception is raised.",
+				"properties": {},
+				"type": "object",
+				"additionalProperties": false
+			},
+			"SignerType": {
+				"properties": {
+					"type": {
+						"type": "string",
+						"enum": [
+							"rsa"
+						],
+						"nullable": false
+					},
+					"privateKey": {
+						"type": "string"
+					},
+					"publicKey": {
+						"type": "string"
+					},
+					"address": {
+						"type": "string"
+					},
+					"ipfsKey": {
+						"$ref": "#/components/schemas/Uint8Array"
+					},
+					"ipnsKeyName": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"type",
+					"privateKey",
+					"address"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"ProtocolVersion": {
 				"type": "string",
 				"enum": [
@@ -375,44 +414,6 @@
 				},
 				"required": [
 					"address"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
-			"Uint8Array": {
-				"description": "A typed array of 8-bit unsigned integer values. The contents are initialized to 0. If the\r\nrequested number of bytes could not be allocated an exception is raised.",
-				"properties": {},
-				"type": "object",
-				"additionalProperties": false
-			},
-			"SignerType": {
-				"properties": {
-					"type": {
-						"type": "string",
-						"enum": [
-							"rsa"
-						],
-						"nullable": false
-					},
-					"privateKey": {
-						"type": "string"
-					},
-					"publicKey": {
-						"type": "string"
-					},
-					"address": {
-						"type": "string"
-					},
-					"ipfsKey": {
-						"$ref": "#/components/schemas/Uint8Array"
-					},
-					"ipnsKeyName": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"type",
-					"privateKey"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -1058,7 +1059,7 @@
 				"type": "object",
 				"description": "Construct a type with a set of properties K of type T"
 			},
-			"Pick_CreateSubplebbitOptions.Exclude_keyofCreateSubplebbitOptions.database__": {
+			"Pick_CreateSubplebbitOptions.Exclude_keyofCreateSubplebbitOptions.database-or-signer__": {
 				"properties": {
 					"createdAt": {
 						"type": "number",
@@ -1067,9 +1068,6 @@
 					"updatedAt": {
 						"type": "number",
 						"format": "double"
-					},
-					"signer": {
-						"$ref": "#/components/schemas/SignerType"
 					},
 					"encryption": {
 						"$ref": "#/components/schemas/SubplebbitEncryption"
@@ -1147,9 +1145,6 @@
 						"type": "number",
 						"format": "double"
 					},
-					"signer": {
-						"$ref": "#/components/schemas/SignerType"
-					},
 					"encryption": {
 						"$ref": "#/components/schemas/SubplebbitEncryption"
 					},
@@ -1212,6 +1207,9 @@
 					"address": {
 						"type": "string"
 					},
+					"signer": {
+						"$ref": "#/components/schemas/SignerType"
+					},
 					"metricsCid": {
 						"type": "string"
 					},
@@ -1231,6 +1229,26 @@
 				],
 				"type": "object",
 				"additionalProperties": false
+			},
+			"Pick_SignerType.privateKey-or-type_": {
+				"properties": {
+					"type": {
+						"type": "string",
+						"enum": [
+							"rsa"
+						],
+						"nullable": false
+					},
+					"privateKey": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"type",
+					"privateKey"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
 			},
 			"CreateSubplebbitOptions": {
 				"properties": {
@@ -1299,7 +1317,14 @@
 						"format": "double"
 					},
 					"signer": {
-						"$ref": "#/components/schemas/SignerType"
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/Pick_SignerType.privateKey-or-type_"
+							},
+							{
+								"$ref": "#/components/schemas/SignerType"
+							}
+						]
 					},
 					"encryption": {
 						"$ref": "#/components/schemas/SubplebbitEncryption"

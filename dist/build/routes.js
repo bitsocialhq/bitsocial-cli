@@ -80,6 +80,25 @@ const models = {
         "type": { "dataType": "nestedObjectLiteral", "nestedProperties": { "publicKey": { "dataType": "string", "required": true }, "type": { "dataType": "enum", "enums": ["aes-cbc"], "required": true } }, "validators": {} },
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Uint8Array": {
+        "dataType": "refObject",
+        "properties": {},
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "SignerType": {
+        "dataType": "refObject",
+        "properties": {
+            "type": { "dataType": "enum", "enums": ["rsa"], "required": true },
+            "privateKey": { "dataType": "string", "required": true },
+            "publicKey": { "dataType": "string" },
+            "address": { "dataType": "string", "required": true },
+            "ipfsKey": { "ref": "Uint8Array" },
+            "ipnsKeyName": { "dataType": "string" },
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ProtocolVersion": {
         "dataType": "refAlias",
         "type": { "dataType": "enum", "enums": ["1.0.0"], "validators": {} },
@@ -121,25 +140,6 @@ const models = {
             "flair": { "ref": "Flair" },
             "banExpiresAt": { "dataType": "double" },
             "subplebbit": { "ref": "SubplebbitAuthor" },
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Uint8Array": {
-        "dataType": "refObject",
-        "properties": {},
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "SignerType": {
-        "dataType": "refObject",
-        "properties": {
-            "type": { "dataType": "enum", "enums": ["rsa"], "required": true },
-            "privateKey": { "dataType": "string", "required": true },
-            "publicKey": { "dataType": "string" },
-            "address": { "dataType": "string" },
-            "ipfsKey": { "ref": "Uint8Array" },
-            "ipnsKeyName": { "dataType": "string" },
         },
         "additionalProperties": false,
     },
@@ -294,9 +294,9 @@ const models = {
         "type": { "dataType": "nestedObjectLiteral", "nestedProperties": { "author": { "dataType": "array", "array": { "dataType": "refAlias", "ref": "Flair" } }, "post": { "dataType": "array", "array": { "dataType": "refAlias", "ref": "Flair" } } }, "validators": {} },
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Pick_CreateSubplebbitOptions.Exclude_keyofCreateSubplebbitOptions.database__": {
+    "Pick_CreateSubplebbitOptions.Exclude_keyofCreateSubplebbitOptions.database-or-signer__": {
         "dataType": "refAlias",
-        "type": { "dataType": "nestedObjectLiteral", "nestedProperties": { "createdAt": { "dataType": "double" }, "updatedAt": { "dataType": "double" }, "signer": { "ref": "SignerType" }, "encryption": { "ref": "SubplebbitEncryption" }, "signature": { "ref": "SignatureType" }, "title": { "dataType": "string" }, "description": { "dataType": "string" }, "roles": { "dataType": "nestedObjectLiteral", "nestedProperties": {}, "additionalProperties": { "ref": "SubplebbitRole" } }, "rules": { "dataType": "array", "array": { "dataType": "string" } }, "lastPostCid": { "dataType": "string" }, "posts": { "dataType": "union", "subSchemas": [{ "ref": "Pages" }, { "ref": "Pick_Pages.pages-or-pageCids_" }] }, "pubsubTopic": { "dataType": "string" }, "challengeTypes": { "dataType": "array", "array": { "dataType": "refObject", "ref": "ChallengeType" } }, "metrics": { "ref": "SubplebbitMetrics" }, "features": { "ref": "SubplebbitFeatures" }, "suggested": { "ref": "SubplebbitSuggested" }, "flairs": { "ref": "Record_FlairOwner.Flair-Array_" }, "address": { "dataType": "string" } }, "validators": {} },
+        "type": { "dataType": "nestedObjectLiteral", "nestedProperties": { "createdAt": { "dataType": "double" }, "updatedAt": { "dataType": "double" }, "encryption": { "ref": "SubplebbitEncryption" }, "signature": { "ref": "SignatureType" }, "title": { "dataType": "string" }, "description": { "dataType": "string" }, "roles": { "dataType": "nestedObjectLiteral", "nestedProperties": {}, "additionalProperties": { "ref": "SubplebbitRole" } }, "rules": { "dataType": "array", "array": { "dataType": "string" } }, "lastPostCid": { "dataType": "string" }, "posts": { "dataType": "union", "subSchemas": [{ "ref": "Pages" }, { "ref": "Pick_Pages.pages-or-pageCids_" }] }, "pubsubTopic": { "dataType": "string" }, "challengeTypes": { "dataType": "array", "array": { "dataType": "refObject", "ref": "ChallengeType" } }, "metrics": { "ref": "SubplebbitMetrics" }, "features": { "ref": "SubplebbitFeatures" }, "suggested": { "ref": "SubplebbitSuggested" }, "flairs": { "ref": "Record_FlairOwner.Flair-Array_" }, "address": { "dataType": "string" } }, "validators": {} },
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "SubplebbitType": {
@@ -304,7 +304,6 @@ const models = {
         "properties": {
             "createdAt": { "dataType": "double", "required": true },
             "updatedAt": { "dataType": "double", "required": true },
-            "signer": { "ref": "SignerType" },
             "encryption": { "ref": "SubplebbitEncryption", "required": true },
             "signature": { "ref": "SignatureType", "required": true },
             "title": { "dataType": "string" },
@@ -320,10 +319,16 @@ const models = {
             "suggested": { "ref": "SubplebbitSuggested" },
             "flairs": { "ref": "Record_FlairOwner.Flair-Array_" },
             "address": { "dataType": "string", "required": true },
+            "signer": { "ref": "SignerType" },
             "metricsCid": { "dataType": "string" },
             "protocolVersion": { "ref": "ProtocolVersion", "required": true },
         },
         "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Pick_SignerType.privateKey-or-type_": {
+        "dataType": "refAlias",
+        "type": { "dataType": "nestedObjectLiteral", "nestedProperties": { "type": { "dataType": "enum", "enums": ["rsa"], "required": true }, "privateKey": { "dataType": "string", "required": true } }, "validators": {} },
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "CreateSubplebbitOptions": {
@@ -344,7 +349,7 @@ const models = {
             "address": { "dataType": "string" },
             "createdAt": { "dataType": "double" },
             "updatedAt": { "dataType": "double" },
-            "signer": { "ref": "SignerType" },
+            "signer": { "dataType": "union", "subSchemas": [{ "ref": "Pick_SignerType.privateKey-or-type_" }, { "ref": "SignerType" }] },
             "encryption": { "ref": "SubplebbitEncryption" },
             "signature": { "ref": "SignatureType" },
         },
