@@ -11,8 +11,6 @@ export enum statusMessages {
     SUCCESS_SUBPLEBBIT_EDITED = "Subplebbit edited"
 }
 
-export const statusMessageKeys: Record<keyof typeof statusMessages, keyof typeof statusMessages> = Object.assign({}, ...Object.keys(statusMessages).map((key) => ({ [key]: key })));
-
 export enum statusCodes {
     ERR_INVALID_JSON_FOR_REQUEST_BODY = 400,
     ERR_SUB_ALREADY_STARTED = 409,

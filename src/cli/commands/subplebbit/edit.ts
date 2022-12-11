@@ -1,7 +1,7 @@
 import { SubplebbitEditOptions, SubplebbitType } from "@plebbit/plebbit-js/dist/node/types.js";
 import Logger from "@plebbit/plebbit-logger";
 import lodash from "lodash";
-import { statusCodes, statusMessageKeys, statusMessages } from "../../../api/response-statuses.js";
+import { statusCodes, statusMessages } from "../../../api/response-statuses.js";
 import fetch from "node-fetch";
 //@ts-ignore
 import DataObjectParser from "dataobject-parser";
@@ -40,7 +40,7 @@ export default class Edit extends BaseSubplebbitOptions {
 
         if (res.status === statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST)
             this.error(statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, {
-                code: statusMessageKeys.ERR_SUBPLEBBIT_DOES_NOT_EXIST,
+                code: "ERR_SUBPLEBBIT_DOES_NOT_EXIST",
                 exit: exitStatuses.ERR_SUBPLEBBIT_DOES_NOT_EXIST
             });
 
