@@ -11,8 +11,8 @@ class Daemon extends core_1.Command {
         const { flags } = await this.parse(Daemon);
         const log = (0, plebbit_logger_1.default)("plebbit-cli:daemon");
         log(`flags: `, flags);
-        const { pid: ipfsPid } = await (0, startIpfs_js_1.startIpfsNode)(flags.ipfsApiPort, flags.ipfsGatewayPort, false);
-        process.on("exit", () => process.kill(ipfsPid));
+        const ipfsProcess = await (0, startIpfs_js_1.startIpfsNode)(flags.ipfsApiPort, flags.ipfsGatewayPort, false);
+        process.on("exit", () => process.kill(ipfsProcess.pid));
         await (0, server_js_1.startApi)(flags.plebbitApiPort, `http://localhost:${flags.ipfsApiPort}/api/v0`, `http://localhost:${flags.ipfsApiPort}/api/v0`, flags.plebbitDataPath);
     }
 }

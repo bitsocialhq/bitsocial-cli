@@ -7,7 +7,7 @@ const path_1 = tslib_1.__importDefault(require("path"));
 const env_paths_1 = tslib_1.__importDefault(require("env-paths"));
 const plebbit_logger_1 = tslib_1.__importDefault(require("@plebbit/plebbit-logger"));
 const fs_1 = require("fs");
-const fs_extra_1 = tslib_1.__importDefault(require("fs-extra"));
+const fs_2 = tslib_1.__importDefault(require("fs"));
 const assert_1 = tslib_1.__importDefault(require("assert"));
 //@ts-ignore
 const go_ipfs_1 = require("go-ipfs");
@@ -19,7 +19,7 @@ async function getIpfsExePath() {
     if (process.pkg) {
         // creating a temporary folder for our executable file
         const destinationPath = path_1.default.join(paths.data, "ipfs_binary", path_1.default.basename((0, go_ipfs_1.path)()));
-        await fs_extra_1.default.mkdir(path_1.default.dirname(destinationPath), { recursive: true });
+        await fs_2.default.promises.mkdir(path_1.default.dirname(destinationPath), { recursive: true });
         const ipfsAsset = await fs_1.promises.open((0, go_ipfs_1.path)());
         const ipfsAssetStat = await ipfsAsset.stat();
         let dst, dstStat;
@@ -63,10 +63,9 @@ function _spawnAsync(...args) {
 async function startIpfsNode(apiPortNumber, gatewayPortNumber, testing) {
     return new Promise(async (resolve, reject) => {
         const ipfsDataPath = process.env["IPFS_PATH"] || path_1.default.join(paths.data, ".ipfs-cli");
-        await fs_extra_1.default.mkdirp(ipfsDataPath);
+        await fs_2.default.promises.mkdir(ipfsDataPath, { recursive: true });
         const ipfsExePath = await getIpfsExePath();
         log.trace(`IpfsDataPath (${ipfsDataPath}), ipfsExePath (${ipfsExePath})`);
-        await fs_extra_1.default.ensureDir(ipfsDataPath);
         const env = { IPFS_PATH: ipfsDataPath };
         try {
             await _spawnAsync(ipfsExePath, ["init"], { env, hideWindows: true });
@@ -93,7 +92,7 @@ async function startIpfsNode(apiPortNumber, gatewayPortNumber, testing) {
                 (0, assert_1.default)(typeof ipfsProcess.pid === "number", `ipfsProcess.pid (${ipfsProcess.pid}) is not a valid pid`);
                 if (testing)
                     console.log(data.toString());
-                resolve({ pid: ipfsProcess.pid });
+                resolve(ipfsProcess);
             }
         });
         ipfsProcess.on("error", (data) => log.error(data.toString()));
