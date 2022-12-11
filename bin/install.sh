@@ -1,13 +1,30 @@
 #!/bin/sh
-#
-# Inspired by IPFS's kubo install.sh
-# Installation script for plebbit. It tries to move $bin in one of the
-# directories stored in $binpaths.
+# Heavily inspired by IPFS and Dino install script
+# Keep this script as simple as possible for auditability
 
-INSTALL_DIR=$(dirname $0)
+set -e
 
-bin="$INSTALL_DIR/plebbit"
-binpaths='/usr/local/bin /usr/bin $HOME/.local/bin'
+
+
+case $(uname -sm) in
+	"Darwin x86_64") suffix="macos-x64" ;;
+	"Darwin arm64") suffix="macos-x64" ;; # TODO test x64 builds on arm64 arch
+	"Linux aarch64") suffix="linux-arm64" ;;
+	*) suffix="linux-x64" ;;
+	esac
+file_name="plebbit_${suffix}"
+plebbit_uri="https://github.com/plebbit/plebbit-cli/releases/latest/download/${file_name}"
+
+
+
+curl --fail --location --progress-bar --output "$file_name" "$plebbit_uri"
+INSTALL_DIR=$(dirname "$0")
+
+bin="$INSTALL_DIR/$file_name"
+
+chmod +x "$bin"
+
+binpaths="$HOME/.local/bin /usr/local/bin /usr/bin"
 
 # This variable contains a nonzero length string in case the script fails
 # because of missing write permissions.
@@ -18,7 +35,10 @@ for raw in $binpaths; do
   binpath=$(eval echo "$raw")
   mkdir -p "$binpath"
   if mv "$bin" "$binpath/plebbit" ; then
-    echo "Moved $bin to $binpath"
+    echo "Plebbit was installed successfully to $binpath"
+	echo "Run 'plebbit --help' to get started"
+	echo "Need help? Join our Telegram https://t.me/plebbit"
+
     exit 0
   else
     if [ -d "$binpath" ] && [ ! -w "$binpath" ]; then
