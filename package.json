@@ -22,7 +22,7 @@
         "commit": "cz",
         "prepare": "husky install",
         "semantic-release": "semantic-release",
-        "postversion": "yarn oclif manifest"
+        "postversion": "yarn oclif manifest && yarn oclif readme"
     },
     "files": [
         "/bin",
