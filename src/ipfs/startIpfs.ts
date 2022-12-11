@@ -3,7 +3,7 @@ import path from "path";
 import envPaths from "env-paths";
 import Logger from "@plebbit/plebbit-logger";
 import { promises as fsPromises } from "fs";
-import fs from "fs-extra";
+import fs from "fs";
 import assert from "assert";
 //@ts-ignore
 import { path as ipfsExePathFunc } from "go-ipfs";
@@ -17,7 +17,7 @@ async function getIpfsExePath(): Promise<string> {
     if (process.pkg) {
         // creating a temporary folder for our executable file
         const destinationPath = path.join(paths.data, "ipfs_binary", path.basename(ipfsExePathFunc()));
-        await fs.mkdir(path.dirname(destinationPath), { recursive: true });
+        await fs.promises.mkdir(path.dirname(destinationPath), { recursive: true });
 
         const ipfsAsset = await fsPromises.open(ipfsExePathFunc());
         const ipfsAssetStat = await ipfsAsset.stat();
@@ -59,14 +59,17 @@ function _spawnAsync(...args: any[]) {
         spawedProcess.on("error", (data) => log.error(data.toString()));
     });
 }
-export async function startIpfsNode(apiPortNumber: number, gatewayPortNumber: number, testing: boolean): Promise<{ pid: number }> {
+export async function startIpfsNode(
+    apiPortNumber: number,
+    gatewayPortNumber: number,
+    testing: boolean
+): Promise<ChildProcessWithoutNullStreams> {
     return new Promise(async (resolve, reject) => {
         const ipfsDataPath = process.env["IPFS_PATH"] || path.join(paths.data, ".ipfs-cli");
-        await fs.mkdirp(ipfsDataPath);
+        await fs.promises.mkdir(ipfsDataPath, { recursive: true });
 
         const ipfsExePath = await getIpfsExePath();
         log.trace(`IpfsDataPath (${ipfsDataPath}), ipfsExePath (${ipfsExePath})`);
-        await fs.ensureDir(ipfsDataPath);
 
         const env = { IPFS_PATH: ipfsDataPath };
 
@@ -97,7 +100,7 @@ export async function startIpfsNode(apiPortNumber: number, gatewayPortNumber: nu
             if (data.toString().match("Daemon is ready")) {
                 assert(typeof ipfsProcess.pid === "number", `ipfsProcess.pid (${ipfsProcess.pid}) is not a valid pid`);
                 if (testing) console.log(data.toString());
-                resolve({ pid: ipfsProcess.pid });
+                resolve(ipfsProcess);
             }
         });
         ipfsProcess.on("error", (data) => log.error(data.toString()));

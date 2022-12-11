@@ -1,10 +1,7 @@
 #!/bin/sh
 # Heavily inspired by IPFS and Dino install script
 # Keep this script as simple as possible for auditability
-
 set -e
-
-
 
 case $(uname -sm) in
 	"Darwin x86_64") suffix="macos-x64" ;;
@@ -15,11 +12,8 @@ case $(uname -sm) in
 file_name="plebbit_${suffix}"
 plebbit_uri="https://github.com/plebbit/plebbit-cli/releases/latest/download/${file_name}"
 
-
-
 curl --fail --location --progress-bar --output "$file_name" "$plebbit_uri"
 INSTALL_DIR=$(dirname "$0")
-
 bin="$INSTALL_DIR/$file_name"
 
 chmod +x "$bin"

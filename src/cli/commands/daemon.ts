@@ -38,8 +38,8 @@ export default class Daemon extends Command {
 
         const log = Logger("plebbit-cli:daemon");
         log(`flags: `, flags);
-        const { pid: ipfsPid } = await startIpfsNode(flags.ipfsApiPort, flags.ipfsGatewayPort, false);
-        process.on("exit", () => process.kill(ipfsPid));
+        const ipfsProcess = await startIpfsNode(flags.ipfsApiPort, flags.ipfsGatewayPort, false);
+        process.on("exit", () => process.kill(<number>ipfsProcess.pid));
         await startApi(
             flags.plebbitApiPort,
             `http://localhost:${flags.ipfsApiPort}/api/v0`,
