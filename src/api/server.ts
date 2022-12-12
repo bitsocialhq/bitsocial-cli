@@ -87,7 +87,7 @@ export async function startApi(plebbitApiPort: number, ipfsApiEndpoint: string, 
 
     app.listen(plebbitApiPort, () =>
         console.log(
-            `Plebbit API listening at http://localhost:${plebbitApiPort}\nYou can find API documentation at: http://localhost:${plebbitApiPort}/api/v0/docs`
+            `IPFS API listening on: ${ipfsApiEndpoint}\nIPFS Gateway on: ${sharedSingleton.plebbit.ipfsGatewayUrl}\nPlebbit API listening at http://localhost:${plebbitApiPort}/api/v0 \nYou can find Plebbit API documentation at: http://localhost:${plebbitApiPort}/api/v0/docs`
         )
     );
 }
