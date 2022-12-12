@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.statusCodes = exports.statusMessageKeys = exports.statusMessages = void 0;
+exports.statusCodes = exports.statusMessages = void 0;
 var statusMessages;
 (function (statusMessages) {
     statusMessages["ERR_INVALID_JSON_FOR_REQUEST_BODY"] = "Request body is invalid as a JSON";
@@ -13,7 +13,6 @@ var statusMessages;
     statusMessages["SUCCESS_SUBPLEBBIT_STOPPED"] = "Subplebbit stopped";
     statusMessages["SUCCESS_SUBPLEBBIT_EDITED"] = "Subplebbit edited";
 })(statusMessages = exports.statusMessages || (exports.statusMessages = {}));
-exports.statusMessageKeys = Object.assign({}, ...Object.keys(statusMessages).map((key) => ({ [key]: key })));
 var statusCodes;
 (function (statusCodes) {
     statusCodes[statusCodes["ERR_INVALID_JSON_FOR_REQUEST_BODY"] = 400] = "ERR_INVALID_JSON_FOR_REQUEST_BODY";
