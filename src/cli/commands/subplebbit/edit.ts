@@ -50,6 +50,6 @@ export default class Edit extends BaseSubplebbitOptions {
             this.exit(1);
         }
 
-        this.log(JSON.stringify(this.toSuccessJson(<SubplebbitType>await res.json())));
+        this.log(args["address"]);
     }
 }
