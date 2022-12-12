@@ -3,9 +3,9 @@ import { statusCodes } from "../../dist/src/api/response-statuses.js";
 import { CreateSubplebbitOptions } from "../../src/cli/types.js";
 import defaults from "../../dist/src/common-utils/defaults.js";
 import signers from "../fixtures/signers";
+import lodash from "lodash";
 //@ts-ignore
 import DataObjectParser from "dataobject-parser";
-import { SubplebbitType } from "@plebbit/plebbit-js/dist/node/types.js";
 
 describe("plebbit subplebbit create", () => {
     const createOptions: CreateSubplebbitOptions = {
@@ -26,7 +26,10 @@ describe("plebbit subplebbit create", () => {
     test.nock(`http://localhost:${defaults.PLEBBIT_API_PORT}/api/v0`, (api) =>
         api
             .post("/subplebbit/create")
-            .reply((_, requestBody) => [statusCodes.SUCCESS_SUBPLEBBIT_CREATED, { address: signers[0]?.address, ...createOptions }])
+            .reply((_, requestBody) => {
+                expect(lodash.pick(requestBody, Object.keys(createOptions))).to.deep.equal(lodash.omit(createOptions, "privateKeyPath"));
+                return [statusCodes.SUCCESS_SUBPLEBBIT_CREATED, { address: signers[0]!.address, ...createOptions }];
+            })
             .post(`/subplebbit/start?address=${signers[0]!.address}`)
             .reply((_, requestBody) => [statusCodes.SUCCESS_SUBPLEBBIT_STARTED, requestBody])
 
@@ -37,7 +40,7 @@ describe("plebbit subplebbit create", () => {
         .stdout()
         .command(["subplebbit create"].concat(Object.entries(createOptionsFlattened).map(([key, value]) => `--${key}=${value}`)))
         .it(`Parse create options correctly`, (ctx) => {
-            expect(JSON.parse(ctx.stdout)).to.deep.equal({ ...createOptions, address: signers[0]!.address });
+            expect(ctx.stdout.trim()).to.equal(signers[0]!.address);
         });
 
     let started = false;
@@ -55,7 +58,6 @@ describe("plebbit subplebbit create", () => {
         .command(["subplebbit create", "--privateKeyPath=test/fixtures/sub_1_private_key.pem"])
         .it(`Starts subplebbit after creation`, (ctx) => {
             expect(started).to.be.true;
-            const createdSub: SubplebbitType = JSON.parse(ctx.stdout);
-            expect(createdSub.address).to.equal(signers[1]!.address);
+            expect(ctx.stdout.trim()).to.equal(signers[1]!.address);
         });
 });
