@@ -23,7 +23,7 @@ class Edit extends base_subplebbit_options_js_1.default {
         });
         if (res.status === response_statuses_js_1.statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST)
             this.error(response_statuses_js_1.statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, {
-                code: response_statuses_js_1.statusMessageKeys.ERR_SUBPLEBBIT_DOES_NOT_EXIST,
+                code: "ERR_SUBPLEBBIT_DOES_NOT_EXIST",
                 exit: exit_codes_js_1.exitStatuses.ERR_SUBPLEBBIT_DOES_NOT_EXIST
             });
         if (res.status !== response_statuses_js_1.statusCodes.SUCCESS_SUBPLEBBIT_EDITED) {

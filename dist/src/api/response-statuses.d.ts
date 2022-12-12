@@ -8,7 +8,6 @@ export declare enum statusMessages {
     SUCCESS_SUBPLEBBIT_STOPPED = "Subplebbit stopped",
     SUCCESS_SUBPLEBBIT_EDITED = "Subplebbit edited"
 }
-export declare const statusMessageKeys: Record<keyof typeof statusMessages, keyof typeof statusMessages>;
 export declare enum statusCodes {
     ERR_INVALID_JSON_FOR_REQUEST_BODY = 400,
     ERR_SUB_ALREADY_STARTED = 409,
