@@ -6036,10 +6036,10 @@ globby@^11.0.0, globby@^11.0.1, globby@^11.0.3, globby@^11.1.0:
     merge2 "^1.4.1"
     slash "^3.0.0"
 
-go-ipfs@0.17.0:
-  version "0.17.0"
-  resolved "https://registry.yarnpkg.com/go-ipfs/-/go-ipfs-0.17.0.tgz#53459ef728f601defc92ac7cdf61248a92d78b93"
-  integrity sha512-D3IUkTzLrnvgOs38HNqE8TK+sP7FDhdygVEzedsgwY1UIxPwxPFYuxRrdOcDHGQiwxHRORUHNudy2mEdxvHKkQ==
+go-ipfs@0.16.0:
+  version "0.16.0"
+  resolved "https://registry.yarnpkg.com/go-ipfs/-/go-ipfs-0.16.0.tgz#01ddde23969810989dfaa14f8d154d9c7aadaaba"
+  integrity sha512-AxA/CGZgXlU3NCIAFJKdnCcF5TmOiryxtjxH4SmT7FdquAwemgQWzOWxUZzhDDzqlk32mqoDID2sVxmAOfcfcA==
   dependencies:
     cachedir "^2.3.0"
     got "^11.7.0"
