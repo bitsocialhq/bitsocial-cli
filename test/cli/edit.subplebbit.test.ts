@@ -24,16 +24,18 @@ describe("plebbit subplebbit edit", () => {
     test.nock(`http://localhost:${defaults.PLEBBIT_API_PORT}/api/v0`, (api) =>
         api
             .post("/subplebbit/edit?address=plebbit.eth")
-            .reply((_, requestBody) => [statusCodes.SUCCESS_SUBPLEBBIT_EDITED, requestBody])
+            .reply((_, requestBody) => {
+                expect(requestBody).to.deep.equal(editOptions);
+                return [statusCodes.SUCCESS_SUBPLEBBIT_EDITED, requestBody];
+            })
             .post("/subplebbit/list")
-            .reply(200, [])
+            .reply(200, ["plebbit.eth"])
     )
         .loadConfig({ root: process.cwd() })
         .stdout()
         .command(["subplebbit edit", "plebbit.eth"].concat(Object.entries(editOptionsFlattend).map(([key, value]) => `--${key}=${value}`)))
         .it(`Parse edit options correctly`, (ctx) => {
-            expect(JSON.parse(ctx.stdout)).to.deep.equal(editOptions);
-            expect(ctx.error).to.be.undefined;
+            expect(ctx.stdout.trim()).to.equal("plebbit.eth");
         });
 
     test.nock(`http://localhost:${defaults.PLEBBIT_API_PORT}/api/v0`, (api) =>
