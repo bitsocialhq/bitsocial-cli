@@ -72,6 +72,6 @@ async function startApi(plebbitApiPort, ipfsApiEndpoint, ipfsPubsubApiEndpoint, 
         process.exit();
     };
     ["SIGINT", "SIGTERM", "SIGHUP", "beforeExit"].forEach((exitSignal) => process.on(exitSignal, handleExit));
-    app.listen(plebbitApiPort, () => console.log(`Plebbit API listening at http://localhost:${plebbitApiPort}\nYou can find API documentation at: http://localhost:${plebbitApiPort}/api/v0/docs`));
+    app.listen(plebbitApiPort, () => console.log(`IPFS API listening on: ${ipfsApiEndpoint}\nIPFS Gateway on: ${exports.sharedSingleton.plebbit.ipfsGatewayUrl}\nPlebbit API listening at http://localhost:${plebbitApiPort}/api/v0 \nYou can find Plebbit API documentation at: http://localhost:${plebbitApiPort}/api/v0/docs`));
 }
 exports.startApi = startApi;

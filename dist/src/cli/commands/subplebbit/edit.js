@@ -31,7 +31,7 @@ class Edit extends base_subplebbit_options_js_1.default {
             this.logToStderr(res.statusText);
             this.exit(1);
         }
-        this.log(JSON.stringify(this.toSuccessJson(await res.json())));
+        this.log(args["address"]);
     }
 }
 exports.default = Edit;
