@@ -96,7 +96,7 @@ jobs:
           bind_mount_repository: true
           commands: |
             curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - &&\
-            sudo apt-get install -y nodejs gcc g++ make
+            sudo apt-get install -y nodejs gcc g++ make git
             npm install --global yarn
             yarn install --frozen-lockfile
             yarn pkg . -t node16-linux-arm64 -o plebbit_linux-arm64
@@ -106,4 +106,3 @@ jobs:
           file: plebbit_linux-arm64
           tag: ${{ steps.previoustag.outputs.tag }}
           overwrite: true
-
