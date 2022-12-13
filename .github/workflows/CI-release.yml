@@ -46,7 +46,7 @@ jobs:
           overwrite: true
 
   upload-executables-windows-single-exe:
-    name: windows-x64
+    name: windows-x64-exe
     runs-on: windows-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
@@ -74,7 +74,7 @@ jobs:
           tag: ${{ steps.previoustag.outputs.tag }}
           overwrite: true
   upload-executables-windows-installer:
-    name: windows-x64
+    name: windows-x64-installer
     runs-on: windows-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
