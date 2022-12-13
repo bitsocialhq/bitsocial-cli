@@ -23,7 +23,7 @@ export default class Start extends BaseCommand {
         const { argv, flags } = await this.parse(Start);
 
         const log = Logger("plebbit-cli:commands:subplebbit:start");
-        log(`argv: `, argv);
+        log(`addresses: `, argv);
         log(`flags: `, flags);
 
         await this.stopIfDaemonIsDown(flags.apiUrl.toString());
@@ -32,7 +32,7 @@ export default class Start extends BaseCommand {
             const res = await fetch(url, { method: "POST" });
             if (res.status === statusCodes.ERR_SUB_ALREADY_STARTED)
                 this.error(statusMessages.ERR_SUB_ALREADY_STARTED, {
-                    code: statusCodes[statusCodes.ERR_SUB_ALREADY_STARTED],
+                    code: "ERR_SUB_ALREADY_STARTED",
                     exit: exitStatuses.ERR_SUB_ALREADY_STARTED
                 });
             if (res.status !== statusCodes.SUCCESS_SUBPLEBBIT_STARTED) this.error(res.statusText);
