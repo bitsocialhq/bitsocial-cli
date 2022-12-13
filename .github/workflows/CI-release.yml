@@ -50,8 +50,11 @@ jobs:
       - uses: pguyot/arm-runner-action@v2
         if: matrix.arch == 'arm64'
         with:
-          image_additional_mb: 10240
+          image_additional_mb: 2048
+          import_github_env: true
+          bind_mount_repository: true
           commands: |
+            sudo apt install nodejs yarn -y
             yarn pkg . -t node16-${{ env.osPkg }}-${{ matrix.arch }} -o ${{ env.exe }}
       - name: Generate ${{ runner.os }}-${{ matrix.arch }} executable
         if: matrix.arch != 'arm64'
