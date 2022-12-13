@@ -96,6 +96,7 @@ jobs:
       - name: Generate installer
         run: yarn oclif pack win
       - name: Rename installer
+        shell: bash
         run: find dist/win32/ -name *x64.exe -exec bash -c 'mv $0 plebbit_win-x64_installer.exe' {} \;
 
       - name: Upload installer to release
