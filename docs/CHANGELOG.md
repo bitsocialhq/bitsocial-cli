@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/plebbit/plebbit-cli/compare/v1.1.0...v1.1.1) (2022-12-13)
+
+
+### Bug Fixes
+
+* **cli:** iPFS node is restarted everytime it exits because of an error ([128e725](https://github.com/plebbit/plebbit-cli/commit/128e7259c25b49f9fa5566d052e08191c89f3dbb))
+
 # [1.1.0](https://github.com/plebbit/plebbit-cli/compare/v1.0.0...v1.1.0) (2022-12-07)
 
 
