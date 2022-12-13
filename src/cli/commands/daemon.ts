@@ -1,5 +1,6 @@
 import { Flags, Command } from "@oclif/core";
 import Logger from "@plebbit/plebbit-logger";
+import { ChildProcessWithoutNullStreams } from "child_process";
 import { startApi } from "../../api/server.js";
 import defaults from "../../common-utils/defaults.js";
 import { startIpfsNode } from "../../ipfs/startIpfs.js";
@@ -38,8 +39,25 @@ export default class Daemon extends Command {
 
         const log = Logger("plebbit-cli:daemon");
         log(`flags: `, flags);
-        const ipfsProcess = await startIpfsNode(flags.ipfsApiPort, flags.ipfsGatewayPort, false);
-        process.on("exit", () => process.kill(<number>ipfsProcess.pid));
+
+        let mainProcessExited = false;
+        // Ipfs Node may fail randomly, we need to set a listener so when it exits because of an error we restart it
+        let ipfsProcess: ChildProcessWithoutNullStreams;
+        const keepIpfsUp = async () => {
+            ipfsProcess = await startIpfsNode(flags.ipfsApiPort, flags.ipfsGatewayPort, false);
+            ipfsProcess.on("exit", async () => {
+                // Restart IPFS process because it failed
+                this.log(`Ipfs node with pid (${ipfsProcess.pid}) disconnected`);
+                if (!mainProcessExited) {
+                    await keepIpfsUp();
+                    this.log(`Ipfs node restarted with new pid (${ipfsProcess.pid})`);
+                }
+            });
+        };
+
+        await keepIpfsUp();
+
+        process.on("exit", () => (mainProcessExited = true) && process.kill(<number>ipfsProcess.pid));
         await startApi(
             flags.plebbitApiPort,
             `http://localhost:${flags.ipfsApiPort}/api/v0`,
