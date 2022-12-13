@@ -28,6 +28,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+          cache: 'yarn'
       - name: 'Get latest release tag'
         id: previoustag
         uses: "WyriHaximus/github-action-get-previous-tag@v1"
@@ -46,7 +47,15 @@ jobs:
       - name: Figure out binary file name (MacOS/Linux)
         if: runner.os != 'Windows'
         run: echo "exe=plebbit_${{ env.osPkg }}-${{ matrix.arch }}" >> $GITHUB_ENV
+      - name: Generate Executable for arm64
+        if: ${{ matrix.arch }} == 'arm64'
+        uses: pguyot/arm-runner-action@v2
+        id: build_image
+        with:
+          commands: |
+            yarn pkg . -t node16-${{ env.osPkg }}-${{ matrix.arch }} -o ${{ env.exe }}
       - name: Generate ${{ runner.os }}-${{ matrix.arch }} executable
+        if: ${{ matrix.arch }} != 'arm64'
         run: yarn pkg . -t node16-${{ env.osPkg }}-${{ matrix.arch }} -o ${{ env.exe }}
 
       - name: Upload Binary releases
