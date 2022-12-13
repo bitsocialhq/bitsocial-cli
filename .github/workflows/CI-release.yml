@@ -25,10 +25,10 @@ jobs:
         with:
           node-version: 16
           cache: yarn
-      - name: "Get latest release tag"
+      - name: Get latest release tag
         id: previoustag
-        uses: "WyriHaximus/github-action-get-previous-tag@v1"
-      - name: "Store pkg-compliant Linux and MacOS name"
+        uses: WyriHaximus/github-action-get-previous-tag@v1
+      - name: Store pkg-compliant Linux and MacOS name
         run: echo "osPkg=$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -60,9 +60,9 @@ jobs:
         with:
           node-version: 16
           cache: yarn
-      - name: "Get latest release tag"
+      - name: Get latest release tag
         id: previoustag
-        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+        uses: WyriHaximus/github-action-get-previous-tag@v1
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Generate single executable
@@ -73,7 +73,37 @@ jobs:
           file: plebbit_win-x64.exe
           tag: ${{ steps.previoustag.outputs.tag }}
           overwrite: true
+  upload-executables-windows-installer:
+    name: windows-x64
+    runs-on: windows-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+      - name: Get latest release tag
+        id: previoustag
+        uses: WyriHaximus/github-action-get-previous-tag@v1
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Generate installer
+        run: yarn oclif pack win
+      - name: Rename installer
+        run: find dist/win32/ -name *x64.exe -exec bash -c 'mv $0 plebbit_win-x64_installer.exe' {} \;
 
+      - name: Upload installer to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file: plebbit_win-x64_installer.exe
+          tag: ${{ steps.previoustag.outputs.tag }}
+          overwrite: true
 
   upload-executables-linux-arm64:
     name: linux-arm64
