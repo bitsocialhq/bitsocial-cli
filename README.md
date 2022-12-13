@@ -83,14 +83,14 @@ FLAGS
   --ipfsApiPort=<value>      (required) [default: 32429] Specify the API port of the ipfs node to listen on
   --ipfsGatewayPort=<value>  (required) [default: 32430] Specify the gateway port of the ipfs node to listen on
   --plebbitApiPort=<value>   (required) [default: 32431] Specify Plebbit API port to listen on
-  --plebbitDataPath=<value>  (required) [default: /home/user/.local/share/plebbit] Path to plebbit data path where
+  --plebbitDataPath=<value>  (required) [default: /home/runner/.local/share/plebbit] Path to plebbit data path where
                              subplebbits and ipfs node are stored
 
 DESCRIPTION
   Run a network-connected Plebbit node
 ```
 
-_See code: [dist/src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v1.1.0/dist/src/cli/commands/daemon.ts)_
+_See code: [dist/src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v1.1.1/dist/src/cli/commands/daemon.ts)_
 
 ## `plebbit help [COMMAND]`
 

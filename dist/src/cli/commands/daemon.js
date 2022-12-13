@@ -11,8 +11,22 @@ class Daemon extends core_1.Command {
         const { flags } = await this.parse(Daemon);
         const log = (0, plebbit_logger_1.default)("plebbit-cli:daemon");
         log(`flags: `, flags);
-        const ipfsProcess = await (0, startIpfs_js_1.startIpfsNode)(flags.ipfsApiPort, flags.ipfsGatewayPort, false);
-        process.on("exit", () => process.kill(ipfsProcess.pid));
+        let mainProcessExited = false;
+        // Ipfs Node may fail randomly, we need to set a listener so when it exits because of an error we restart it
+        let ipfsProcess;
+        const keepIpfsUp = async () => {
+            ipfsProcess = await (0, startIpfs_js_1.startIpfsNode)(flags.ipfsApiPort, flags.ipfsGatewayPort, false);
+            ipfsProcess.on("exit", async () => {
+                // Restart IPFS process because it failed
+                this.log(`Ipfs node with pid (${ipfsProcess.pid}) disconnected`);
+                if (!mainProcessExited) {
+                    await keepIpfsUp();
+                    this.log(`Ipfs node restarted with new pid (${ipfsProcess.pid})`);
+                }
+            });
+        };
+        await keepIpfsUp();
+        process.on("exit", () => (mainProcessExited = true) && process.kill(ipfsProcess.pid));
         await (0, server_js_1.startApi)(flags.plebbitApiPort, `http://localhost:${flags.ipfsApiPort}/api/v0`, `http://localhost:${flags.ipfsApiPort}/api/v0`, flags.plebbitDataPath);
     }
 }
