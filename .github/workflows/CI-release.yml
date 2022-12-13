@@ -128,7 +128,7 @@ jobs:
           bind_mount_repository: true
           commands: |
             curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - &&\
-            sudo apt-get install -y nodejs gcc g++ make git
+            sudo apt-get install -y nodejs gcc g++ make git libfontconfig1
             npm install --global yarn
             yarn install --frozen-lockfile
             yarn pkg . -t node16-linux-arm64 -o plebbit_linux-arm64
