@@ -48,13 +48,13 @@ jobs:
         if: runner.os != 'Windows'
         run: echo "exe=plebbit_${{ env.osPkg }}-${{ matrix.arch }}" >> $GITHUB_ENV
       - uses: pguyot/arm-runner-action@v2
-        if: ${{ matrix.arch }} == 'arm64'
-        id: build_image
+        if: matrix.arch == 'arm64'
         with:
+          image_additional_mb: 10240
           commands: |
             yarn pkg . -t node16-${{ env.osPkg }}-${{ matrix.arch }} -o ${{ env.exe }}
       - name: Generate ${{ runner.os }}-${{ matrix.arch }} executable
-        if: ${{ matrix.arch }} != 'arm64'
+        if: matrix.arch != 'arm64'
         run: yarn pkg . -t node16-${{ env.osPkg }}-${{ matrix.arch }} -o ${{ env.exe }}
 
       - name: Upload Binary releases

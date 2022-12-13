@@ -49,6 +49,16 @@ describe("plebbit daemon", async () => {
         expect(Array.isArray(subs)).to.be.true;
     });
 
+
+    it(`Ipfs Node is restarted if it stopped while daemon is running`, async () => {
+        const shutdownUrl = `http://localhost:${defaults.IPFS_API_PORT}/api/v0/shutdown`;
+        const res = await fetch(shutdownUrl, {
+            method: "POST"
+        });
+        expect(res.status).to.equal(200);
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait until ipfs node is restarted
+    });
+
     it(`Ipfs node is killed after killing plebbit daemon`, async () => {
         expect(daemonProcess.kill()).to.be.true;
 
