@@ -23,7 +23,7 @@ describe("plebbit daemon", async () => {
                 reject(`spawnAsync process '${spawedProcess.pid}' exited with code '${exitCode}' signal '${signal}'`);
             });
             spawedProcess.stdout.on("data", (data) => {
-                if (data.toString().match("You can find API documentation")) {
+                if (data.toString().match("Plebbit API documentation")) {
                     if (!spawedProcess.pid) throw Error(`process ID is not defined`);
                     spawedProcess.removeAllListeners();
                     resolve({ process: spawedProcess });
