@@ -1,22 +1,18 @@
-name: 'CI Release'
+name: "CI Release"
 on:
   workflow_run:
     workflows:
-      - 'CI build'
+      - "CI build"
     types:
-      - 'completed'
+      - "completed"
 jobs:
-# Generate and upload executables to Github releases
-  upload-executables:
-    name: ${{ matrix.os }}-${{ matrix.arch }}
+  # Generate and upload executables to Github releases
+  upload-executables-linux-macos:
+    name: ${{ matrix.os }}-x64
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        arch: ['x64']
-        include:
-          - os: ubuntu-latest
-            arch: 'arm64'
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -28,27 +24,71 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: 'yarn'
-      - name: 'Get latest release tag'
+          cache: yarn
+      - name: "Get latest release tag"
         id: previoustag
         uses: "WyriHaximus/github-action-get-previous-tag@v1"
-      - name: 'Store pkg-compliant Windows OS name'
-        if: runner.os == 'Windows'
-        run: echo "osPkg=win" | Out-File -FilePath $env:GITHUB_ENV -Append
-      - name: 'Store pkg-compliant Linux and MacOS name'
-        if: runner.os != 'Windows'
+      - name: "Store pkg-compliant Linux and MacOS name"
         run: echo "osPkg=$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
       - name: Install dependencies
         run: yarn install --frozen-lockfile
-      - name: Figure out binary file name (Windows)
-        if: runner.os == 'Windows'
-        run: echo "exe=plebbit_${{ env.osPkg }}-${{ matrix.arch }}.exe" | Out-File -FilePath $env:GITHUB_ENV -Append
+      - name: Figure out binary file name
+        run: echo "exe=plebbit_${{ env.osPkg }}-x64" >> $GITHUB_ENV
 
-      - name: Figure out binary file name (MacOS/Linux)
-        if: runner.os != 'Windows'
-        run: echo "exe=plebbit_${{ env.osPkg }}-${{ matrix.arch }}" >> $GITHUB_ENV
+      - name: Generate ${{ runner.os }}-x64 executable
+        run: yarn pkg . -t node16-${{ env.osPkg }}-x64 -o ${{ env.exe }}
+
+      - name: Upload file to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file: ${{ env.exe }}
+          tag: ${{ steps.previoustag.outputs.tag }}
+          overwrite: true
+
+  upload-executables-windows-single-exe:
+    name: windows-x64
+    runs-on: windows-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+      - name: "Get latest release tag"
+        id: previoustag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Generate single executable
+        run: yarn pkg . -t node16-win-x64 -o plebbit_win-x64.exe
+      - name: Upload file to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file: plebbit_win-x64.exe
+          tag: ${{ steps.previoustag.outputs.tag }}
+          overwrite: true
+
+
+  upload-executables-linux-arm64:
+    name: linux-arm64
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+      - name: "Get latest release tag"
+        id: previoustag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
       - uses: pguyot/arm-runner-action@v2
-        if: matrix.arch == 'arm64'
         with:
           base_image: raspios_lite_arm64:latest
           image_additional_mb: 2048
@@ -56,17 +96,14 @@ jobs:
           bind_mount_repository: true
           commands: |
             curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - &&\
+            sudo apt-get install -y nodejs gcc g++ make
             npm install --global yarn
-            yarn
-            yarn pkg . -t node16-${{ env.osPkg }}-${{ matrix.arch }} -o ${{ env.exe }}
-      - name: Generate ${{ runner.os }}-${{ matrix.arch }} executable
-        if: matrix.arch != 'arm64'
-        run: yarn pkg . -t node16-${{ env.osPkg }}-${{ matrix.arch }} -o ${{ env.exe }}
-
+            yarn install --frozen-lockfile
+            yarn pkg . -t node16-linux-arm64 -o plebbit_linux-arm64
       - name: Upload Binary releases
         uses: svenstaro/upload-release-action@v2
         with:
-          file: ${{ env.exe }}
+          file: plebbit_linux-arm64
           tag: ${{ steps.previoustag.outputs.tag }}
           overwrite: true
 
