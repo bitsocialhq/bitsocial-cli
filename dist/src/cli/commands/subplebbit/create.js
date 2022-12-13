@@ -32,7 +32,7 @@ class Create extends base_subplebbit_options_js_1.default {
         const startRes = await (0, node_fetch_1.default)(`${flags.apiUrl}/subplebbit/start?address=${createdSub.address}`, { method: "POST" });
         if (startRes.status !== response_statuses_js_1.statusCodes.SUCCESS_SUBPLEBBIT_STARTED)
             this.error(startRes.statusText);
-        this.log(JSON.stringify(this.toSuccessJson(createdSub)));
+        this.log(createdSub.address);
     }
 }
 exports.default = Create;

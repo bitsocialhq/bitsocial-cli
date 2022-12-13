@@ -12,8 +12,8 @@ const assert_1 = tslib_1.__importDefault(require("assert"));
 //@ts-ignore
 const go_ipfs_1 = require("go-ipfs");
 const paths = (0, env_paths_1.default)("plebbit", { suffix: "" });
-const log = (0, plebbit_logger_1.default)("plebbit-cli:startIpfsNode");
 async function getIpfsExePath() {
+    const log = (0, plebbit_logger_1.default)("plebbit-cli:ipfs:getIpfsExePath");
     // If the app is packaged with 'pkg' as a single binary, we have to copy the ipfs binary somewhere so we can execute it
     //@ts-ignore
     if (process.pkg) {
@@ -44,7 +44,7 @@ async function getIpfsExePath() {
 }
 // use this custom function instead of spawnSync for better logging
 // also spawnSync might have been causing crash on start on windows
-function _spawnAsync(...args) {
+function _spawnAsync(log, ...args) {
     return new Promise((resolve, reject) => {
         //@ts-ignore
         const spawedProcess = (0, child_process_1.spawn)(...args);
@@ -62,22 +62,23 @@ function _spawnAsync(...args) {
 }
 async function startIpfsNode(apiPortNumber, gatewayPortNumber, testing) {
     return new Promise(async (resolve, reject) => {
+        const log = (0, plebbit_logger_1.default)("plebbit-cli:ipfs:startIpfsNode");
         const ipfsDataPath = process.env["IPFS_PATH"] || path_1.default.join(paths.data, ".ipfs-cli");
         await fs_2.default.promises.mkdir(ipfsDataPath, { recursive: true });
         const ipfsExePath = await getIpfsExePath();
         log.trace(`IpfsDataPath (${ipfsDataPath}), ipfsExePath (${ipfsExePath})`);
         const env = { IPFS_PATH: ipfsDataPath };
         try {
-            await _spawnAsync(ipfsExePath, ["init"], { env, hideWindows: true });
+            await _spawnAsync(log, ipfsExePath, ["init"], { env, hideWindows: true });
         }
         catch (e) { }
-        await _spawnAsync(ipfsExePath, ["config", "Addresses.Gateway", `/ip4/127.0.0.1/tcp/${gatewayPortNumber}`], {
+        await _spawnAsync(log, ipfsExePath, ["config", "Addresses.Gateway", `/ip4/127.0.0.1/tcp/${gatewayPortNumber}`], {
             env,
             hideWindows: true
         });
-        await _spawnAsync(ipfsExePath, ["config", "Addresses.API", `/ip4/127.0.0.1/tcp/${apiPortNumber}`], { env, hideWindows: true });
+        await _spawnAsync(log, ipfsExePath, ["config", "Addresses.API", `/ip4/127.0.0.1/tcp/${apiPortNumber}`], { env, hideWindows: true });
         if (testing)
-            await _spawnAsync(ipfsExePath, ["bootstrap", "rm", "--all"], { env });
+            await _spawnAsync(log, ipfsExePath, ["bootstrap", "rm", "--all"], { env });
         const daemonArgs = process.env["OFFLINE_MODE"] === "1" ? ["--offline"] : ["--enable-pubsub-experiment", "--enable-namesys-pubsub"];
         const ipfsProcess = (0, child_process_1.spawn)(ipfsExePath, ["daemon", ...daemonArgs], { env, cwd: process.cwd() });
         log.trace(`ipfs daemon process started with pid ${ipfsProcess.pid}`);
@@ -88,6 +89,7 @@ async function startIpfsNode(apiPortNumber, gatewayPortNumber, testing) {
         });
         ipfsProcess.stdin.on("data", (data) => log.trace(data.toString()));
         ipfsProcess.stdout.on("data", (data) => {
+            log.trace(data.toString());
             if (data.toString().match("Daemon is ready")) {
                 (0, assert_1.default)(typeof ipfsProcess.pid === "number", `ipfsProcess.pid (${ipfsProcess.pid}) is not a valid pid`);
                 if (testing)
