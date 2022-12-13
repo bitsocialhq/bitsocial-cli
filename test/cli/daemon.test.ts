@@ -49,14 +49,28 @@ describe("plebbit daemon", async () => {
         expect(Array.isArray(subs)).to.be.true;
     });
 
-
-    it(`Ipfs Node is restarted if it stopped while daemon is running`, async () => {
-        const shutdownUrl = `http://localhost:${defaults.IPFS_API_PORT}/api/v0/shutdown`;
-        const res = await fetch(shutdownUrl, {
+    it(`Ipfs Node is restart after failing for first time`, async () => {
+        const shutdownRes = await fetch(`http://localhost:${defaults.IPFS_API_PORT}/api/v0/shutdown`, {
             method: "POST"
         });
-        expect(res.status).to.equal(200);
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait until ipfs node is restarted
+        expect(shutdownRes.status).to.equal(200);
+        //@ts-ignore
+        await assert.isRejected(fetch(`http://localhost:${defaults.IPFS_API_PORT}/api/v0/bitswap/stat`, { method: "POST" }));
+        await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait until ipfs node is restarted
+        //@ts-ignore
+        await assert.isFulfilled(fetch(`http://localhost:${defaults.IPFS_API_PORT}/api/v0/bitswap/stat`, { method: "POST" }));
+    });
+
+    it(`Ipfs Node is restart after failing for second time`, async () => {
+        const shutdownRes = await fetch(`http://localhost:${defaults.IPFS_API_PORT}/api/v0/shutdown`, {
+            method: "POST"
+        });
+        expect(shutdownRes.status).to.equal(200);
+        //@ts-ignore
+        await assert.isRejected(fetch(`http://localhost:${defaults.IPFS_API_PORT}/api/v0/bitswap/stat`, { method: "POST" }));
+        await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait until ipfs node is restarted
+        //@ts-ignore
+        await assert.isFulfilled(fetch(`http://localhost:${defaults.IPFS_API_PORT}/api/v0/bitswap/stat`, { method: "POST" }));
     });
 
     it(`Ipfs node is killed after killing plebbit daemon`, async () => {
