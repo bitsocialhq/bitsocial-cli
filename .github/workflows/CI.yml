@@ -48,6 +48,6 @@ jobs:
       - run: yarn start:ipfs & sleep 1
       - run: yarn start:api & sleep 1
       
-      - run: yarn test:api
-      - run: yarn test:cli
+      - run: DEBUG="plebbit*" yarn test:api
+      - run: DEBUG="plebbit*" yarn test:cli
 
