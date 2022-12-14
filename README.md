@@ -68,6 +68,7 @@ USAGE
 * [`plebbit subplebbit create`](#plebbit-subplebbit-create)
 * [`plebbit subplebbit edit ADDRESS`](#plebbit-subplebbit-edit-address)
 * [`plebbit subplebbit list`](#plebbit-subplebbit-list)
+* [`plebbit subplebbit role set SUBPLEBBITADDRESS AUTHORADDRESS`](#plebbit-subplebbit-role-set-subplebbitaddress-authoraddress)
 * [`plebbit subplebbit start ADDRESSES`](#plebbit-subplebbit-start-addresses)
 
 ## `plebbit daemon`
@@ -90,7 +91,7 @@ DESCRIPTION
   Run a network-connected Plebbit node
 ```
 
-_See code: [dist/src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v1.1.1/dist/src/cli/commands/daemon.ts)_
+_See code: [dist/src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v1.2.0/dist/src/cli/commands/daemon.ts)_
 
 ## `plebbit help [COMMAND]`
 
@@ -118,13 +119,12 @@ Create a subplebbit with specific properties. A newly created sub will be starte
 
 ```
 USAGE
-  $ plebbit subplebbit create --apiUrl <value> [--address <value>] [--title <value>] [--description <value>]
-    [--pubsubTopic <value>] [--suggested.primaryColor <value>] [--suggested.secondaryColor <value>]
-    [--suggested.avatarUrl <value>] [--suggested.bannerUrl <value>] [--suggested.backgroundUrl <value>]
-    [--suggested.language <value>] [--privateKeyPath <value>]
+  $ plebbit subplebbit create --apiUrl <value> [--title <value>] [--description <value>] [--pubsubTopic <value>]
+    [--suggested.primaryColor <value>] [--suggested.secondaryColor <value>] [--suggested.avatarUrl <value>]
+    [--suggested.bannerUrl <value>] [--suggested.backgroundUrl <value>] [--suggested.language <value>] [--privateKeyPath
+    <value>]
 
 FLAGS
-  --address=<value>                   Address of the subplebbit. Can be used to retrieve an already existing subplebbit
   --apiUrl=<value>                    (required) [default: http://localhost:32431/api/v0] URL to Plebbit API
   --description=<value>               Description of the subplebbit
   --privateKeyPath=<value>            Private key (PEM) of the subplebbit signer that will be used to determine address
@@ -156,16 +156,16 @@ Edit a subplebbit
 
 ```
 USAGE
-  $ plebbit subplebbit edit [ADDRESS] --apiUrl <value> [--address <value>] [--title <value>] [--description <value>]
-    [--pubsubTopic <value>] [--suggested.primaryColor <value>] [--suggested.secondaryColor <value>]
-    [--suggested.avatarUrl <value>] [--suggested.bannerUrl <value>] [--suggested.backgroundUrl <value>]
-    [--suggested.language <value>]
+  $ plebbit subplebbit edit [ADDRESS] --apiUrl <value> [--title <value>] [--description <value>] [--pubsubTopic
+    <value>] [--suggested.primaryColor <value>] [--suggested.secondaryColor <value>] [--suggested.avatarUrl <value>]
+    [--suggested.bannerUrl <value>] [--suggested.backgroundUrl <value>] [--suggested.language <value>] [--address
+    <value>]
 
 ARGUMENTS
   ADDRESS  Address of the subplebbit address to edit
 
 FLAGS
-  --address=<value>                   Address of the subplebbit. Can be used to retrieve an already existing subplebbit
+  --address=<value>                   New address of the subplebbit
   --apiUrl=<value>                    (required) [default: http://localhost:32431/api/v0] URL to Plebbit API
   --description=<value>               Description of the subplebbit
   --pubsubTopic=<value>               The string to publish to in the pubsub, a public key of the subplebbit owner's
@@ -206,6 +206,29 @@ FLAGS
 
 DESCRIPTION
   List your subplebbits
+```
+
+## `plebbit subplebbit role set SUBPLEBBITADDRESS AUTHORADDRESS`
+
+Set role to an author within the subplebbit. If an author has a role already, it would get overidden with the new role
+
+```
+USAGE
+  $ plebbit subplebbit role set [SUBPLEBBITADDRESS] [AUTHORADDRESS] --apiUrl <value> --role admin|moderator|owner
+
+ARGUMENTS
+  SUBPLEBBITADDRESS  Address of subplebbit
+  AUTHORADDRESS      The address of the author to set the role to
+
+FLAGS
+  --apiUrl=<value>                (required) [default: http://localhost:32431/api/v0] URL to Plebbit API
+  --role=(admin|moderator|owner)  (required) [default: moderator] New role for the author
+
+DESCRIPTION
+  Set role to an author within the subplebbit. If an author has a role already, it would get overidden with the new role
+
+EXAMPLES
+  $ plebbit role set plebbit.eth estebanabaroa.eth --role admin
 ```
 
 ## `plebbit subplebbit start ADDRESSES`
