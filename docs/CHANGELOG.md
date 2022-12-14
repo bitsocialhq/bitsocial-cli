@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/plebbit/plebbit-cli/compare/v1.1.1...v1.2.0) (2022-12-14)
+
+
+### Features
+
+* **cli:** a cli command to set roles for authors within a subplebbit ([d16d0ab](https://github.com/plebbit/plebbit-cli/commit/d16d0abfdf8e4c8a453d6f25e36d053c0ada267d))
+
 ## [1.1.1](https://github.com/plebbit/plebbit-cli/compare/v1.1.0...v1.1.1) (2022-12-13)
 
 
