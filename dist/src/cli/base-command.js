@@ -23,7 +23,7 @@ class BaseCommand extends core_1.Command {
         this.stopIfDaemonIsDown = async (apiUrl) => {
             if (!(await this._isDaemonUp(apiUrl)))
                 this.error(exit_codes_js_1.exitMessages.ERR_DAEMON_IS_DOWN, {
-                    code: exit_codes_js_1.exitCodes.ERR_DAEMON_IS_DOWN,
+                    code: "ERR_DAEMON_IS_DOWN",
                     exit: exit_codes_js_1.exitStatuses.ERR_DAEMON_IS_DOWN
                 });
         };

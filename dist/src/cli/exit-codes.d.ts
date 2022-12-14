@@ -1,11 +1,10 @@
 export declare enum exitMessages {
-    ERR_DAEMON_IS_DOWN = "Daemon is down. Please run 'plebbit daemon' before executing this command"
-}
-export declare enum exitCodes {
-    ERR_DAEMON_IS_DOWN = "ERROR_DAEMON_IS_DOWN"
+    ERR_DAEMON_IS_DOWN = "Daemon is down. Please run 'plebbit daemon' before executing this command",
+    ERR_AUTHOR_ROLE_DOES_NOT_EXIST = "Author does not have any roles to remove"
 }
 export declare enum exitStatuses {
     ERR_DAEMON_IS_DOWN = 1,
     ERR_SUB_ALREADY_STARTED = 2,
-    ERR_SUBPLEBBIT_DOES_NOT_EXIST = 3
+    ERR_SUBPLEBBIT_DOES_NOT_EXIST = 3,
+    ERR_AUTHOR_ROLE_DOES_NOT_EXIST = 4
 }
