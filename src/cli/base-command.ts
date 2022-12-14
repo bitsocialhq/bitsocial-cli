@@ -2,7 +2,7 @@ import { Command, Flags } from "@oclif/core";
 import { URL } from "url";
 import fetch from "node-fetch";
 import defaults from "../common-utils/defaults.js";
-import { exitCodes, exitMessages, exitStatuses } from "./exit-codes.js";
+import { exitMessages, exitStatuses } from "./exit-codes.js";
 export abstract class BaseCommand extends Command {
     static override globalFlags = {
         apiUrl: Flags.url({
@@ -25,7 +25,7 @@ export abstract class BaseCommand extends Command {
     stopIfDaemonIsDown = async (apiUrl: string) => {
         if (!(await this._isDaemonUp(apiUrl)))
             this.error(exitMessages.ERR_DAEMON_IS_DOWN, {
-                code: exitCodes.ERR_DAEMON_IS_DOWN,
+                code: "ERR_DAEMON_IS_DOWN",
                 exit: exitStatuses.ERR_DAEMON_IS_DOWN
             });
     };
