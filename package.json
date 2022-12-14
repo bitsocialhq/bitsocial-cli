@@ -1,6 +1,6 @@
 {
     "name": "plebbit-cli",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "description": "Command line interface to Plebbit API",
     "types": "./dist/src/index.d.ts",
     "homepage": "https://github.com/plebbit/plebbit-cli",
