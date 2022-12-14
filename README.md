@@ -36,6 +36,19 @@ curl https://raw.githubusercontent.com/plebbit/plebbit-cli/master/bin/install.sh
 
 For Windows, You need to install [vc-redist](https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170) first. After you install `vc-redist`, download the install [plebbit](https://github.com/plebbit/plebbit-cli/releases/latest/download/plebbit_win-x64_installer.exe) and next your way to the end
 
+## Build your Plebbit executable manually (optional)
+
+You need to have `NodeJS 16`, `npm` and `yarn` installed
+
+```
+git clone https://github.com/plebbit/plebbit-cli
+cd plebbit-cli
+yarn install --frozen-lockfile
+yarn build && yarn oclif manifest
+yarn pkg -t node16-linux-x64 .
+```
+
+After running the last command you should have your executable in the directory. In this example we have generated an executables for linux. If you want to generate executables for different operating systems, visit [pkg documentation](https://github.com/vercel/pkg)
 
 # Usage
 
