@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/plebbit/plebbit-cli/compare/v1.2.0...v1.3.0) (2022-12-14)
+
+
+### Features
+
+* **cli:** a cli command to remove authors' roles within a subplebbit ([372a1e6](https://github.com/plebbit/plebbit-cli/commit/372a1e639fe0134ff1bc8a660e5e28c48c8c6125))
+
 # [1.2.0](https://github.com/plebbit/plebbit-cli/compare/v1.1.1...v1.2.0) (2022-12-14)
 
 

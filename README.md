@@ -68,7 +68,8 @@ USAGE
 * [`plebbit subplebbit create`](#plebbit-subplebbit-create)
 * [`plebbit subplebbit edit ADDRESS`](#plebbit-subplebbit-edit-address)
 * [`plebbit subplebbit list`](#plebbit-subplebbit-list)
-* [`plebbit subplebbit role set SUBPLEBBITADDRESS AUTHORADDRESS`](#plebbit-subplebbit-role-set-subplebbitaddress-authoraddress)
+* [`plebbit subplebbit role remove SUB-ADDRESS AUTHOR-ADDRESS`](#plebbit-subplebbit-role-remove-sub-address-author-address)
+* [`plebbit subplebbit role set SUB-ADDRESS AUTHOR-ADDRESS`](#plebbit-subplebbit-role-set-sub-address-author-address)
 * [`plebbit subplebbit start ADDRESSES`](#plebbit-subplebbit-start-addresses)
 
 ## `plebbit daemon`
@@ -91,7 +92,7 @@ DESCRIPTION
   Run a network-connected Plebbit node
 ```
 
-_See code: [dist/src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v1.2.0/dist/src/cli/commands/daemon.ts)_
+_See code: [dist/src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v1.3.0/dist/src/cli/commands/daemon.ts)_
 
 ## `plebbit help [COMMAND]`
 
@@ -208,17 +209,39 @@ DESCRIPTION
   List your subplebbits
 ```
 
-## `plebbit subplebbit role set SUBPLEBBITADDRESS AUTHORADDRESS`
+## `plebbit subplebbit role remove SUB-ADDRESS AUTHOR-ADDRESS`
+
+Remove role of an author within the subplebbit
+
+```
+USAGE
+  $ plebbit subplebbit role remove [SUB-ADDRESS] [AUTHOR-ADDRESS] --apiUrl <value>
+
+ARGUMENTS
+  SUB-ADDRESS     Address of subplebbit
+  AUTHOR-ADDRESS  The address of the author to remove their role
+
+FLAGS
+  --apiUrl=<value>  (required) [default: http://localhost:32431/api/v0] URL to Plebbit API
+
+DESCRIPTION
+  Remove role of an author within the subplebbit
+
+EXAMPLES
+  $ plebbit role remove plebbit.eth estebanabaroa.eth
+```
+
+## `plebbit subplebbit role set SUB-ADDRESS AUTHOR-ADDRESS`
 
 Set role to an author within the subplebbit. If an author has a role already, it would get overidden with the new role
 
 ```
 USAGE
-  $ plebbit subplebbit role set [SUBPLEBBITADDRESS] [AUTHORADDRESS] --apiUrl <value> --role admin|moderator|owner
+  $ plebbit subplebbit role set [SUB-ADDRESS] [AUTHOR-ADDRESS] --apiUrl <value> --role admin|moderator|owner
 
 ARGUMENTS
-  SUBPLEBBITADDRESS  Address of subplebbit
-  AUTHORADDRESS      The address of the author to set the role to
+  SUB-ADDRESS     Address of subplebbit
+  AUTHOR-ADDRESS  The address of the author to set the role to
 
 FLAGS
   --apiUrl=<value>                (required) [default: http://localhost:32431/api/v0] URL to Plebbit API
