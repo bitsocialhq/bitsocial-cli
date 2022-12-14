@@ -45,6 +45,9 @@
         "topics": {
             "subplebbit": {
                 "description": "Access and manage your subplebbits"
+            },
+            "subplebbit:role": {
+                "description": "Manage the role of authors in your subplebbits"
             }
         }
     },
