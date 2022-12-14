@@ -1,6 +1,6 @@
 // This file is to test root commands like `plebbit daemon` or `plebbit get`, whereas commands like `plebbit subplebbit start` are considered nested
 import Plebbit from "@plebbit/plebbit-js";
-import { ChildProcessWithoutNullStreams, spawn } from "child_process";
+import { ChildProcess, spawn } from "child_process";
 import defaults from "../../dist/src/common-utils/defaults.js";
 import fetch from "node-fetch";
 import { SubplebbitList } from "../../src/api/types.js";
@@ -14,27 +14,27 @@ const { expect, assert } = chai;
 
 describe("plebbit daemon", async () => {
     let plebbit: PlebbitClass;
-    let daemonProcess: ChildProcessWithoutNullStreams;
+    let daemonProcess: ChildProcess;
 
-    const startDaemon = (args: string[]): Promise<{ process: ChildProcessWithoutNullStreams }> => {
+    const startDaemon = (args: string[]): Promise<ChildProcess> => {
         return new Promise(async (resolve, reject) => {
-            const spawedProcess = spawn("node", ["./bin/run", "daemon", ...args], { env: process.env });
-            spawedProcess.on("exit", (exitCode, signal) => {
-                reject(`spawnAsync process '${spawedProcess.pid}' exited with code '${exitCode}' signal '${signal}'`);
+            const daemonProcess = spawn("node", ["./bin/run", "daemon", ...args], { stdio: ["pipe", "pipe", "inherit"] });
+
+            daemonProcess.on("exit", (exitCode, signal) => {
+                reject(`spawnAsync process '${daemonProcess.pid}' exited with code '${exitCode}' signal '${signal}'`);
             });
-            spawedProcess.stdout.on("data", (data) => {
+            daemonProcess.stdout.on("data", (data) => {
                 if (data.toString().match("Plebbit API documentation")) {
-                    if (!spawedProcess.pid) throw Error(`process ID is not defined`);
-                    spawedProcess.removeAllListeners();
-                    resolve({ process: spawedProcess });
+                    daemonProcess.removeAllListeners();
+                    resolve(daemonProcess);
                 }
             });
-            spawedProcess.on("error", (data) => reject(data));
+            daemonProcess.on("error", (data) => reject(data));
         });
     };
 
     before(async () => {
-        daemonProcess = (await startDaemon([])).process;
+        daemonProcess = await startDaemon([]);
     });
     it(`Starts a daemon successfully with default args`, async () => {
         expect(daemonProcess.pid).to.be.a("number");
@@ -49,29 +49,29 @@ describe("plebbit daemon", async () => {
         expect(Array.isArray(subs)).to.be.true;
     });
 
-    it(`Ipfs Node is restart after failing for first time`, async () => {
-        const shutdownRes = await fetch(`http://localhost:${defaults.IPFS_API_PORT}/api/v0/shutdown`, {
-            method: "POST"
-        });
-        expect(shutdownRes.status).to.equal(200);
-        //@ts-ignore
-        await assert.isRejected(fetch(`http://localhost:${defaults.IPFS_API_PORT}/api/v0/bitswap/stat`, { method: "POST" }));
-        await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait until ipfs node is restarted
-        //@ts-ignore
-        await assert.isFulfilled(fetch(`http://localhost:${defaults.IPFS_API_PORT}/api/v0/bitswap/stat`, { method: "POST" }));
-    });
+    [1, 2].map((tryNumber) =>
+        it(`Ipfs Node is restart after failing for ${tryNumber}st time`, async () => {
+            const shutdownRes = await fetch(`http://localhost:${defaults.IPFS_API_PORT}/api/v0/shutdown`, {
+                method: "POST"
+            });
+            expect(shutdownRes.status).to.equal(200);
+            //@ts-ignore
+            await assert.isRejected(fetch(`http://localhost:${defaults.IPFS_API_PORT}/api/v0/bitswap/stat`, { method: "POST" }));
 
-    it(`Ipfs Node is restart after failing for second time`, async () => {
-        const shutdownRes = await fetch(`http://localhost:${defaults.IPFS_API_PORT}/api/v0/shutdown`, {
-            method: "POST"
-        });
-        expect(shutdownRes.status).to.equal(200);
-        //@ts-ignore
-        await assert.isRejected(fetch(`http://localhost:${defaults.IPFS_API_PORT}/api/v0/bitswap/stat`, { method: "POST" }));
-        await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait until ipfs node is restarted
-        //@ts-ignore
-        await assert.isFulfilled(fetch(`http://localhost:${defaults.IPFS_API_PORT}/api/v0/bitswap/stat`, { method: "POST" }));
-    });
+            // Try to connect to ipfs node every 100ms
+            await new Promise((resolve) => {
+                const timeOut = setInterval(() => {
+                    fetch(`http://localhost:${defaults.IPFS_API_PORT}/api/v0/bitswap/stat`, { method: "POST" })
+                        .then(resolve)
+                        .then(() => clearInterval(timeOut));
+                }, 100);
+            });
+
+            // IPFS node should be running right now
+            //@ts-ignore
+            await assert.isFulfilled(fetch(`http://localhost:${defaults.IPFS_API_PORT}/api/v0/bitswap/stat`, { method: "POST" }));
+        })
+    );
 
     it(`Ipfs node is killed after killing plebbit daemon`, async () => {
         expect(daemonProcess.kill()).to.be.true;
