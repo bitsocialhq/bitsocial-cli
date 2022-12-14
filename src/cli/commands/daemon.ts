@@ -45,13 +45,12 @@ export default class Daemon extends Command {
         let ipfsProcess: ChildProcessWithoutNullStreams;
         const keepIpfsUp = async () => {
             ipfsProcess = await startIpfsNode(flags.ipfsApiPort, flags.ipfsGatewayPort, false);
+            log(`Started ipfs process with pid (${ipfsProcess.pid})`);
             ipfsProcess.on("exit", async () => {
                 // Restart IPFS process because it failed
-                this.log(`Ipfs node with pid (${ipfsProcess.pid}) disconnected`);
-                if (!mainProcessExited) {
-                    await keepIpfsUp();
-                    this.log(`Ipfs node restarted with new pid (${ipfsProcess.pid})`);
-                }
+                log(`Ipfs node with pid (${ipfsProcess.pid}) exited`);
+                if (!mainProcessExited) await keepIpfsUp();
+                else ipfsProcess.removeAllListeners();
             });
         };
 
