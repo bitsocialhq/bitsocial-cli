@@ -7,6 +7,7 @@ import fetch from "node-fetch";
 import DataObjectParser from "dataobject-parser";
 import BaseSubplebbitOptions from "../../base-subplebbit-options.js";
 import { exitStatuses } from "../../exit-codes.js";
+import { Flags } from "@oclif/core";
 
 export default class Edit extends BaseSubplebbitOptions {
     static override description = "Edit a subplebbit";
@@ -22,7 +23,10 @@ export default class Edit extends BaseSubplebbitOptions {
     static override examples = [];
 
     // TODO implement roles, flairs flag
-    static override flags = { ...BaseSubplebbitOptions.baseSubplebbitFlags };
+    static override flags = {
+        ...BaseSubplebbitOptions.baseSubplebbitFlags,
+        address: Flags.string({ summary: "New address of the subplebbit" })
+    };
 
     async run(): Promise<void> {
         const { flags, args } = await this.parse(Edit);

@@ -4,7 +4,6 @@ import { BaseCommand } from "./base-command.js";
 export default abstract class BaseSubplebbitOptions extends BaseCommand {
     // TODO implement roles,rules, features, flairs, settings
     static baseSubplebbitFlags = {
-        address: Flags.string({ summary: "Address of the subplebbit. Can be used to retrieve an already existing subplebbit" }),
         title: Flags.string({ summary: "Title of the subplebbit" }),
         description: Flags.string({ summary: "Description of the subplebbit" }),
         pubsubTopic: Flags.string({ summary: "The string to publish to in the pubsub, a public key of the subplebbit owner's choice" }),
