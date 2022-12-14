@@ -7,7 +7,6 @@ class BaseSubplebbitOptions extends base_command_js_1.BaseCommand {
 exports.default = BaseSubplebbitOptions;
 // TODO implement roles,rules, features, flairs, settings
 BaseSubplebbitOptions.baseSubplebbitFlags = {
-    address: core_1.Flags.string({ summary: "Address of the subplebbit. Can be used to retrieve an already existing subplebbit" }),
     title: core_1.Flags.string({ summary: "Title of the subplebbit" }),
     description: core_1.Flags.string({ summary: "Description of the subplebbit" }),
     pubsubTopic: core_1.Flags.string({ summary: "The string to publish to in the pubsub, a public key of the subplebbit owner's choice" }),

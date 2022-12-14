@@ -9,6 +9,7 @@ const node_fetch_1 = tslib_1.__importDefault(require("node-fetch"));
 const dataobject_parser_1 = tslib_1.__importDefault(require("dataobject-parser"));
 const base_subplebbit_options_js_1 = tslib_1.__importDefault(require("../../base-subplebbit-options.js"));
 const exit_codes_js_1 = require("../../exit-codes.js");
+const core_1 = require("@oclif/core");
 class Edit extends base_subplebbit_options_js_1.default {
     async run() {
         const { flags, args } = await this.parse(Edit);
@@ -45,4 +46,7 @@ Edit.args = [
 ];
 Edit.examples = [];
 // TODO implement roles, flairs flag
-Edit.flags = { ...base_subplebbit_options_js_1.default.baseSubplebbitFlags };
+Edit.flags = {
+    ...base_subplebbit_options_js_1.default.baseSubplebbitFlags,
+    address: core_1.Flags.string({ summary: "New address of the subplebbit" })
+};

@@ -16,13 +16,14 @@ class Daemon extends core_1.Command {
         let ipfsProcess;
         const keepIpfsUp = async () => {
             ipfsProcess = await (0, startIpfs_js_1.startIpfsNode)(flags.ipfsApiPort, flags.ipfsGatewayPort, false);
+            log(`Started ipfs process with pid (${ipfsProcess.pid})`);
             ipfsProcess.on("exit", async () => {
                 // Restart IPFS process because it failed
-                this.log(`Ipfs node with pid (${ipfsProcess.pid}) disconnected`);
-                if (!mainProcessExited) {
+                log(`Ipfs node with pid (${ipfsProcess.pid}) exited`);
+                if (!mainProcessExited)
                     await keepIpfsUp();
-                    this.log(`Ipfs node restarted with new pid (${ipfsProcess.pid})`);
-                }
+                else
+                    ipfsProcess.removeAllListeners();
             });
         };
         await keepIpfsUp();
