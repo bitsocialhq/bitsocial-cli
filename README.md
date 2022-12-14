@@ -52,27 +52,43 @@ After running the last command you should have your executable in the directory.
 
 # Usage
 
-Run `plebbit daemon` to able to connect the network
+## Running Daemon
+
+In Bash (or powershell if you're on Windows), run `plebbit daemon` to able to connect to the network. You need to have the `plebbit daemon` terminal running to be able to execute other commands.
 
 ```sh-session
 $ plebbit daemon
-Plebbit API listening at http://localhost:32431
-You can find API documentation at: http://localhost:32431/api/v0/docs
+IPFS API listening on: http://localhost:32429/api/v0
+IPFS Gateway listening on: http://localhost:32430
+Plebbit API listening on: http://localhost:32431/api/v0
+You can find Plebbit API documentation at: http://localhost:32431/api/v0/docs
 ```
 
-Creating your first sub (WIP)
+### Creating your first sub
+```sh-session
+$ plebbit subplebbit create --title "Hello Plebs!" --description "This is gonna be great"
+QmPjewdKya8iVkuQiiXQ5qRBsgVUAZg2LQ2m8v3LNJ7Ht8
+```
 
-<!-- ```sh-session
-$ plebbit subplebbit create --title "New Sub Title"
-$ plebbit COMMAND
-running command...
-$ plebbit (--version)
-plebbit-cli/1.1.0 linux-x64 node-v16.18.1
-$ plebbit --help [COMMAND]
-USAGE
-  $ plebbit COMMAND
-...
-``` -->
+### Listing all your subs
+```sh-session
+$ plebbit subplebbit list
+Address                                        Started 
+────────────────────────────────────────────── ─────── 
+QmPjewdKya8iVkuQiiXQ5qRBsgVUAZg2LQ2m8v3LNJ7Ht8 false   
+QmRcyUK7jUhFyPTEvwWyfGZEAaSoDugNJ8PZSC4PWRjUqd false
+```
+
+### Adding an author role
+```sh-session
+$ plebbit subplebbit role set QmPjewdKya8iVkuQiiXQ5qRBsgVUAZg2LQ2m8v3LNJ7Ht8 author-address.eth --role moderator
+```
+
+### Removing a role
+```sh-session
+$ plebbit subplebbit role remove QmPjewdKya8iVkuQiiXQ5qRBsgVUAZg2LQ2m8v3LNJ7Ht8 author-address.eth 
+```
+
 
 # Commands
 
