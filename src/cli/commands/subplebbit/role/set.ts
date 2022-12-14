@@ -23,12 +23,12 @@ export default class Set extends BaseCommand {
 
     static override args = [
         {
-            name: "subplebbitAddress",
+            name: "sub-address",
             required: true, // make the arg required with `required: true`
             description: "Address of subplebbit"
         },
         {
-            name: "authorAddress",
+            name: "author-address",
             required: true,
             description: "The address of the author to set the role to"
         }
@@ -40,8 +40,8 @@ export default class Set extends BaseCommand {
         const log = Logger("plebbit-cli:commands:subplebbit:roles:set");
         log(`flags: `, flags);
         log(`args: `, args);
-        const authorAddress: string = args["authorAddress"];
-        const subplebbitAddress: string = args["subplebbitAddress"];
+        const authorAddress: string = args["author-address"];
+        const subplebbitAddress: string = args["sub-address"];
         await this.stopIfDaemonIsDown(flags.apiUrl.toString());
 
         const subRes = await fetch(`${flags.apiUrl}/subplebbit/create`, {
