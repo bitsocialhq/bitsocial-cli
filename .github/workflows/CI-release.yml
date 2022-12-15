@@ -66,11 +66,11 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Generate single executable
-        run: yarn pkg . -t node16-win-x64 -o plebbit_win-x64.exe
+        run: yarn pkg . -t node16-win-x64 -o plebbit_win-x64_portable.exe
       - name: Upload file to release
         uses: svenstaro/upload-release-action@v2
         with:
-          file: plebbit_win-x64.exe
+          file: plebbit_win-x64_portable.exe
           tag: ${{ steps.previoustag.outputs.tag }}
           overwrite: true
   upload-executables-windows-installer:
