@@ -122,7 +122,7 @@ DESCRIPTION
   Run a network-connected Plebbit node
 ```
 
-_See code: [dist/src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v1.3.0/dist/src/cli/commands/daemon.ts)_
+_See code: [dist/src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v0.3.1/dist/src/cli/commands/daemon.ts)_
 
 ## `plebbit help [COMMAND]`
 
