@@ -4,10 +4,12 @@
         "requireCleanWorkingDir": false,
         "commitMessage": "chore(release): ${version} [skip ci]",
         "requireCommits": true,
-        "commit": false
+        "commit": false,
+        "tagAnnotation": "v${version}"
     },
     "github": {
-        "release": true
+        "release": true,
+        "releaseName": "v${version}"
     },
     "plugins": {
         "@release-it/conventional-changelog": {
