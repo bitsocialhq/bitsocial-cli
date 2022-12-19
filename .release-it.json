@@ -3,7 +3,8 @@
         "assets": ["docs/CHANGELOG.md", "README.md", "oclif.manifest.json"],
         "requireCleanWorkingDir": false,
         "commitMessage": "chore(release): ${version} [skip ci]",
-        "requireCommits": true
+        "requireCommits": true,
+        "commit": false
     },
     "github": {
         "release": true
@@ -15,6 +16,6 @@
         }
     },
     "hooks": {
-        "after:git:bump": "yarn oclif manifest && yarn oclif readme"
+        "before:git:release": "yarn oclif manifest && yarn oclif readme && git add docs/CHANGELOG.md README.md oclif.manifest.json && git commit -m 'chore(release): ${version} [skip ci]'"
     }
 }
