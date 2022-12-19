@@ -1,3 +1,7 @@
+
+
+## 0.3.1 (2022-12-19)
+
 # [1.3.0](https://github.com/plebbit/plebbit-cli/compare/v1.2.0...v1.3.0) (2022-12-14)
 
 
