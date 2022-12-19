@@ -1,0 +1,20 @@
+{
+    "git": {
+        "assets": ["docs/CHANGELOG.md", "README.md", "oclif.manifest.json"],
+        "requireCleanWorkingDir": false,
+        "commitMessage": "chore(release): ${version} [skip ci]",
+        "requireCommits": true
+    },
+    "github": {
+        "release": true
+    },
+    "plugins": {
+        "@release-it/conventional-changelog": {
+            "preset": "angular",
+            "infile": "docs/CHANGELOG.md"
+        }
+    },
+    "hooks": {
+        "after:git:bump": "yarn oclif manifest && yarn oclif readme"
+    }
+}
