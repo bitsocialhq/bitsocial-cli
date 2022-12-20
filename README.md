@@ -101,6 +101,7 @@ $ plebbit subplebbit role remove QmPjewdKya8iVkuQiiXQ5qRBsgVUAZg2LQ2m8v3LNJ7Ht8 
 * [`plebbit subplebbit role remove SUB-ADDRESS AUTHOR-ADDRESS`](#plebbit-subplebbit-role-remove-sub-address-author-address)
 * [`plebbit subplebbit role set SUB-ADDRESS AUTHOR-ADDRESS`](#plebbit-subplebbit-role-set-sub-address-author-address)
 * [`plebbit subplebbit start ADDRESSES`](#plebbit-subplebbit-start-addresses)
+* [`plebbit subplebbit stop ADDRESSES`](#plebbit-subplebbit-stop-addresses)
 
 ## `plebbit daemon`
 
@@ -122,7 +123,7 @@ DESCRIPTION
   Run a network-connected Plebbit node
 ```
 
-_See code: [dist/src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v0.3.1/dist/src/cli/commands/daemon.ts)_
+_See code: [dist/src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v0.4.0/dist/src/cli/commands/daemon.ts)_
 
 ## `plebbit help [COMMAND]`
 
@@ -300,6 +301,29 @@ FLAGS
 
 DESCRIPTION
   Start a subplebbit
+```
+
+## `plebbit subplebbit stop ADDRESSES`
+
+Stop a subplebbit. The subplebbit will not publish or receive any publications until it is started again.
+
+```
+USAGE
+  $ plebbit subplebbit stop [ADDRESSES] --apiUrl <value>
+
+ARGUMENTS
+  ADDRESSES  Addresses of subplebbits to stop. Separated by space
+
+FLAGS
+  --apiUrl=<value>  (required) [default: http://localhost:32431/api/v0] URL to Plebbit API
+
+DESCRIPTION
+  Stop a subplebbit. The subplebbit will not publish or receive any publications until it is started again.
+
+EXAMPLES
+  $ plebbit subplebbit stop plebbit.eth
+
+  $ plebbit subplebbit stop Qmb99crTbSUfKXamXwZBe829Vf6w5w5TktPkb6WstC9RFW
 ```
 <!-- commandsstop -->
 

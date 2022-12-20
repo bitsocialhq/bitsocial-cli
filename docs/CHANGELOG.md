@@ -1,5 +1,12 @@
 
 
+# [0.4.0](https://github.com/plebbit/plebbit-cli/compare/v0.3.1...v0.4.0) (2022-12-20)
+
+
+### Features
+
+* **cli:** implemented `plebbit subplebbit stop` to stop running subs from receiving and publishing ([f9e5c0a](https://github.com/plebbit/plebbit-cli/commit/f9e5c0ad59d06437597cd3097fd9d86c024ad8ae))
+
 ## [0.3.1](https://github.com/plebbit/plebbit-cli/compare/v1.3.0...v0.3.1) (2022-12-20)
 
 # [0.3.0](https://github.com/plebbit/plebbit-cli/compare/0.2.0...v0.3.0) (2022-12-14)
