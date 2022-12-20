@@ -1,11 +1,10 @@
 {
     "git": {
-        "assets": ["docs/CHANGELOG.md", "README.md", "oclif.manifest.json"],
         "requireCleanWorkingDir": false,
-        "commitMessage": "chore(release): ${version} [skip ci]",
         "requireCommits": true,
         "commit": false,
-        "tagAnnotation": "v${version}"
+        "tagAnnotation": "v${version}",
+        "tagArgs": ["--force"]
     },
     "github": {
         "release": true,
