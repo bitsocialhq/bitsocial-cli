@@ -13,4 +13,5 @@ var exitStatuses;
     exitStatuses[exitStatuses["ERR_SUB_ALREADY_STARTED"] = 2] = "ERR_SUB_ALREADY_STARTED";
     exitStatuses[exitStatuses["ERR_SUBPLEBBIT_DOES_NOT_EXIST"] = 3] = "ERR_SUBPLEBBIT_DOES_NOT_EXIST";
     exitStatuses[exitStatuses["ERR_AUTHOR_ROLE_DOES_NOT_EXIST"] = 4] = "ERR_AUTHOR_ROLE_DOES_NOT_EXIST";
+    exitStatuses[exitStatuses["ERR_SUBPLEBBIT_NOT_RUNNING"] = 5] = "ERR_SUBPLEBBIT_NOT_RUNNING";
 })(exitStatuses = exports.exitStatuses || (exports.exitStatuses = {}));
