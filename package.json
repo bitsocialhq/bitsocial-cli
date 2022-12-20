@@ -20,7 +20,7 @@
         "test:cli": "PLEBBIT_API_PORT=32441 ts-mocha --config config/.mocharc.json -p config/tsconfig.json test/cli/*.test.ts",
         "commit": "cz",
         "prepare": "husky install",
-        "release": "HUSKY=0 release-it"
+        "release": "HUSKY=0 release-it --config config/.release-it.json"
     },
     "files": [
         "/bin",
