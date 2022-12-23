@@ -1406,9 +1406,9 @@
   dependencies:
     "@octokit/openapi-types" "^14.0.0"
 
-"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#8c050b36a021a373793cbb0b74479487004c2b6e":
+"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#41374b9b6c104955f2de286d0f9a9e6bdc44aef5":
   version "0.0.3"
-  resolved "https://github.com/plebbit/plebbit-js#8c050b36a021a373793cbb0b74479487004c2b6e"
+  resolved "https://github.com/plebbit/plebbit-js#41374b9b6c104955f2de286d0f9a9e6bdc44aef5"
   dependencies:
     "@keyv/sqlite" "3.6.2"
     "@plebbit/plebbit-logger" "github:plebbit/plebbit-logger"
