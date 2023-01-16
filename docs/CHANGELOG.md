@@ -1,5 +1,12 @@
 
 
+# [0.5.0](https://github.com/plebbit/plebbit-cli/compare/v0.4.1...v0.5.0) (2023-01-16)
+
+
+### Features
+
+* **deps:** update plebbit-js ([af72a6b](https://github.com/plebbit/plebbit-cli/commit/af72a6bf8081b3773159a8da729cb5637004af8f))
+
 ## [0.4.1](https://github.com/plebbit/plebbit-cli/compare/v0.4.0...v0.4.1) (2022-12-23)
 
 # [0.4.0](https://github.com/plebbit/plebbit-cli/compare/v0.3.1...v0.4.0) (2022-12-20)
