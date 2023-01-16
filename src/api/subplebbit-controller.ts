@@ -1,4 +1,3 @@
-import { RUNNING_SUBPLEBBITS } from "@plebbit/plebbit-js/dist/node/subplebbit.js";
 import { CreateSubplebbitOptions, SubplebbitEditOptions, SubplebbitType } from "@plebbit/plebbit-js/dist/node/types.js";
 import { messages as plebbitErrorMessages } from "@plebbit/plebbit-js/dist/node/errors.js";
 import { Controller, Post, Route, Body, Query, SuccessResponse, Response } from "tsoa";
@@ -9,6 +8,8 @@ import { statusCodes, statusMessages } from "./response-statuses.js";
 import { ApiError } from "./apiError.js";
 import { ApiResponse } from "./apiResponse.js";
 import Logger from "@plebbit/plebbit-logger";
+import path from "path";
+import fs from "fs";
 
 @Route("/api/v0/subplebbit")
 export class SubplebbitController extends Controller {
@@ -18,7 +19,10 @@ export class SubplebbitController extends Controller {
         log(`Received request to list subplebbits`);
 
         const subsFromPlebbit = await sharedSingleton.plebbit.listSubplebbits();
-        return subsFromPlebbit.map((address) => ({ started: Boolean(RUNNING_SUBPLEBBITS[address]), address }));
+        return subsFromPlebbit.map((address) => ({
+            started: fs.existsSync(path.join(<string>sharedSingleton.plebbit.dataPath, "subplebbits", `${address}.start.lock`)),
+            address
+        }));
     }
 
     /**
