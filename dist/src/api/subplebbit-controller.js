@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SubplebbitController = void 0;
 const tslib_1 = require("tslib");
-const subplebbit_js_1 = require("@plebbit/plebbit-js/dist/node/subplebbit.js");
 const errors_js_1 = require("@plebbit/plebbit-js/dist/node/errors.js");
 const tsoa_1 = require("tsoa");
 const server_js_1 = require("./server.js");
@@ -10,12 +9,17 @@ const response_statuses_js_1 = require("./response-statuses.js");
 const apiError_js_1 = require("./apiError.js");
 const apiResponse_js_1 = require("./apiResponse.js");
 const plebbit_logger_1 = tslib_1.__importDefault(require("@plebbit/plebbit-logger"));
+const path_1 = tslib_1.__importDefault(require("path"));
+const fs_1 = tslib_1.__importDefault(require("fs"));
 let SubplebbitController = class SubplebbitController extends tsoa_1.Controller {
     async list() {
         const log = (0, plebbit_logger_1.default)("plebbit-cli:api:subplebbit:list");
         log(`Received request to list subplebbits`);
         const subsFromPlebbit = await server_js_1.sharedSingleton.plebbit.listSubplebbits();
-        return subsFromPlebbit.map((address) => ({ started: Boolean(subplebbit_js_1.RUNNING_SUBPLEBBITS[address]), address }));
+        return subsFromPlebbit.map((address) => ({
+            started: fs_1.default.existsSync(path_1.default.join(server_js_1.sharedSingleton.plebbit.dataPath, "subplebbits", `${address}.start.lock`)),
+            address
+        }));
     }
     /**
      * @example requestBody { "title": "Memes", "description": "Post your memes here." }
