@@ -8,7 +8,7 @@ import { exitMessages, exitStatuses } from "../../../exit-codes.js";
 export default class Remove extends BaseCommand {
     static override description = "Remove role of an author within the subplebbit";
 
-    static override examples = ["plebbit role remove plebbit.eth estebanabaroa.eth"];
+    static override examples = ["plebbit subplebbit role remove plebbit.eth estebanabaroa.eth"];
 
     static override flags = {};
 

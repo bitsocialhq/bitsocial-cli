@@ -10,7 +10,7 @@ export default class Set extends BaseCommand {
     static override description =
         "Set role to an author within the subplebbit. If an author has a role already, it would get overidden with the new role";
 
-    static override examples = ["plebbit role set plebbit.eth estebanabaroa.eth --role admin"];
+    static override examples = ["plebbit subplebbit role set plebbit.eth estebanabaroa.eth --role admin"];
 
     static override flags = {
         role: Flags.enum<SubplebbitRole["role"]>({
