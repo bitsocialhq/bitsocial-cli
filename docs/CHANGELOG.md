@@ -1,5 +1,12 @@
 
 
+# [0.6.0](https://github.com/plebbit/plebbit-cli/compare/v0.5.1...v0.6.0) (2023-03-30)
+
+
+### Features
+
+* **cli:** add settings field to subplebbit edit in CLI ([0521c17](https://github.com/plebbit/plebbit-cli/commit/0521c17bcd58e051e0e8b44a1057cd5cfb50df53))
+
 ## [0.5.1](https://github.com/plebbit/plebbit-cli/compare/v0.5.0...v0.5.1) (2023-03-30)
 
 # [0.5.0](https://github.com/plebbit/plebbit-cli/compare/v0.4.1...v0.5.0) (2023-01-16)
