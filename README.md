@@ -123,7 +123,7 @@ DESCRIPTION
   Run a network-connected Plebbit node
 ```
 
-_See code: [dist/src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v0.5.1/dist/src/cli/commands/daemon.ts)_
+_See code: [dist/src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v0.6.0/dist/src/cli/commands/daemon.ts)_
 
 ## `plebbit help [COMMAND]`
 
@@ -153,24 +153,27 @@ Create a subplebbit with specific properties. A newly created sub will be starte
 USAGE
   $ plebbit subplebbit create --apiUrl <value> [--title <value>] [--description <value>] [--pubsubTopic <value>]
     [--suggested.primaryColor <value>] [--suggested.secondaryColor <value>] [--suggested.avatarUrl <value>]
-    [--suggested.bannerUrl <value>] [--suggested.backgroundUrl <value>] [--suggested.language <value>] [--privateKeyPath
-    <value>]
+    [--suggested.bannerUrl <value>] [--suggested.backgroundUrl <value>] [--suggested.language <value>]
+    [--settings.fetchThumbnailUrls] [--settings.fetchThumbnailUrlsProxyUrl <value>] [--privateKeyPath <value>]
 
 FLAGS
-  --apiUrl=<value>                    (required) [default: http://localhost:32431/api/v0] URL to Plebbit API
-  --description=<value>               Description of the subplebbit
-  --privateKeyPath=<value>            Private key (PEM) of the subplebbit signer that will be used to determine address
-                                      (if address is not a domain). If it's not provided then Plebbit will generate a
-                                      private key
-  --pubsubTopic=<value>               The string to publish to in the pubsub, a public key of the subplebbit owner's
-                                      choice
-  --suggested.avatarUrl=<value>       The URL of the subplebbit's avatar
-  --suggested.backgroundUrl=<value>   The URL of the subplebbit's background
-  --suggested.bannerUrl=<value>       The URL of the subplebbit's banner
-  --suggested.language=<value>        The language of the subplebbit
-  --suggested.primaryColor=<value>
-  --suggested.secondaryColor=<value>  Secondary color of the subplebbit in hex
-  --title=<value>                     Title of the subplebbit
+  --apiUrl=<value>                               (required) [default: http://localhost:32431/api/v0] URL to Plebbit API
+  --description=<value>                          Description of the subplebbit
+  --privateKeyPath=<value>                       Private key (PEM) of the subplebbit signer that will be used to
+                                                 determine address (if address is not a domain). If it's not provided
+                                                 then Plebbit will generate a private key
+  --pubsubTopic=<value>                          The string to publish to in the pubsub, a public key of the subplebbit
+                                                 owner's choice
+  --settings.fetchThumbnailUrls                  Fetch the thumbnail URLs of comments with comment.link property, could
+                                                 reveal the IP address of the subplebbit node
+  --settings.fetchThumbnailUrlsProxyUrl=<value>  The HTTP proxy URL used to fetch thumbnail URLs
+  --suggested.avatarUrl=<value>                  The URL of the subplebbit's avatar
+  --suggested.backgroundUrl=<value>              The URL of the subplebbit's background
+  --suggested.bannerUrl=<value>                  The URL of the subplebbit's banner
+  --suggested.language=<value>                   The language of the subplebbit
+  --suggested.primaryColor=<value>               Primary color of the subplebbit in hex
+  --suggested.secondaryColor=<value>             Secondary color of the subplebbit in hex
+  --title=<value>                                Title of the subplebbit
 
 DESCRIPTION
   Create a subplebbit with specific properties. A newly created sub will be started after creation and be able to
@@ -190,25 +193,28 @@ Edit a subplebbit
 USAGE
   $ plebbit subplebbit edit [ADDRESS] --apiUrl <value> [--title <value>] [--description <value>] [--pubsubTopic
     <value>] [--suggested.primaryColor <value>] [--suggested.secondaryColor <value>] [--suggested.avatarUrl <value>]
-    [--suggested.bannerUrl <value>] [--suggested.backgroundUrl <value>] [--suggested.language <value>] [--address
-    <value>]
+    [--suggested.bannerUrl <value>] [--suggested.backgroundUrl <value>] [--suggested.language <value>]
+    [--settings.fetchThumbnailUrls] [--settings.fetchThumbnailUrlsProxyUrl <value>] [--address <value>]
 
 ARGUMENTS
   ADDRESS  Address of the subplebbit address to edit
 
 FLAGS
-  --address=<value>                   New address of the subplebbit
-  --apiUrl=<value>                    (required) [default: http://localhost:32431/api/v0] URL to Plebbit API
-  --description=<value>               Description of the subplebbit
-  --pubsubTopic=<value>               The string to publish to in the pubsub, a public key of the subplebbit owner's
-                                      choice
-  --suggested.avatarUrl=<value>       The URL of the subplebbit's avatar
-  --suggested.backgroundUrl=<value>   The URL of the subplebbit's background
-  --suggested.bannerUrl=<value>       The URL of the subplebbit's banner
-  --suggested.language=<value>        The language of the subplebbit
-  --suggested.primaryColor=<value>
-  --suggested.secondaryColor=<value>  Secondary color of the subplebbit in hex
-  --title=<value>                     Title of the subplebbit
+  --address=<value>                              New address of the subplebbit
+  --apiUrl=<value>                               (required) [default: http://localhost:32431/api/v0] URL to Plebbit API
+  --description=<value>                          Description of the subplebbit
+  --pubsubTopic=<value>                          The string to publish to in the pubsub, a public key of the subplebbit
+                                                 owner's choice
+  --settings.fetchThumbnailUrls                  Fetch the thumbnail URLs of comments with comment.link property, could
+                                                 reveal the IP address of the subplebbit node
+  --settings.fetchThumbnailUrlsProxyUrl=<value>  The HTTP proxy URL used to fetch thumbnail URLs
+  --suggested.avatarUrl=<value>                  The URL of the subplebbit's avatar
+  --suggested.backgroundUrl=<value>              The URL of the subplebbit's background
+  --suggested.bannerUrl=<value>                  The URL of the subplebbit's banner
+  --suggested.language=<value>                   The language of the subplebbit
+  --suggested.primaryColor=<value>               Primary color of the subplebbit in hex
+  --suggested.secondaryColor=<value>             Secondary color of the subplebbit in hex
+  --title=<value>                                Title of the subplebbit
 
 DESCRIPTION
   Edit a subplebbit

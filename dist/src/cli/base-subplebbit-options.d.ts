@@ -11,5 +11,7 @@ export default abstract class BaseSubplebbitOptions extends BaseCommand {
         "suggested.bannerUrl": import("@oclif/core/lib/interfaces/parser.js").OptionFlag<import("url").URL | undefined>;
         "suggested.backgroundUrl": import("@oclif/core/lib/interfaces/parser.js").OptionFlag<import("url").URL | undefined>;
         "suggested.language": import("@oclif/core/lib/interfaces/parser.js").OptionFlag<string | undefined>;
+        "settings.fetchThumbnailUrls": import("@oclif/core/lib/interfaces/parser.js").BooleanFlag<boolean>;
+        "settings.fetchThumbnailUrlsProxyUrl": import("@oclif/core/lib/interfaces/parser.js").OptionFlag<string | undefined>;
     };
 }
