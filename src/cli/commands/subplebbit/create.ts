@@ -40,7 +40,7 @@ export default class Create extends BaseSubplebbitOptions {
             "_data"
         ];
         if (flags.privateKeyPath)
-            createOptions.signer = { privateKey: (await fs.promises.readFile(flags.privateKeyPath)).toString(), type: "rsa" };
+            createOptions.signer = { privateKey: (await fs.promises.readFile(flags.privateKeyPath)).toString(), type: "ed25519" };
 
         const createRes = await fetch(`${flags.apiUrl}/subplebbit/create`, {
             body: JSON.stringify(createOptions),
