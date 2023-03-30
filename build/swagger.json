@@ -24,192 +24,6 @@
 				},
 				"type": "array"
 			},
-			"CommentSignedPropertyNames": {
-				"items": {
-					"type": "string",
-					"enum": [
-						"title",
-						"subplebbitAddress",
-						"author",
-						"timestamp",
-						"content",
-						"link",
-						"parentCid"
-					],
-					"nullable": false
-				},
-				"type": "array"
-			},
-			"CommentEditSignedPropertyNames": {
-				"items": {
-					"type": "string",
-					"enum": [
-						"subplebbitAddress",
-						"author",
-						"timestamp",
-						"content",
-						"commentCid",
-						"deleted",
-						"flair",
-						"spoiler",
-						"reason",
-						"pinned",
-						"locked",
-						"removed",
-						"moderatorReason",
-						"commentAuthor"
-					],
-					"nullable": false
-				},
-				"type": "array"
-			},
-			"VoteSignedPropertyNames": {
-				"items": {
-					"type": "string",
-					"enum": [
-						"subplebbitAddress",
-						"author",
-						"timestamp",
-						"commentCid",
-						"vote"
-					],
-					"nullable": false
-				},
-				"type": "array"
-			},
-			"SubplebbitSignedPropertyNames": {
-				"items": {
-					"type": "string",
-					"enum": [
-						"createdAt",
-						"updatedAt",
-						"encryption",
-						"title",
-						"description",
-						"roles",
-						"rules",
-						"lastPostCid",
-						"posts",
-						"pubsubTopic",
-						"challengeTypes",
-						"metrics",
-						"features",
-						"suggested",
-						"flairs",
-						"address",
-						"metricsCid"
-					],
-					"nullable": false
-				},
-				"type": "array"
-			},
-			"CommentUpdatedSignedPropertyNames": {
-				"items": {
-					"type": "string",
-					"enum": [
-						"updatedAt",
-						"author",
-						"flair",
-						"spoiler",
-						"pinned",
-						"locked",
-						"removed",
-						"moderatorReason",
-						"upvoteCount",
-						"downvoteCount",
-						"replyCount",
-						"authorEdit",
-						"replies"
-					],
-					"nullable": false
-				},
-				"type": "array"
-			},
-			"ChallengeRequestMessageSignedPropertyNames": {
-				"items": {
-					"type": "string",
-					"enum": [
-						"challengeRequestId",
-						"type",
-						"encryptedPublication",
-						"acceptedChallengeTypes"
-					],
-					"nullable": false
-				},
-				"type": "array"
-			},
-			"ChallengeMessageSignedPropertyNames": {
-				"items": {
-					"type": "string",
-					"enum": [
-						"challengeRequestId",
-						"type",
-						"encryptedChallenges"
-					],
-					"nullable": false
-				},
-				"type": "array"
-			},
-			"ChallengeAnswerMessageSignedPropertyNames": {
-				"items": {
-					"type": "string",
-					"enum": [
-						"challengeRequestId",
-						"type",
-						"challengeAnswerId",
-						"encryptedChallengeAnswers"
-					],
-					"nullable": false
-				},
-				"type": "array"
-			},
-			"ChallengeVerificationMessageSignedPropertyNames": {
-				"items": {
-					"type": "string",
-					"enum": [
-						"reason",
-						"challengeRequestId",
-						"type",
-						"encryptedPublication",
-						"challengeAnswerId",
-						"challengeSuccess",
-						"challengeErrors"
-					],
-					"nullable": false
-				},
-				"type": "array"
-			},
-			"SignedPropertyNames": {
-				"anyOf": [
-					{
-						"$ref": "#/components/schemas/CommentSignedPropertyNames"
-					},
-					{
-						"$ref": "#/components/schemas/CommentEditSignedPropertyNames"
-					},
-					{
-						"$ref": "#/components/schemas/VoteSignedPropertyNames"
-					},
-					{
-						"$ref": "#/components/schemas/SubplebbitSignedPropertyNames"
-					},
-					{
-						"$ref": "#/components/schemas/CommentUpdatedSignedPropertyNames"
-					},
-					{
-						"$ref": "#/components/schemas/ChallengeRequestMessageSignedPropertyNames"
-					},
-					{
-						"$ref": "#/components/schemas/ChallengeMessageSignedPropertyNames"
-					},
-					{
-						"$ref": "#/components/schemas/ChallengeAnswerMessageSignedPropertyNames"
-					},
-					{
-						"$ref": "#/components/schemas/ChallengeVerificationMessageSignedPropertyNames"
-					}
-				]
-			},
 			"SignatureType": {
 				"properties": {
 					"signature": {
@@ -221,12 +35,15 @@
 					"type": {
 						"type": "string",
 						"enum": [
-							"rsa"
+							"ed25519"
 						],
 						"nullable": false
 					},
 					"signedPropertyNames": {
-						"$ref": "#/components/schemas/SignedPropertyNames"
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
@@ -246,7 +63,7 @@
 					"type": {
 						"type": "string",
 						"enum": [
-							"aes-cbc"
+							"ed25519-aes-gcm"
 						],
 						"nullable": false
 					}
@@ -268,7 +85,7 @@
 					"type": {
 						"type": "string",
 						"enum": [
-							"rsa"
+							"ed25519"
 						],
 						"nullable": false
 					},
@@ -303,39 +120,21 @@
 				],
 				"nullable": false
 			},
-			"Wallet": {
+			"PagesTypeJson": {
 				"properties": {
-					"address": {
-						"type": "string"
+					"pages": {
+						"$ref": "#/components/schemas/Partial_Record_PostSortName-or-ReplySortName.PageTypeJson__"
+					},
+					"pageCids": {
+						"$ref": "#/components/schemas/Partial_Record_PostSortName-or-ReplySortName.string__"
 					}
 				},
 				"required": [
-					"address"
+					"pages",
+					"pageCids"
 				],
-				"type": "object"
-			},
-			"Nft": {
-				"properties": {
-					"signature": {
-						"type": "string"
-					},
-					"address": {
-						"type": "string"
-					},
-					"id": {
-						"type": "string"
-					},
-					"chainTicker": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"signature",
-					"address",
-					"id",
-					"chainTicker"
-				],
-				"type": "object"
+				"type": "object",
+				"additionalProperties": false
 			},
 			"Flair": {
 				"properties": {
@@ -368,6 +167,17 @@
 						"type": "number",
 						"format": "double"
 					},
+					"banExpiresAt": {
+						"type": "number",
+						"format": "double"
+					},
+					"flair": {
+						"$ref": "#/components/schemas/Flair"
+					},
+					"firstCommentTimestamp": {
+						"type": "number",
+						"format": "double"
+					},
 					"lastCommentCid": {
 						"type": "string"
 					}
@@ -375,12 +185,52 @@
 				"required": [
 					"postScore",
 					"replyScore",
+					"firstCommentTimestamp",
 					"lastCommentCid"
 				],
 				"type": "object",
 				"additionalProperties": false
 			},
-			"AuthorType": {
+			"Wallet": {
+				"properties": {
+					"address": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"address"
+				],
+				"type": "object"
+			},
+			"Nft": {
+				"properties": {
+					"signature": {
+						"$ref": "#/components/schemas/SignatureType"
+					},
+					"timestamp": {
+						"type": "number",
+						"format": "double"
+					},
+					"id": {
+						"type": "string"
+					},
+					"address": {
+						"type": "string"
+					},
+					"chainTicker": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"signature",
+					"timestamp",
+					"id",
+					"address",
+					"chainTicker"
+				],
+				"type": "object"
+			},
+			"AuthorTypeWithCommentUpdate": {
 				"properties": {
 					"address": {
 						"type": "string"
@@ -404,10 +254,6 @@
 					"flair": {
 						"$ref": "#/components/schemas/Flair"
 					},
-					"banExpiresAt": {
-						"type": "number",
-						"format": "double"
-					},
 					"subplebbit": {
 						"$ref": "#/components/schemas/SubplebbitAuthor"
 					}
@@ -418,23 +264,36 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"Pick_Partial_CommentType_.author-or-content-or-flair_": {
+			"AuthorIpfsType": {
 				"properties": {
-					"author": {
-						"$ref": "#/components/schemas/AuthorType"
-					},
-					"content": {
+					"address": {
 						"type": "string"
+					},
+					"previousCommentCid": {
+						"type": "string"
+					},
+					"displayName": {
+						"type": "string"
+					},
+					"wallets": {
+						"properties": {},
+						"additionalProperties": {
+							"$ref": "#/components/schemas/Wallet"
+						},
+						"type": "object"
+					},
+					"avatar": {
+						"$ref": "#/components/schemas/Nft"
 					},
 					"flair": {
 						"$ref": "#/components/schemas/Flair"
 					}
 				},
 				"required": [
-					"author"
+					"address"
 				],
 				"type": "object",
-				"description": "From T, pick a set of properties whose keys are in the union K"
+				"additionalProperties": false
 			},
 			"AuthorCommentEdit": {
 				"properties": {
@@ -457,7 +316,7 @@
 						"type": "string"
 					},
 					"author": {
-						"$ref": "#/components/schemas/AuthorType"
+						"$ref": "#/components/schemas/AuthorIpfsType"
 					},
 					"signature": {
 						"$ref": "#/components/schemas/SignatureType"
@@ -489,118 +348,19 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"PagesType": {
+			"Pick_CommentType.Exclude_keyofCommentType.replyCount-or-downvoteCount-or-upvoteCount-or-replies-or-updatedAt-or-original-or-cid-or-postCid-or-depth-or-ipnsKeyName-or-signer__": {
 				"properties": {
-					"pages": {
-						"$ref": "#/components/schemas/Partial_Record_PostSortName-or-ReplySortName.PageType__"
+					"signature": {
+						"$ref": "#/components/schemas/SignatureType"
 					},
-					"pageCids": {
-						"$ref": "#/components/schemas/Partial_Record_PostSortName-or-ReplySortName.string__"
-					}
-				},
-				"type": "object",
-				"additionalProperties": false
-			},
-			"Pick_AuthorType.banExpiresAt-or-flair-or-subplebbit_": {
-				"properties": {
-					"flair": {
-						"$ref": "#/components/schemas/Flair"
-					},
-					"banExpiresAt": {
-						"type": "number",
-						"format": "double"
-					},
-					"subplebbit": {
-						"$ref": "#/components/schemas/SubplebbitAuthor"
-					}
-				},
-				"type": "object",
-				"description": "From T, pick a set of properties whose keys are in the union K"
-			},
-			"Partial_Omit_AuthorType.subplebbit-or-banExpiresAt__": {
-				"properties": {
-					"address": {
-						"type": "string"
-					},
-					"flair": {
-						"$ref": "#/components/schemas/Flair"
-					},
-					"previousCommentCid": {
-						"type": "string"
-					},
-					"displayName": {
-						"type": "string"
-					},
-					"wallets": {
-						"properties": {},
-						"additionalProperties": {
-							"$ref": "#/components/schemas/Wallet"
-						},
-						"type": "object"
-					},
-					"avatar": {
-						"$ref": "#/components/schemas/Nft"
-					}
-				},
-				"type": "object",
-				"description": "Make all properties in T optional"
-			},
-			"Pick_CreateCommentOptions.Exclude_keyofCreateCommentOptions.signer__": {
-				"properties": {
 					"title": {
 						"type": "string"
 					},
-					"subplebbitAddress": {
-						"type": "string"
-					},
 					"author": {
-						"$ref": "#/components/schemas/Partial_Omit_AuthorType.subplebbit-or-banExpiresAt__"
+						"$ref": "#/components/schemas/AuthorTypeWithCommentUpdate"
 					},
-					"timestamp": {
-						"type": "number",
-						"format": "double"
-					},
-					"content": {
-						"type": "string"
-					},
-					"link": {
-						"type": "string"
-					},
-					"parentCid": {
-						"type": "string"
-					},
-					"flair": {
-						"$ref": "#/components/schemas/Flair"
-					},
-					"spoiler": {
-						"type": "boolean"
-					}
-				},
-				"required": [
-					"subplebbitAddress"
-				],
-				"type": "object",
-				"description": "From T, pick a set of properties whose keys are in the union K"
-			},
-			"CommentType": {
-				"properties": {
-					"upvoteCount": {
-						"type": "number",
-						"format": "double"
-					},
-					"downvoteCount": {
-						"type": "number",
-						"format": "double"
-					},
-					"replyCount": {
-						"type": "number",
-						"format": "double"
-					},
-					"authorEdit": {
+					"edit": {
 						"$ref": "#/components/schemas/AuthorCommentEdit"
-					},
-					"replies": {
-						"$ref": "#/components/schemas/PagesType"
 					},
 					"flair": {
 						"$ref": "#/components/schemas/Flair"
@@ -617,23 +377,19 @@
 					"removed": {
 						"type": "boolean"
 					},
-					"moderatorReason": {
+					"reason": {
 						"type": "string"
-					},
-					"updatedAt": {
-						"type": "number",
-						"format": "double"
 					},
 					"protocolVersion": {
 						"$ref": "#/components/schemas/ProtocolVersion"
 					},
-					"signature": {
-						"$ref": "#/components/schemas/SignatureType"
+					"parentCid": {
+						"type": "string"
 					},
-					"author": {
-						"$ref": "#/components/schemas/AuthorType"
+					"content": {
+						"type": "string"
 					},
-					"title": {
+					"link": {
 						"type": "string"
 					},
 					"subplebbitAddress": {
@@ -643,47 +399,16 @@
 						"type": "number",
 						"format": "double"
 					},
-					"content": {
-						"type": "string"
-					},
-					"link": {
-						"type": "string"
-					},
-					"parentCid": {
-						"type": "string"
-					},
-					"commentCid": {
+					"previousCid": {
 						"type": "string"
 					},
 					"deleted": {
 						"type": "boolean"
 					},
-					"reason": {
-						"type": "string"
-					},
-					"postCid": {
-						"type": "string"
-					},
-					"previousCid": {
-						"type": "string"
-					},
-					"ipnsKeyName": {
-						"type": "string"
-					},
-					"depth": {
-						"type": "number",
-						"format": "double"
-					},
-					"signer": {
-						"$ref": "#/components/schemas/SignerType"
-					},
-					"original": {
-						"$ref": "#/components/schemas/Pick_Partial_CommentType_.author-or-content-or-flair_"
-					},
 					"thumbnailUrl": {
 						"type": "string"
 					},
-					"cid": {
+					"shortCid": {
 						"type": "string"
 					},
 					"ipnsName": {
@@ -691,26 +416,220 @@
 					}
 				},
 				"required": [
-					"subplebbitAddress",
-					"commentCid",
-					"content",
-					"deleted",
-					"flair",
-					"spoiler",
-					"reason",
-					"author",
 					"signature",
+					"author",
 					"protocolVersion",
+					"subplebbitAddress",
 					"timestamp"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"Pick_Partial_CommentType_.author-or-content-or-flair-or-protocolVersion_": {
+				"properties": {
+					"author": {
+						"$ref": "#/components/schemas/AuthorTypeWithCommentUpdate"
+					},
+					"flair": {
+						"$ref": "#/components/schemas/Flair"
+					},
+					"protocolVersion": {
+						"$ref": "#/components/schemas/ProtocolVersion"
+					},
+					"content": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"author",
+					"protocolVersion"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"Pick_CommentUpdate.Exclude_keyofCommentUpdate.author-or-replies__": {
+				"properties": {
+					"updatedAt": {
+						"type": "number",
+						"format": "double"
+					},
+					"signature": {
+						"$ref": "#/components/schemas/SignatureType"
+					},
+					"replyCount": {
+						"type": "number",
+						"format": "double"
+					},
+					"downvoteCount": {
+						"type": "number",
+						"format": "double"
+					},
+					"upvoteCount": {
+						"type": "number",
+						"format": "double"
+					},
+					"cid": {
+						"type": "string"
+					},
+					"edit": {
+						"$ref": "#/components/schemas/AuthorCommentEdit"
+					},
+					"flair": {
+						"$ref": "#/components/schemas/Flair"
+					},
+					"spoiler": {
+						"type": "boolean"
+					},
+					"pinned": {
+						"type": "boolean"
+					},
+					"locked": {
+						"type": "boolean"
+					},
+					"removed": {
+						"type": "boolean"
+					},
+					"reason": {
+						"type": "string"
+					},
+					"protocolVersion": {
+						"$ref": "#/components/schemas/ProtocolVersion"
+					}
+				},
+				"required": [
+					"updatedAt",
+					"signature",
+					"replyCount",
+					"downvoteCount",
+					"upvoteCount",
+					"cid",
+					"protocolVersion"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"CommentWithCommentUpdate": {
+				"properties": {
+					"signature": {
+						"$ref": "#/components/schemas/SignatureType"
+					},
+					"title": {
+						"type": "string"
+					},
+					"author": {
+						"$ref": "#/components/schemas/AuthorTypeWithCommentUpdate"
+					},
+					"edit": {
+						"$ref": "#/components/schemas/AuthorCommentEdit"
+					},
+					"flair": {
+						"$ref": "#/components/schemas/Flair"
+					},
+					"spoiler": {
+						"type": "boolean"
+					},
+					"pinned": {
+						"type": "boolean"
+					},
+					"locked": {
+						"type": "boolean"
+					},
+					"removed": {
+						"type": "boolean"
+					},
+					"reason": {
+						"type": "string"
+					},
+					"protocolVersion": {
+						"$ref": "#/components/schemas/ProtocolVersion"
+					},
+					"parentCid": {
+						"type": "string"
+					},
+					"content": {
+						"type": "string"
+					},
+					"link": {
+						"type": "string"
+					},
+					"subplebbitAddress": {
+						"type": "string"
+					},
+					"timestamp": {
+						"type": "number",
+						"format": "double"
+					},
+					"previousCid": {
+						"type": "string"
+					},
+					"deleted": {
+						"type": "boolean"
+					},
+					"thumbnailUrl": {
+						"type": "string"
+					},
+					"shortCid": {
+						"type": "string"
+					},
+					"ipnsName": {
+						"type": "string"
+					},
+					"original": {
+						"$ref": "#/components/schemas/Pick_Partial_CommentType_.author-or-content-or-flair-or-protocolVersion_"
+					},
+					"cid": {
+						"type": "string"
+					},
+					"postCid": {
+						"type": "string"
+					},
+					"depth": {
+						"type": "number",
+						"format": "double"
+					},
+					"updatedAt": {
+						"type": "number",
+						"format": "double"
+					},
+					"replyCount": {
+						"type": "number",
+						"format": "double"
+					},
+					"downvoteCount": {
+						"type": "number",
+						"format": "double"
+					},
+					"upvoteCount": {
+						"type": "number",
+						"format": "double"
+					},
+					"replies": {
+						"$ref": "#/components/schemas/PagesTypeJson"
+					}
+				},
+				"required": [
+					"signature",
+					"author",
+					"protocolVersion",
+					"subplebbitAddress",
+					"timestamp",
+					"original",
+					"cid",
+					"postCid",
+					"depth",
+					"updatedAt",
+					"replyCount",
+					"downvoteCount",
+					"upvoteCount"
 				],
 				"type": "object",
 				"additionalProperties": false
 			},
-			"PageType": {
+			"PageTypeJson": {
 				"properties": {
 					"comments": {
 						"items": {
-							"$ref": "#/components/schemas/CommentType"
+							"$ref": "#/components/schemas/CommentWithCommentUpdate"
 						},
 						"type": "array"
 					},
@@ -724,52 +643,52 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"Partial_Record_PostSortName-or-ReplySortName.PageType__": {
+			"Partial_Record_PostSortName-or-ReplySortName.PageTypeJson__": {
 				"properties": {
 					"hot": {
-						"$ref": "#/components/schemas/PageType"
+						"$ref": "#/components/schemas/PageTypeJson"
 					},
 					"new": {
-						"$ref": "#/components/schemas/PageType"
+						"$ref": "#/components/schemas/PageTypeJson"
 					},
 					"topHour": {
-						"$ref": "#/components/schemas/PageType"
+						"$ref": "#/components/schemas/PageTypeJson"
 					},
 					"topDay": {
-						"$ref": "#/components/schemas/PageType"
+						"$ref": "#/components/schemas/PageTypeJson"
 					},
 					"topWeek": {
-						"$ref": "#/components/schemas/PageType"
+						"$ref": "#/components/schemas/PageTypeJson"
 					},
 					"topMonth": {
-						"$ref": "#/components/schemas/PageType"
+						"$ref": "#/components/schemas/PageTypeJson"
 					},
 					"topYear": {
-						"$ref": "#/components/schemas/PageType"
+						"$ref": "#/components/schemas/PageTypeJson"
 					},
 					"topAll": {
-						"$ref": "#/components/schemas/PageType"
+						"$ref": "#/components/schemas/PageTypeJson"
 					},
 					"controversialHour": {
-						"$ref": "#/components/schemas/PageType"
+						"$ref": "#/components/schemas/PageTypeJson"
 					},
 					"controversialDay": {
-						"$ref": "#/components/schemas/PageType"
+						"$ref": "#/components/schemas/PageTypeJson"
 					},
 					"controversialWeek": {
-						"$ref": "#/components/schemas/PageType"
+						"$ref": "#/components/schemas/PageTypeJson"
 					},
 					"controversialMonth": {
-						"$ref": "#/components/schemas/PageType"
+						"$ref": "#/components/schemas/PageTypeJson"
 					},
 					"controversialYear": {
-						"$ref": "#/components/schemas/PageType"
+						"$ref": "#/components/schemas/PageTypeJson"
 					},
 					"controversialAll": {
-						"$ref": "#/components/schemas/PageType"
+						"$ref": "#/components/schemas/PageTypeJson"
 					},
 					"old": {
-						"$ref": "#/components/schemas/PageType"
+						"$ref": "#/components/schemas/PageTypeJson"
 					}
 				},
 				"type": "object",
@@ -826,21 +745,6 @@
 				"type": "object",
 				"description": "Make all properties in T optional"
 			},
-			"Pages": {
-				"$ref": "#/components/schemas/PagesType"
-			},
-			"Pick_Pages.pages-or-pageCids_": {
-				"properties": {
-					"pages": {
-						"$ref": "#/components/schemas/Partial_Record_PostSortName-or-ReplySortName.PageType__"
-					},
-					"pageCids": {
-						"$ref": "#/components/schemas/Partial_Record_PostSortName-or-ReplySortName.string__"
-					}
-				},
-				"type": "object",
-				"description": "From T, pick a set of properties whose keys are in the union K"
-			},
 			"SubplebbitRole": {
 				"properties": {
 					"role": {
@@ -865,11 +769,9 @@
 					"type": {
 						"type": "string",
 						"enum": [
-							"image",
-							"text",
-							"video",
-							"audio",
-							"html"
+							"image/png",
+							"text/plain",
+							"chain/<chainTicker>"
 						]
 					}
 				},
@@ -880,7 +782,7 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"SubplebbitMetrics": {
+			"SubplebbitStats": {
 				"properties": {
 					"allPostCount": {
 						"type": "number",
@@ -1059,6 +961,17 @@
 				"type": "object",
 				"description": "Construct a type with a set of properties K of type T"
 			},
+			"SubplebbitSettings": {
+				"properties": {
+					"fetchThumbnailUrlsProxyUrl": {
+						"type": "string"
+					},
+					"fetchThumbnailUrls": {
+						"type": "boolean"
+					}
+				},
+				"type": "object"
+			},
 			"Pick_CreateSubplebbitOptions.Exclude_keyofCreateSubplebbitOptions.database-or-signer__": {
 				"properties": {
 					"createdAt": {
@@ -1097,16 +1010,6 @@
 					"lastPostCid": {
 						"type": "string"
 					},
-					"posts": {
-						"anyOf": [
-							{
-								"$ref": "#/components/schemas/Pages"
-							},
-							{
-								"$ref": "#/components/schemas/Pick_Pages.pages-or-pageCids_"
-							}
-						]
-					},
 					"pubsubTopic": {
 						"type": "string"
 					},
@@ -1116,8 +1019,8 @@
 						},
 						"type": "array"
 					},
-					"metrics": {
-						"$ref": "#/components/schemas/SubplebbitMetrics"
+					"stats": {
+						"$ref": "#/components/schemas/SubplebbitStats"
 					},
 					"features": {
 						"$ref": "#/components/schemas/SubplebbitFeatures"
@@ -1130,6 +1033,9 @@
 					},
 					"address": {
 						"type": "string"
+					},
+					"settings": {
+						"$ref": "#/components/schemas/SubplebbitSettings"
 					}
 				},
 				"type": "object",
@@ -1173,16 +1079,6 @@
 					"lastPostCid": {
 						"type": "string"
 					},
-					"posts": {
-						"anyOf": [
-							{
-								"$ref": "#/components/schemas/Pages"
-							},
-							{
-								"$ref": "#/components/schemas/Pick_Pages.pages-or-pageCids_"
-							}
-						]
-					},
 					"pubsubTopic": {
 						"type": "string"
 					},
@@ -1192,8 +1088,8 @@
 						},
 						"type": "array"
 					},
-					"metrics": {
-						"$ref": "#/components/schemas/SubplebbitMetrics"
+					"stats": {
+						"$ref": "#/components/schemas/SubplebbitStats"
 					},
 					"features": {
 						"$ref": "#/components/schemas/SubplebbitFeatures"
@@ -1207,45 +1103,53 @@
 					"address": {
 						"type": "string"
 					},
+					"settings": {
+						"$ref": "#/components/schemas/SubplebbitSettings"
+					},
+					"shortAddress": {
+						"type": "string"
+					},
 					"signer": {
 						"$ref": "#/components/schemas/SignerType"
 					},
-					"metricsCid": {
+					"statsCid": {
 						"type": "string"
 					},
 					"protocolVersion": {
 						"$ref": "#/components/schemas/ProtocolVersion"
+					},
+					"posts": {
+						"$ref": "#/components/schemas/PagesTypeJson"
 					}
 				},
 				"required": [
 					"signature",
 					"encryption",
 					"address",
+					"shortAddress",
 					"createdAt",
 					"updatedAt",
-					"pubsubTopic",
-					"protocolVersion",
-					"posts"
+					"protocolVersion"
 				],
 				"type": "object",
 				"additionalProperties": false
 			},
 			"Pick_SignerType.privateKey-or-type_": {
 				"properties": {
+					"privateKey": {
+						"type": "string"
+					},
 					"type": {
 						"type": "string",
 						"enum": [
-							"rsa"
+							"ed25519"
 						],
 						"nullable": false
-					},
-					"privateKey": {
-						"type": "string"
 					}
 				},
 				"required": [
-					"type",
-					"privateKey"
+					"privateKey",
+					"type"
 				],
 				"type": "object",
 				"description": "From T, pick a set of properties whose keys are in the union K"
@@ -1274,16 +1178,6 @@
 					"lastPostCid": {
 						"type": "string"
 					},
-					"posts": {
-						"anyOf": [
-							{
-								"$ref": "#/components/schemas/Pages"
-							},
-							{
-								"$ref": "#/components/schemas/Pick_Pages.pages-or-pageCids_"
-							}
-						]
-					},
 					"pubsubTopic": {
 						"type": "string"
 					},
@@ -1293,8 +1187,8 @@
 						},
 						"type": "array"
 					},
-					"metrics": {
-						"$ref": "#/components/schemas/SubplebbitMetrics"
+					"stats": {
+						"$ref": "#/components/schemas/SubplebbitStats"
 					},
 					"features": {
 						"$ref": "#/components/schemas/SubplebbitFeatures"
@@ -1308,6 +1202,9 @@
 					"address": {
 						"type": "string"
 					},
+					"settings": {
+						"$ref": "#/components/schemas/SubplebbitSettings"
+					},
 					"createdAt": {
 						"type": "number",
 						"format": "double"
@@ -1317,14 +1214,7 @@
 						"format": "double"
 					},
 					"signer": {
-						"anyOf": [
-							{
-								"$ref": "#/components/schemas/Pick_SignerType.privateKey-or-type_"
-							},
-							{
-								"$ref": "#/components/schemas/SignerType"
-							}
-						]
+						"$ref": "#/components/schemas/Pick_SignerType.privateKey-or-type_"
 					},
 					"encryption": {
 						"$ref": "#/components/schemas/SubplebbitEncryption"
@@ -1360,16 +1250,6 @@
 					"lastPostCid": {
 						"type": "string"
 					},
-					"posts": {
-						"anyOf": [
-							{
-								"$ref": "#/components/schemas/Pages"
-							},
-							{
-								"$ref": "#/components/schemas/Pick_Pages.pages-or-pageCids_"
-							}
-						]
-					},
 					"pubsubTopic": {
 						"type": "string"
 					},
@@ -1379,8 +1259,8 @@
 						},
 						"type": "array"
 					},
-					"metrics": {
-						"$ref": "#/components/schemas/SubplebbitMetrics"
+					"stats": {
+						"$ref": "#/components/schemas/SubplebbitStats"
 					},
 					"features": {
 						"$ref": "#/components/schemas/SubplebbitFeatures"
@@ -1393,6 +1273,9 @@
 					},
 					"address": {
 						"type": "string"
+					},
+					"settings": {
+						"$ref": "#/components/schemas/SubplebbitSettings"
 					}
 				},
 				"type": "object",
@@ -1403,7 +1286,7 @@
 	},
 	"info": {
 		"title": "plebbit-cli",
-		"version": "0.4.1",
+		"version": "0.5.0",
 		"description": "Command line interface to Plebbit API",
 		"license": {
 			"name": "GPL-2.0-only"

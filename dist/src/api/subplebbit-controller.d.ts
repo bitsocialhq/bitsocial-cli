@@ -2,6 +2,7 @@ import { CreateSubplebbitOptions, SubplebbitEditOptions, SubplebbitType } from "
 import { Controller } from "tsoa";
 import { SubplebbitList } from "./types.js";
 export declare class SubplebbitController extends Controller {
+    private _initSubInSingletonIfNotDefined;
     list(): Promise<SubplebbitList>;
     /**
      * @example requestBody { "title": "Memes", "description": "Post your memes here." }

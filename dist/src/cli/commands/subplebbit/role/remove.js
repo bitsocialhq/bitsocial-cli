@@ -43,7 +43,7 @@ class Remove extends base_command_js_1.BaseCommand {
 }
 exports.default = Remove;
 Remove.description = "Remove role of an author within the subplebbit";
-Remove.examples = ["plebbit role remove plebbit.eth estebanabaroa.eth"];
+Remove.examples = ["plebbit subplebbit role remove plebbit.eth estebanabaroa.eth"];
 Remove.flags = {};
 Remove.args = [
     {
