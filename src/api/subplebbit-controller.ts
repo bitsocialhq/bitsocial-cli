@@ -8,21 +8,31 @@ import { statusCodes, statusMessages } from "./response-statuses.js";
 import { ApiError } from "./apiError.js";
 import { ApiResponse } from "./apiResponse.js";
 import Logger from "@plebbit/plebbit-logger";
-import path from "path";
-import fs from "fs";
 
 @Route("/api/v0/subplebbit")
 export class SubplebbitController extends Controller {
+    private async _initSubInSingletonIfNotDefined(address: string, subsAddresses?: string[]) {
+        const subs = subsAddresses || (await sharedSingleton.plebbit.listSubplebbits());
+        if (!subs.includes(address))
+            throw new ApiError(statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
+        if (!sharedSingleton.subs[address]) sharedSingleton.subs[address] = await sharedSingleton.plebbit.createSubplebbit({ address });
+    }
+
     @Post("list")
     public async list(): Promise<SubplebbitList> {
         const log = Logger("plebbit-cli:api:subplebbit:list");
         log(`Received request to list subplebbits`);
 
         const subsFromPlebbit = await sharedSingleton.plebbit.listSubplebbits();
-        return subsFromPlebbit.map((address) => ({
-            started: fs.existsSync(path.join(<string>sharedSingleton.plebbit.dataPath, "subplebbits", `${address}.start.lock`)),
-            address
-        }));
+
+        await Promise.all(subsFromPlebbit.map((subAddress) => this._initSubInSingletonIfNotDefined(subAddress, subsFromPlebbit)));
+
+        return Promise.all(
+            subsFromPlebbit.map(async (address) => ({
+                started: await sharedSingleton.subs[address]!.dbHandler!.isSubStartLocked(),
+                address
+            }))
+        );
     }
 
     /**
@@ -56,10 +66,7 @@ export class SubplebbitController extends Controller {
     public async start(@Query("address") address: string): Promise<void> {
         const log = Logger("plebbit-cli:api:subplebbit:start");
         log(`Received request to start subplebbit ${address}`);
-        if (!(address in sharedSingleton.subs) && (await sharedSingleton.plebbit.listSubplebbits()).includes(address))
-            sharedSingleton.subs[address] = await sharedSingleton.plebbit.createSubplebbit({ address });
-        if (!(address in sharedSingleton.subs))
-            throw new ApiError(statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
+        await this._initSubInSingletonIfNotDefined(address);
 
         //@ts-ignore
         if (process.env["SYNC_INTERVAL_MS"]) sharedSingleton.subs[address]._syncIntervalMs = parseInt(process.env["SYNC_INTERVAL_MS"]);
@@ -87,9 +94,9 @@ export class SubplebbitController extends Controller {
         const log = Logger("plebbit-cli:api:subplebbit:stop");
         log(`Received request to stop subplebbit ${address}`);
 
-        if (!(address in sharedSingleton.subs))
-            throw new ApiError(statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
-        if (sharedSingleton.subs[address]?.dbHandler === undefined)
+        await this._initSubInSingletonIfNotDefined(address);
+
+        if (!(await sharedSingleton.subs[address]!.dbHandler!.isSubStartLocked()))
             // If db handler is undefined that means the subplebbit is not running
             throw new ApiError(statusMessages.ERR_SUBPLEBBIT_NOT_RUNNING, statusCodes.ERR_SUBPLEBBIT_NOT_RUNNING);
         await sharedSingleton.subs[address]?.stop();
@@ -111,11 +118,9 @@ export class SubplebbitController extends Controller {
         const log = Logger("plebbit-cli:api:subplebbit:edit");
         log(`Received request to edit subplebbit ${address} with request body, `, requestBody);
 
-        if (!(address in sharedSingleton.subs) && (await sharedSingleton.plebbit.listSubplebbits()).includes(address))
-            sharedSingleton.subs[address] = await sharedSingleton.plebbit.createSubplebbit({ address });
-        if (!(address in sharedSingleton.subs))
-            throw new ApiError(statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
-        await sharedSingleton.subs[address]?.edit(requestBody);
+        await this._initSubInSingletonIfNotDefined(address);
+
+        await sharedSingleton.subs[address]!.edit(requestBody);
         throw new ApiResponse(statusMessages.SUCCESS_SUBPLEBBIT_EDITED, statusCodes.SUCCESS_SUBPLEBBIT_EDITED, undefined);
     }
 }

@@ -1,8 +1,4 @@
-import {
-    CreateSubplebbitOptions as PlebbitCreateSubplebbitOptions,
-    SignerType,
-    SubplebbitEditOptions
-} from "@plebbit/plebbit-js/dist/node/types.js";
+import { CreateSubplebbitOptions as PlebbitCreateSubplebbitOptions, SubplebbitEditOptions } from "@plebbit/plebbit-js/dist/node/types.js";
 
 // TODO add subplebbit.settings
 export interface CreateSubplebbitOptions
