@@ -2,13 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SubplebbitController = void 0;
 const tslib_1 = require("tslib");
-const errors_js_1 = require("@plebbit/plebbit-js/dist/node/errors.js");
 const tsoa_1 = require("tsoa");
 const server_js_1 = require("./server.js");
 const response_statuses_js_1 = require("./response-statuses.js");
 const apiError_js_1 = require("./apiError.js");
 const apiResponse_js_1 = require("./apiResponse.js");
 const plebbit_logger_1 = tslib_1.__importDefault(require("@plebbit/plebbit-logger"));
+const plebbit_error_js_1 = require("@plebbit/plebbit-js/dist/node/plebbit-error.js");
 let SubplebbitController = class SubplebbitController extends tsoa_1.Controller {
     async _initSubInSingletonIfNotDefined(address, subsAddresses) {
         const subs = subsAddresses || (await server_js_1.sharedSingleton.plebbit.listSubplebbits());
@@ -57,7 +57,7 @@ let SubplebbitController = class SubplebbitController extends tsoa_1.Controller 
             await server_js_1.sharedSingleton.subs[address].start();
         }
         catch (e) {
-            if (e instanceof Error && e.message === errors_js_1.messages.ERR_SUB_ALREADY_STARTED)
+            if (e instanceof plebbit_error_js_1.PlebbitError && e.code === "ERR_SUB_ALREADY_STARTED")
                 throw new apiError_js_1.ApiError(response_statuses_js_1.statusMessages.ERR_SUB_ALREADY_STARTED, response_statuses_js_1.statusCodes.ERR_SUB_ALREADY_STARTED);
             else
                 throw e;
