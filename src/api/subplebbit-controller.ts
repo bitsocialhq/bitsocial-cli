@@ -8,6 +8,7 @@ import { statusCodes, statusMessages } from "./response-statuses.js";
 import { ApiError } from "./apiError.js";
 import { ApiResponse } from "./apiResponse.js";
 import Logger from "@plebbit/plebbit-logger";
+import { PlebbitError } from "@plebbit/plebbit-js/dist/node/plebbit-error.js";
 
 @Route("/api/v0/subplebbit")
 export class SubplebbitController extends Controller {
@@ -73,7 +74,7 @@ export class SubplebbitController extends Controller {
         try {
             await sharedSingleton.subs[address]!.start();
         } catch (e) {
-            if (e instanceof Error && e.message === plebbitErrorMessages.ERR_SUB_ALREADY_STARTED)
+            if (e instanceof PlebbitError && e.code === "ERR_SUB_ALREADY_STARTED")
                 throw new ApiError(statusMessages.ERR_SUB_ALREADY_STARTED, statusCodes.ERR_SUB_ALREADY_STARTED);
             else throw e;
         }
