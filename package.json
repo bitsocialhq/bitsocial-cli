@@ -108,7 +108,7 @@
         "@oclif/core": "1.21.0",
         "@oclif/plugin-help": "5.1.20",
         "@oclif/plugin-not-found": "2.3.9",
-        "@plebbit/plebbit-js": "https://github.com/plebbit/plebbit-js#65d0a7bda4f5de9e35aaf41f41af4586a81dbb14",
+        "@plebbit/plebbit-js": "https://github.com/plebbit/plebbit-js#4ae263d46fa5254d9f26bbb1d6b8d230cde5e713",
         "dataobject-parser": "1.2.22",
         "env-paths": "2.2.1",
         "express": "4.18.2",
@@ -118,6 +118,5 @@
         "swagger-ui-express": "4.6.0",
         "tsoa": "4.1.3",
         "skia-canvas": "1.0.0"
-
     }
 }
