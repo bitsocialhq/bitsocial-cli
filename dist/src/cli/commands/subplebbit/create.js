@@ -18,7 +18,7 @@ class Create extends base_subplebbit_options_js_1.default {
         await this.stopIfDaemonIsDown(flags.apiUrl.toString());
         const createOptions = dataobject_parser_1.default.transpose(lodash_1.default.omit(flags, ["apiUrl", "privateKeyPath"]))["_data"];
         if (flags.privateKeyPath)
-            createOptions.signer = { privateKey: (await fs_1.default.promises.readFile(flags.privateKeyPath)).toString(), type: "rsa" };
+            createOptions.signer = { privateKey: (await fs_1.default.promises.readFile(flags.privateKeyPath)).toString(), type: "ed25519" };
         const createRes = await (0, node_fetch_1.default)(`${flags.apiUrl}/subplebbit/create`, {
             body: JSON.stringify(createOptions),
             method: "POST",

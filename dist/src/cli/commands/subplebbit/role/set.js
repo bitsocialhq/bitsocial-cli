@@ -41,7 +41,7 @@ class Set extends base_command_js_1.BaseCommand {
 }
 exports.default = Set;
 Set.description = "Set role to an author within the subplebbit. If an author has a role already, it would get overidden with the new role";
-Set.examples = ["plebbit role set plebbit.eth estebanabaroa.eth --role admin"];
+Set.examples = ["plebbit subplebbit role set plebbit.eth estebanabaroa.eth --role admin"];
 Set.flags = {
     role: core_1.Flags.enum({
         options: ["admin", "moderator", "owner"],

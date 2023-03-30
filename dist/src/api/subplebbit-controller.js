@@ -9,17 +9,23 @@ const response_statuses_js_1 = require("./response-statuses.js");
 const apiError_js_1 = require("./apiError.js");
 const apiResponse_js_1 = require("./apiResponse.js");
 const plebbit_logger_1 = tslib_1.__importDefault(require("@plebbit/plebbit-logger"));
-const path_1 = tslib_1.__importDefault(require("path"));
-const fs_1 = tslib_1.__importDefault(require("fs"));
 let SubplebbitController = class SubplebbitController extends tsoa_1.Controller {
+    async _initSubInSingletonIfNotDefined(address, subsAddresses) {
+        const subs = subsAddresses || (await server_js_1.sharedSingleton.plebbit.listSubplebbits());
+        if (!subs.includes(address))
+            throw new apiError_js_1.ApiError(response_statuses_js_1.statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, response_statuses_js_1.statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
+        if (!server_js_1.sharedSingleton.subs[address])
+            server_js_1.sharedSingleton.subs[address] = await server_js_1.sharedSingleton.plebbit.createSubplebbit({ address });
+    }
     async list() {
         const log = (0, plebbit_logger_1.default)("plebbit-cli:api:subplebbit:list");
         log(`Received request to list subplebbits`);
         const subsFromPlebbit = await server_js_1.sharedSingleton.plebbit.listSubplebbits();
-        return subsFromPlebbit.map((address) => ({
-            started: fs_1.default.existsSync(path_1.default.join(server_js_1.sharedSingleton.plebbit.dataPath, "subplebbits", `${address}.start.lock`)),
+        await Promise.all(subsFromPlebbit.map((subAddress) => this._initSubInSingletonIfNotDefined(subAddress, subsFromPlebbit)));
+        return Promise.all(subsFromPlebbit.map(async (address) => ({
+            started: await server_js_1.sharedSingleton.subs[address].dbHandler.isSubStartLocked(),
             address
-        }));
+        })));
     }
     /**
      * @example requestBody { "title": "Memes", "description": "Post your memes here." }
@@ -43,10 +49,7 @@ let SubplebbitController = class SubplebbitController extends tsoa_1.Controller 
     async start(address) {
         const log = (0, plebbit_logger_1.default)("plebbit-cli:api:subplebbit:start");
         log(`Received request to start subplebbit ${address}`);
-        if (!(address in server_js_1.sharedSingleton.subs) && (await server_js_1.sharedSingleton.plebbit.listSubplebbits()).includes(address))
-            server_js_1.sharedSingleton.subs[address] = await server_js_1.sharedSingleton.plebbit.createSubplebbit({ address });
-        if (!(address in server_js_1.sharedSingleton.subs))
-            throw new apiError_js_1.ApiError(response_statuses_js_1.statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, response_statuses_js_1.statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
+        await this._initSubInSingletonIfNotDefined(address);
         //@ts-ignore
         if (process.env["SYNC_INTERVAL_MS"])
             server_js_1.sharedSingleton.subs[address]._syncIntervalMs = parseInt(process.env["SYNC_INTERVAL_MS"]);
@@ -70,9 +73,8 @@ let SubplebbitController = class SubplebbitController extends tsoa_1.Controller 
     async stop(address) {
         const log = (0, plebbit_logger_1.default)("plebbit-cli:api:subplebbit:stop");
         log(`Received request to stop subplebbit ${address}`);
-        if (!(address in server_js_1.sharedSingleton.subs))
-            throw new apiError_js_1.ApiError(response_statuses_js_1.statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, response_statuses_js_1.statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
-        if (server_js_1.sharedSingleton.subs[address]?.dbHandler === undefined)
+        await this._initSubInSingletonIfNotDefined(address);
+        if (!(await server_js_1.sharedSingleton.subs[address].dbHandler.isSubStartLocked()))
             // If db handler is undefined that means the subplebbit is not running
             throw new apiError_js_1.ApiError(response_statuses_js_1.statusMessages.ERR_SUBPLEBBIT_NOT_RUNNING, response_statuses_js_1.statusCodes.ERR_SUBPLEBBIT_NOT_RUNNING);
         await server_js_1.sharedSingleton.subs[address]?.stop();
@@ -88,11 +90,8 @@ let SubplebbitController = class SubplebbitController extends tsoa_1.Controller 
     async edit(address, requestBody) {
         const log = (0, plebbit_logger_1.default)("plebbit-cli:api:subplebbit:edit");
         log(`Received request to edit subplebbit ${address} with request body, `, requestBody);
-        if (!(address in server_js_1.sharedSingleton.subs) && (await server_js_1.sharedSingleton.plebbit.listSubplebbits()).includes(address))
-            server_js_1.sharedSingleton.subs[address] = await server_js_1.sharedSingleton.plebbit.createSubplebbit({ address });
-        if (!(address in server_js_1.sharedSingleton.subs))
-            throw new apiError_js_1.ApiError(response_statuses_js_1.statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, response_statuses_js_1.statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
-        await server_js_1.sharedSingleton.subs[address]?.edit(requestBody);
+        await this._initSubInSingletonIfNotDefined(address);
+        await server_js_1.sharedSingleton.subs[address].edit(requestBody);
         throw new apiResponse_js_1.ApiResponse(response_statuses_js_1.statusMessages.SUCCESS_SUBPLEBBIT_EDITED, response_statuses_js_1.statusCodes.SUCCESS_SUBPLEBBIT_EDITED, undefined);
     }
 };
