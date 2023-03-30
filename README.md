@@ -123,7 +123,7 @@ DESCRIPTION
   Run a network-connected Plebbit node
 ```
 
-_See code: [dist/src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v0.5.0/dist/src/cli/commands/daemon.ts)_
+_See code: [dist/src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v0.5.1/dist/src/cli/commands/daemon.ts)_
 
 ## `plebbit help [COMMAND]`
 
@@ -259,7 +259,7 @@ DESCRIPTION
   Remove role of an author within the subplebbit
 
 EXAMPLES
-  $ plebbit role remove plebbit.eth estebanabaroa.eth
+  $ plebbit subplebbit role remove plebbit.eth estebanabaroa.eth
 ```
 
 ## `plebbit subplebbit role set SUB-ADDRESS AUTHOR-ADDRESS`
@@ -282,7 +282,7 @@ DESCRIPTION
   Set role to an author within the subplebbit. If an author has a role already, it would get overidden with the new role
 
 EXAMPLES
-  $ plebbit role set plebbit.eth estebanabaroa.eth --role admin
+  $ plebbit subplebbit role set plebbit.eth estebanabaroa.eth --role admin
 ```
 
 ## `plebbit subplebbit start ADDRESSES`
