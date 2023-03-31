@@ -5,6 +5,7 @@ import fetch from "node-fetch";
 import { SubplebbitRole, SubplebbitType } from "@plebbit/plebbit-js/dist/node/types.js";
 import { statusCodes, statusMessages } from "../../../../api/response-statuses.js";
 import { exitStatuses } from "../../../exit-codes.js";
+import assert from "assert";
 
 export default class Set extends BaseCommand {
     static override description =
@@ -42,6 +43,9 @@ export default class Set extends BaseCommand {
         log(`args: `, args);
         const authorAddress: string = args["author-address"];
         const subplebbitAddress: string = args["sub-address"];
+        assert(typeof subplebbitAddress === "string")
+        assert(typeof authorAddress === "string")
+
         await this.stopIfDaemonIsDown(flags.apiUrl.toString());
 
         const subRes = await fetch(`${flags.apiUrl}/subplebbit/create`, {
@@ -55,10 +59,11 @@ export default class Set extends BaseCommand {
             });
         if (subRes.status !== statusCodes.SUCCESS_SUBPLEBBIT_CREATED) this.error(subRes.statusText);
         const sub: SubplebbitType = await subRes.json();
+        assert.equal(sub.address, subplebbitAddress);
 
         const newRoles: SubplebbitType["roles"] = { ...sub.roles, [authorAddress]: { role: flags.role } };
 
-        const editRes = await fetch(`${flags.apiUrl}/subplebbit/edit?address=${sub.address}`, {
+        const editRes = await fetch(`${flags.apiUrl}/subplebbit/edit?address=${subplebbitAddress}`, {
             body: JSON.stringify({ roles: newRoles }),
             method: "POST",
             headers: { "content-type": "application/json" }
