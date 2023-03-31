@@ -47,10 +47,19 @@ export class SubplebbitController extends Controller {
     public async create(@Body() requestBody: CreateSubplebbitOptions): Promise<SubplebbitType> {
         const log = Logger("plebbit-cli:api:subplebbit:create");
         log(`Received request to create with body, `, requestBody);
-        const sub = await sharedSingleton.plebbit.createSubplebbit(requestBody);
-        sharedSingleton.subs[sub.address] = sub;
-
-        throw new ApiResponse(statusMessages.SUCCESS_SUBPLEBBIT_CREATED, statusCodes.SUCCESS_SUBPLEBBIT_CREATED, sub.toJSON());
+        if (requestBody.address) {
+            // return existing sub
+            await this._initSubInSingletonIfNotDefined(requestBody.address);
+            throw new ApiResponse(
+                statusMessages.SUCCESS_SUBPLEBBIT_CREATED,
+                statusCodes.SUCCESS_SUBPLEBBIT_CREATED,
+                sharedSingleton.subs[requestBody.address]!.toJSON()
+            );
+        } else {
+            const sub = await sharedSingleton.plebbit.createSubplebbit(requestBody);
+            sharedSingleton.subs[sub.address] = sub;
+            throw new ApiResponse(statusMessages.SUCCESS_SUBPLEBBIT_CREATED, statusCodes.SUCCESS_SUBPLEBBIT_CREATED, sub.toJSON());
+        }
     }
 
     /**
