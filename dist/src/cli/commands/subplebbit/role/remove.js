@@ -6,15 +6,19 @@ const base_command_js_1 = require("../../../base-command.js");
 const node_fetch_1 = tslib_1.__importDefault(require("node-fetch"));
 const response_statuses_js_1 = require("../../../../api/response-statuses.js");
 const exit_codes_js_1 = require("../../../exit-codes.js");
+const assert_1 = tslib_1.__importDefault(require("assert"));
 class Remove extends base_command_js_1.BaseCommand {
     async run() {
         const { args, flags } = await this.parse(Remove);
         const log = (0, plebbit_logger_1.default)("plebbit-cli:commands:subplebbit:roles:remove");
         log(`args: `, args);
+        const authorAddress = args["author-address"];
+        const subplebbitAddress = args["sub-address"];
         await this.stopIfDaemonIsDown(flags.apiUrl.toString());
         const subRes = await (0, node_fetch_1.default)(`${flags.apiUrl}/subplebbit/create`, {
             method: "POST",
-            body: JSON.stringify({ address: args["sub-address"] })
+            body: JSON.stringify({ address: subplebbitAddress }),
+            headers: { "content-type": "application/json" }
         });
         if (subRes.status === response_statuses_js_1.statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST)
             this.error(response_statuses_js_1.statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, {
@@ -24,8 +28,9 @@ class Remove extends base_command_js_1.BaseCommand {
         if (subRes.status !== response_statuses_js_1.statusCodes.SUCCESS_SUBPLEBBIT_CREATED)
             this.error(subRes.statusText);
         const sub = await subRes.json();
-        if (sub.roles && sub.roles[args["author-address"]]?.role)
-            delete sub.roles[args["author-address"]];
+        assert_1.default.equal(sub.address, subplebbitAddress);
+        if (sub.roles && sub.roles[authorAddress]?.role)
+            delete sub.roles[authorAddress];
         else
             this.error(exit_codes_js_1.exitMessages.ERR_AUTHOR_ROLE_DOES_NOT_EXIST, {
                 code: "ERR_AUTHOR_ROLE_DOES_NOT_EXIST",
