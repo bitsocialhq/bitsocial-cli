@@ -10,7 +10,7 @@ describe("plebbit subplebbit role remove", () => {
         api
             .post("/subplebbit/list")
             .reply(200, [])
-            .post("/subplebbit/create")
+            .post("/subplebbit/create", { address: "plebbit.eth" })
             .reply(statusCodes.SUCCESS_SUBPLEBBIT_CREATED, { address: "plebbit.eth", roles: existingRoles } as SubplebbitType)
             .post("/subplebbit/edit?address=plebbit.eth")
             .reply((_, body) => {
@@ -27,7 +27,7 @@ describe("plebbit subplebbit role remove", () => {
         api
             .post("/subplebbit/list")
             .reply(200, [])
-            .post("/subplebbit/create")
+            .post("/subplebbit/create", { address: "plebbit.eth" })
             .reply(statusCodes.SUCCESS_SUBPLEBBIT_CREATED, {
                 address: "plebbit.eth",
                 roles: { "estebanabaroa.eth": { role: "admin" } }
@@ -42,7 +42,7 @@ describe("plebbit subplebbit role remove", () => {
         api
             .post("/subplebbit/list")
             .reply(200, [])
-            .post("/subplebbit/create")
+            .post("/subplebbit/create", { address: "plebbit.eth" })
             .reply(statusCodes.SUCCESS_SUBPLEBBIT_CREATED, {
                 address: "plebbit.eth",
                 roles: { "estebanabaroa.eth": { role: "admin" } }

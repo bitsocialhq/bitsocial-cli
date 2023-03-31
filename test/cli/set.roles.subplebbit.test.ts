@@ -10,7 +10,7 @@ describe("plebbit subplebbit role set", () => {
         api
             .post("/subplebbit/list")
             .reply(200, [])
-            .post("/subplebbit/create")
+            .post("/subplebbit/create", { address: "plebbit.eth" })
             .reply(statusCodes.SUCCESS_SUBPLEBBIT_CREATED, { address: "plebbit.eth" })
             .post("/subplebbit/edit?address=plebbit.eth")
             .reply((_, body) => {
@@ -34,7 +34,7 @@ describe("plebbit subplebbit role set", () => {
         api
             .post("/subplebbit/list")
             .reply(200, [])
-            .post("/subplebbit/create")
+            .post("/subplebbit/create", { address: "plebbit.eth" })
             .reply(statusCodes.SUCCESS_SUBPLEBBIT_CREATED, { address: "plebbit.eth", roles: singleRoleToBeSet })
             .post("/subplebbit/edit?address=plebbit.eth")
             .reply((_, body) => {
@@ -58,7 +58,7 @@ describe("plebbit subplebbit role set", () => {
         api
             .post("/subplebbit/list")
             .reply(200, [])
-            .post("/subplebbit/create")
+            .post("/subplebbit/create", { address: "plebbit.eth" })
             .reply(statusCodes.SUCCESS_SUBPLEBBIT_CREATED, {
                 address: "plebbit.eth",
                 roles: { ...singleRoleToBeSet, ...secondRoleToBeSet }
@@ -80,7 +80,11 @@ describe("plebbit subplebbit role set", () => {
         .it(`Overrides author old role with new role`);
 
     test.nock(`http://localhost:${defaults.PLEBBIT_API_PORT}/api/v0`, (api) =>
-        api.post("/subplebbit/list").reply(200, []).post("/subplebbit/create").reply(statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST)
+        api
+            .post("/subplebbit/list")
+            .reply(200, [])
+            .post("/subplebbit/create", { address: "plebbit12345.eth" })
+            .reply(statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST)
     )
         .loadConfig({ root: process.cwd() })
         .command([
