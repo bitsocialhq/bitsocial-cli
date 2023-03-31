@@ -33,15 +33,12 @@ export default class Remove extends BaseCommand {
         log(`args: `, args);
         const authorAddress: string = args["author-address"];
         const subplebbitAddress: string = args["sub-address"];
-        assert(typeof subplebbitAddress === "string")
-        assert(typeof authorAddress === "string")
-
-
         await this.stopIfDaemonIsDown(flags.apiUrl.toString());
 
         const subRes = await fetch(`${flags.apiUrl}/subplebbit/create`, {
             method: "POST",
-            body: JSON.stringify({ address: subplebbitAddress })
+            body: JSON.stringify({ address: subplebbitAddress }),
+            headers: { "content-type": "application/json" }
         });
         if (subRes.status === statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST)
             this.error(statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, {
