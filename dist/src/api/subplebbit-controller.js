@@ -35,9 +35,16 @@ let SubplebbitController = class SubplebbitController extends tsoa_1.Controller 
     async create(requestBody) {
         const log = (0, plebbit_logger_1.default)("plebbit-cli:api:subplebbit:create");
         log(`Received request to create with body, `, requestBody);
-        const sub = await server_js_1.sharedSingleton.plebbit.createSubplebbit(requestBody);
-        server_js_1.sharedSingleton.subs[sub.address] = sub;
-        throw new apiResponse_js_1.ApiResponse(response_statuses_js_1.statusMessages.SUCCESS_SUBPLEBBIT_CREATED, response_statuses_js_1.statusCodes.SUCCESS_SUBPLEBBIT_CREATED, sub.toJSON());
+        if (requestBody.address) {
+            // return existing sub
+            await this._initSubInSingletonIfNotDefined(requestBody.address);
+            throw new apiResponse_js_1.ApiResponse(response_statuses_js_1.statusMessages.SUCCESS_SUBPLEBBIT_CREATED, response_statuses_js_1.statusCodes.SUCCESS_SUBPLEBBIT_CREATED, server_js_1.sharedSingleton.subs[requestBody.address].toJSON());
+        }
+        else {
+            const sub = await server_js_1.sharedSingleton.plebbit.createSubplebbit(requestBody);
+            server_js_1.sharedSingleton.subs[sub.address] = sub;
+            throw new apiResponse_js_1.ApiResponse(response_statuses_js_1.statusMessages.SUCCESS_SUBPLEBBIT_CREATED, response_statuses_js_1.statusCodes.SUCCESS_SUBPLEBBIT_CREATED, sub.toJSON());
+        }
     }
     /**
      * Start a subplebbit that has been created before. Subplebbit will be receiving new challenges through pubsub and publish a new IPNS record to be consumed by end users

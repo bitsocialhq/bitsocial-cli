@@ -1,5 +1,13 @@
 
 
+## [0.6.4](https://github.com/plebbit/plebbit-cli/compare/v0.6.3...v0.6.4) (2023-03-31)
+
+
+### Bug Fixes
+
+* **api:** rework the logic of subplebbit create HTTP endpoint ([3e0c832](https://github.com/plebbit/plebbit-cli/commit/3e0c83208ae4dfa809ab796c42dfe0bc6c89cef0))
+* **cli:** fixed bug where cli role set creates a new sub instead of editing existing one ([5e4ed72](https://github.com/plebbit/plebbit-cli/commit/5e4ed72d4fefbe0412edeba8633ddce1fc776c9c))
+
 ## [0.6.3](https://github.com/plebbit/plebbit-cli/compare/v0.6.2...v0.6.3) (2023-03-30)
 
 ## [0.6.2](https://github.com/plebbit/plebbit-cli/compare/v0.6.1...v0.6.2) (2023-03-30)

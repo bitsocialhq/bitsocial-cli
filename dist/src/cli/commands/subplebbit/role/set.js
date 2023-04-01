@@ -7,6 +7,7 @@ const base_command_js_1 = require("../../../base-command.js");
 const node_fetch_1 = tslib_1.__importDefault(require("node-fetch"));
 const response_statuses_js_1 = require("../../../../api/response-statuses.js");
 const exit_codes_js_1 = require("../../../exit-codes.js");
+const assert_1 = tslib_1.__importDefault(require("assert"));
 class Set extends base_command_js_1.BaseCommand {
     async run() {
         const { flags, args } = await this.parse(Set);
@@ -15,10 +16,12 @@ class Set extends base_command_js_1.BaseCommand {
         log(`args: `, args);
         const authorAddress = args["author-address"];
         const subplebbitAddress = args["sub-address"];
+        (0, assert_1.default)(typeof authorAddress === "string");
         await this.stopIfDaemonIsDown(flags.apiUrl.toString());
         const subRes = await (0, node_fetch_1.default)(`${flags.apiUrl}/subplebbit/create`, {
             method: "POST",
-            body: JSON.stringify({ address: subplebbitAddress })
+            body: JSON.stringify({ address: subplebbitAddress }),
+            headers: { "content-type": "application/json" } // Header is needed with every request that contains JSON body
         });
         if (subRes.status === response_statuses_js_1.statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST)
             this.error(response_statuses_js_1.statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, {
@@ -28,8 +31,9 @@ class Set extends base_command_js_1.BaseCommand {
         if (subRes.status !== response_statuses_js_1.statusCodes.SUCCESS_SUBPLEBBIT_CREATED)
             this.error(subRes.statusText);
         const sub = await subRes.json();
+        assert_1.default.equal(sub.address, subplebbitAddress);
         const newRoles = { ...sub.roles, [authorAddress]: { role: flags.role } };
-        const editRes = await (0, node_fetch_1.default)(`${flags.apiUrl}/subplebbit/edit?address=${sub.address}`, {
+        const editRes = await (0, node_fetch_1.default)(`${flags.apiUrl}/subplebbit/edit?address=${subplebbitAddress}`, {
             body: JSON.stringify({ roles: newRoles }),
             method: "POST",
             headers: { "content-type": "application/json" }
