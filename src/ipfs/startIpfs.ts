@@ -88,7 +88,8 @@ export async function startIpfsNode(
 
         if (testing) await _spawnAsync(log, ipfsExePath, ["bootstrap", "rm", "--all"], { env });
 
-        const daemonArgs = process.env["OFFLINE_MODE"] === "1" ? ["--offline"] : ["--enable-pubsub-experiment", "--enable-namesys-pubsub"];
+        const daemonArgs =
+            process.env["OFFLINE_MODE"] === "1" ? ["--offline"] : ["--enable-pubsub-experiment", "--enable-namesys-pubsub", "--migrate"];
 
         const ipfsProcess: ChildProcessWithoutNullStreams = spawn(ipfsExePath, ["daemon", ...daemonArgs], { env, cwd: process.cwd() });
         log.trace(`ipfs daemon process started with pid ${ipfsProcess.pid}`);
