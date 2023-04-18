@@ -64,6 +64,29 @@ Plebbit API listening on: http://localhost:32431/api/v0
 You can find Plebbit API documentation at: http://localhost:32431/api/v0/docs
 ```
 
+### Seeding Subplebbits
+If you're feeling generous, and would like to seed the default subplebbits you can do so by using the `--seed` flag
+
+```sh-session
+$ plebbit daemon --seed
+IPFS API listening on: http://localhost:32429/api/v0
+IPFS Gateway listening on: http://localhost:32430
+Plebbit API listening on: http://localhost:32431/api/v0
+You can find Plebbit API documentation at: http://localhost:32431/api/v0/docs
+Seeding subplebbits: [                                                                                   
+  '12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu',                                                
+  'plebshelpingplebs.eth',                                               
+  'plebwhales.eth',                                                                                      
+  'politically-incorrect.eth',                                                     
+  'business-and-finance.eth',                        
+  'movies-tv-anime.eth',                   
+  'videos-livestreams-podcasts.eth',                          
+  'health-nutrition-science.eth',                  
+  'censorship-watch.eth',                     
+  'reddit-screenshots.eth'                              
+]     
+```
+
 ### Creating your first sub
 ```sh-session
 $ plebbit subplebbit create --title "Hello Plebs!" --description "This is gonna be great"
