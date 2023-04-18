@@ -13,7 +13,7 @@
     "scripts": {
         "build": "rm -rf dist/  && tsoa spec-and-routes -c config/tsoa.json && tsc --project config/tsconfig.json",
         "build:watch": "nodemon --config config/build.nodemon.json",
-        "start:api": "SYNC_INTERVAL_MS=100 IPFS_PORT=32449 IPFS_PUBSUB_PORT=32447 PLEBBIT_API_PORT=32441 PLEBBIT_DATA_PATH=/tmp/.plebbit node dist/test/run-test-server.js",
+        "start:api": "TESTING=1 SYNC_INTERVAL_MS=100 IPFS_PORT=32449 IPFS_PUBSUB_PORT=32447 PLEBBIT_API_PORT=32441 PLEBBIT_DATA_PATH=.plebbit node dist/test/run-test-server.js",
         "start:api:watch": "nodemon --config config/apiDev.nodemon.json",
         "start:ipfs": "IPFS_API_PORT=32449 IPFS_GATEWAY_PORT=32440 IPFS_PATH=/tmp/.ipfs1 OFFLINE_MODE=1 node dist/test/run-test-ipfs.js & IPFS_PATH=/tmp/.ipfs2 IPFS_API_PORT=32447 IPFS_GATEWAY_PORT=32448 node dist/test/run-test-ipfs.js",
         "test:api": "PLEBBIT_API_PORT=32441 IPFS_PORT=32449 IPFS_PUBSUB_PORT=32447 ts-mocha --config config/.mocharc.json -p config/tsconfig.json test/api/*.test.ts",

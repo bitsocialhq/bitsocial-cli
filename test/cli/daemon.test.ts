@@ -39,8 +39,8 @@ describe("plebbit daemon", async () => {
     it(`Starts a daemon successfully with default args`, async () => {
         expect(daemonProcess.pid).to.be.a("number");
         expect(daemonProcess.killed).to.be.false;
-        plebbit = await Plebbit({ ipfsHttpClientOptions: `http://localhost:${defaults.IPFS_API_PORT}` });
-        expect(plebbit.ipfsGatewayUrl).to.equal(`http://127.0.0.1:${defaults.IPFS_GATEWAY_PORT}`);
+        plebbit = await Plebbit({ ipfsHttpClientsOptions: [`http://localhost:${defaults.IPFS_API_PORT}`] });
+        expect(Object.keys(plebbit.clients.ipfsGateways)).to.deep.equal([`http://127.0.0.1:${defaults.IPFS_GATEWAY_PORT}`]);
         // We're able to retrieve ipfs gateway url from ipfs node, that means ipfs node was ran correctly
         const res = await fetch(`http://localhost:${defaults.PLEBBIT_API_PORT}/api/v0/subplebbit/list`, {
             method: "POST"
@@ -87,7 +87,7 @@ describe("plebbit daemon", async () => {
         );
 
         // Plebbit should fail to retrieve gateway from ipfs node since it's killed. Will default to cloudflare after
-        plebbit = await Plebbit({ ipfsHttpClientOptions: `http://localhost:${defaults.IPFS_API_PORT}` });
-        expect(plebbit.ipfsGatewayUrl).to.equal(`https://cloudflare-ipfs.com`);
+        plebbit = await Plebbit({ ipfsHttpClientsOptions: [`http://localhost:${defaults.IPFS_API_PORT}/api/v0`] });
+        expect(Object.keys(plebbit.clients.ipfsGateways)).to.deep.equal([]);
     });
 });
