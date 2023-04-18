@@ -5,20 +5,27 @@ import swaggerUi from "swagger-ui-express";
 import Plebbit from "@plebbit/plebbit-js";
 import { SharedSingleton } from "./types.js";
 import { ValidateError } from "tsoa";
-import { AssertionError } from "assert";
-import Logger from "@plebbit/plebbit-logger";
+import assert, { AssertionError } from "assert";
 import { statusCodes, statusMessages } from "./response-statuses.js";
 import { ApiError } from "./apiError.js";
 import { ApiResponse } from "./apiResponse.js";
+import { seedSubplebbits } from "./seeder.js";
+import Logger from "@plebbit/plebbit-logger";
 
 export let sharedSingleton: SharedSingleton;
 
-export async function startApi(plebbitApiPort: number, ipfsApiEndpoint: string, ipfsPubsubApiEndpoint: string, plebbitDataPath: string) {
+export async function startApi(
+    plebbitApiPort: number,
+    ipfsApiEndpoint: string,
+    ipfsPubsubApiEndpoint: string,
+    plebbitDataPath: string,
+    seedSubs: string[] | undefined
+) {
     const log = Logger("plebbit-cli:server");
     sharedSingleton = {
         plebbit: await Plebbit({
-            ipfsHttpClientOptions: ipfsApiEndpoint,
-            pubsubHttpClientOptions: ipfsPubsubApiEndpoint,
+            ipfsHttpClientsOptions: [ipfsApiEndpoint],
+            pubsubHttpClientsOptions: [ipfsPubsubApiEndpoint],
             dataPath: plebbitDataPath
         }),
         subs: {}
@@ -87,8 +94,14 @@ export async function startApi(plebbitApiPort: number, ipfsApiEndpoint: string, 
 
     app.listen(plebbitApiPort, () => {
         console.log(`IPFS API listening on: ${ipfsApiEndpoint}`);
-        console.log(`IPFS Gateway listening on: ${sharedSingleton.plebbit.ipfsGatewayUrl.replace("127.0.0.1", "localhost")}`);
+        const gateway = Object.keys(sharedSingleton.plebbit.clients.ipfsGateways)[0];
+        assert(typeof gateway === "string");
+        console.log(`IPFS Gateway listening on: ${gateway.replace("127.0.0.1", "localhost")}`);
         console.log(`Plebbit API listening on: http://localhost:${plebbitApiPort}/api/v0`);
         console.log(`You can find Plebbit API documentation at: http://localhost:${plebbitApiPort}/api/v0/docs`);
+        if (Array.isArray(seedSubs)) {
+            console.log(`Seeding subplebbits:`, seedSubs);
+            setInterval(seedSubplebbits, 300000); // Seed subs every 5 minutes
+        }
     });
 }

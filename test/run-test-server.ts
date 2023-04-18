@@ -11,5 +11,6 @@ startApi(
     parseInt(process.env["PLEBBIT_API_PORT"]),
     `http://localhost:${process.env["IPFS_PORT"]}/api/v0`,
     `http://localhost:${process.env["IPFS_PUBSUB_PORT"]}/api/v0`,
-    process.env["PLEBBIT_DATA_PATH"]
+    process.env["PLEBBIT_DATA_PATH"],
+    undefined
 );
