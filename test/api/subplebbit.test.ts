@@ -80,8 +80,8 @@ describe(`/api/v0/subplebbit/{start, stop}`, async () => {
         expect(startRes.statusText).to.equal(statusMessages.SUCCESS_SUBPLEBBIT_STARTED);
 
         const plebbit = await Plebbit({
-            ipfsHttpClientOptions: `http://localhost:${process.env["IPFS_PORT"]}/api/v0`,
-            pubsubHttpClientOptions: `http://localhost:${process.env["IPFS_PUBSUB_PORT"]}/api/v0`
+            ipfsHttpClientsOptions: [`http://localhost:${process.env["IPFS_PORT"]}/api/v0`],
+            pubsubHttpClientsOptions: [`http://localhost:${process.env["IPFS_PUBSUB_PORT"]}/api/v0`]
         });
 
         const mockPost = await plebbit.createComment({
@@ -95,7 +95,7 @@ describe(`/api/v0/subplebbit/{start, stop}`, async () => {
         await new Promise((resolve) => mockPost.once("challenge", resolve)); // This test is done once we receive a challenge
 
         // Line is needed so mocha would not "hang"
-        await plebbit.pubsubIpfsClient.pubsub.unsubscribe(mockPost.subplebbitAddress);
+        await plebbit._defaultPubsubClient()._client.pubsub.unsubscribe(mockPost.subplebbitAddress);
     });
 
     it(`Start fails with documented error if subplebbit is already started`, async () => {

@@ -101,7 +101,8 @@ export async function startApi(
         console.log(`You can find Plebbit API documentation at: http://localhost:${plebbitApiPort}/api/v0/docs`);
         if (Array.isArray(seedSubs)) {
             console.log(`Seeding subplebbits:`, seedSubs);
-            setInterval(seedSubplebbits, 300000); // Seed subs every 5 minutes
+            seedSubplebbits(seedSubs, sharedSingleton.plebbit);
+            setInterval(() => seedSubplebbits(seedSubs, sharedSingleton.plebbit), 600000); // Seed subs every 10 minutes
         }
     });
 }
