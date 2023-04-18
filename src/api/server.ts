@@ -102,7 +102,7 @@ export async function startApi(
         if (Array.isArray(seedSubs)) {
             console.log(`Seeding subplebbits:`, seedSubs);
             seedSubplebbits(seedSubs, sharedSingleton.plebbit);
-            setInterval(() => seedSubplebbits(seedSubs, sharedSingleton.plebbit), 300000); // Seed subs every 5 minutes
+            setInterval(() => seedSubplebbits(seedSubs, sharedSingleton.plebbit), 600000); // Seed subs every 10 minutes
         }
     });
 }
