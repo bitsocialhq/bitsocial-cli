@@ -1,5 +1,26 @@
 
 
+# [0.7.0](https://github.com/plebbit/plebbit-cli/compare/v0.6.6...v0.7.0) (2023-04-18)
+
+
+### Bug Fixes
+
+* **api:** start seeding immedietly, no need to wait for 5 minutes ([f917fbd](https://github.com/plebbit/plebbit-cli/commit/f917fbd0676207cb3aa4ecd3e9f22ceb1e75f8ab))
+* **cli:** seed flag is now separated into a boolean for seeding, and another flag for seeded subs ([ba9aa48](https://github.com/plebbit/plebbit-cli/commit/ba9aa4877a12916d6350c2274110558ab8d56e34))
+* **deps:** migrate ipfs when running daemon ([41107c5](https://github.com/plebbit/plebbit-cli/commit/41107c55c5d046d80ddbee148f75927c1b141dbd))
+
+
+### Features
+
+* **api:** added an option to seed subs publications as well as propagation of their msgs ([71d4032](https://github.com/plebbit/plebbit-cli/commit/71d4032c0ee724eee8d827a3d90780406b8ba78f)), closes [#5](https://github.com/plebbit/plebbit-cli/issues/5)
+* **api:** added an option to seed subs publications as well as propgation of their msgs ([11369f2](https://github.com/plebbit/plebbit-cli/commit/11369f2cc485ab8bd6817d8aa2001cc308cb807e)), closes [#5](https://github.com/plebbit/plebbit-cli/issues/5)
+
+
+### Performance Improvements
+
+* **api:** increase time between seedings from 5m to 10m ([6050a9b](https://github.com/plebbit/plebbit-cli/commit/6050a9b80ae6eef94e68fb8f79da459992304ad2))
+* **api:** limit concurrency with ipns and add more debug msgs ([11a9d78](https://github.com/plebbit/plebbit-cli/commit/11a9d78715cbf6ebaf00c13f2519413e9f2eb404))
+
 ## [0.6.6](https://github.com/plebbit/plebbit-cli/compare/v0.6.5...v0.6.6) (2023-04-18)
 
 ## [0.6.5](https://github.com/plebbit/plebbit-cli/compare/v0.6.4...v0.6.5) (2023-04-01)

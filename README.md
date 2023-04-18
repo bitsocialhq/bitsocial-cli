@@ -110,7 +110,7 @@ Run a network-connected Plebbit node
 ```
 USAGE
   $ plebbit daemon --plebbitDataPath <value> --plebbitApiPort <value> --ipfsApiPort <value>
-    --ipfsGatewayPort <value>
+    --ipfsGatewayPort <value> [--seed] [--seedSubs <value>]
 
 FLAGS
   --ipfsApiPort=<value>      (required) [default: 32429] Specify the API port of the ipfs node to listen on
@@ -118,12 +118,23 @@ FLAGS
   --plebbitApiPort=<value>   (required) [default: 32431] Specify Plebbit API port to listen on
   --plebbitDataPath=<value>  (required) [default: /home/runner/.local/share/plebbit] Path to plebbit data path where
                              subplebbits and ipfs node are stored
+  --seed                     Seeding flag. Seeding helps subplebbits distribute their publications and latest updates,
+                             as well as receiving new publications
+  --seedSubs=<value>...      [default: ] Subplebbits to seed. If --seed is used and no subs was provided, it will
+                             default to seeding default subs
 
 DESCRIPTION
   Run a network-connected Plebbit node
+
+EXAMPLES
+  $ plebbit daemon
+
+  $ plebbit daemon --seed
+
+  $ plebbit daemon --seed --seedSubs mysub.eth, myothersub.eth, 12D3KooWEKA6Fhp6qtyttMvNKcNCtqH2N7ZKpPy5rfCeM1otr5qU
 ```
 
-_See code: [dist/src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v0.6.6/dist/src/cli/commands/daemon.ts)_
+_See code: [dist/src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v0.7.0/dist/src/cli/commands/daemon.ts)_
 
 ## `plebbit help [COMMAND]`
 
