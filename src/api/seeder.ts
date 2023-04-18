@@ -5,8 +5,9 @@ import { loadIpnsAsJson } from "@plebbit/plebbit-js/dist/node/util.js";
 import { Subplebbit } from "@plebbit/plebbit-js/dist/node/subplebbit";
 import { Pages } from "@plebbit/plebbit-js/dist/node/pages";
 import { Comment } from "@plebbit/plebbit-js/dist/node/comment";
+import pLimit from "p-limit";
 
- async function _loadAllPages(pageCid: string, pagesInstance: Pages): Promise<Comment[]> {
+async function _loadAllPages(pageCid: string, pagesInstance: Pages): Promise<Comment[]> {
     let sortedCommentsPage = await pagesInstance.getPage(pageCid);
     let sortedComments: Comment[] = sortedCommentsPage.comments;
     while (sortedCommentsPage.nextCid) {
@@ -18,7 +19,7 @@ import { Comment } from "@plebbit/plebbit-js/dist/node/comment";
 
 async function _seedSub(sub: Subplebbit, pinnedCids: string[]) {
     const log = Logger("plebbit-cli:server:seed");
-    if (sub.statsCid) sub.plebbit.fetchCid(sub.statsCid); // Seed stats
+    if (sub.statsCid) await sub.plebbit.fetchCid(sub.statsCid); // Seed stats
 
     await sub.plebbit.pubsubSubscribe(sub.pubsubTopic || sub.address);
 
@@ -43,14 +44,22 @@ async function _seedSub(sub: Subplebbit, pinnedCids: string[]) {
             );
 
             // Fetch all comments' CommentUpdate IPNS
-            loadedPagesWithNames["new"].map((comment) => loadIpnsAsJson(<string>comment.ipnsName, sub.plebbit));
+            const limit = pLimit(30); // Can only fetch 30 IPNS at a time
+            const ipnsRes = await Promise.allSettled(
+                loadedPagesWithNames["new"].map((comment) => limit(() => loadIpnsAsJson(<string>comment.ipnsName, sub.plebbit)))
+            );
+
+            log.trace(
+                `Loaded and seeded ${ipnsRes.filter((res) => res.status === "fulfilled").length} CommentUpdate and failed to seed ${
+                    ipnsRes.filter((res) => res.status === "rejected").length
+                }`
+            );
         }
 
-        const newCidsToPin = lodash.difference(lodash.uniq(allCidsToPin), pinnedCids );
+        const newCidsToPin = lodash.difference(lodash.uniq(allCidsToPin), pinnedCids);
         if (newCidsToPin.length > 0) {
-            log.trace(`Attempting to pin ${newCidsToPin.length} cids from sub (${sub.address}) for seeding`);
-
-            sub.plebbit._defaultIpfsClient()._client.pin.addAll(newCidsToPin);
+            await sub.plebbit._defaultIpfsClient()._client.pin.addAll(newCidsToPin);
+            log.trace(`Pinned ${newCidsToPin.length} cids from sub (${sub.address})`);
         }
     }
 }
@@ -65,10 +74,8 @@ export async function seedSubplebbits(subAddresses: string[], plebbit: Plebbit) 
             const sub = await plebbit.getSubplebbit(subAddress);
             log.trace(`Loaded the newest record of sub (${subAddress}) for seeding`);
             _seedSub(sub, pinnedCids);
-        } catch {
-            log.error(`Failed to load and seed sub (${subAddress})`);
+        } catch (e) {
+            log.error(`Failed to load and seed sub (${subAddress}):`, String(e));
         }
     }
-    
-
 }
