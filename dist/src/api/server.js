@@ -8,17 +8,18 @@ const swagger_json_1 = tslib_1.__importDefault(require("../../build/swagger.json
 const swagger_ui_express_1 = tslib_1.__importDefault(require("swagger-ui-express"));
 const plebbit_js_1 = tslib_1.__importDefault(require("@plebbit/plebbit-js"));
 const tsoa_1 = require("tsoa");
-const assert_1 = require("assert");
-const plebbit_logger_1 = tslib_1.__importDefault(require("@plebbit/plebbit-logger"));
+const assert_1 = tslib_1.__importStar(require("assert"));
 const response_statuses_js_1 = require("./response-statuses.js");
 const apiError_js_1 = require("./apiError.js");
 const apiResponse_js_1 = require("./apiResponse.js");
-async function startApi(plebbitApiPort, ipfsApiEndpoint, ipfsPubsubApiEndpoint, plebbitDataPath) {
+const seeder_js_1 = require("./seeder.js");
+const plebbit_logger_1 = tslib_1.__importDefault(require("@plebbit/plebbit-logger"));
+async function startApi(plebbitApiPort, ipfsApiEndpoint, ipfsPubsubApiEndpoint, plebbitDataPath, seedSubs) {
     const log = (0, plebbit_logger_1.default)("plebbit-cli:server");
     exports.sharedSingleton = {
         plebbit: await (0, plebbit_js_1.default)({
-            ipfsHttpClientOptions: ipfsApiEndpoint,
-            pubsubHttpClientOptions: ipfsPubsubApiEndpoint,
+            ipfsHttpClientsOptions: [ipfsApiEndpoint],
+            pubsubHttpClientsOptions: [ipfsPubsubApiEndpoint],
             dataPath: plebbitDataPath
         }),
         subs: {}
@@ -74,9 +75,16 @@ async function startApi(plebbitApiPort, ipfsApiEndpoint, ipfsPubsubApiEndpoint, 
     ["SIGINT", "SIGTERM", "SIGHUP", "beforeExit"].forEach((exitSignal) => process.on(exitSignal, handleExit));
     app.listen(plebbitApiPort, () => {
         console.log(`IPFS API listening on: ${ipfsApiEndpoint}`);
-        console.log(`IPFS Gateway listening on: ${exports.sharedSingleton.plebbit.ipfsGatewayUrl.replace("127.0.0.1", "localhost")}`);
+        const gateway = Object.keys(exports.sharedSingleton.plebbit.clients.ipfsGateways)[0];
+        (0, assert_1.default)(typeof gateway === "string");
+        console.log(`IPFS Gateway listening on: ${gateway.replace("127.0.0.1", "localhost")}`);
         console.log(`Plebbit API listening on: http://localhost:${plebbitApiPort}/api/v0`);
         console.log(`You can find Plebbit API documentation at: http://localhost:${plebbitApiPort}/api/v0/docs`);
+        if (Array.isArray(seedSubs)) {
+            console.log(`Seeding subplebbits:`, seedSubs);
+            (0, seeder_js_1.seedSubplebbits)(seedSubs, exports.sharedSingleton.plebbit);
+            setInterval(() => (0, seeder_js_1.seedSubplebbits)(seedSubs, exports.sharedSingleton.plebbit), 600000); // Seed subs every 10 minutes
+        }
     });
 }
 exports.startApi = startApi;

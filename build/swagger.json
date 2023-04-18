@@ -348,7 +348,7 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"Pick_CommentType.Exclude_keyofCommentType.replyCount-or-downvoteCount-or-upvoteCount-or-replies-or-updatedAt-or-original-or-cid-or-postCid-or-depth-or-ipnsKeyName-or-signer__": {
+			"Pick_CommentType.Exclude_keyofCommentType.replyCount-or-downvoteCount-or-upvoteCount-or-replies-or-updatedAt-or-original-or-cid-or-shortCid-or-postCid-or-depth-or-ipnsKeyName-or-signer__": {
 				"properties": {
 					"signature": {
 						"$ref": "#/components/schemas/SignatureType"
@@ -406,9 +406,6 @@
 						"type": "boolean"
 					},
 					"thumbnailUrl": {
-						"type": "string"
-					},
-					"shortCid": {
 						"type": "string"
 					},
 					"ipnsName": {
@@ -568,9 +565,6 @@
 					"thumbnailUrl": {
 						"type": "string"
 					},
-					"shortCid": {
-						"type": "string"
-					},
 					"ipnsName": {
 						"type": "string"
 					},
@@ -578,6 +572,9 @@
 						"$ref": "#/components/schemas/Pick_Partial_CommentType_.author-or-content-or-flair-or-protocolVersion_"
 					},
 					"cid": {
+						"type": "string"
+					},
+					"shortCid": {
 						"type": "string"
 					},
 					"postCid": {
@@ -615,6 +612,7 @@
 					"timestamp",
 					"original",
 					"cid",
+					"shortCid",
 					"postCid",
 					"depth",
 					"updatedAt",
@@ -1286,7 +1284,7 @@
 	},
 	"info": {
 		"title": "plebbit-cli",
-		"version": "0.6.5",
+		"version": "0.6.6",
 		"description": "Command line interface to Plebbit API",
 		"license": {
 			"name": "GPL-2.0-only"
