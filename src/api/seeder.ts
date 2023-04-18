@@ -52,7 +52,7 @@ async function _seedSub(sub: Subplebbit, pinnedCids: string[]) {
             log.trace(
                 `Loaded and seeded ${ipnsRes.filter((res) => res.status === "fulfilled").length} CommentUpdate and failed to seed ${
                     ipnsRes.filter((res) => res.status === "rejected").length
-                }`
+                } of sub (${sub.address})`
             );
         }
 
@@ -60,7 +60,7 @@ async function _seedSub(sub: Subplebbit, pinnedCids: string[]) {
         if (newCidsToPin.length > 0) {
             await sub.plebbit._defaultIpfsClient()._client.pin.addAll(newCidsToPin);
             log.trace(`Pinned ${newCidsToPin.length} cids from sub (${sub.address})`);
-        }
+        } else log.trace(`All ${lodash.uniq(allCidsToPin).length} cids from sub (${sub.address}) are pinned`);
     }
 }
 
@@ -73,7 +73,7 @@ export async function seedSubplebbits(subAddresses: string[], plebbit: Plebbit) 
         try {
             const sub = await plebbit.getSubplebbit(subAddress);
             log.trace(`Loaded the newest record of sub (${subAddress}) for seeding`);
-            _seedSub(sub, pinnedCids);
+            await _seedSub(sub, pinnedCids);
         } catch (e) {
             log.error(`Failed to load and seed sub (${subAddress}):`, String(e));
         }
