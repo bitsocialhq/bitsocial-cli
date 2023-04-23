@@ -1,5 +1,12 @@
 
 
+## [0.7.1](https://github.com/plebbit/plebbit-cli/compare/v0.7.0...v0.7.1) (2023-04-23)
+
+
+### Bug Fixes
+
+* **api:** fixed bug where daemon --seed expects node to be online at all time ([cdf3ac3](https://github.com/plebbit/plebbit-cli/commit/cdf3ac3e0b1ff10941ddeb3f6e3ba85cae31d140)), closes [#8](https://github.com/plebbit/plebbit-cli/issues/8)
+
 # [0.7.0](https://github.com/plebbit/plebbit-cli/compare/v0.6.6...v0.7.0) (2023-04-18)
 
 
