@@ -51,11 +51,11 @@ async function _seedSub(sub, pinnedCids) {
 }
 async function seedSubplebbits(subAddresses, plebbit) {
     const log = (0, plebbit_logger_1.default)("plebbit-cli:server:seed");
-    const pinnedCids = (await plebbit._defaultIpfsClient()._client.pin.ls()).map((pin) => pin.cid.toString());
     for (const subAddress of subAddresses) {
         try {
             const sub = await plebbit.getSubplebbit(subAddress);
             log.trace(`Loaded the newest record of sub (${subAddress}) for seeding`);
+            const pinnedCids = (await plebbit._defaultIpfsClient()._client.pin.ls()).map((pin) => pin.cid.toString());
             await _seedSub(sub, pinnedCids);
         }
         catch (e) {
