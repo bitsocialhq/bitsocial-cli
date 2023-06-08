@@ -95,7 +95,7 @@ describe(`/api/v0/subplebbit/{start, stop}`, async () => {
         await new Promise((resolve) => mockPost.once("challenge", resolve)); // This test is done once we receive a challenge
 
         // Line is needed so mocha would not "hang"
-        await plebbit._defaultPubsubClient()._client.pubsub.unsubscribe(mockPost.subplebbitAddress);
+        await plebbit._clientsManager.pubsubUnsubscribe(<string>startedSubplebbit.pubsubTopic);
     });
 
     it(`Start fails with documented error if subplebbit is already started`, async () => {

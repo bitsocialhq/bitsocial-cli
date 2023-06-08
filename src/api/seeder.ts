@@ -1,13 +1,13 @@
 import lodash from "lodash";
 import Logger from "@plebbit/plebbit-logger";
 import { Plebbit } from "@plebbit/plebbit-js/dist/node/plebbit";
-import { loadIpnsAsJson } from "@plebbit/plebbit-js/dist/node/util.js";
 import { Subplebbit } from "@plebbit/plebbit-js/dist/node/subplebbit";
-import { Pages } from "@plebbit/plebbit-js/dist/node/pages";
+import { BasePages } from "@plebbit/plebbit-js/dist/node/pages";
 import { Comment } from "@plebbit/plebbit-js/dist/node/comment";
 import pLimit from "p-limit";
+import assert from "assert";
 
-async function _loadAllPages(pageCid: string, pagesInstance: Pages): Promise<Comment[]> {
+async function _loadAllPages(pageCid: string, pagesInstance: BasePages): Promise<Comment[]> {
     let sortedCommentsPage = await pagesInstance.getPage(pageCid);
     let sortedComments: Comment[] = sortedCommentsPage.comments;
     while (sortedCommentsPage.nextCid) {
@@ -45,8 +45,11 @@ async function _seedSub(sub: Subplebbit, pinnedCids: string[]) {
 
             // Fetch all comments' CommentUpdate IPNS
             const limit = pLimit(30); // Can only fetch 30 IPNS at a time
+            // TODO don't load all IPNS, instead only load the ones whose updatedAt did not change. We need to store all updatedAt somewhere
             const ipnsRes = await Promise.allSettled(
-                loadedPagesWithNames["new"].map((comment) => limit(() => loadIpnsAsJson(<string>comment.ipnsName, sub.plebbit)))
+                loadedPagesWithNames["new"].map((comment) =>
+                    limit(() => sub.plebbit._clientsManager.fetchFromMultipleGateways({ ipns: <string>comment.ipnsName }, "subplebbit"))
+                )
             );
 
             log.trace(
@@ -58,7 +61,9 @@ async function _seedSub(sub: Subplebbit, pinnedCids: string[]) {
 
         const newCidsToPin = lodash.difference(lodash.uniq(allCidsToPin), pinnedCids);
         if (newCidsToPin.length > 0) {
-            await sub.plebbit._defaultIpfsClient()._client.pin.addAll(newCidsToPin);
+            const defaultIpfsClient = Object.values(sub.plebbit.clients.ipfsClients)[0];
+            assert(defaultIpfsClient);
+            await defaultIpfsClient._client.pin.addAll(newCidsToPin);
             log.trace(`Pinned ${newCidsToPin.length} cids from sub (${sub.address})`);
         } else log.trace(`All ${lodash.uniq(allCidsToPin).length} cids from sub (${sub.address}) are pinned`);
     }
@@ -71,7 +76,10 @@ export async function seedSubplebbits(subAddresses: string[], plebbit: Plebbit) 
         try {
             const sub = await plebbit.getSubplebbit(subAddress);
             log.trace(`Loaded the newest record of sub (${subAddress}) for seeding`);
-            const pinnedCids: string[] = (await plebbit._defaultIpfsClient()._client.pin.ls()).map((pin) => pin.cid.toString());
+            const defaultIpfsClient = Object.values(sub.plebbit.clients.ipfsClients)[0];
+            assert(defaultIpfsClient);
+
+            const pinnedCids: string[] = (await defaultIpfsClient._client.pin.ls()).map((pin) => pin.cid.toString());
             await _seedSub(sub, pinnedCids);
         } catch (e) {
             log.error(`Failed to load and seed sub (${subAddress}):`, String(e));

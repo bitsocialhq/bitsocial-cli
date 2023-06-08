@@ -109,7 +109,7 @@
         "@oclif/core": "1.21.0",
         "@oclif/plugin-help": "5.1.20",
         "@oclif/plugin-not-found": "2.3.9",
-        "@plebbit/plebbit-js": "https://github.com/plebbit/plebbit-js#b3272c08bd3861322b7a5eef48992e1b73640098",
+        "@plebbit/plebbit-js": "https://github.com/plebbit/plebbit-js#27df54b8c591c9245deb91e131d15de2bc8bf4d3",
         "dataobject-parser": "1.2.22",
         "env-paths": "2.2.1",
         "express": "4.18.2",
