@@ -24,7 +24,38 @@
                 },
                 "type": "array"
             },
-            "SignatureType": {
+            "Pick_PubsubSignature.Exclude_keyofPubsubSignature.signature-or-publicKey__": {
+                "properties": {
+                    "signature": {
+                        "type": "string"
+                    },
+                    "publicKey": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "ed25519"
+                        ],
+                        "nullable": false
+                    },
+                    "signedPropertyNames": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "signature",
+                    "publicKey",
+                    "type",
+                    "signedPropertyNames"
+                ],
+                "type": "object",
+                "description": "From T, pick a set of properties whose keys are in the union K"
+            },
+            "JsonSignature": {
                 "properties": {
                     "signature": {
                         "type": "string"
@@ -205,7 +236,7 @@
             "Nft": {
                 "properties": {
                     "signature": {
-                        "$ref": "#/components/schemas/SignatureType"
+                        "$ref": "#/components/schemas/JsonSignature"
                     },
                     "timestamp": {
                         "type": "number",
@@ -319,7 +350,7 @@
                         "$ref": "#/components/schemas/AuthorIpfsType"
                     },
                     "signature": {
-                        "$ref": "#/components/schemas/SignatureType"
+                        "$ref": "#/components/schemas/JsonSignature"
                     },
                     "protocolVersion": {
                         "$ref": "#/components/schemas/ProtocolVersion"
@@ -351,7 +382,7 @@
             "Pick_CommentType.Exclude_keyofCommentType.replyCount-or-downvoteCount-or-upvoteCount-or-replies-or-updatedAt-or-original-or-cid-or-shortCid-or-postCid-or-depth-or-ipnsKeyName-or-signer__": {
                 "properties": {
                     "signature": {
-                        "$ref": "#/components/schemas/SignatureType"
+                        "$ref": "#/components/schemas/JsonSignature"
                     },
                     "title": {
                         "type": "string"
@@ -382,6 +413,13 @@
                     },
                     "protocolVersion": {
                         "$ref": "#/components/schemas/ProtocolVersion"
+                    },
+                    "lastChildCid": {
+                        "type": "string"
+                    },
+                    "lastReplyTimestamp": {
+                        "type": "number",
+                        "format": "double"
                     },
                     "parentCid": {
                         "type": "string"
@@ -451,7 +489,7 @@
                         "format": "double"
                     },
                     "signature": {
-                        "$ref": "#/components/schemas/SignatureType"
+                        "$ref": "#/components/schemas/JsonSignature"
                     },
                     "replyCount": {
                         "type": "number",
@@ -491,6 +529,13 @@
                     },
                     "protocolVersion": {
                         "$ref": "#/components/schemas/ProtocolVersion"
+                    },
+                    "lastChildCid": {
+                        "type": "string"
+                    },
+                    "lastReplyTimestamp": {
+                        "type": "number",
+                        "format": "double"
                     }
                 },
                 "required": [
@@ -508,7 +553,7 @@
             "CommentWithCommentUpdate": {
                 "properties": {
                     "signature": {
-                        "$ref": "#/components/schemas/SignatureType"
+                        "$ref": "#/components/schemas/JsonSignature"
                     },
                     "title": {
                         "type": "string"
@@ -539,6 +584,13 @@
                     },
                     "protocolVersion": {
                         "$ref": "#/components/schemas/ProtocolVersion"
+                    },
+                    "lastChildCid": {
+                        "type": "string"
+                    },
+                    "lastReplyTimestamp": {
+                        "type": "number",
+                        "format": "double"
                     },
                     "parentCid": {
                         "type": "string"
@@ -685,6 +737,9 @@
                     "controversialAll": {
                         "$ref": "#/components/schemas/PageTypeJson"
                     },
+                    "active": {
+                        "$ref": "#/components/schemas/PageTypeJson"
+                    },
                     "old": {
                         "$ref": "#/components/schemas/PageTypeJson"
                     }
@@ -734,6 +789,9 @@
                         "type": "string"
                     },
                     "controversialAll": {
+                        "type": "string"
+                    },
+                    "active": {
                         "type": "string"
                     },
                     "old": {
@@ -984,7 +1042,7 @@
                         "$ref": "#/components/schemas/SubplebbitEncryption"
                     },
                     "signature": {
-                        "$ref": "#/components/schemas/SignatureType"
+                        "$ref": "#/components/schemas/JsonSignature"
                     },
                     "title": {
                         "type": "string"
@@ -1053,7 +1111,7 @@
                         "$ref": "#/components/schemas/SubplebbitEncryption"
                     },
                     "signature": {
-                        "$ref": "#/components/schemas/SignatureType"
+                        "$ref": "#/components/schemas/JsonSignature"
                     },
                     "title": {
                         "type": "string"
@@ -1134,20 +1192,20 @@
             },
             "Pick_SignerType.privateKey-or-type_": {
                 "properties": {
-                    "privateKey": {
-                        "type": "string"
-                    },
                     "type": {
                         "type": "string",
                         "enum": [
                             "ed25519"
                         ],
                         "nullable": false
+                    },
+                    "privateKey": {
+                        "type": "string"
                     }
                 },
                 "required": [
-                    "privateKey",
-                    "type"
+                    "type",
+                    "privateKey"
                 ],
                 "type": "object",
                 "description": "From T, pick a set of properties whose keys are in the union K"
@@ -1218,7 +1276,7 @@
                         "$ref": "#/components/schemas/SubplebbitEncryption"
                     },
                     "signature": {
-                        "$ref": "#/components/schemas/SignatureType"
+                        "$ref": "#/components/schemas/JsonSignature"
                     }
                 },
                 "type": "object",
@@ -1284,7 +1342,7 @@
     },
     "info": {
         "title": "plebbit-cli",
-        "version": "0.7.1",
+        "version": "0.7.2",
         "description": "Command line interface to Plebbit API",
         "license": {
             "name": "GPL-2.0-only"
