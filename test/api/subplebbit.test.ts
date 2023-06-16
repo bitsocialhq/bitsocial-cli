@@ -4,7 +4,6 @@ import { statusCodes, statusMessages } from "../../dist/src/api/response-statuse
 import { CreateSubplebbitOptions, SubplebbitType } from "@plebbit/plebbit-js/dist/node/types.js";
 import { SubplebbitList } from "../../src/api/types.js";
 import Plebbit from "@plebbit/plebbit-js";
-
 if (
     typeof process.env["PLEBBIT_API_PORT"] !== "string" ||
     typeof process.env["IPFS_PUBSUB_PORT"] !== "string" ||
@@ -74,11 +73,13 @@ describe(`/api/v0/subplebbit/{start, stop}`, async () => {
             })
         ).json();
     });
-    it(`A started subplebbit can receive challenges`, async () => {
+
+    it(`A sub can be started`, async () => {
         const startRes = await fetch(`${baseUrl}/start?address=${startedSubplebbit.address}`, { method: "POST" });
         expect(startRes.status).to.equal(statusCodes.SUCCESS_SUBPLEBBIT_STARTED);
         expect(startRes.statusText).to.equal(statusMessages.SUCCESS_SUBPLEBBIT_STARTED);
-
+    });
+    it(`A started subplebbit can receive challengerequests and send challenges`, async () => {
         const plebbit = await Plebbit({
             ipfsHttpClientsOptions: [`http://localhost:${process.env["IPFS_PORT"]}/api/v0`],
             pubsubHttpClientsOptions: [`http://localhost:${process.env["IPFS_PUBSUB_PORT"]}/api/v0`]
@@ -95,7 +96,7 @@ describe(`/api/v0/subplebbit/{start, stop}`, async () => {
         await new Promise((resolve) => mockPost.once("challenge", resolve)); // This test is done once we receive a challenge
 
         // Line is needed so mocha would not "hang"
-        await plebbit._clientsManager.pubsubUnsubscribe(<string>startedSubplebbit.pubsubTopic);
+        await mockPost.publishChallengeAnswers(["1234"]);
     });
 
     it(`Start fails with documented error if subplebbit is already started`, async () => {
