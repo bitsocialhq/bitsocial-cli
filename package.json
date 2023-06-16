@@ -109,7 +109,7 @@
         "@oclif/core": "1.21.0",
         "@oclif/plugin-help": "5.1.20",
         "@oclif/plugin-not-found": "2.3.9",
-        "@plebbit/plebbit-js": "https://github.com/plebbit/plebbit-js#27df54b8c591c9245deb91e131d15de2bc8bf4d3",
+        "@plebbit/plebbit-js": "https://github.com/plebbit/plebbit-js#d08253fe7471f8c450d8769ba2af56dea3d8667d",
         "dataobject-parser": "1.2.22",
         "env-paths": "2.2.1",
         "express": "4.18.2",
@@ -121,6 +121,7 @@
         "skia-canvas": "1.0.0"
     },
     "resolutions": {
-        "skia-canvas": "1.0.0"
+        "skia-canvas": "1.0.0",
+        "@octokit/request-error": "3.0.3"
     }
 }
