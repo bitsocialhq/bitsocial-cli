@@ -143,7 +143,7 @@ const models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Pick_CommentType.Exclude_keyofCommentType.replyCount-or-downvoteCount-or-upvoteCount-or-replies-or-updatedAt-or-original-or-cid-or-shortCid-or-postCid-or-depth-or-ipnsKeyName-or-signer__": {
         "dataType": "refAlias",
-        "type": { "dataType": "nestedObjectLiteral", "nestedProperties": { "signature": { "ref": "JsonSignature", "required": true }, "title": { "dataType": "string" }, "author": { "ref": "AuthorTypeWithCommentUpdate", "required": true }, "edit": { "ref": "AuthorCommentEdit" }, "flair": { "ref": "Flair" }, "spoiler": { "dataType": "boolean" }, "pinned": { "dataType": "boolean" }, "locked": { "dataType": "boolean" }, "removed": { "dataType": "boolean" }, "reason": { "dataType": "string" }, "protocolVersion": { "ref": "ProtocolVersion", "required": true }, "lastChildCid": { "dataType": "string" }, "lastReplyTimestamp": { "dataType": "double" }, "parentCid": { "dataType": "string" }, "content": { "dataType": "string" }, "link": { "dataType": "string" }, "subplebbitAddress": { "dataType": "string", "required": true }, "timestamp": { "dataType": "double", "required": true }, "previousCid": { "dataType": "string" }, "deleted": { "dataType": "boolean" }, "thumbnailUrl": { "dataType": "string" }, "ipnsName": { "dataType": "string" } }, "validators": {} },
+        "type": { "dataType": "nestedObjectLiteral", "nestedProperties": { "signature": { "ref": "JsonSignature", "required": true }, "title": { "dataType": "string" }, "author": { "ref": "AuthorTypeWithCommentUpdate", "required": true }, "edit": { "ref": "AuthorCommentEdit" }, "flair": { "ref": "Flair" }, "spoiler": { "dataType": "boolean" }, "pinned": { "dataType": "boolean" }, "locked": { "dataType": "boolean" }, "removed": { "dataType": "boolean" }, "reason": { "dataType": "string" }, "protocolVersion": { "ref": "ProtocolVersion", "required": true }, "lastChildCid": { "dataType": "string" }, "lastReplyTimestamp": { "dataType": "double" }, "parentCid": { "dataType": "string" }, "content": { "dataType": "string" }, "link": { "dataType": "string" }, "linkWidth": { "dataType": "double" }, "linkHeight": { "dataType": "double" }, "subplebbitAddress": { "dataType": "string", "required": true }, "timestamp": { "dataType": "double", "required": true }, "previousCid": { "dataType": "string" }, "deleted": { "dataType": "boolean" }, "thumbnailUrl": { "dataType": "string" }, "ipnsName": { "dataType": "string" } }, "validators": {} },
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Pick_Partial_CommentType_.author-or-content-or-flair-or-protocolVersion_": {
@@ -175,6 +175,8 @@ const models = {
             "parentCid": { "dataType": "string" },
             "content": { "dataType": "string" },
             "link": { "dataType": "string" },
+            "linkWidth": { "dataType": "double" },
+            "linkHeight": { "dataType": "double" },
             "subplebbitAddress": { "dataType": "string", "required": true },
             "timestamp": { "dataType": "double", "required": true },
             "previousCid": { "dataType": "string" },
