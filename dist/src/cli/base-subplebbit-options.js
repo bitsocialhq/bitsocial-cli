@@ -4,7 +4,6 @@ const core_1 = require("@oclif/core");
 const base_command_js_1 = require("./base-command.js");
 class BaseSubplebbitOptions extends base_command_js_1.BaseCommand {
 }
-exports.default = BaseSubplebbitOptions;
 // TODO implement roles,rules, features, flairs, settings
 BaseSubplebbitOptions.baseSubplebbitFlags = {
     title: core_1.Flags.string({ summary: "Title of the subplebbit" }),
@@ -20,3 +19,4 @@ BaseSubplebbitOptions.baseSubplebbitFlags = {
     "settings.fetchThumbnailUrls": core_1.Flags.boolean({ "summary": "Fetch the thumbnail URLs of comments with comment.link property, could reveal the IP address of the subplebbit node" }),
     "settings.fetchThumbnailUrlsProxyUrl": core_1.Flags.string({ "summary": "The HTTP proxy URL used to fetch thumbnail URLs" })
 };
+exports.default = BaseSubplebbitOptions;

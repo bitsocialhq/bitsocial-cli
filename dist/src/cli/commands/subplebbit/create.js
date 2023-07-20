@@ -35,7 +35,6 @@ class Create extends base_subplebbit_options_js_1.default {
         this.log(createdSub.address);
     }
 }
-exports.default = Create;
 Create.description = "Create a subplebbit with specific properties. A newly created sub will be started after creation and be able to receive publications";
 Create.examples = [
     {
@@ -51,3 +50,4 @@ Create.flags = {
         description: "Private key (PEM) of the subplebbit signer that will be used to determine address (if address is not a domain). If it's not provided then Plebbit will generate a private key"
     })
 };
+exports.default = Create;

@@ -12,7 +12,7 @@ var statusMessages;
     statusMessages["SUCCESS_SUBPLEBBIT_STARTED"] = "Subplebbit started";
     statusMessages["SUCCESS_SUBPLEBBIT_STOPPED"] = "Subplebbit stopped";
     statusMessages["SUCCESS_SUBPLEBBIT_EDITED"] = "Subplebbit edited";
-})(statusMessages = exports.statusMessages || (exports.statusMessages = {}));
+})(statusMessages || (exports.statusMessages = statusMessages = {}));
 var statusCodes;
 (function (statusCodes) {
     statusCodes[statusCodes["ERR_INVALID_JSON_FOR_REQUEST_BODY"] = 400] = "ERR_INVALID_JSON_FOR_REQUEST_BODY";
@@ -24,4 +24,4 @@ var statusCodes;
     statusCodes[statusCodes["SUCCESS_SUBPLEBBIT_STARTED"] = 200] = "SUCCESS_SUBPLEBBIT_STARTED";
     statusCodes[statusCodes["SUCCESS_SUBPLEBBIT_STOPPED"] = 200] = "SUCCESS_SUBPLEBBIT_STOPPED";
     statusCodes[statusCodes["SUCCESS_SUBPLEBBIT_EDITED"] = 200] = "SUCCESS_SUBPLEBBIT_EDITED";
-})(statusCodes = exports.statusCodes || (exports.statusCodes = {}));
+})(statusCodes || (exports.statusCodes = statusCodes = {}));

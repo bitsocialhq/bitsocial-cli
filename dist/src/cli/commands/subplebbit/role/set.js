@@ -14,13 +14,11 @@ class Set extends base_command_js_1.BaseCommand {
         const log = (0, plebbit_logger_1.default)("plebbit-cli:commands:subplebbit:roles:set");
         log(`flags: `, flags);
         log(`args: `, args);
-        const authorAddress = args["author-address"];
-        const subplebbitAddress = args["sub-address"];
-        (0, assert_1.default)(typeof authorAddress === "string");
+        (0, assert_1.default)(typeof args["author-address"] === "string");
         await this.stopIfDaemonIsDown(flags.apiUrl.toString());
         const subRes = await (0, node_fetch_1.default)(`${flags.apiUrl}/subplebbit/create`, {
             method: "POST",
-            body: JSON.stringify({ address: subplebbitAddress }),
+            body: JSON.stringify({ address: args["sub-address"] }),
             headers: { "content-type": "application/json" } // Header is needed with every request that contains JSON body
         });
         if (subRes.status === response_statuses_js_1.statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST)
@@ -31,9 +29,10 @@ class Set extends base_command_js_1.BaseCommand {
         if (subRes.status !== response_statuses_js_1.statusCodes.SUCCESS_SUBPLEBBIT_CREATED)
             this.error(subRes.statusText);
         const sub = await subRes.json();
-        assert_1.default.equal(sub.address, subplebbitAddress);
-        const newRoles = { ...sub.roles, [authorAddress]: { role: flags.role } };
-        const editRes = await (0, node_fetch_1.default)(`${flags.apiUrl}/subplebbit/edit?address=${subplebbitAddress}`, {
+        assert_1.default.equal(sub.address, args["sub-address"]);
+        //@ts-expect-error
+        const newRoles = { ...sub.roles, [args["author-address"]]: { role: flags.role } };
+        const editRes = await (0, node_fetch_1.default)(`${flags.apiUrl}/subplebbit/edit?address=${args["sub-address"]}`, {
             body: JSON.stringify({ roles: newRoles }),
             method: "POST",
             headers: { "content-type": "application/json" }
@@ -43,26 +42,26 @@ class Set extends base_command_js_1.BaseCommand {
             this.error(editRes.statusText);
     }
 }
-exports.default = Set;
 Set.description = "Set role to an author within the subplebbit. If an author has a role already, it would get overidden with the new role";
 Set.examples = ["plebbit subplebbit role set plebbit.eth estebanabaroa.eth --role admin"];
 Set.flags = {
-    role: core_1.Flags.enum({
+    role: core_1.Flags.string({
         options: ["admin", "moderator", "owner"],
         description: "New role for the author",
         default: "moderator",
         required: true
     })
 };
-Set.args = [
-    {
+Set.args = {
+    "sub-address": core_1.Args.string({
         name: "sub-address",
         required: true,
         description: "Address of subplebbit"
-    },
-    {
+    }),
+    "author-address": core_1.Args.string({
         name: "author-address",
         required: true,
         description: "The address of the author to set the role to"
-    }
-];
+    })
+};
+exports.default = Set;

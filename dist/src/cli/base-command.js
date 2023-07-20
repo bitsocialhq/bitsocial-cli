@@ -30,7 +30,7 @@ class BaseCommand extends core_1.Command {
     }
 }
 exports.BaseCommand = BaseCommand;
-BaseCommand.globalFlags = {
+BaseCommand.baseFlags = {
     apiUrl: core_1.Flags.url({
         summary: "URL to Plebbit API",
         required: true,

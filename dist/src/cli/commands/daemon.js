@@ -45,8 +45,7 @@ class Daemon extends core_1.Command {
         await (0, server_js_1.startApi)(flags.plebbitApiPort, `http://localhost:${flags.ipfsApiPort}/api/v0`, `http://localhost:${flags.ipfsApiPort}/api/v0`, flags.plebbitDataPath, subsToSeed);
     }
 }
-exports.default = Daemon;
-Daemon.description = "Run a network-connected Plebbit node";
+Daemon.description = "Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users";
 Daemon.flags = {
     plebbitDataPath: core_1.Flags.directory({
         description: "Path to plebbit data path where subplebbits and ipfs node are stored",
@@ -85,3 +84,4 @@ Daemon.examples = [
     "plebbit daemon --seed",
     "plebbit daemon --seed --seedSubs mysub.eth, myothersub.eth, 12D3KooWEKA6Fhp6qtyttMvNKcNCtqH2N7ZKpPy5rfCeM1otr5qU"
 ];
+exports.default = Daemon;

@@ -9,7 +9,7 @@ const apiError_js_1 = require("./apiError.js");
 const apiResponse_js_1 = require("./apiResponse.js");
 const plebbit_logger_1 = tslib_1.__importDefault(require("@plebbit/plebbit-logger"));
 const plebbit_error_js_1 = require("@plebbit/plebbit-js/dist/node/plebbit-error.js");
-let SubplebbitController = class SubplebbitController extends tsoa_1.Controller {
+let SubplebbitController = exports.SubplebbitController = class SubplebbitController extends tsoa_1.Controller {
     async _initSubInSingletonIfNotDefined(address, subsAddresses) {
         const subs = subsAddresses || (await server_js_1.sharedSingleton.plebbit.listSubplebbits());
         if (!subs.includes(address))
@@ -148,7 +148,6 @@ tslib_1.__decorate([
     tslib_1.__metadata("design:paramtypes", [String, Object]),
     tslib_1.__metadata("design:returntype", Promise)
 ], SubplebbitController.prototype, "edit", null);
-SubplebbitController = tslib_1.__decorate([
+exports.SubplebbitController = SubplebbitController = tslib_1.__decorate([
     (0, tsoa_1.Route)("/api/v0/subplebbit")
 ], SubplebbitController);
-exports.SubplebbitController = SubplebbitController;

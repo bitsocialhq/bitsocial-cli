@@ -19,17 +19,17 @@ class List extends base_command_js_1.BaseCommand {
         if (flags.quiet)
             this.log(subs.map((sub) => sub.address).join(os_1.EOL));
         else
-            core_1.CliUx.ux.table(subs, { address: {}, started: {} }, {
+            core_1.ux.table(subs, { address: {}, started: {} }, {
                 printLine: this.log.bind(this),
                 ...flags,
                 sort: "-started"
             });
     }
 }
-exports.default = List;
 List.description = "List your subplebbits";
 List.examples = [];
 List.flags = {
     quiet: core_1.Flags.boolean({ char: "q", summary: "Only display subplebbit addresses" }),
-    ...core_1.CliUx.ux.table.flags()
+    ...core_1.ux.table.flags()
 };
+exports.default = List;

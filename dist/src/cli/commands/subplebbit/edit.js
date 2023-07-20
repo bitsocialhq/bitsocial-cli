@@ -35,18 +35,18 @@ class Edit extends base_subplebbit_options_js_1.default {
         this.log(args["address"]);
     }
 }
-exports.default = Edit;
 Edit.description = "Edit a subplebbit";
-Edit.args = [
-    {
+Edit.args = {
+    address: core_1.Args.string({
         name: "address",
         required: true,
         description: "Address of the subplebbit address to edit"
-    }
-];
+    })
+};
 Edit.examples = [];
 // TODO implement roles, flairs flag
 Edit.flags = {
     ...base_subplebbit_options_js_1.default.baseSubplebbitFlags,
     address: core_1.Flags.string({ summary: "New address of the subplebbit" })
 };
+exports.default = Edit;

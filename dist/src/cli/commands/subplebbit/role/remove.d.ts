@@ -4,9 +4,8 @@ export default class Remove extends BaseCommand {
     static examples: string[];
     static flags: {};
     static args: {
-        name: string;
-        required: boolean;
-        description: string;
-    }[];
+        "sub-address": import("@oclif/core/lib/interfaces/parser.js").Arg<string, Record<string, unknown>>;
+        "author-address": import("@oclif/core/lib/interfaces/parser.js").Arg<string, Record<string, unknown>>;
+    };
     run(): Promise<void>;
 }

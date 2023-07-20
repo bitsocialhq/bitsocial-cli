@@ -5,6 +5,7 @@ const plebbit_logger_1 = tslib_1.__importDefault(require("@plebbit/plebbit-logge
 const response_statuses_js_1 = require("../../../api/response-statuses.js");
 const base_command_js_1 = require("../../base-command.js");
 const node_fetch_1 = tslib_1.__importDefault(require("node-fetch"));
+const core_1 = require("@oclif/core");
 const exit_codes_js_1 = require("../../exit-codes.js");
 class Stop extends base_command_js_1.BaseCommand {
     async run() {
@@ -12,8 +13,11 @@ class Stop extends base_command_js_1.BaseCommand {
         const log = (0, plebbit_logger_1.default)("plebbit-cli:commands:subplebbit:stop");
         log(`addresses: `, argv);
         log(`flags: `, flags);
+        const addresses = argv;
+        if (!Array.isArray(addresses))
+            throw Error(`Failed to parse addresses correctly (${addresses})`);
         await this.stopIfDaemonIsDown(flags.apiUrl.toString());
-        for (const address of argv) {
+        for (const address of addresses) {
             const url = `${flags.apiUrl}/subplebbit/stop?address=${address}`;
             const res = await (0, node_fetch_1.default)(url, { method: "POST" });
             if (res.status === response_statuses_js_1.statusCodes.ERR_SUBPLEBBIT_NOT_RUNNING)
@@ -28,17 +32,17 @@ class Stop extends base_command_js_1.BaseCommand {
         }
     }
 }
-exports.default = Stop;
 Stop.description = "Stop a subplebbit. The subplebbit will not publish or receive any publications until it is started again.";
 Stop.strict = false; // To allow for variable length arguments
-Stop.args = [
-    {
+Stop.args = {
+    addresses: core_1.Args.string({
         name: "addresses",
         required: true,
         description: "Addresses of subplebbits to stop. Separated by space"
-    }
-];
+    })
+};
 Stop.examples = [
     "plebbit subplebbit stop plebbit.eth",
     "plebbit subplebbit stop Qmb99crTbSUfKXamXwZBe829Vf6w5w5TktPkb6WstC9RFW"
 ];
+exports.default = Stop;
