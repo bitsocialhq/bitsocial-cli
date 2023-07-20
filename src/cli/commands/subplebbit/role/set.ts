@@ -1,4 +1,4 @@
-import { Flags } from "@oclif/core";
+import { Args, Flags } from "@oclif/core";
 import Logger from "@plebbit/plebbit-logger";
 import { BaseCommand } from "../../../base-command.js";
 import fetch from "node-fetch";
@@ -14,7 +14,7 @@ export default class Set extends BaseCommand {
     static override examples = ["plebbit subplebbit role set plebbit.eth estebanabaroa.eth --role admin"];
 
     static override flags = {
-        role: Flags.enum<SubplebbitRole["role"]>({
+        role: Flags.string({
             options: ["admin", "moderator", "owner"],
             description: "New role for the author",
             default: "moderator",
@@ -22,18 +22,18 @@ export default class Set extends BaseCommand {
         })
     };
 
-    static override args = [
-        {
+    static override args = {
+        "sub-address": Args.string({
             name: "sub-address",
             required: true, // make the arg required with `required: true`
             description: "Address of subplebbit"
-        },
-        {
+        }),
+        "author-address": Args.string({
             name: "author-address",
             required: true,
             description: "The address of the author to set the role to"
-        }
-    ];
+        })
+    };
 
     async run(): Promise<void> {
         const { flags, args } = await this.parse(Set);
@@ -41,14 +41,13 @@ export default class Set extends BaseCommand {
         const log = Logger("plebbit-cli:commands:subplebbit:roles:set");
         log(`flags: `, flags);
         log(`args: `, args);
-        const authorAddress: string = args["author-address"];
-        const subplebbitAddress: string = args["sub-address"];        assert(typeof authorAddress === "string");
+        assert(typeof args["author-address"] === "string");
 
         await this.stopIfDaemonIsDown(flags.apiUrl.toString());
 
         const subRes = await fetch(`${flags.apiUrl}/subplebbit/create`, {
             method: "POST",
-            body: JSON.stringify({ address: subplebbitAddress }),
+            body: JSON.stringify({ address: args["sub-address"] }),
             headers: { "content-type": "application/json" } // Header is needed with every request that contains JSON body
         });
         if (subRes.status === statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST)
@@ -58,11 +57,12 @@ export default class Set extends BaseCommand {
             });
         if (subRes.status !== statusCodes.SUCCESS_SUBPLEBBIT_CREATED) this.error(subRes.statusText);
         const sub: SubplebbitType = await subRes.json();
-        assert.equal(sub.address, subplebbitAddress);
+        assert.equal(sub.address, args["sub-address"]);
 
-        const newRoles: SubplebbitType["roles"] = { ...sub.roles, [authorAddress]: { role: flags.role } };
+        //@ts-expect-error
+        const newRoles: SubplebbitType["roles"] = { ...sub.roles, [args["author-address"]]: { role: flags.role } };
 
-        const editRes = await fetch(`${flags.apiUrl}/subplebbit/edit?address=${subplebbitAddress}`, {
+        const editRes = await fetch(`${flags.apiUrl}/subplebbit/edit?address=${args["sub-address"]}`, {
             body: JSON.stringify({ roles: newRoles }),
             method: "POST",
             headers: { "content-type": "application/json" }

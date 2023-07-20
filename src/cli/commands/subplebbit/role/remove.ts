@@ -5,6 +5,7 @@ import { SubplebbitType } from "@plebbit/plebbit-js/dist/node/types.js";
 import { statusCodes, statusMessages } from "../../../../api/response-statuses.js";
 import { exitMessages, exitStatuses } from "../../../exit-codes.js";
 import assert from "assert";
+import { Args } from "@oclif/core";
 
 export default class Remove extends BaseCommand {
     static override description = "Remove role of an author within the subplebbit";
@@ -13,31 +14,29 @@ export default class Remove extends BaseCommand {
 
     static override flags = {};
 
-    static override args = [
-        {
+    static override args = {
+        "sub-address": Args.string({
             name: "sub-address",
             required: true,
             description: "Address of subplebbit"
-        },
-        {
+        }),
+        "author-address": Args.string({
             name: "author-address",
             required: true,
             description: "The address of the author to remove their role"
-        }
-    ];
+        })
+    };
 
     async run(): Promise<void> {
         const { args, flags } = await this.parse(Remove);
 
         const log = Logger("plebbit-cli:commands:subplebbit:roles:remove");
         log(`args: `, args);
-        const authorAddress: string = args["author-address"];
-        const subplebbitAddress: string = args["sub-address"];
         await this.stopIfDaemonIsDown(flags.apiUrl.toString());
 
         const subRes = await fetch(`${flags.apiUrl}/subplebbit/create`, {
             method: "POST",
-            body: JSON.stringify({ address: subplebbitAddress }),
+            body: JSON.stringify({ address: args["sub-address"] }),
             headers: { "content-type": "application/json" }
         });
         if (subRes.status === statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST)
@@ -47,9 +46,9 @@ export default class Remove extends BaseCommand {
             });
         if (subRes.status !== statusCodes.SUCCESS_SUBPLEBBIT_CREATED) this.error(subRes.statusText);
         const sub: SubplebbitType = await subRes.json();
-        assert.equal(sub.address, subplebbitAddress);
+        assert.equal(sub.address, args["sub-address"]);
 
-        if (sub.roles && sub.roles[authorAddress]?.role) delete sub.roles[authorAddress];
+        if (sub.roles && sub.roles[args["author-address"]]?.role) delete sub.roles[args["author-address"]];
         else
             this.error(exitMessages.ERR_AUTHOR_ROLE_DOES_NOT_EXIST, {
                 code: "ERR_AUTHOR_ROLE_DOES_NOT_EXIST",

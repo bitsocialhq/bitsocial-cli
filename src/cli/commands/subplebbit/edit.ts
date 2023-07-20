@@ -7,18 +7,18 @@ import fetch from "node-fetch";
 import DataObjectParser from "dataobject-parser";
 import BaseSubplebbitOptions from "../../base-subplebbit-options.js";
 import { exitStatuses } from "../../exit-codes.js";
-import { Flags } from "@oclif/core";
+import { Flags, Args } from "@oclif/core";
 
 export default class Edit extends BaseSubplebbitOptions {
     static override description = "Edit a subplebbit";
 
-    static override args = [
-        {
+    static override args = {
+        address: Args.string({
             name: "address",
             required: true,
             description: "Address of the subplebbit address to edit"
-        }
-    ];
+        })
+    };
 
     static override examples = [];
 

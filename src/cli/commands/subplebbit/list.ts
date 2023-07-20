@@ -1,4 +1,4 @@
-import { Flags, CliUx } from "@oclif/core";
+import { Flags, ux } from "@oclif/core";
 import Logger from "@plebbit/plebbit-logger";
 import { SubplebbitList } from "../../../api/types.js";
 import { BaseCommand } from "../../base-command.js";
@@ -12,7 +12,7 @@ export default class List extends BaseCommand {
 
     static override flags = {
         quiet: Flags.boolean({ char: "q", summary: "Only display subplebbit addresses" }),
-        ...CliUx.ux.table.flags()
+        ...ux.table.flags()
     };
 
     async run(): Promise<void> {
@@ -31,7 +31,7 @@ export default class List extends BaseCommand {
 
         if (flags.quiet) this.log(subs.map((sub) => sub.address).join(EOL));
         else
-            CliUx.ux.table(
+            ux.table(
                 subs,
                 { address: {}, started: {} },
                 {

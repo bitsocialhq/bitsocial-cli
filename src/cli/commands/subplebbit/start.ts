@@ -3,31 +3,33 @@ import { statusCodes, statusMessages } from "../../../api/response-statuses.js";
 import { BaseCommand } from "../../base-command.js";
 import fetch from "node-fetch";
 import { exitStatuses } from "../../exit-codes.js";
+import { Args } from "@oclif/core";
 
 export default class Start extends BaseCommand {
     static override description = "Start a subplebbit";
 
     static override strict = false; // To allow for variable length arguments
 
-    static override args = [
-        {
+    static override args = {
+        addresses: Args.string({
             name: "addresses", // name of arg to show in help and reference with args[name]
             required: true, // make the arg required with `required: true`
             description: "Addresses of subplebbits to start. Separated by space"
-        }
-    ];
+        })
+    };
 
     static override examples = [];
 
     async run() {
         const { argv, flags } = await this.parse(Start);
 
+        const addresses = <string[]>argv;
         const log = Logger("plebbit-cli:commands:subplebbit:start");
-        log(`addresses: `, argv);
+        log(`addresses: `, addresses);
         log(`flags: `, flags);
 
         await this.stopIfDaemonIsDown(flags.apiUrl.toString());
-        for (const address of argv) {
+        for (const address of addresses) {
             const url = `${flags.apiUrl}/subplebbit/start?address=${address}`;
             const res = await fetch(url, { method: "POST" });
             if (res.status === statusCodes.ERR_SUB_ALREADY_STARTED)

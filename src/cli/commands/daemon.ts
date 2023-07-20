@@ -8,7 +8,8 @@ import lodash from "lodash";
 import fetch from "node-fetch";
 
 export default class Daemon extends Command {
-    static override description = "Run a network-connected Plebbit node";
+    static override description =
+        "Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users";
 
     static override flags = {
         plebbitDataPath: Flags.directory({

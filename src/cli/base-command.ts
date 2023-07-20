@@ -4,7 +4,7 @@ import fetch from "node-fetch";
 import defaults from "../common-utils/defaults.js";
 import { exitMessages, exitStatuses } from "./exit-codes.js";
 export abstract class BaseCommand extends Command {
-    static override globalFlags = {
+    static override baseFlags = {
         apiUrl: Flags.url({
             summary: "URL to Plebbit API",
             required: true,
