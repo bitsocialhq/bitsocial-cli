@@ -117,7 +117,7 @@ $ plebbit subplebbit role remove QmPjewdKya8iVkuQiiXQ5qRBsgVUAZg2LQ2m8v3LNJ7Ht8 
 
 <!-- commands -->
 * [`plebbit daemon`](#plebbit-daemon)
-* [`plebbit help [COMMAND]`](#plebbit-help-command)
+* [`plebbit help [COMMANDS]`](#plebbit-help-commands)
 * [`plebbit subplebbit create`](#plebbit-subplebbit-create)
 * [`plebbit subplebbit edit ADDRESS`](#plebbit-subplebbit-edit-address)
 * [`plebbit subplebbit list`](#plebbit-subplebbit-list)
@@ -128,7 +128,7 @@ $ plebbit subplebbit role remove QmPjewdKya8iVkuQiiXQ5qRBsgVUAZg2LQ2m8v3LNJ7Ht8 
 
 ## `plebbit daemon`
 
-Run a network-connected Plebbit node
+Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users
 
 ```
 USAGE
@@ -147,7 +147,8 @@ FLAGS
                              default to seeding default subs
 
 DESCRIPTION
-  Run a network-connected Plebbit node
+  Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive
+  publications from users
 
 EXAMPLES
   $ plebbit daemon
@@ -157,18 +158,18 @@ EXAMPLES
   $ plebbit daemon --seed --seedSubs mysub.eth, myothersub.eth, 12D3KooWEKA6Fhp6qtyttMvNKcNCtqH2N7ZKpPy5rfCeM1otr5qU
 ```
 
-_See code: [dist/src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v0.7.6/dist/src/cli/commands/daemon.ts)_
+_See code: [dist/src/cli/commands/daemon.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.7/dist/src/cli/commands/daemon.js)_
 
-## `plebbit help [COMMAND]`
+## `plebbit help [COMMANDS]`
 
 Display help for plebbit.
 
 ```
 USAGE
-  $ plebbit help [COMMAND] [-n]
+  $ plebbit help [COMMANDS] [-n]
 
 ARGUMENTS
-  COMMAND  Command to show help for.
+  COMMANDS  Command to show help for.
 
 FLAGS
   -n, --nested-commands  Include all nested commands in the output.
@@ -177,7 +178,7 @@ DESCRIPTION
   Display help for plebbit.
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.20/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.2.13/src/commands/help.ts)_
 
 ## `plebbit subplebbit create`
 
@@ -225,7 +226,7 @@ Edit a subplebbit
 
 ```
 USAGE
-  $ plebbit subplebbit edit [ADDRESS] --apiUrl <value> [--title <value>] [--description <value>] [--pubsubTopic
+  $ plebbit subplebbit edit ADDRESS --apiUrl <value> [--title <value>] [--description <value>] [--pubsubTopic
     <value>] [--suggested.primaryColor <value>] [--suggested.secondaryColor <value>] [--suggested.avatarUrl <value>]
     [--suggested.bannerUrl <value>] [--suggested.backgroundUrl <value>] [--suggested.language <value>]
     [--settings.fetchThumbnailUrls] [--settings.fetchThumbnailUrlsProxyUrl <value>] [--address <value>]
@@ -286,7 +287,7 @@ Remove role of an author within the subplebbit
 
 ```
 USAGE
-  $ plebbit subplebbit role remove [SUB-ADDRESS] [AUTHOR-ADDRESS] --apiUrl <value>
+  $ plebbit subplebbit role remove SUB-ADDRESS AUTHOR-ADDRESS --apiUrl <value>
 
 ARGUMENTS
   SUB-ADDRESS     Address of subplebbit
@@ -308,15 +309,16 @@ Set role to an author within the subplebbit. If an author has a role already, it
 
 ```
 USAGE
-  $ plebbit subplebbit role set [SUB-ADDRESS] [AUTHOR-ADDRESS] --apiUrl <value> --role admin|moderator|owner
+  $ plebbit subplebbit role set SUB-ADDRESS AUTHOR-ADDRESS --apiUrl <value> --role admin|moderator|owner
 
 ARGUMENTS
   SUB-ADDRESS     Address of subplebbit
   AUTHOR-ADDRESS  The address of the author to set the role to
 
 FLAGS
-  --apiUrl=<value>                (required) [default: http://localhost:32431/api/v0] URL to Plebbit API
-  --role=(admin|moderator|owner)  (required) [default: moderator] New role for the author
+  --apiUrl=<value>  (required) [default: http://localhost:32431/api/v0] URL to Plebbit API
+  --role=<option>   (required) [default: moderator] New role for the author
+                    <options: admin|moderator|owner>
 
 DESCRIPTION
   Set role to an author within the subplebbit. If an author has a role already, it would get overidden with the new role
@@ -331,7 +333,7 @@ Start a subplebbit
 
 ```
 USAGE
-  $ plebbit subplebbit start [ADDRESSES] --apiUrl <value>
+  $ plebbit subplebbit start ADDRESSES --apiUrl <value>
 
 ARGUMENTS
   ADDRESSES  Addresses of subplebbits to start. Separated by space
@@ -349,7 +351,7 @@ Stop a subplebbit. The subplebbit will not publish or receive any publications u
 
 ```
 USAGE
-  $ plebbit subplebbit stop [ADDRESSES] --apiUrl <value>
+  $ plebbit subplebbit stop ADDRESSES --apiUrl <value>
 
 ARGUMENTS
   ADDRESSES  Addresses of subplebbits to stop. Separated by space
