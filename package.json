@@ -13,7 +13,7 @@
     "scripts": {
         "build": "rm -rf dist/  && tsoa spec-and-routes -c config/tsoa.json && tsc --project config/tsconfig.json",
         "build:watch": "nodemon --config config/build.nodemon.json",
-        "start:api": "TESTING=1 SYNC_INTERVAL_MS=100 IPFS_PORT=32449 IPFS_PUBSUB_PORT=32447 PLEBBIT_API_PORT=32441 PLEBBIT_DATA_PATH=.plebbit node dist/test/run-test-server.js",
+        "start:api": "rm -rf .plebbit && TESTING=1 SYNC_INTERVAL_MS=100 IPFS_PORT=32449 IPFS_PUBSUB_PORT=32447 PLEBBIT_API_PORT=32441 PLEBBIT_DATA_PATH=.plebbit node dist/test/run-test-server.js",
         "start:api:watch": "nodemon --config config/apiDev.nodemon.json",
         "start:ipfs": "IPFS_API_PORT=32449 IPFS_GATEWAY_PORT=32440 IPFS_PATH=/tmp/.ipfs1 OFFLINE_MODE=1 node dist/test/run-test-ipfs.js & IPFS_PATH=/tmp/.ipfs2 IPFS_API_PORT=32447 IPFS_GATEWAY_PORT=32448 node dist/test/run-test-ipfs.js",
         "test:api": "PLEBBIT_API_PORT=32441 IPFS_PORT=32449 IPFS_PUBSUB_PORT=32447 ts-mocha --config config/.mocharc.json -p config/tsconfig.json test/api/*.test.ts",
@@ -95,7 +95,7 @@
         "husky": "8.0.2",
         "mocha": "10.1.0",
         "nodemon": "2.0.20",
-        "oclif": "3.9.1",
+        "oclif": "3.11.3",
         "pkg": "5.8.1",
         "release-it": "15.5.1",
         "shx": "0.3.4",
@@ -104,16 +104,16 @@
         "wait-on": "6.0.1"
     },
     "dependencies": {
-        "@oclif/core": "2.9.3",
-        "tslib": "2.6.0",
+        "@oclif/core": "2.11.8",
+        "tslib": "2.6.1",
         "typescript": "5.1.6",
-        "@oclif/plugin-help": "5.2.13",
-        "@oclif/plugin-not-found": "2.3.31",
-        "@plebbit/plebbit-js": "https://github.com/plebbit/plebbit-js#e0c04caa13c165a2c6cbcbb8bd71193b4062af22",
+        "@oclif/plugin-help": "5.2.17",
+        "@oclif/plugin-not-found": "2.3.37",
+        "@plebbit/plebbit-js": "https://github.com/plebbit/plebbit-js#fddf821218ffdc6132d9fcdfdac0c0f0ff276256",
         "dataobject-parser": "1.2.22",
         "env-paths": "2.2.1",
         "express": "4.18.2",
-        "go-ipfs": "0.20.0",
+        "go-ipfs": "0.22.0",
         "is-ipfs": "7.0.3",
         "lodash-es": "4.17.21",
         "swagger-ui-express": "4.6.0",
@@ -122,6 +122,7 @@
     },
     "resolutions": {
         "skia-canvas": "1.0.0",
-        "@octokit/request-error": "3.0.3"
+        "@octokit/request-error": "3.0.3",
+        "@multiformats/multiaddr": "12.1.3"
     }
 }
