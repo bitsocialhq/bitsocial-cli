@@ -11,6 +11,7 @@ import { ApiError } from "./apiError.js";
 import { ApiResponse } from "./apiResponse.js";
 import { seedSubplebbits } from "./seeder.js";
 import Logger from "@plebbit/plebbit-logger";
+import path from "path";
 
 export let sharedSingleton: SharedSingleton;
 
@@ -99,6 +100,7 @@ export async function startApi(
         console.log(`IPFS Gateway listening on: ${gateway.replace("127.0.0.1", "localhost")}`);
         console.log(`Plebbit API listening on: http://localhost:${plebbitApiPort}/api/v0`);
         console.log(`You can find Plebbit API documentation at: http://localhost:${plebbitApiPort}/api/v0/docs`);
+        console.log(`Plebbit data path: ${path.resolve(<string>sharedSingleton.plebbit.dataPath)}`);
         if (Array.isArray(seedSubs)) {
             console.log(`Seeding subplebbits:`, seedSubs);
             seedSubplebbits(seedSubs, sharedSingleton.plebbit);
