@@ -102,9 +102,11 @@ export async function startApi(
         console.log(`You can find Plebbit API documentation at: http://localhost:${plebbitApiPort}/api/v0/docs`);
         console.log(`Plebbit data path: ${path.resolve(<string>sharedSingleton.plebbit.dataPath)}`);
         if (Array.isArray(seedSubs)) {
+            const seedSubsLoop = () => {
+                seedSubplebbits(seedSubs, sharedSingleton.plebbit).then(() => setTimeout(seedSubsLoop, 600000)); // Seed subs every 10 minutes
+            };
             console.log(`Seeding subplebbits:`, seedSubs);
-            seedSubplebbits(seedSubs, sharedSingleton.plebbit);
-            setInterval(() => seedSubplebbits(seedSubs, sharedSingleton.plebbit), 600000); // Seed subs every 10 minutes
+            seedSubsLoop();
         }
     });
 }
