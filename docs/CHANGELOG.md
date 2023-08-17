@@ -1,5 +1,12 @@
 
 
+## [0.7.8](https://github.com/plebbit/plebbit-cli/compare/v0.7.7...v0.7.8) (2023-08-17)
+
+
+### Performance Improvements
+
+* **daemon:** optimize seeding ([fa27931](https://github.com/plebbit/plebbit-cli/commit/fa279319c5d27e3a9b976ec959f92d252e66b8d9))
+
 ## [0.7.7](https://github.com/plebbit/plebbit-cli/compare/v0.7.6...v0.7.7) (2023-07-20)
 
 ## [0.7.6](https://github.com/plebbit/plebbit-cli/compare/v0.7.5...v0.7.6) (2023-07-16)
