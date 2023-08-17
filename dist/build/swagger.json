@@ -456,6 +456,9 @@
                     },
                     "ipnsName": {
                         "type": "string"
+                    },
+                    "shortSubplebbitAddress": {
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -463,7 +466,8 @@
                     "author",
                     "protocolVersion",
                     "subplebbitAddress",
-                    "timestamp"
+                    "timestamp",
+                    "shortSubplebbitAddress"
                 ],
                 "type": "object",
                 "description": "From T, pick a set of properties whose keys are in the union K"
@@ -636,6 +640,9 @@
                     "ipnsName": {
                         "type": "string"
                     },
+                    "shortSubplebbitAddress": {
+                        "type": "string"
+                    },
                     "original": {
                         "$ref": "#/components/schemas/Pick_Partial_CommentType_.author-or-content-or-flair-or-protocolVersion_"
                     },
@@ -678,6 +685,7 @@
                     "protocolVersion",
                     "subplebbitAddress",
                     "timestamp",
+                    "shortSubplebbitAddress",
                     "original",
                     "cid",
                     "shortCid",
@@ -1358,7 +1366,7 @@
     },
     "info": {
         "title": "plebbit-cli",
-        "version": "0.7.6",
+        "version": "0.7.7",
         "description": "Command line interface to Plebbit API",
         "license": {
             "name": "GPL-2.0-only"

@@ -4,17 +4,24 @@ exports.seedSubplebbits = void 0;
 const tslib_1 = require("tslib");
 const lodash_1 = tslib_1.__importDefault(require("lodash"));
 const plebbit_logger_1 = tslib_1.__importDefault(require("@plebbit/plebbit-logger"));
-const p_limit_1 = tslib_1.__importDefault(require("p-limit"));
 const assert_1 = tslib_1.__importDefault(require("assert"));
 async function _loadAllPages(pageCid, pagesInstance) {
-    let sortedCommentsPage = await pagesInstance.getPage(pageCid);
-    let sortedComments = sortedCommentsPage.comments;
-    while (sortedCommentsPage.nextCid) {
-        sortedCommentsPage = await pagesInstance.getPage(sortedCommentsPage.nextCid);
-        sortedComments = sortedComments.concat(sortedCommentsPage.comments);
+    const log = (0, plebbit_logger_1.default)("plebbit-cli:server:seed:_loadAllPages");
+    try {
+        let sortedCommentsPage = await pagesInstance.getPage(pageCid);
+        let sortedComments = sortedCommentsPage.comments;
+        while (sortedCommentsPage.nextCid) {
+            sortedCommentsPage = await pagesInstance.getPage(sortedCommentsPage.nextCid);
+            sortedComments = sortedComments.concat(sortedCommentsPage.comments);
+        }
+        return sortedComments;
     }
-    return sortedComments;
+    catch (e) {
+        log.error(`Failed to load page (${pageCid}) of sub (${pagesInstance._subplebbitAddress}) due to error:`, e);
+        return [];
+    }
 }
+const seededIpns = {};
 async function _seedSub(sub, pinnedCids) {
     const log = (0, plebbit_logger_1.default)("plebbit-cli:server:seed");
     if (sub.statsCid)
@@ -31,18 +38,25 @@ async function _seedSub(sub, pinnedCids) {
         if (loadedPagesWithNames["new"]) {
             // Fetch all comments CID
             allCidsToPin.push(...loadedPagesWithNames["new"].map((comment) => comment.cid));
-            // Fetch all previousCommentCid of authors
-            allCidsToPin.push(...loadedPagesWithNames["new"]
-                .filter((comment) => typeof comment.author.previousCommentCid === "string")
-                .map((comment) => comment.author.previousCommentCid));
-            // Fetch all comments' CommentUpdate IPNS
-            const limit = (0, p_limit_1.default)(30); // Can only fetch 30 IPNS at a time
-            // TODO don't load all IPNS, instead only load the ones whose updatedAt did not change. We need to store all updatedAt somewhere
-            const ipnsRes = await Promise.allSettled(loadedPagesWithNames["new"].map((comment) => limit(() => sub.plebbit._clientsManager.fetchFromMultipleGateways({ ipns: comment.ipnsName }, "subplebbit"))));
-            log.trace(`Loaded and seeded ${ipnsRes.filter((res) => res.status === "fulfilled").length} CommentUpdate and failed to seed ${ipnsRes.filter((res) => res.status === "rejected").length} of sub (${sub.address})`);
+            // Seed IPNS
+            for (const comment of loadedPagesWithNames["new"]) {
+                (0, assert_1.default)(comment.ipnsName);
+                if (seededIpns[comment.ipnsName]?.lastSeededAt !== comment.updatedAt) {
+                    try {
+                        await comment._clientsManager.fetchCommentUpdate(comment.ipnsName);
+                        seededIpns[comment.ipnsName] = { lastSeededAt: comment.updatedAt };
+                        log.trace(`Seeded comment (${comment.cid}) IPNS (${comment.ipnsName})`);
+                    }
+                    catch (e) {
+                        log.error(`Failed to seed comment (${comment.cid}) IPNS (${comment.ipnsName}) due to error`, e);
+                    }
+                }
+            }
         }
+        // Pin cids that are not already pinned
         const newCidsToPin = lodash_1.default.difference(lodash_1.default.uniq(allCidsToPin), pinnedCids);
         if (newCidsToPin.length > 0) {
+            log.trace(`Attempting to pin ${newCidsToPin.length} comments' cids from sub (${sub.address}): `, newCidsToPin);
             const defaultIpfsClient = Object.values(sub.plebbit.clients.ipfsClients)[0];
             (0, assert_1.default)(defaultIpfsClient);
             await defaultIpfsClient._client.pin.addAll(newCidsToPin);
@@ -67,5 +81,6 @@ async function seedSubplebbits(subAddresses, plebbit) {
             log.error(`Failed to load and seed sub (${subAddress}):`, String(e));
         }
     }
+    log(`Finished this round of seeding. Will seed again later`);
 }
 exports.seedSubplebbits = seedSubplebbits;

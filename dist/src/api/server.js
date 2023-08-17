@@ -14,6 +14,7 @@ const apiError_js_1 = require("./apiError.js");
 const apiResponse_js_1 = require("./apiResponse.js");
 const seeder_js_1 = require("./seeder.js");
 const plebbit_logger_1 = tslib_1.__importDefault(require("@plebbit/plebbit-logger"));
+const path_1 = tslib_1.__importDefault(require("path"));
 async function startApi(plebbitApiPort, ipfsApiEndpoint, ipfsPubsubApiEndpoint, plebbitDataPath, seedSubs) {
     const log = (0, plebbit_logger_1.default)("plebbit-cli:server");
     exports.sharedSingleton = {
@@ -80,10 +81,13 @@ async function startApi(plebbitApiPort, ipfsApiEndpoint, ipfsPubsubApiEndpoint, 
         console.log(`IPFS Gateway listening on: ${gateway.replace("127.0.0.1", "localhost")}`);
         console.log(`Plebbit API listening on: http://localhost:${plebbitApiPort}/api/v0`);
         console.log(`You can find Plebbit API documentation at: http://localhost:${plebbitApiPort}/api/v0/docs`);
+        console.log(`Plebbit data path: ${path_1.default.resolve(exports.sharedSingleton.plebbit.dataPath)}`);
         if (Array.isArray(seedSubs)) {
+            const seedSubsLoop = () => {
+                (0, seeder_js_1.seedSubplebbits)(seedSubs, exports.sharedSingleton.plebbit).then(() => setTimeout(seedSubsLoop, 600000)); // Seed subs every 10 minutes
+            };
             console.log(`Seeding subplebbits:`, seedSubs);
-            (0, seeder_js_1.seedSubplebbits)(seedSubs, exports.sharedSingleton.plebbit);
-            setInterval(() => (0, seeder_js_1.seedSubplebbits)(seedSubs, exports.sharedSingleton.plebbit), 600000); // Seed subs every 10 minutes
+            seedSubsLoop();
         }
     });
 }
