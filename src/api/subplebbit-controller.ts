@@ -16,7 +16,13 @@ export class SubplebbitController extends Controller {
         const subs = subsAddresses || (await sharedSingleton.plebbit.listSubplebbits());
         if (!subs.includes(address))
             throw new ApiError(statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST);
-        if (!sharedSingleton.subs[address]) sharedSingleton.subs[address] = await sharedSingleton.plebbit.createSubplebbit({ address });
+        if (!sharedSingleton.subs[address]) {
+            sharedSingleton.subs[address] = await sharedSingleton.plebbit.createSubplebbit({ address });
+            sharedSingleton.subs[address]!.on("error", (error) => {
+                const log = Logger("plebbit-cli:api:subplebbit");
+                log.error(`Sub (${address}) error: `, String(error));
+            });
+        }
     }
 
     @Post("list")
@@ -58,6 +64,10 @@ export class SubplebbitController extends Controller {
         } else {
             const sub = await sharedSingleton.plebbit.createSubplebbit(requestBody);
             sharedSingleton.subs[sub.address] = sub;
+            sub.on("error", (error) => {
+                const log = Logger("plebbit-cli:api:subplebbit");
+                log.error(`Sub (${sub.address}) error: `, String(error));
+            });
             throw new ApiResponse(statusMessages.SUCCESS_SUBPLEBBIT_CREATED, statusCodes.SUCCESS_SUBPLEBBIT_CREATED, sub.toJSON());
         }
     }
