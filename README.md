@@ -158,7 +158,7 @@ EXAMPLES
   $ plebbit daemon --seed --seedSubs mysub.eth, myothersub.eth, 12D3KooWEKA6Fhp6qtyttMvNKcNCtqH2N7ZKpPy5rfCeM1otr5qU
 ```
 
-_See code: [dist/src/cli/commands/daemon.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.8/dist/src/cli/commands/daemon.js)_
+_See code: [dist/src/cli/commands/daemon.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.9/dist/src/cli/commands/daemon.js)_
 
 ## `plebbit help [COMMANDS]`
 
@@ -220,7 +220,7 @@ EXAMPLES
     $ plebbit subplebbit create --title 'Hello Plebs' --description 'Welcome'
 ```
 
-_See code: [dist/src/cli/commands/subplebbit/create.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.8/dist/src/cli/commands/subplebbit/create.js)_
+_See code: [dist/src/cli/commands/subplebbit/create.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.9/dist/src/cli/commands/subplebbit/create.js)_
 
 ## `plebbit subplebbit edit ADDRESS`
 
@@ -257,7 +257,7 @@ DESCRIPTION
   Edit a subplebbit
 ```
 
-_See code: [dist/src/cli/commands/subplebbit/edit.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.8/dist/src/cli/commands/subplebbit/edit.js)_
+_See code: [dist/src/cli/commands/subplebbit/edit.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.9/dist/src/cli/commands/subplebbit/edit.js)_
 
 ## `plebbit subplebbit list`
 
@@ -285,7 +285,7 @@ DESCRIPTION
   List your subplebbits
 ```
 
-_See code: [dist/src/cli/commands/subplebbit/list.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.8/dist/src/cli/commands/subplebbit/list.js)_
+_See code: [dist/src/cli/commands/subplebbit/list.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.9/dist/src/cli/commands/subplebbit/list.js)_
 
 ## `plebbit subplebbit role remove SUB-ADDRESS AUTHOR-ADDRESS`
 
@@ -309,7 +309,7 @@ EXAMPLES
   $ plebbit subplebbit role remove plebbit.eth estebanabaroa.eth
 ```
 
-_See code: [dist/src/cli/commands/subplebbit/role/remove.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.8/dist/src/cli/commands/subplebbit/role/remove.js)_
+_See code: [dist/src/cli/commands/subplebbit/role/remove.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.9/dist/src/cli/commands/subplebbit/role/remove.js)_
 
 ## `plebbit subplebbit role set SUB-ADDRESS AUTHOR-ADDRESS`
 
@@ -335,7 +335,7 @@ EXAMPLES
   $ plebbit subplebbit role set plebbit.eth estebanabaroa.eth --role admin
 ```
 
-_See code: [dist/src/cli/commands/subplebbit/role/set.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.8/dist/src/cli/commands/subplebbit/role/set.js)_
+_See code: [dist/src/cli/commands/subplebbit/role/set.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.9/dist/src/cli/commands/subplebbit/role/set.js)_
 
 ## `plebbit subplebbit start ADDRESSES`
 
@@ -355,7 +355,7 @@ DESCRIPTION
   Start a subplebbit
 ```
 
-_See code: [dist/src/cli/commands/subplebbit/start.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.8/dist/src/cli/commands/subplebbit/start.js)_
+_See code: [dist/src/cli/commands/subplebbit/start.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.9/dist/src/cli/commands/subplebbit/start.js)_
 
 ## `plebbit subplebbit stop ADDRESSES`
 
@@ -380,7 +380,7 @@ EXAMPLES
   $ plebbit subplebbit stop Qmb99crTbSUfKXamXwZBe829Vf6w5w5TktPkb6WstC9RFW
 ```
 
-_See code: [dist/src/cli/commands/subplebbit/stop.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.8/dist/src/cli/commands/subplebbit/stop.js)_
+_See code: [dist/src/cli/commands/subplebbit/stop.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.9/dist/src/cli/commands/subplebbit/stop.js)_
 <!-- commandsstop -->
 
 # Contribution

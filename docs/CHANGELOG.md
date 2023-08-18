@@ -1,5 +1,13 @@
 
 
+## [0.7.9](https://github.com/plebbit/plebbit-cli/compare/v0.7.8...v0.7.9) (2023-08-18)
+
+
+### Bug Fixes
+
+* **api:** handle error events of subs ([0141fb4](https://github.com/plebbit/plebbit-cli/commit/0141fb4aa4dba53d8f8436676b9ac3dadb5cc45c))
+* **api:** handle error events of subs ([50527b3](https://github.com/plebbit/plebbit-cli/commit/50527b33f13af745352c88fa3e93a0e34b2bbc9b))
+
 ## [0.7.8](https://github.com/plebbit/plebbit-cli/compare/v0.7.7...v0.7.8) (2023-08-17)
 
 
