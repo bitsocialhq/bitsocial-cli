@@ -88,8 +88,6 @@ export class SubplebbitController extends Controller {
         log(`Received request to start subplebbit ${address}`);
         await this._initSubInSingletonIfNotDefined(address);
 
-        //@ts-ignore
-        if (process.env["SYNC_INTERVAL_MS"]) sharedSingleton.subs[address]._syncIntervalMs = parseInt(process.env["SYNC_INTERVAL_MS"]);
         try {
             await sharedSingleton.subs[address]!.start();
         } catch (e) {
