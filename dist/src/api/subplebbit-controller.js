@@ -66,9 +66,6 @@ let SubplebbitController = exports.SubplebbitController = class SubplebbitContro
         const log = (0, plebbit_logger_1.default)("plebbit-cli:api:subplebbit:start");
         log(`Received request to start subplebbit ${address}`);
         await this._initSubInSingletonIfNotDefined(address);
-        //@ts-ignore
-        if (process.env["SYNC_INTERVAL_MS"])
-            server_js_1.sharedSingleton.subs[address]._syncIntervalMs = parseInt(process.env["SYNC_INTERVAL_MS"]);
         try {
             await server_js_1.sharedSingleton.subs[address].start();
         }
