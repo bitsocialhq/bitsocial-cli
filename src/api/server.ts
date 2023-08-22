@@ -31,6 +31,7 @@ export async function startApi(
         }),
         subs: {}
     };
+    sharedSingleton.plebbit.on("error", (error) => console.error(`Plebbit error:`, error));
     const app = express(); // TODO use http2
 
     app.use(json({ strict: true }));
