@@ -1,5 +1,12 @@
 
 
+## [0.7.10](https://github.com/plebbit/plebbit-cli/compare/v0.7.9...v0.7.10) (2023-08-22)
+
+
+### Bug Fixes
+
+* **api:** add error event handler for Plebbit ([4524984](https://github.com/plebbit/plebbit-cli/commit/45249842d16da3677ba94054c67c01614cdcabf0))
+
 ## [0.7.9](https://github.com/plebbit/plebbit-cli/compare/v0.7.8...v0.7.9) (2023-08-18)
 
 
