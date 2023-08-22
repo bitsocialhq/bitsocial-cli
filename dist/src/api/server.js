@@ -25,6 +25,7 @@ async function startApi(plebbitApiPort, ipfsApiEndpoint, ipfsPubsubApiEndpoint, 
         }),
         subs: {}
     };
+    exports.sharedSingleton.plebbit.on("error", (error) => console.error(`Plebbit error:`, error));
     const app = (0, express_1.default)(); // TODO use http2
     app.use((0, express_1.json)({ strict: true }));
     (0, routes_js_1.RegisterRoutes)(app);
