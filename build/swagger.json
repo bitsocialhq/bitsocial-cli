@@ -454,6 +454,14 @@
 					"thumbnailUrl": {
 						"type": "string"
 					},
+					"thumbnailUrlWidth": {
+						"type": "number",
+						"format": "double"
+					},
+					"thumbnailUrlHeight": {
+						"type": "number",
+						"format": "double"
+					},
 					"ipnsName": {
 						"type": "string"
 					},
@@ -636,6 +644,14 @@
 					},
 					"thumbnailUrl": {
 						"type": "string"
+					},
+					"thumbnailUrlWidth": {
+						"type": "number",
+						"format": "double"
+					},
+					"thumbnailUrlHeight": {
+						"type": "number",
+						"format": "double"
 					},
 					"ipnsName": {
 						"type": "string"
@@ -1366,7 +1382,7 @@
 	},
 	"info": {
 		"title": "plebbit-cli",
-		"version": "0.7.11",
+		"version": "0.7.12",
 		"description": "Command line interface to Plebbit API",
 		"license": {
 			"name": "GPL-2.0-only"
