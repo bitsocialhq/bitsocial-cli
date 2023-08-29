@@ -1180,9 +1180,9 @@
   resolved "https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
   integrity sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==
 
-"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#71bafe2525b675f694b337bbd8b1a63528f7584b":
+"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#28159e83f8facf46557e29104da80f79d614655f":
   version "0.0.3"
-  resolved "https://github.com/plebbit/plebbit-js#71bafe2525b675f694b337bbd8b1a63528f7584b"
+  resolved "https://github.com/plebbit/plebbit-js#28159e83f8facf46557e29104da80f79d614655f"
   dependencies:
     "@ensdomains/eth-ens-namehash" "2.0.15"
     "@keyv/sqlite" "3.6.2"
