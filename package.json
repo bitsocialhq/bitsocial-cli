@@ -109,7 +109,7 @@
         "typescript": "5.1.6",
         "@oclif/plugin-help": "5.2.17",
         "@oclif/plugin-not-found": "2.3.37",
-        "@plebbit/plebbit-js": "https://github.com/plebbit/plebbit-js#163ad32504b7198d4002c6dfc00a01dae8c4b440",
+        "@plebbit/plebbit-js": "https://github.com/plebbit/plebbit-js#4942bba6a8de849c529b7ad232a92598293764d1",
         "dataobject-parser": "1.2.22",
         "env-paths": "2.2.1",
         "express": "4.18.2",
