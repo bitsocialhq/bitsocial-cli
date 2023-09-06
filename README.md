@@ -52,6 +52,12 @@ After running the last command you should have your executable in the directory.
 
 # Usage
 
+## The data/config path of Plebbit
+This is the directory where plebbit-cli will keep its config, as well as data for local subplebbits:
+- macOS: ~/Library/Application Support/plebbit
+- Windows: %LOCALAPPDATA%\plebbit
+- Linux: ~/.local/share/plebbit
+
 ## Running Daemon
 
 In Bash (or powershell if you're on Windows), run `plebbit daemon` to able to connect to the network. You need to have the `plebbit daemon` terminal running to be able to execute other commands.
