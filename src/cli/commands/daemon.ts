@@ -18,19 +18,19 @@ export default class Daemon extends Command {
             default: defaults.PLEBBIT_DATA_PATH
         }),
 
-        seed: Flags.boolean({
-            description:
-                "Seeding flag. Seeding helps subplebbits distribute their publications and latest updates, as well as receiving new publications",
-            required: false,
-            default: false
-        }),
+        // seed: Flags.boolean({
+        //     description:
+        //         "Seeding flag. Seeding helps subplebbits distribute their publications and latest updates, as well as receiving new publications",
+        //     required: false,
+        //     default: false
+        // }),
 
-        seedSubs: Flags.string({
-            description: "Subplebbits to seed. If --seed is used and no subs was provided, it will default to seeding default subs",
-            required: false,
-            multiple: true,
-            default: []
-        }),
+        // seedSubs: Flags.string({
+        //     description: "Subplebbits to seed. If --seed is used and no subs was provided, it will default to seeding default subs",
+        //     required: false,
+        //     multiple: true,
+        //     default: []
+        // }),
 
         plebbitApiPort: Flags.integer({
             description: "Specify Plebbit API port to listen on",
@@ -51,8 +51,8 @@ export default class Daemon extends Command {
 
     static override examples = [
         "plebbit daemon",
-        "plebbit daemon --seed",
-        "plebbit daemon --seed --seedSubs mysub.eth, myothersub.eth, 12D3KooWEKA6Fhp6qtyttMvNKcNCtqH2N7ZKpPy5rfCeM1otr5qU"
+        // "plebbit daemon --seed",
+        // "plebbit daemon --seed --seedSubs mysub.eth, myothersub.eth, 12D3KooWEKA6Fhp6qtyttMvNKcNCtqH2N7ZKpPy5rfCeM1otr5qU"
     ];
 
     async run() {
@@ -77,14 +77,14 @@ export default class Daemon extends Command {
 
         let subsToSeed: string[] | undefined;
 
-        if (flags.seed) {
-            if (lodash.isEmpty(flags.seedSubs)) {
-                // load default subs here
-                const res = await fetch("https://raw.githubusercontent.com/plebbit/temporary-default-subplebbits/master/subplebbits.json");
-                const subs: { title: string; address: string }[] = await res.json();
-                subsToSeed = subs.map((sub) => sub.address);
-            } else subsToSeed = flags.seedSubs;
-        }
+        // if (flags.seed) {
+        //     if (lodash.isEmpty(flags.seedSubs)) {
+        //         // load default subs here
+        //         const res = await fetch("https://raw.githubusercontent.com/plebbit/temporary-default-subplebbits/master/subplebbits.json");
+        //         const subs: { title: string; address: string }[] = await res.json();
+        //         subsToSeed = subs.map((sub) => sub.address);
+        //     } else subsToSeed = flags.seedSubs;
+        // }
 
         log.trace(`subs to seed:`, subsToSeed);
 
