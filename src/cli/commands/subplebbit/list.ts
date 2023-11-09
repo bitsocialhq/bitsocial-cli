@@ -1,8 +1,6 @@
 import { Flags, ux } from "@oclif/core";
 import Logger from "@plebbit/plebbit-logger";
-import { SubplebbitList } from "../../../api/types.js";
 import { BaseCommand } from "../../base-command.js";
-import fetch from "node-fetch";
 import { EOL } from "os";
 
 export default class List extends BaseCommand {
@@ -20,19 +18,21 @@ export default class List extends BaseCommand {
 
         const log = Logger("plebbit-cli:commands:subplebbit:list");
         log(`flags: `, flags);
-        await this.stopIfDaemonIsDown(flags.apiUrl.toString());
-        const url = `${flags.apiUrl}/subplebbit/list`;
-
-        const subs: SubplebbitList = <SubplebbitList>await (
-            await fetch(url, {
-                method: "POST"
+        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
+        const subs = await plebbit.listSubplebbits();
+        const subsWithStarted = await Promise.all(
+            subs.map(async (subAddress) => {
+                const subInstance = await plebbit.createSubplebbit({ address: subAddress });
+                return { address: subInstance.address, started: subInstance.startedState !== "stopped" };
             })
-        ).json();
+        );
 
-        if (flags.quiet) this.log(subs.map((sub) => sub.address).join(EOL));
+
+
+        if (flags.quiet) this.log(subsWithStarted.map((sub) => sub.address).join(EOL));
         else
             ux.table(
-                subs,
+                subsWithStarted,
                 { address: {}, started: {} },
                 {
                     printLine: this.log.bind(this),

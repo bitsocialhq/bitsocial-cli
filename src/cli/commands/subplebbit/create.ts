@@ -1,8 +1,7 @@
 import { Flags } from "@oclif/core";
-import { CreateSubplebbitOptions, SubplebbitType } from "@plebbit/plebbit-js/dist/node/types.js";
+import { CreateSubplebbitOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
 import Logger from "@plebbit/plebbit-logger";
 import lodash from "lodash";
-import { statusCodes } from "../../../api/response-statuses.js";
 import fetch from "node-fetch";
 //@ts-ignore
 import DataObjectParser from "dataobject-parser";
@@ -35,27 +34,15 @@ export default class Create extends BaseSubplebbitOptions {
 
         const log = Logger("plebbit-cli:commands:subplebbit:create");
         log(`flags: `, flags);
-        await this.stopIfDaemonIsDown(flags.apiUrl.toString());
-        const createOptions: CreateSubplebbitOptions = DataObjectParser.transpose(lodash.omit(flags, ["apiUrl", "privateKeyPath"]))[
-            "_data"
-        ];
+        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
+        const createOptions: CreateSubplebbitOptions = DataObjectParser.transpose(
+            lodash.omit(flags, ["plebbitRpcApiUrl", "privateKeyPath"])
+        )["_data"];
         if (flags.privateKeyPath)
             createOptions.signer = { privateKey: (await fs.promises.readFile(flags.privateKeyPath)).toString(), type: "ed25519" };
 
-        const createRes = await fetch(`${flags.apiUrl}/subplebbit/create`, {
-            body: JSON.stringify(createOptions),
-            method: "POST",
-            headers: { "content-type": "application/json" }
-        });
-        if (createRes.status !== statusCodes.SUCCESS_SUBPLEBBIT_CREATED)
-            // TODO, status text is not enough to explain error. Include more info
-            this.error(createRes.statusText);
-
-        const createdSub: SubplebbitType = await createRes.json();
-
-        // Attempt to start the newly created sub
-        const startRes = await fetch(`${flags.apiUrl}/subplebbit/start?address=${createdSub.address}`, { method: "POST" });
-        if (startRes.status !== statusCodes.SUCCESS_SUBPLEBBIT_STARTED) this.error(startRes.statusText);
+        const createdSub = await plebbit.createSubplebbit(createOptions);
+        await createdSub.start();
 
         this.log(createdSub.address);
     }

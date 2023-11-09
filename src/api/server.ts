@@ -1,113 +1,52 @@
-import express, { Response as ExResponse, Request as ExRequest, json, NextFunction } from "express";
-import { RegisterRoutes } from "../../build/routes.js";
-import swaggerJson from "../../build/swagger.json";
-import swaggerUi from "swagger-ui-express";
-import Plebbit from "@plebbit/plebbit-js";
-import { SharedSingleton } from "./types.js";
-import { ValidateError } from "tsoa";
-import assert, { AssertionError } from "assert";
-import { statusCodes, statusMessages } from "./response-statuses.js";
-import { ApiError } from "./apiError.js";
-import { ApiResponse } from "./apiResponse.js";
-import { seedSubplebbits } from "./seeder.js";
+import { PlebbitWsServer } from "@plebbit/plebbit-js/rpc";
+import assert from "assert";
+import { seedSubplebbits } from "../seeder.js";
 import Logger from "@plebbit/plebbit-logger";
 import path from "path";
 
-export let sharedSingleton: SharedSingleton;
-
-export async function startApi(
-    plebbitApiPort: number,
+export async function startRpcServer(
+    plebbitRpcApiPort: number,
     ipfsApiEndpoint: string,
     ipfsPubsubApiEndpoint: string,
     plebbitDataPath: string,
     seedSubs: string[] | undefined
 ) {
-    const log = Logger("plebbit-cli:server");
-    sharedSingleton = {
-        plebbit: await Plebbit({
+    const log = Logger("plebbit-cli:rpcServer");
+
+    // Run plebbit RPC server here
+
+    const rpcServer = await PlebbitWsServer({
+        port: plebbitRpcApiPort,
+        plebbitOptions: {
             ipfsHttpClientsOptions: [ipfsApiEndpoint],
             pubsubHttpClientsOptions: [ipfsPubsubApiEndpoint],
             dataPath: plebbitDataPath
-        }),
-        subs: {}
-    };
-    sharedSingleton.plebbit.on("error", (error) => console.error(`Plebbit error:`, error));
-    const app = express(); // TODO use http2
-
-    app.use(json({ strict: true }));
-
-    RegisterRoutes(app);
-
-    app.use(function errorHandler(err: unknown, req: ExRequest, res: ExResponse, next: NextFunction): ExResponse | void {
-        if (err instanceof ValidateError) {
-            log(`Caught Validation Error for ${req.path}:`, err.fields);
-            return res.status(422).json({
-                message: "Validation Failed",
-                details: err?.fields
-            });
         }
-
-        if (err instanceof SyntaxError) {
-            res.statusMessage = statusMessages.ERR_INVALID_JSON_FOR_REQUEST_BODY;
-            return res.status(statusCodes.ERR_INVALID_JSON_FOR_REQUEST_BODY).json({
-                message: "Request body is invalid as a JSON", //@ts-ignore
-                details: `${err.message}\n${err["body"]}`
-            });
-        }
-
-        if (err instanceof ApiResponse) {
-            res.statusMessage = err.statusMessage;
-            return res.status(err.statusCode).send(err.res);
-        }
-
-        if (err instanceof ApiError) {
-            res.statusMessage = err.statusMessage;
-            return res.status(err.statusCode).json({ message: err.message });
-        }
-
-        if (err instanceof Error || err instanceof AssertionError) {
-            log.error(err);
-            return res.status(500).json({
-                message: "Internal Server Error"
-            });
-        }
-
-        next();
-    });
-
-    const swaggerHtml = swaggerUi.generateHTML(swaggerJson);
-    app.use("/api/v0/docs", swaggerUi.serve, async (_req: ExRequest, res: ExResponse) => {
-        return res.send(swaggerHtml);
-    });
-
-    app.use(function notFoundHandler(_req, res: ExResponse) {
-        res.status(404).send({
-            message: "Not Found"
-        });
     });
 
     const handleExit = async (signal: NodeJS.Signals) => {
         log(`in handle exit (${signal})`);
-        await Promise.all(Object.values(sharedSingleton.subs).map((sub) => sub.stop())); // Stop all running subs
+        const subAddresses = await rpcServer.plebbit.listSubplebbits();
+        const subs = await Promise.all(subAddresses.map((subAddress) => rpcServer.plebbit.createSubplebbit({ address: subAddress })));
+
+        await Promise.all(subs.map((sub) => sub.stop())); // Stop all running subs
         process.exit();
     };
 
     ["SIGINT", "SIGTERM", "SIGHUP", "beforeExit"].forEach((exitSignal) => process.on(exitSignal, handleExit));
 
-    app.listen(plebbitApiPort, () => {
-        console.log(`IPFS API listening on: ${ipfsApiEndpoint}`);
-        const gateway = Object.keys(sharedSingleton.plebbit.clients.ipfsGateways)[0];
-        assert(typeof gateway === "string");
-        console.log(`IPFS Gateway listening on: ${gateway.replace("127.0.0.1", "localhost")}`);
-        console.log(`Plebbit API listening on: http://localhost:${plebbitApiPort}/api/v0`);
-        console.log(`You can find Plebbit API documentation at: http://localhost:${plebbitApiPort}/api/v0/docs`);
-        console.log(`Plebbit data path: ${path.resolve(<string>sharedSingleton.plebbit.dataPath)}`);
-        if (Array.isArray(seedSubs)) {
-            const seedSubsLoop = () => {
-                seedSubplebbits(seedSubs, sharedSingleton.plebbit).then(() => setTimeout(seedSubsLoop, 600000)); // Seed subs every 10 minutes
-            };
-            console.log(`Seeding subplebbits:`, seedSubs);
-            seedSubsLoop();
-        }
-    });
+    console.log(`IPFS API listening on: ${ipfsApiEndpoint}`);
+    const gateway = Object.keys(rpcServer.plebbit.clients.ipfsGateways)[0];
+    assert(typeof gateway === "string");
+    console.log(`IPFS Gateway listening on: ${gateway.replace("127.0.0.1", "localhost")}`);
+    console.log(`Plebbit API listening on: ws://localhost:${plebbitRpcApiPort}`);
+    console.log(`Plebbit data path: ${path.resolve(<string>rpcServer.plebbit.dataPath)}`);
+    if (Array.isArray(seedSubs)) {
+        const seedSubsLoop = () => {
+            // I think calling setTimeout constantly here will overflow memory. Need to check later
+            seedSubplebbits(seedSubs, rpcServer.plebbit).then(() => setTimeout(seedSubsLoop, 600000)); // Seed subs every 10 minutes
+        };
+        console.log(`Seeding subplebbits:`, seedSubs);
+        seedSubsLoop();
+    }
 }

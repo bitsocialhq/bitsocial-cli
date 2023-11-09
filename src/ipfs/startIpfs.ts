@@ -5,8 +5,7 @@ import Logger from "@plebbit/plebbit-logger";
 import { promises as fsPromises } from "fs";
 import fs from "fs";
 import assert from "assert";
-//@ts-ignore
-import { path as ipfsExePathFunc } from "go-ipfs";
+import { path as ipfsExePathFunc } from "kubo";
 
 const paths = envPaths("plebbit", { suffix: "" });
 

@@ -1,9 +1,6 @@
 import Logger from "@plebbit/plebbit-logger";
-import { statusCodes, statusMessages } from "../../../api/response-statuses.js";
 import { BaseCommand } from "../../base-command.js";
-import fetch from "node-fetch";
 import { Args } from "@oclif/core";
-import { exitStatuses } from "../../exit-codes.js";
 
 export default class Stop extends BaseCommand {
     static override description =
@@ -33,17 +30,10 @@ export default class Stop extends BaseCommand {
         const addresses = <string[]>argv;
         if (!Array.isArray(addresses)) throw Error(`Failed to parse addresses correctly (${addresses})`);
 
-        await this.stopIfDaemonIsDown(flags.apiUrl.toString());
+        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
         for (const address of addresses) {
-            const url = `${flags.apiUrl}/subplebbit/stop?address=${address}`;
-            const res = await fetch(url, { method: "POST" });
-            if (res.status === statusCodes.ERR_SUBPLEBBIT_NOT_RUNNING)
-                this.error(statusMessages.ERR_SUBPLEBBIT_NOT_RUNNING, {
-                    code: "ERR_SUBPLEBBIT_NOT_RUNNING",
-                    exit: exitStatuses.ERR_SUBPLEBBIT_NOT_RUNNING
-                });
-            if (res.status !== statusCodes.SUCCESS_SUBPLEBBIT_STOPPED) this.error(res.statusText);
-            else this.log(address);
+            await plebbit.plebbitRpcClient!.stopSubplebbit(address);
+            this.log(address);
         }
     }
 }

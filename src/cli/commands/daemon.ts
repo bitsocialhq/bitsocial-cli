@@ -1,7 +1,7 @@
 import { Flags, Command } from "@oclif/core";
 import Logger from "@plebbit/plebbit-logger";
 import { ChildProcessWithoutNullStreams } from "child_process";
-import { startApi } from "../../api/server.js";
+import { startRpcServer } from "../../api/server.js";
 import defaults from "../../common-utils/defaults.js";
 import { startIpfsNode } from "../../ipfs/startIpfs.js";
 import lodash from "lodash";
@@ -32,10 +32,10 @@ export default class Daemon extends Command {
         //     default: []
         // }),
 
-        plebbitApiPort: Flags.integer({
-            description: "Specify Plebbit API port to listen on",
+        plebbitRpcApiPort: Flags.integer({
+            description: "Specify Plebbit RPC API port to listen on",
             required: true,
-            default: defaults.PLEBBIT_API_PORT
+            default: defaults.PLEBBIT_RPC_API_PORT
         }),
         ipfsApiPort: Flags.integer({
             description: "Specify the API port of the ipfs node to listen on",
@@ -91,8 +91,8 @@ export default class Daemon extends Command {
         await keepIpfsUp();
 
         process.on("exit", () => (mainProcessExited = true) && process.kill(<number>ipfsProcess.pid));
-        await startApi(
-            flags.plebbitApiPort,
+        await startRpcServer(
+            flags.plebbitRpcApiPort,
             `http://localhost:${flags.ipfsApiPort}/api/v0`,
             `http://localhost:${flags.ipfsApiPort}/api/v0`,
             flags.plebbitDataPath,

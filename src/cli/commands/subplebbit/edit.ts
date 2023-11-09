@@ -1,12 +1,9 @@
-import { SubplebbitEditOptions, SubplebbitType } from "@plebbit/plebbit-js/dist/node/types.js";
+import { SubplebbitEditOptions, SubplebbitType } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
 import Logger from "@plebbit/plebbit-logger";
 import lodash from "lodash";
-import { statusCodes, statusMessages } from "../../../api/response-statuses.js";
-import fetch from "node-fetch";
 //@ts-ignore
 import DataObjectParser from "dataobject-parser";
 import BaseSubplebbitOptions from "../../base-subplebbit-options.js";
-import { exitStatuses } from "../../exit-codes.js";
 import { Flags, Args } from "@oclif/core";
 
 export default class Edit extends BaseSubplebbitOptions {
@@ -33,27 +30,12 @@ export default class Edit extends BaseSubplebbitOptions {
 
         const log = Logger("plebbit-cli:commands:subplebbit:edit");
         log(`flags: `, flags);
-        await this.stopIfDaemonIsDown(flags.apiUrl.toString());
-        const editOptions: SubplebbitEditOptions = DataObjectParser.transpose(lodash.omit(flags, ["apiUrl"]))["_data"];
+        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
+        const editOptions: SubplebbitEditOptions = DataObjectParser.transpose(lodash.omit(flags, ["plebbitRpcApiUrl"]))["_data"];
 
-        const res = await fetch(`${flags.apiUrl}/subplebbit/edit?address=${args["address"]}`, {
-            body: JSON.stringify(editOptions),
-            method: "POST",
-            headers: { "content-type": "application/json" }
-        });
+        const sub = await plebbit.createSubplebbit({ address: args.address });
+        await sub.edit(editOptions);
 
-        if (res.status === statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST)
-            this.error(statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST, {
-                code: "ERR_SUBPLEBBIT_DOES_NOT_EXIST",
-                exit: exitStatuses.ERR_SUBPLEBBIT_DOES_NOT_EXIST
-            });
-
-        if (res.status !== statusCodes.SUCCESS_SUBPLEBBIT_EDITED) {
-            // TODO, status text is not enough to explain error. Include more info
-            this.logToStderr(res.statusText);
-            this.exit(1);
-        }
-
-        this.log(args["address"]);
+        this.log(sub.address);
     }
 }

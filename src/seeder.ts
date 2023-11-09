@@ -1,10 +1,12 @@
 import lodash from "lodash";
 import Logger from "@plebbit/plebbit-logger";
 import { Plebbit } from "@plebbit/plebbit-js/dist/node/plebbit";
-import { Subplebbit } from "@plebbit/plebbit-js/dist/node/subplebbit";
 import { BasePages } from "@plebbit/plebbit-js/dist/node/pages";
 import { Comment } from "@plebbit/plebbit-js/dist/node/comment";
 import assert from "assert";
+//@ts-expect-error
+import { CID } from "ipfs-http-client";
+import { Subplebbit } from "@plebbit/plebbit-js/dist/node/subplebbit/subplebbit";
 
 async function _loadAllPages(pageCid: string, pagesInstance: BasePages): Promise<Comment[]> {
     const log = Logger("plebbit-cli:server:seed:_loadAllPages");
@@ -59,7 +61,7 @@ async function _seedSub(sub: Subplebbit, pinnedCids: string[]) {
         }
 
         // Pin cids that are not already pinned
-        const newCidsToPin = lodash.difference(lodash.uniq(allCidsToPin), pinnedCids);
+        const newCidsToPin = lodash.difference(lodash.uniq(allCidsToPin), pinnedCids).map((cidString) => CID.parse(cidString));
         if (newCidsToPin.length > 0) {
             log.trace(`Attempting to pin ${newCidsToPin.length} comments' cids from sub (${sub.address}): `, newCidsToPin);
             const defaultIpfsClient = Object.values(sub.plebbit.clients.ipfsClients)[0];

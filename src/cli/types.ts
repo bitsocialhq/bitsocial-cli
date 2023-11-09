@@ -1,10 +1,13 @@
-import { CreateSubplebbitOptions as PlebbitCreateSubplebbitOptions, SubplebbitEditOptions } from "@plebbit/plebbit-js/dist/node/types.js";
+import {
+    CreateSubplebbitOptions as PlebbitCreateSubplebbitOptions,
+    SubplebbitEditOptions
+} from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
 
 // TODO add subplebbit.settings
-export interface CreateSubplebbitOptions
+export interface CliCreateSubplebbitOptions
     extends Pick<PlebbitCreateSubplebbitOptions, "address" | "title" | "description" | "pubsubTopic" | "suggested"> {
     privateKeyPath?: string;
 }
 
-export interface EditSubplebbitOptions
+export interface CliEditSubplebbitOptions
     extends Pick<SubplebbitEditOptions, "address" | "title" | "description" | "pubsubTopic" | "suggested"> {}
