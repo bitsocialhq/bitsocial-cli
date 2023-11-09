@@ -1,14 +1,28 @@
+import { Plebbit } from "@plebbit/plebbit-js/dist/node/plebbit.js";
+import PlebbitRpcClient from "@plebbit/plebbit-js/dist/node/clients/plebbit-rpc-client.js";
+import { Client as WebSocketClient } from "rpc-websockets";
 import { expect, test } from "@oclif/test";
-import { statusCodes } from "../../dist/src/api/response-statuses.js";
-import { CreateSubplebbitOptions } from "../../src/cli/types.js";
-import defaults from "../../dist/src/common-utils/defaults.js";
 import signers from "../fixtures/signers";
 import lodash from "lodash";
 //@ts-ignore
 import DataObjectParser from "dataobject-parser";
+import Sinon from "sinon";
+import { CreateSubplebbitOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
+import { CliCreateSubplebbitOptions } from "../../src/cli/types.js";
 
 describe("plebbit subplebbit create", () => {
-    const createOptions: CreateSubplebbitOptions = {
+    Sinon.stub(WebSocketClient.prototype, "on");
+    Sinon.stub(WebSocketClient.prototype, "call");
+
+    Sinon.stub(PlebbitRpcClient.prototype, "_init");
+
+    const startFake = Sinon.fake();
+    const plebbitCreateStub = Sinon.replace(
+        Plebbit.prototype,
+        "createSubplebbit",
+        Sinon.fake.resolves({ address: signers[0]!.address, start: startFake })
+    );
+    const cliCreateOptions: CliCreateSubplebbitOptions = {
         privateKeyPath: "test/fixtures/sub_0_private_key.pem",
         title: "testTitle",
         description: "testDescription",
@@ -22,42 +36,28 @@ describe("plebbit subplebbit create", () => {
             language: "testLanguage"
         }
     };
-    const createOptionsFlattened = DataObjectParser.untranspose(createOptions);
-    test.nock(`http://localhost:${defaults.PLEBBIT_API_PORT}/api/v0`, (api) =>
-        api
-            .post("/subplebbit/create")
-            .reply((_, requestBody) => {
-                expect(lodash.pick(requestBody, Object.keys(createOptions))).to.deep.equal(lodash.omit(createOptions, "privateKeyPath"));
-                return [statusCodes.SUCCESS_SUBPLEBBIT_CREATED, { address: signers[0]!.address, ...createOptions }];
-            })
-            .post(`/subplebbit/start?address=${signers[0]!.address}`)
-            .reply((_, requestBody) => [statusCodes.SUCCESS_SUBPLEBBIT_STARTED, requestBody])
+    const cliCreateOptionsFlattened = DataObjectParser.untranspose(cliCreateOptions);
 
-            .post("/subplebbit/list")
-            .reply(200, [])
-    )
-        .loadConfig({ root: process.cwd() })
-        .stdout()
-        .command(["subplebbit create"].concat(Object.entries(createOptionsFlattened).map(([key, value]) => `--${key}=${value}`)))
+    test.stdout()
+        .command(["subplebbit create"].concat(Object.entries(cliCreateOptionsFlattened).map(([key, value]) => `--${key}=${value}`)))
         .it(`Parse create options correctly`, (ctx) => {
-            expect(ctx.stdout.trim()).to.equal(signers[0]!.address);
+            expect(plebbitCreateStub.calledOnce).to.be.true;
+            //@ts-expect-error
+            const parsedArgs = <CreateSubplebbitOptions>plebbitCreateStub.firstArg;
+            // PrivateKeyPath will be processed to signer
+            expect(parsedArgs.signer).to.be.a("object");
+            expect(parsedArgs.signer!.privateKey).be.a("string");
+            expect(parsedArgs!.signer!.type).to.equal("ed25519");
+            // Validate rest of args now
+            for (const createKey of Object.keys(lodash.omit(cliCreateOptions, "privateKeyPath"))) {
+                //@ts-expect-error
+                expect(JSON.stringify(parsedArgs[createKey])).to.equal(JSON.stringify(cliCreateOptions[createKey]));
+            }
+            const output = ctx.stdout.trim();
+            expect(output).to.equal(signers[0]!.address);
         });
 
-    let started = false;
-    test.nock(`http://localhost:${defaults.PLEBBIT_API_PORT}/api/v0`, (api) =>
-        api
-            .post(`/subplebbit/start?address=${signers[1]!.address}`)
-            .reply((_, requestBody) => (started = true) && [statusCodes.SUCCESS_SUBPLEBBIT_STARTED, requestBody])
-            .post("/subplebbit/create")
-            .reply((_, requestBody) => [statusCodes.SUCCESS_SUBPLEBBIT_CREATED, { address: signers[1]!.address }])
-            .post("/subplebbit/list")
-            .reply(200, [])
-    )
-        .loadConfig({ root: process.cwd() })
-        .stdout()
-        .command(["subplebbit create", "--privateKeyPath=test/fixtures/sub_1_private_key.pem"])
-        .it(`Starts subplebbit after creation`, (ctx) => {
-            expect(started).to.be.true;
-            expect(ctx.stdout.trim()).to.equal(signers[1]!.address);
-        });
+    it(`Starts subplebbit after creation`, () => {
+        expect(startFake.calledOnce).to.be.true;
+    });
 });
