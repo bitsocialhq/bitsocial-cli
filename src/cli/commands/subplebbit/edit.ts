@@ -1,4 +1,4 @@
-import { SubplebbitEditOptions, SubplebbitType } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
+import { SubplebbitEditOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
 import Logger from "@plebbit/plebbit-logger";
 import lodash from "lodash";
 //@ts-ignore

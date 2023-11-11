@@ -10,7 +10,7 @@ export default class Start extends BaseCommand {
     static override args = {
         addresses: Args.string({
             name: "addresses", // name of arg to show in help and reference with args[name]
-            required: true, // make the arg required with `required: true`
+            required: true, 
             description: "Addresses of subplebbits to start. Separated by space"
         })
     };

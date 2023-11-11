@@ -20,17 +20,16 @@ export default class List extends BaseCommand {
         log(`flags: `, flags);
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
         const subs = await plebbit.listSubplebbits();
-        const subsWithStarted = await Promise.all(
-            subs.map(async (subAddress) => {
-                const subInstance = await plebbit.createSubplebbit({ address: subAddress });
-                return { address: subInstance.address, started: subInstance.startedState !== "stopped" };
-            })
-        );
-
-
-
-        if (flags.quiet) this.log(subsWithStarted.map((sub) => sub.address).join(EOL));
-        else
+        if (flags.quiet) {
+            this.log(subs.join(EOL));
+            return;
+        } else {
+            const subsWithStarted = await Promise.all(
+                subs.map(async (subAddress) => {
+                    const subInstance = await plebbit.createSubplebbit({ address: subAddress });
+                    return { address: subInstance.address, started: subInstance.startedState !== "stopped" };
+                })
+            );
             ux.table(
                 subsWithStarted,
                 { address: {}, started: {} },
@@ -40,5 +39,6 @@ export default class List extends BaseCommand {
                     sort: "-started"
                 }
             );
+        }
     }
 }
