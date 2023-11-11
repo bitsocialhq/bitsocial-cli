@@ -7,7 +7,7 @@ import path from "path";
 export async function startRpcServer(
     plebbitRpcApiPort: number,
     ipfsApiEndpoint: string,
-    ipfsPubsubApiEndpoint: string,
+    ipfsGatewayEndpoint: string,
     plebbitDataPath: string,
     seedSubs: string[] | undefined
 ) {
@@ -19,7 +19,6 @@ export async function startRpcServer(
         port: plebbitRpcApiPort,
         plebbitOptions: {
             ipfsHttpClientsOptions: [ipfsApiEndpoint],
-            pubsubHttpClientsOptions: [ipfsPubsubApiEndpoint],
             dataPath: plebbitDataPath
         }
     });
@@ -30,15 +29,14 @@ export async function startRpcServer(
         const subs = await Promise.all(subAddresses.map((subAddress) => rpcServer.plebbit.createSubplebbit({ address: subAddress })));
 
         await Promise.all(subs.map((sub) => sub.stop())); // Stop all running subs
+        console.log("Stopped all running subs:", subAddresses);
         process.exit();
     };
 
     ["SIGINT", "SIGTERM", "SIGHUP", "beforeExit"].forEach((exitSignal) => process.on(exitSignal, handleExit));
 
     console.log(`IPFS API listening on: ${ipfsApiEndpoint}`);
-    const gateway = Object.keys(rpcServer.plebbit.clients.ipfsGateways)[0];
-    assert(typeof gateway === "string");
-    console.log(`IPFS Gateway listening on: ${gateway.replace("127.0.0.1", "localhost")}`);
+    console.log(`IPFS Gateway listening on: ${ipfsGatewayEndpoint}`);
     console.log(`Plebbit RPC API listening on: ws://localhost:${plebbitRpcApiPort}`);
     console.log(`Plebbit data path: ${path.resolve(<string>rpcServer.plebbit.dataPath)}`);
     if (Array.isArray(seedSubs)) {

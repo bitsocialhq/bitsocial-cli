@@ -94,7 +94,7 @@ export default class Daemon extends Command {
         await startRpcServer(
             flags.plebbitRpcApiPort,
             `http://localhost:${flags.ipfsApiPort}/api/v0`,
-            `http://localhost:${flags.ipfsApiPort}/api/v0`,
+            `http://localhost:${flags.ipfsGatewayPort}`,
             flags.plebbitDataPath,
             subsToSeed
         );
