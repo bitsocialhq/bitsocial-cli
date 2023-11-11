@@ -1,39 +1,24 @@
 import { expect, test } from "@oclif/test";
-import { exitStatuses } from "../../dist/src/cli/exit-codes.js";
-import defaults from "../../dist/src/common-utils/defaults.js";
+import { Plebbit } from "@plebbit/plebbit-js/dist/node/plebbit.js";
+import Sinon from "sinon";
 
 describe("plebbit subplebbit list", () => {
-    const subList = [
-        { address: "plebbit.eth", started: false },
-        { address: "plebbit2.eth", started: false }
-    ];
-    test.nock(`http://localhost:${defaults.PLEBBIT_API_PORT}/api/v0`, (api) => api.post("/subplebbit/list").reply(200, subList).persist())
-        .loadConfig({ root: process.cwd() })
-        .stdout()
+    const sandbox = Sinon.createSandbox();
+
+    let listSubplebbitsFake: Sinon.SinonSpy;
+    before(() => {
+        listSubplebbitsFake = sandbox.fake.resolves(fakeSubplebbits);
+        sandbox.replace(Plebbit.prototype, "listSubplebbits", listSubplebbitsFake);
+    });
+
+    after(() => sandbox.restore());
+    const fakeSubplebbits = ["plebbit1.eth", "plebbit2.eth"];
+
+    test.stdout()
         .command(["subplebbit list", "-q"])
         .it(`-q Outputs only subplebbit addresses`, (ctx) => {
+            expect(listSubplebbitsFake.callCount).to.equal(2); // should call once to confirm connection, and second to print subplebbits
             const trimmedOutput: string[] = ctx.stdout.trim().split("\n");
-            expect(trimmedOutput).to.deep.equal(subList.map((sub) => sub.address));
-            expect(ctx.error).to.be.undefined;
-        });
-
-    test.loadConfig({ root: process.cwd() })
-        .nock(`http://localhost:${defaults.PLEBBIT_API_PORT}/api/v0`, (api) =>
-            api.post("/subplebbit/list").replyWithError("Any error would suffice here")
-        )
-        .command(["subplebbit list"])
-        .exit(exitStatuses.ERR_DAEMON_IS_DOWN)
-        .it(`Fails when daemon is down`);
-
-    test.loadConfig({ root: process.cwd() })
-        .nock(`http://localhost:${defaults.PLEBBIT_API_PORT + 1}/api/v0`, (api) =>
-            api.post("/subplebbit/list").reply(200, subList).persist()
-        )
-        .stdout()
-        .command(["subplebbit list", "-q", `--apiUrl=http://localhost:${defaults.PLEBBIT_API_PORT + 1}/api/v0`])
-        .it("--apiUrl is parsed correctly", (ctx) => {
-            const trimmedOutput: string[] = ctx.stdout.trim().split("\n");
-            expect(trimmedOutput).to.deep.equal(subList.map((sub) => sub.address));
-            expect(ctx.error).to.be.undefined;
+            expect(trimmedOutput).to.deep.equal(fakeSubplebbits);
         });
 });

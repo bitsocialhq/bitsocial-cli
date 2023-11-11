@@ -1,64 +1,41 @@
 import { expect, test } from "@oclif/test";
-import { SubplebbitType } from "@plebbit/plebbit-js/dist/node/types.js";
-import { statusCodes } from "../../dist/src/api/response-statuses.js";
-import { exitStatuses } from "../../dist/src/cli/exit-codes.js";
-import defaults from "../../dist/src/common-utils/defaults.js";
+import { Plebbit } from "@plebbit/plebbit-js/dist/node/plebbit.js";
+import Sinon from "sinon";
+import { SubplebbitType } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
+import lodash from "lodash";
+import { SubplebbitEditOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
 
 describe("plebbit subplebbit role remove", () => {
+    const sandbox = Sinon.createSandbox();
+
+    let editFake: Sinon.SinonSpy;
+
     const existingRoles: SubplebbitType["roles"] = { "estebanabaroa.eth": { role: "admin" }, "rinse12.eth": { role: "owner" } };
-    test.nock(`http://localhost:${defaults.PLEBBIT_API_PORT}/api/v0`, (api) =>
-        api
-            .post("/subplebbit/list")
-            .reply(200, [])
-            .post("/subplebbit/create", { address: "plebbit.eth" })
-            .reply(statusCodes.SUCCESS_SUBPLEBBIT_CREATED, { address: "plebbit.eth", roles: existingRoles } as SubplebbitType)
-            .post("/subplebbit/edit?address=plebbit.eth")
-            .reply((_, body) => {
-                //@ts-ignore
-                expect(body["roles"]).to.deep.equal({ "estebanabaroa.eth": { role: "admin" } });
-                return [statusCodes.SUCCESS_SUBPLEBBIT_EDITED];
-            })
-    )
-        .loadConfig({ root: process.cwd() })
-        .command(["subplebbit role remove", "plebbit.eth", "rinse12.eth"])
-        .it(`Can remove role of author while preserving rest of authors' roles`);
 
-    test.nock(`http://localhost:${defaults.PLEBBIT_API_PORT}/api/v0`, (api) =>
-        api
-            .post("/subplebbit/list")
-            .reply(200, [])
-            .post("/subplebbit/create", { address: "plebbit.eth" })
-            .reply(statusCodes.SUCCESS_SUBPLEBBIT_CREATED, {
-                address: "plebbit.eth",
-                roles: { "estebanabaroa.eth": { role: "admin" } }
-            })
-    )
-        .loadConfig({ root: process.cwd() })
-        .command(["subplebbit role remove", "plebbit.eth", "rinse12.eth"])
-        .exit(exitStatuses.ERR_AUTHOR_ROLE_DOES_NOT_EXIST)
+    before(() => {
+        editFake = sandbox.fake();
+
+        sandbox.replace(
+            Plebbit.prototype,
+            "createSubplebbit",
+            sandbox.fake.resolves({ address: "plebbit.eth", edit: editFake, roles: existingRoles })
+        );
+    });
+
+    after(() => sandbox.restore());
+
+    test.command(["subplebbit role remove", "plebbit.eth", "rinse12.eth"]).it(
+        `Can remove role of author while preserving rest of authors' roles`,
+        async () => {
+            expect(editFake.calledOnce).to.be.true;
+            //@ts-expect-error
+            const parsedArgs = <SubplebbitEditOptions>editFake.firstArg; // should be the new roles without rinse12.eth
+
+            expect(parsedArgs.roles).to.deep.equal(lodash.omit(existingRoles, "rinse12.eth"));
+        }
+    );
+
+    test.command(["subplebbit role remove", "plebbit.eth", "somerandomauthor.eth"])
+        .exit(2)
         .it(`Fails to remove role of author that has no role`);
-
-    test.nock(`http://localhost:${defaults.PLEBBIT_API_PORT}/api/v0`, (api) =>
-        api
-            .post("/subplebbit/list")
-            .reply(200, [])
-            .post("/subplebbit/create", { address: "plebbit.eth" })
-            .reply(statusCodes.SUCCESS_SUBPLEBBIT_CREATED, {
-                address: "plebbit.eth",
-                roles: { "estebanabaroa.eth": { role: "admin" } }
-            })
-    )
-        .loadConfig({ root: process.cwd() })
-        .command(["subplebbit role remove", "plebbit.eth", "rinse12.eth"])
-        .exit(exitStatuses.ERR_AUTHOR_ROLE_DOES_NOT_EXIST)
-        .it(`Fails to remove role of author that has no role`);
-
-    // We need to implement /api/v0/subplebbit/create returning a standard error code if sub does not exist
-    // test.nock(`http://localhost:${defaults.PLEBBIT_API_PORT}/api/v0`, (api) =>
-    //     api.post("/subplebbit/list").reply(200, []).post("/subplebbit/create").reply(statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST)
-    // )
-    //     .loadConfig({ root: process.cwd() })
-    //     .command(["subplebbit role remove", "plebbit.eth", "rinse12.eth"])
-    //     .exit(exitStatuses.ERR_SUBPLEBBIT_DOES_NOT_EXIST)
-    //     .it(`Fails to remove role of a sub that does not exist`);
 });

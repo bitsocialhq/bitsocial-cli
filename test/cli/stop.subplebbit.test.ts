@@ -1,37 +1,37 @@
 import { expect, test } from "@oclif/test";
-import { statusCodes, statusMessages } from "../../dist/src/api/response-statuses.js";
-import { exitStatuses } from "../../dist/src/cli/exit-codes.js";
-import defaults from "../../dist/src/common-utils/defaults.js";
+import { Plebbit } from "@plebbit/plebbit-js/dist/node/plebbit.js";
+import Sinon from "sinon";
+import PlebbitRpcClient from "@plebbit/plebbit-js/dist/node/clients/plebbit-rpc-client.js";
 
 describe("plebbit subplebbit stop", () => {
     const addresses = ["plebbit.eth", "plebbit2.eth"];
-    test.nock(`http://localhost:${defaults.PLEBBIT_API_PORT}`, (api) =>
-        api
-            .post("/api/v0/subplebbit/stop?address=plebbit.eth")
-            .reply(statusCodes.SUCCESS_SUBPLEBBIT_STOPPED)
-            .post("/api/v0/subplebbit/stop?address=plebbit2.eth")
-            .reply(statusCodes.SUCCESS_SUBPLEBBIT_STOPPED)
-            .post("/api/v0/subplebbit/list")
-            .reply(200, [])
-    )
-        .loadConfig({ root: process.cwd() })
-        .stdout()
+    const sandbox = Sinon.createSandbox();
+
+    let stopFake: Sinon.SinonSpy;
+    before(() => {
+        stopFake = sandbox.fake();
+
+        sandbox.replace(Plebbit.prototype, "createSubplebbit", sandbox.fake());
+
+        sandbox.replace(PlebbitRpcClient.prototype, "stopSubplebbit", stopFake);
+    });
+
+    after(() => sandbox.restore());
+    test.stdout()
         .command(["subplebbit stop"].concat(addresses))
         .it(`Parses and submits addresses correctly`, (ctx) => {
+            // Validate calls to stop here
+            expect(stopFake.callCount).to.equal(addresses.length);
+
+            for (let i = 0; i < addresses.length; i++) {
+                //@ts-expect-error
+                const addressToStop = stopFake.args[i][0];
+                expect(addressToStop).to.equal(addresses[i]);
+            }
+
+            // Validate outputs
             const trimmedOutput: string[] = ctx.stdout.trim().split("\n");
             expect(trimmedOutput).to.deep.equal(addresses);
             expect(ctx.error).to.be.undefined;
         });
-
-    test.nock(`http://localhost:${defaults.PLEBBIT_API_PORT}`, (api) =>
-        api
-            .post("/api/v0/subplebbit/stop?address=plebbit3.eth")
-            .reply(statusCodes.ERR_SUBPLEBBIT_NOT_RUNNING, statusMessages.ERR_SUBPLEBBIT_NOT_RUNNING)
-            .post("/api/v0/subplebbit/list")
-            .reply(200, [])
-    )
-        .loadConfig({ root: process.cwd() })
-        .command(["subplebbit stop", "plebbit3.eth"])
-        .exit(exitStatuses.ERR_SUBPLEBBIT_NOT_RUNNING)
-        .it(`Fails if subplebbit already not running`);
 });

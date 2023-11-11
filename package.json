@@ -13,8 +13,7 @@
     "scripts": {
         "build": "rm -rf dist/  && tsc --project config/tsconfig.json",
         "build:watch": "nodemon --config config/build.nodemon.json",
-        "start:ipfs": "IPFS_API_PORT=32449 IPFS_GATEWAY_PORT=32440 IPFS_PATH=/tmp/.ipfs1 OFFLINE_MODE=1 node dist/test/run-test-ipfs.js & IPFS_PATH=/tmp/.ipfs2 IPFS_API_PORT=32447 IPFS_GATEWAY_PORT=32448 node dist/test/run-test-ipfs.js",
-        "test:cli": "PLEBBIT_API_PORT=32441 ts-mocha --config config/.mocharc.json -p config/tsconfig.json test/cli/*.test.ts",
+        "test:cli": " ts-mocha --config config/.mocharc.json -p config/tsconfig.json test/cli/*.test.ts",
         "commit": "cz",
         "prepare": "husky install",
         "release": "HUSKY=0 release-it --config config/.release-it.json"
@@ -95,6 +94,7 @@
         "release-it": "15.5.1",
         "shx": "0.3.4",
         "sinon": "17.0.1",
+        "tempy": "1.0.1",
         "ts-mocha": "10.0.0",
         "ts-node": "10.9.1",
         "wait-on": "6.0.1"

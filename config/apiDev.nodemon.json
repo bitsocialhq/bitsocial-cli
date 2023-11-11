@@ -1,5 +1,0 @@
-{
-    "exec": "yarn start:api",
-    "watch": ["dist/src/api"],
-    "ext": "ts"
-}

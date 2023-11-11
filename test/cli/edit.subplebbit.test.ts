@@ -1,13 +1,24 @@
 import { expect, test } from "@oclif/test";
-import { statusCodes, statusMessages } from "../../dist/src/api/response-statuses.js";
-import defaults from "../../dist/src/common-utils/defaults.js";
 //@ts-ignore
 import DataObjectParser from "dataobject-parser";
-import { EditSubplebbitOptions } from "../../dist/src/cli/types.js";
-import { exitStatuses } from "../../dist/src/cli/exit-codes.js";
+import { Plebbit } from "@plebbit/plebbit-js/dist/node/plebbit.js";
+import { CliEditSubplebbitOptions } from "../../src/cli/types.js";
+import Sinon from "sinon";
+import { SubplebbitEditOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
 
 describe("plebbit subplebbit edit", () => {
-    const editOptions: EditSubplebbitOptions = {
+    const sandbox = Sinon.createSandbox();
+
+    const editFake = sandbox.fake();
+
+    before(() => {
+        sandbox.replace(Plebbit.prototype, "createSubplebbit", sandbox.fake.resolves({ edit: editFake }));
+    });
+    after(() => {
+        sandbox.restore();
+    });
+
+    const editOptions: Required<CliEditSubplebbitOptions> = {
         title: "testEditTitle",
         description: "testEditDescription",
         pubsubTopic: "testEditTopic",
@@ -18,35 +29,19 @@ describe("plebbit subplebbit edit", () => {
             bannerUrl: "http://localhost:8080/banner2.png",
             backgroundUrl: "http://localhost:8080/background2.png",
             language: "testEditLanguage"
-        }
+        },
+        address: "newaddress.eth"
     };
     const editOptionsFlattend = DataObjectParser.untranspose(editOptions);
-    test.nock(`http://localhost:${defaults.PLEBBIT_API_PORT}/api/v0`, (api) =>
-        api
-            .post("/subplebbit/edit?address=plebbit.eth")
-            .reply((_, requestBody) => {
-                expect(requestBody).to.deep.equal(editOptions);
-                return [statusCodes.SUCCESS_SUBPLEBBIT_EDITED, requestBody];
-            })
-            .post("/subplebbit/list")
-            .reply(200, ["plebbit.eth"])
-    )
-        .loadConfig({ root: process.cwd() })
-        .stdout()
-        .command(["subplebbit edit", "plebbit.eth"].concat(Object.entries(editOptionsFlattend).map(([key, value]) => `--${key}=${value}`)))
-        .it(`Parse edit options correctly`, (ctx) => {
-            expect(ctx.stdout.trim()).to.equal("plebbit.eth");
-        });
-
-    test.nock(`http://localhost:${defaults.PLEBBIT_API_PORT}/api/v0`, (api) =>
-        api
-            .post("/subplebbit/edit?address=plebbit.eth")
-            .reply(() => [statusCodes.ERR_SUBPLEBBIT_DOES_NOT_EXIST, statusMessages.ERR_SUBPLEBBIT_DOES_NOT_EXIST])
-            .post("/subplebbit/list")
-            .reply(200, [])
-    )
-        .loadConfig({ root: process.cwd() })
-        .command(["subplebbit edit", "plebbit.eth"].concat(Object.entries(editOptionsFlattend).map(([key, value]) => `--${key}=${value}`)))
-        .exit(exitStatuses.ERR_SUBPLEBBIT_DOES_NOT_EXIST)
-        .it(`Fails when subplebbit does not exist`);
+    test.command(
+        ["subplebbit edit", "plebbit.eth"].concat(Object.entries(editOptionsFlattend).map(([key, value]) => `--${key}=${value}`))
+    ).it(`Parse edit options correctly`, () => {
+        expect(editFake.calledOnce).to.be.true;
+        //@ts-expect-error
+        const parsedArgs = <SubplebbitEditOptions>editFake.firstArg;
+        for (const editKey of Object.keys(editOptions)) {
+            //@ts-expect-error
+            expect(JSON.stringify(parsedArgs[editKey])).to.equal(JSON.stringify(editOptions[editKey]));
+        }
+    });
 });

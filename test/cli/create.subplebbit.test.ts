@@ -1,6 +1,4 @@
 import { Plebbit } from "@plebbit/plebbit-js/dist/node/plebbit.js";
-import PlebbitRpcClient from "@plebbit/plebbit-js/dist/node/clients/plebbit-rpc-client.js";
-import { Client as WebSocketClient } from "rpc-websockets";
 import { expect, test } from "@oclif/test";
 import signers from "../fixtures/signers";
 import lodash from "lodash";
@@ -11,17 +9,20 @@ import { CreateSubplebbitOptions } from "@plebbit/plebbit-js/dist/node/subplebbi
 import { CliCreateSubplebbitOptions } from "../../src/cli/types.js";
 
 describe("plebbit subplebbit create", () => {
-    Sinon.stub(WebSocketClient.prototype, "on");
-    Sinon.stub(WebSocketClient.prototype, "call");
+    const sandbox = Sinon.createSandbox();
 
-    Sinon.stub(PlebbitRpcClient.prototype, "_init");
+    const startFake = sandbox.fake();
+    let plebbitCreateStub: Sinon.SinonSpy;
 
-    const startFake = Sinon.fake();
-    const plebbitCreateStub = Sinon.replace(
-        Plebbit.prototype,
-        "createSubplebbit",
-        Sinon.fake.resolves({ address: signers[0]!.address, start: startFake })
-    );
+    before(() => {
+        plebbitCreateStub = sandbox.replace(
+            Plebbit.prototype,
+            "createSubplebbit",
+            sandbox.fake.resolves({ address: signers[0]!.address, start: startFake })
+        );
+    });
+    after(() => sandbox.restore());
+
     const cliCreateOptions: CliCreateSubplebbitOptions = {
         privateKeyPath: "test/fixtures/sub_0_private_key.pem",
         title: "testTitle",

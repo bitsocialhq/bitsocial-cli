@@ -3,9 +3,10 @@ import Plebbit from "@plebbit/plebbit-js";
 import { ChildProcess, spawn } from "child_process";
 import defaults from "../../dist/src/common-utils/defaults.js";
 import fetch from "node-fetch";
-import { SubplebbitList } from "../../src/api/types.js";
-import { Plebbit as PlebbitClass } from "@plebbit/plebbit-js/dist/node/plebbit.js";
 import chai from "chai";
+import { directory } from "tempy";
+import WebSocket from "ws";
+
 //@ts-ignore
 import chaiAsPromised from "chai-as-promised";
 chai.use(chaiAsPromised);
@@ -13,8 +14,8 @@ chai.use(chaiAsPromised);
 const { expect, assert } = chai;
 
 describe("plebbit daemon", async () => {
-    let plebbit: PlebbitClass;
     let daemonProcess: ChildProcess;
+    const rpcServerEndPoint = `ws://localhost:${defaults.PLEBBIT_RPC_API_PORT}`;
 
     const startDaemon = (args: string[]): Promise<ChildProcess> => {
         return new Promise(async (resolve, reject) => {
@@ -24,7 +25,7 @@ describe("plebbit daemon", async () => {
                 reject(`spawnAsync process '${daemonProcess.pid}' exited with code '${exitCode}' signal '${signal}'`);
             });
             daemonProcess.stdout.on("data", (data) => {
-                if (data.toString().match("Plebbit API documentation")) {
+                if (data.toString().match("Plebbit data path")) {
                     daemonProcess.removeAllListeners();
                     resolve(daemonProcess);
                 }
@@ -34,19 +35,20 @@ describe("plebbit daemon", async () => {
     };
 
     before(async () => {
-        daemonProcess = await startDaemon([]);
+        daemonProcess = await startDaemon(["--plebbitDataPath", directory()]);
     });
+
+    after(async () => {
+        daemonProcess.kill();
+    });
+
     it(`Starts a daemon successfully with default args`, async () => {
         expect(daemonProcess.pid).to.be.a("number");
         expect(daemonProcess.killed).to.be.false;
-        plebbit = await Plebbit({ ipfsHttpClientsOptions: [`http://localhost:${defaults.IPFS_API_PORT}`] });
-        expect(Object.keys(plebbit.clients.ipfsGateways)).to.deep.equal([`http://127.0.0.1:${defaults.IPFS_GATEWAY_PORT}`]);
-        // We're able to retrieve ipfs gateway url from ipfs node, that means ipfs node was ran correctly
-        const res = await fetch(`http://localhost:${defaults.PLEBBIT_API_PORT}/api/v0/subplebbit/list`, {
-            method: "POST"
-        });
-        const subs: SubplebbitList = <SubplebbitList>await res.json();
-        expect(Array.isArray(subs)).to.be.true;
+        const rpcClient = new WebSocket(rpcServerEndPoint);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        expect(rpcClient.readyState).to.equal(1); // 1 = connected
+        rpcClient.close();
     });
 
     [1, 2].map((tryNumber) =>
@@ -76,18 +78,18 @@ describe("plebbit daemon", async () => {
     it(`Ipfs node is killed after killing plebbit daemon`, async () => {
         expect(daemonProcess.kill()).to.be.true;
 
-        // Test whether daemon is reachable, it should not be reachable
-        //@ts-ignore
-        await assert.isRejected(
-            fetch(`http://localhost:${defaults.PLEBBIT_API_PORT}/api/v0/subplebbit/list`, {
-                method: "POST"
-            }),
-            "ECONNRESET",
-            ""
-        );
+        // Test whether rpc server is reachable, it should not be reachable
+        const rpcClient = new WebSocket(rpcServerEndPoint);
+        rpcClient.onerror = function (errorEvent) {
+            console.log("WebSocket Error " + errorEvent);
+        };
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        // Plebbit should fail to retrieve gateway from ipfs node since it's killed. Will default to cloudflare after
-        plebbit = await Plebbit({ ipfsHttpClientsOptions: [`http://localhost:${defaults.IPFS_API_PORT}/api/v0`] });
-        expect(Object.keys(plebbit.clients.ipfsGateways)).to.deep.equal([]);
+        assert.throws(rpcClient.ping);
+        rpcClient.close();
+
+        // check if ipfs is reachable too
+        //@ts-ignore
+        await assert.isRejected(fetch(`http://localhost:${defaults.IPFS_API_PORT}/api/v0/bitswap/stat`, { method: "POST" })); // IPFS node should be down
     });
 });
