@@ -28,7 +28,7 @@ export default class Stop extends BaseCommand {
         log(`addresses: `, argv);
         log(`flags: `, flags);
         const addresses = <string[]>argv;
-        if (!Array.isArray(addresses)) throw Error(`Failed to parse addresses correctly (${addresses})`);
+        if (!Array.isArray(addresses)) this.error(`Failed to parse addresses correctly (${addresses})`);
 
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
         for (const address of addresses) {

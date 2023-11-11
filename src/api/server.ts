@@ -39,7 +39,7 @@ export async function startRpcServer(
     const gateway = Object.keys(rpcServer.plebbit.clients.ipfsGateways)[0];
     assert(typeof gateway === "string");
     console.log(`IPFS Gateway listening on: ${gateway.replace("127.0.0.1", "localhost")}`);
-    console.log(`Plebbit API listening on: ws://localhost:${plebbitRpcApiPort}`);
+    console.log(`Plebbit RPC API listening on: ws://localhost:${plebbitRpcApiPort}`);
     console.log(`Plebbit data path: ${path.resolve(<string>rpcServer.plebbit.dataPath)}`);
     if (Array.isArray(seedSubs)) {
         const seedSubsLoop = () => {
