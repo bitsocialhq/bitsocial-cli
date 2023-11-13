@@ -1,11 +1,14 @@
 import { Flags, Command } from "@oclif/core";
 import Logger from "@plebbit/plebbit-logger";
 import { ChildProcessWithoutNullStreams } from "child_process";
-import { startRpcServer } from "../../api/server.js";
+import { seedSubplebbits } from "../../seeder";
+
 import defaults from "../../common-utils/defaults.js";
 import { startIpfsNode } from "../../ipfs/startIpfs.js";
+import { PlebbitWsServer } from "@plebbit/plebbit-js/dist/node/rpc/src/index";
 import lodash from "lodash";
 import fetch from "node-fetch";
+import path from "path";
 
 export default class Daemon extends Command {
     static override description =
@@ -91,12 +94,36 @@ export default class Daemon extends Command {
         await keepIpfsUp();
 
         process.on("exit", () => (mainProcessExited = true) && process.kill(<number>ipfsProcess.pid));
-        await startRpcServer(
-            flags.plebbitRpcApiPort,
-            `http://localhost:${flags.ipfsApiPort}/api/v0`,
-            `http://localhost:${flags.ipfsGatewayPort}`,
-            flags.plebbitDataPath,
-            subsToSeed
-        );
+
+        const ipfsApiEndpoint = `http://localhost:${flags.ipfsApiPort}/api/v0`;
+        const ipfsGatewayEndpoint = `http://localhost:${flags.ipfsGatewayPort}`;
+        const rpcServer = await PlebbitWsServer({
+            port: flags.plebbitRpcApiPort,
+            plebbitOptions: {
+                ipfsHttpClientsOptions: [ipfsApiEndpoint],
+                dataPath: flags.plebbitDataPath
+            }
+        });
+
+        const handleExit = async (signal: NodeJS.Signals) => {
+            log(`in handle exit (${signal})`);
+            await rpcServer.destroy();
+            process.exit();
+        };
+
+        ["SIGINT", "SIGTERM", "SIGHUP", "beforeExit"].forEach((exitSignal) => process.on(exitSignal, handleExit));
+
+        console.log(`IPFS API listening on: ${ipfsApiEndpoint}`);
+        console.log(`IPFS Gateway listening on: ${ipfsGatewayEndpoint}`);
+        console.log(`Plebbit RPC API listening on: ws://localhost:${flags.plebbitRpcApiPort}`);
+        console.log(`Plebbit data path: ${path.resolve(<string>rpcServer.plebbit.dataPath)}`);
+        if (Array.isArray(subsToSeed)) {
+            const seedSubsLoop = () => {
+                // I think calling setTimeout constantly here will overflow memory. Need to check later
+                seedSubplebbits(<string[]>subsToSeed, rpcServer.plebbit).then(() => setTimeout(seedSubsLoop, 600000)); // Seed subs every 10 minutes
+            };
+            console.log(`Seeding subplebbits:`, subsToSeed);
+            seedSubsLoop();
+        }
     }
 }
