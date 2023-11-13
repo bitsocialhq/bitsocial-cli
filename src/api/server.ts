@@ -25,11 +25,7 @@ export async function startRpcServer(
 
     const handleExit = async (signal: NodeJS.Signals) => {
         log(`in handle exit (${signal})`);
-        const subAddresses = await rpcServer.plebbit.listSubplebbits();
-        const subs = await Promise.all(subAddresses.map((subAddress) => rpcServer.plebbit.createSubplebbit({ address: subAddress })));
-
-        await Promise.all(subs.map((sub) => sub.stop())); // Stop all running subs
-        console.log("Stopped all running subs:", subAddresses);
+        await rpcServer.destroy();
         process.exit();
     };
 
