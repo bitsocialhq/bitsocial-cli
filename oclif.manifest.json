@@ -10,9 +10,7 @@
       "pluginType": "core",
       "aliases": [],
       "examples": [
-        "plebbit daemon",
-        "plebbit daemon --seed",
-        "plebbit daemon --seed --seedSubs mysub.eth, myothersub.eth, 12D3KooWEKA6Fhp6qtyttMvNKcNCtqH2N7ZKpPy5rfCeM1otr5qU"
+        "plebbit daemon"
       ],
       "flags": {
         "plebbitDataPath": {
@@ -23,28 +21,13 @@
           "multiple": false,
           "default": "/home/runner/.local/share/plebbit"
         },
-        "seed": {
-          "name": "seed",
-          "type": "boolean",
-          "description": "Seeding flag. Seeding helps subplebbits distribute their publications and latest updates, as well as receiving new publications",
-          "required": false,
-          "allowNo": false
-        },
-        "seedSubs": {
-          "name": "seedSubs",
+        "plebbitRpcApiPort": {
+          "name": "plebbitRpcApiPort",
           "type": "option",
-          "description": "Subplebbits to seed. If --seed is used and no subs was provided, it will default to seeding default subs",
-          "required": false,
-          "multiple": true,
-          "default": []
-        },
-        "plebbitApiPort": {
-          "name": "plebbitApiPort",
-          "type": "option",
-          "description": "Specify Plebbit API port to listen on",
+          "description": "Specify Plebbit RPC API port to listen on",
           "required": true,
           "multiple": false,
-          "default": 32431
+          "default": 9138
         },
         "ipfsApiPort": {
           "name": "ipfsApiPort",
@@ -52,7 +35,7 @@
           "description": "Specify the API port of the ipfs node to listen on",
           "required": true,
           "multiple": false,
-          "default": 32429
+          "default": 5001
         },
         "ipfsGatewayPort": {
           "name": "ipfsGatewayPort",
@@ -60,7 +43,7 @@
           "description": "Specify the gateway port of the ipfs node to listen on",
           "required": true,
           "multiple": false,
-          "default": 32430
+          "default": 8080
         }
       },
       "args": {}
@@ -80,13 +63,13 @@
         }
       ],
       "flags": {
-        "apiUrl": {
-          "name": "apiUrl",
+        "plebbitRpcApiUrl": {
+          "name": "plebbitRpcApiUrl",
           "type": "option",
-          "summary": "URL to Plebbit API",
+          "summary": "URL to Plebbit RPC API",
           "required": true,
           "multiple": false,
-          "default": "http://localhost:32431/api/v0"
+          "default": "ws://localhost:9138/"
         },
         "title": {
           "name": "title",
@@ -173,13 +156,13 @@
       "aliases": [],
       "examples": [],
       "flags": {
-        "apiUrl": {
-          "name": "apiUrl",
+        "plebbitRpcApiUrl": {
+          "name": "plebbitRpcApiUrl",
           "type": "option",
-          "summary": "URL to Plebbit API",
+          "summary": "URL to Plebbit RPC API",
           "required": true,
           "multiple": false,
-          "default": "http://localhost:32431/api/v0"
+          "default": "ws://localhost:9138/"
         },
         "title": {
           "name": "title",
@@ -272,13 +255,13 @@
       "aliases": [],
       "examples": [],
       "flags": {
-        "apiUrl": {
-          "name": "apiUrl",
+        "plebbitRpcApiUrl": {
+          "name": "plebbitRpcApiUrl",
           "type": "option",
-          "summary": "URL to Plebbit API",
+          "summary": "URL to Plebbit RPC API",
           "required": true,
           "multiple": false,
-          "default": "http://localhost:32431/api/v0"
+          "default": "ws://localhost:9138/"
         },
         "quiet": {
           "name": "quiet",
@@ -373,13 +356,13 @@
       "aliases": [],
       "examples": [],
       "flags": {
-        "apiUrl": {
-          "name": "apiUrl",
+        "plebbitRpcApiUrl": {
+          "name": "plebbitRpcApiUrl",
           "type": "option",
-          "summary": "URL to Plebbit API",
+          "summary": "URL to Plebbit RPC API",
           "required": true,
           "multiple": false,
-          "default": "http://localhost:32431/api/v0"
+          "default": "ws://localhost:9138/"
         }
       },
       "args": {
@@ -403,13 +386,13 @@
         "plebbit subplebbit stop Qmb99crTbSUfKXamXwZBe829Vf6w5w5TktPkb6WstC9RFW"
       ],
       "flags": {
-        "apiUrl": {
-          "name": "apiUrl",
+        "plebbitRpcApiUrl": {
+          "name": "plebbitRpcApiUrl",
           "type": "option",
-          "summary": "URL to Plebbit API",
+          "summary": "URL to Plebbit RPC API",
           "required": true,
           "multiple": false,
-          "default": "http://localhost:32431/api/v0"
+          "default": "ws://localhost:9138/"
         }
       },
       "args": {
@@ -432,13 +415,13 @@
         "plebbit subplebbit role remove plebbit.eth estebanabaroa.eth"
       ],
       "flags": {
-        "apiUrl": {
-          "name": "apiUrl",
+        "plebbitRpcApiUrl": {
+          "name": "plebbitRpcApiUrl",
           "type": "option",
-          "summary": "URL to Plebbit API",
+          "summary": "URL to Plebbit RPC API",
           "required": true,
           "multiple": false,
-          "default": "http://localhost:32431/api/v0"
+          "default": "ws://localhost:9138/"
         }
       },
       "args": {
@@ -466,13 +449,13 @@
         "plebbit subplebbit role set plebbit.eth estebanabaroa.eth --role admin"
       ],
       "flags": {
-        "apiUrl": {
-          "name": "apiUrl",
+        "plebbitRpcApiUrl": {
+          "name": "plebbitRpcApiUrl",
           "type": "option",
-          "summary": "URL to Plebbit API",
+          "summary": "URL to Plebbit RPC API",
           "required": true,
           "multiple": false,
-          "default": "http://localhost:32431/api/v0"
+          "default": "ws://localhost:9138/"
         },
         "role": {
           "name": "role",

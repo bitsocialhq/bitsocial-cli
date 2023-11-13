@@ -1,5 +1,20 @@
 
 
+* build(deps): upgrade plebbit-js and kubo and remove unneeded code (3c9fd7c)
+* fix(daemon): make sure rpc server is destroyed when process is exited (34d1b8d)
+* fix(cli): make sure websocket connection is closed down after cli command (5b7a3a7)
+* fix(daemon): corrected printed gateway url (1d722a9)
+* test(cli): fix tests and CI (2230bc8)
+* style(cli): clearer messages (cdaedc9)
+* fix(cli): no need to fetch startedState if -q is used (26d3ee6)
+* test(create): migrate cli create command to latest plebbit-cli (418e3b3)
+* refactor(cli): migrate the CLI codebase to plebbit-js with rpc. HTTP API not needed anymore (39dc54f)
+* build(deps): upgrade deps including plebbit-js (a7f5ec8)
+* fix(seeder): comment out seeding functionality for now (a566152)
+* Delete plebwhales.eth (e1f1ca3)
+* Update README.md (9075efa)
+* build(packaging): ci build (45d10a3)
+
 ## [0.7.16](https://github.com/plebbit/plebbit-cli/compare/v0.7.15...v0.7.16) (2023-08-31)
 
 ## [0.7.15](https://github.com/plebbit/plebbit-cli/compare/v0.7.14...v0.7.15) (2023-08-30)

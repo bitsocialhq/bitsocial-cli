@@ -138,19 +138,15 @@ Run a network-connected Plebbit node. Once the daemon is running you can create 
 
 ```
 USAGE
-  $ plebbit daemon --plebbitDataPath <value> --plebbitApiPort <value> --ipfsApiPort <value>
-    --ipfsGatewayPort <value> [--seed] [--seedSubs <value>]
+  $ plebbit daemon --plebbitDataPath <value> --plebbitRpcApiPort <value> --ipfsApiPort <value>
+    --ipfsGatewayPort <value>
 
 FLAGS
-  --ipfsApiPort=<value>      (required) [default: 32429] Specify the API port of the ipfs node to listen on
-  --ipfsGatewayPort=<value>  (required) [default: 32430] Specify the gateway port of the ipfs node to listen on
-  --plebbitApiPort=<value>   (required) [default: 32431] Specify Plebbit API port to listen on
-  --plebbitDataPath=<value>  (required) [default: /home/runner/.local/share/plebbit] Path to plebbit data path where
-                             subplebbits and ipfs node are stored
-  --seed                     Seeding flag. Seeding helps subplebbits distribute their publications and latest updates,
-                             as well as receiving new publications
-  --seedSubs=<value>...      [default: ] Subplebbits to seed. If --seed is used and no subs was provided, it will
-                             default to seeding default subs
+  --ipfsApiPort=<value>        (required) [default: 5001] Specify the API port of the ipfs node to listen on
+  --ipfsGatewayPort=<value>    (required) [default: 8080] Specify the gateway port of the ipfs node to listen on
+  --plebbitDataPath=<value>    (required) [default: /home/runner/.local/share/plebbit] Path to plebbit data path where
+                               subplebbits and ipfs node are stored
+  --plebbitRpcApiPort=<value>  (required) [default: 9138] Specify Plebbit RPC API port to listen on
 
 DESCRIPTION
   Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive
@@ -158,13 +154,9 @@ DESCRIPTION
 
 EXAMPLES
   $ plebbit daemon
-
-  $ plebbit daemon --seed
-
-  $ plebbit daemon --seed --seedSubs mysub.eth, myothersub.eth, 12D3KooWEKA6Fhp6qtyttMvNKcNCtqH2N7ZKpPy5rfCeM1otr5qU
 ```
 
-_See code: [dist/src/cli/commands/daemon.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.16/dist/src/cli/commands/daemon.js)_
+_See code: [dist/cli/commands/daemon.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.16/dist/cli/commands/daemon.js)_
 
 ## `plebbit help [COMMANDS]`
 
@@ -192,14 +184,14 @@ Create a subplebbit with specific properties. A newly created sub will be starte
 
 ```
 USAGE
-  $ plebbit subplebbit create --apiUrl <value> [--title <value>] [--description <value>] [--pubsubTopic <value>]
-    [--suggested.primaryColor <value>] [--suggested.secondaryColor <value>] [--suggested.avatarUrl <value>]
+  $ plebbit subplebbit create --plebbitRpcApiUrl <value> [--title <value>] [--description <value>] [--pubsubTopic
+    <value>] [--suggested.primaryColor <value>] [--suggested.secondaryColor <value>] [--suggested.avatarUrl <value>]
     [--suggested.bannerUrl <value>] [--suggested.backgroundUrl <value>] [--suggested.language <value>]
     [--settings.fetchThumbnailUrls] [--settings.fetchThumbnailUrlsProxyUrl <value>] [--privateKeyPath <value>]
 
 FLAGS
-  --apiUrl=<value>                               (required) [default: http://localhost:32431/api/v0] URL to Plebbit API
   --description=<value>                          Description of the subplebbit
+  --plebbitRpcApiUrl=<value>                     (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
   --privateKeyPath=<value>                       Private key (PEM) of the subplebbit signer that will be used to
                                                  determine address (if address is not a domain). If it's not provided
                                                  then Plebbit will generate a private key
@@ -226,7 +218,7 @@ EXAMPLES
     $ plebbit subplebbit create --title 'Hello Plebs' --description 'Welcome'
 ```
 
-_See code: [dist/src/cli/commands/subplebbit/create.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.16/dist/src/cli/commands/subplebbit/create.js)_
+_See code: [dist/cli/commands/subplebbit/create.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.16/dist/cli/commands/subplebbit/create.js)_
 
 ## `plebbit subplebbit edit ADDRESS`
 
@@ -234,18 +226,19 @@ Edit a subplebbit
 
 ```
 USAGE
-  $ plebbit subplebbit edit ADDRESS --apiUrl <value> [--title <value>] [--description <value>] [--pubsubTopic
-    <value>] [--suggested.primaryColor <value>] [--suggested.secondaryColor <value>] [--suggested.avatarUrl <value>]
-    [--suggested.bannerUrl <value>] [--suggested.backgroundUrl <value>] [--suggested.language <value>]
-    [--settings.fetchThumbnailUrls] [--settings.fetchThumbnailUrlsProxyUrl <value>] [--address <value>]
+  $ plebbit subplebbit edit ADDRESS --plebbitRpcApiUrl <value> [--title <value>] [--description <value>]
+    [--pubsubTopic <value>] [--suggested.primaryColor <value>] [--suggested.secondaryColor <value>]
+    [--suggested.avatarUrl <value>] [--suggested.bannerUrl <value>] [--suggested.backgroundUrl <value>]
+    [--suggested.language <value>] [--settings.fetchThumbnailUrls] [--settings.fetchThumbnailUrlsProxyUrl <value>]
+    [--address <value>]
 
 ARGUMENTS
   ADDRESS  Address of the subplebbit address to edit
 
 FLAGS
   --address=<value>                              New address of the subplebbit
-  --apiUrl=<value>                               (required) [default: http://localhost:32431/api/v0] URL to Plebbit API
   --description=<value>                          Description of the subplebbit
+  --plebbitRpcApiUrl=<value>                     (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
   --pubsubTopic=<value>                          The string to publish to in the pubsub, a public key of the subplebbit
                                                  owner's choice
   --settings.fetchThumbnailUrls                  Fetch the thumbnail URLs of comments with comment.link property, could
@@ -263,7 +256,7 @@ DESCRIPTION
   Edit a subplebbit
 ```
 
-_See code: [dist/src/cli/commands/subplebbit/edit.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.16/dist/src/cli/commands/subplebbit/edit.js)_
+_See code: [dist/cli/commands/subplebbit/edit.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.16/dist/cli/commands/subplebbit/edit.js)_
 
 ## `plebbit subplebbit list`
 
@@ -271,27 +264,27 @@ List your subplebbits
 
 ```
 USAGE
-  $ plebbit subplebbit list --apiUrl <value> [-q] [--columns <value> | -x] [--sort <value>] [--filter <value>]
-    [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
+  $ plebbit subplebbit list --plebbitRpcApiUrl <value> [-q] [--columns <value> | -x] [--sort <value>] [--filter
+    <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
 
 FLAGS
-  -q, --quiet        Only display subplebbit addresses
-  -x, --extended     show extra columns
-  --apiUrl=<value>   (required) [default: http://localhost:32431/api/v0] URL to Plebbit API
-  --columns=<value>  only show provided columns (comma-separated)
-  --csv              output is csv format [alias: --output=csv]
-  --filter=<value>   filter property by partial string matching, ex: name=foo
-  --no-header        hide table header from output
-  --no-truncate      do not truncate output to fit screen
-  --output=<option>  output in a more machine friendly format
-                     <options: csv|json|yaml>
-  --sort=<value>     property to sort by (prepend '-' for descending)
+  -q, --quiet                 Only display subplebbit addresses
+  -x, --extended              show extra columns
+  --columns=<value>           only show provided columns (comma-separated)
+  --csv                       output is csv format [alias: --output=csv]
+  --filter=<value>            filter property by partial string matching, ex: name=foo
+  --no-header                 hide table header from output
+  --no-truncate               do not truncate output to fit screen
+  --output=<option>           output in a more machine friendly format
+                              <options: csv|json|yaml>
+  --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
+  --sort=<value>              property to sort by (prepend '-' for descending)
 
 DESCRIPTION
   List your subplebbits
 ```
 
-_See code: [dist/src/cli/commands/subplebbit/list.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.16/dist/src/cli/commands/subplebbit/list.js)_
+_See code: [dist/cli/commands/subplebbit/list.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.16/dist/cli/commands/subplebbit/list.js)_
 
 ## `plebbit subplebbit role remove SUB-ADDRESS AUTHOR-ADDRESS`
 
@@ -299,14 +292,14 @@ Remove role of an author within the subplebbit
 
 ```
 USAGE
-  $ plebbit subplebbit role remove SUB-ADDRESS AUTHOR-ADDRESS --apiUrl <value>
+  $ plebbit subplebbit role remove SUB-ADDRESS AUTHOR-ADDRESS --plebbitRpcApiUrl <value>
 
 ARGUMENTS
   SUB-ADDRESS     Address of subplebbit
   AUTHOR-ADDRESS  The address of the author to remove their role
 
 FLAGS
-  --apiUrl=<value>  (required) [default: http://localhost:32431/api/v0] URL to Plebbit API
+  --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
 
 DESCRIPTION
   Remove role of an author within the subplebbit
@@ -315,7 +308,7 @@ EXAMPLES
   $ plebbit subplebbit role remove plebbit.eth estebanabaroa.eth
 ```
 
-_See code: [dist/src/cli/commands/subplebbit/role/remove.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.16/dist/src/cli/commands/subplebbit/role/remove.js)_
+_See code: [dist/cli/commands/subplebbit/role/remove.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.16/dist/cli/commands/subplebbit/role/remove.js)_
 
 ## `plebbit subplebbit role set SUB-ADDRESS AUTHOR-ADDRESS`
 
@@ -323,16 +316,16 @@ Set role to an author within the subplebbit. If an author has a role already, it
 
 ```
 USAGE
-  $ plebbit subplebbit role set SUB-ADDRESS AUTHOR-ADDRESS --apiUrl <value> --role admin|moderator|owner
+  $ plebbit subplebbit role set SUB-ADDRESS AUTHOR-ADDRESS --plebbitRpcApiUrl <value> --role admin|moderator|owner
 
 ARGUMENTS
   SUB-ADDRESS     Address of subplebbit
   AUTHOR-ADDRESS  The address of the author to set the role to
 
 FLAGS
-  --apiUrl=<value>  (required) [default: http://localhost:32431/api/v0] URL to Plebbit API
-  --role=<option>   (required) [default: moderator] New role for the author
-                    <options: admin|moderator|owner>
+  --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
+  --role=<option>             (required) [default: moderator] New role for the author
+                              <options: admin|moderator|owner>
 
 DESCRIPTION
   Set role to an author within the subplebbit. If an author has a role already, it would get overidden with the new role
@@ -341,7 +334,7 @@ EXAMPLES
   $ plebbit subplebbit role set plebbit.eth estebanabaroa.eth --role admin
 ```
 
-_See code: [dist/src/cli/commands/subplebbit/role/set.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.16/dist/src/cli/commands/subplebbit/role/set.js)_
+_See code: [dist/cli/commands/subplebbit/role/set.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.16/dist/cli/commands/subplebbit/role/set.js)_
 
 ## `plebbit subplebbit start ADDRESSES`
 
@@ -349,19 +342,19 @@ Start a subplebbit
 
 ```
 USAGE
-  $ plebbit subplebbit start ADDRESSES --apiUrl <value>
+  $ plebbit subplebbit start ADDRESSES --plebbitRpcApiUrl <value>
 
 ARGUMENTS
   ADDRESSES  Addresses of subplebbits to start. Separated by space
 
 FLAGS
-  --apiUrl=<value>  (required) [default: http://localhost:32431/api/v0] URL to Plebbit API
+  --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
 
 DESCRIPTION
   Start a subplebbit
 ```
 
-_See code: [dist/src/cli/commands/subplebbit/start.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.16/dist/src/cli/commands/subplebbit/start.js)_
+_See code: [dist/cli/commands/subplebbit/start.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.16/dist/cli/commands/subplebbit/start.js)_
 
 ## `plebbit subplebbit stop ADDRESSES`
 
@@ -369,13 +362,13 @@ Stop a subplebbit. The subplebbit will not publish or receive any publications u
 
 ```
 USAGE
-  $ plebbit subplebbit stop ADDRESSES --apiUrl <value>
+  $ plebbit subplebbit stop ADDRESSES --plebbitRpcApiUrl <value>
 
 ARGUMENTS
   ADDRESSES  Addresses of subplebbits to stop. Separated by space
 
 FLAGS
-  --apiUrl=<value>  (required) [default: http://localhost:32431/api/v0] URL to Plebbit API
+  --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
 
 DESCRIPTION
   Stop a subplebbit. The subplebbit will not publish or receive any publications until it is started again.
@@ -386,7 +379,7 @@ EXAMPLES
   $ plebbit subplebbit stop Qmb99crTbSUfKXamXwZBe829Vf6w5w5TktPkb6WstC9RFW
 ```
 
-_See code: [dist/src/cli/commands/subplebbit/stop.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.16/dist/src/cli/commands/subplebbit/stop.js)_
+_See code: [dist/cli/commands/subplebbit/stop.js](https://github.com/plebbit/plebbit-cli/blob/v0.7.16/dist/cli/commands/subplebbit/stop.js)_
 <!-- commandsstop -->
 
 # Contribution
