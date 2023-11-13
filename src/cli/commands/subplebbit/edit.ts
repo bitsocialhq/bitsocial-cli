@@ -37,5 +37,6 @@ export default class Edit extends BaseSubplebbitOptions {
         await sub.edit(editOptions);
 
         this.log(sub.address);
+        await plebbit.destroy();
     }
 }

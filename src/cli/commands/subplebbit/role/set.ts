@@ -49,5 +49,6 @@ export default class Set extends BaseCommand {
         const newRoles = { ...sub.roles, [authorAddress]: { role } };
 
         await sub.edit({ roles: newRoles });
+        await plebbit.destroy();
     }
 }

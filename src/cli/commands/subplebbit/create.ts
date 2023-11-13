@@ -44,6 +44,7 @@ export default class Create extends BaseSubplebbitOptions {
         const createdSub = await plebbit.createSubplebbit(createOptions);
         await createdSub.start();
 
+        await plebbit.destroy();
         this.log(createdSub.address);
     }
 }

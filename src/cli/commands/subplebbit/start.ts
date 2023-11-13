@@ -30,5 +30,6 @@ export default class Start extends BaseCommand {
             await plebbit.plebbitRpcClient!.startSubplebbit(address);
             this.log(address);
         }
+        await plebbit.destroy();
     }
 }

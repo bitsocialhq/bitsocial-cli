@@ -35,5 +35,6 @@ export default class Remove extends BaseCommand {
         if (!sub?.roles?.[args["author-address"]]) this.error(`There is no role with author address (${args["author-address"]})`);
         const newRoles = lodash.omit(sub.roles, args["author-address"]);
         await sub.edit({ roles: newRoles });
+        await plebbit.destroy();
     }
 }

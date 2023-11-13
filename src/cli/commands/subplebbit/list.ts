@@ -40,5 +40,6 @@ export default class List extends BaseCommand {
                 }
             );
         }
+        await plebbit.destroy();
     }
 }

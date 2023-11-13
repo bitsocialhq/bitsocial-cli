@@ -35,5 +35,6 @@ export default class Stop extends BaseCommand {
             await plebbit.plebbitRpcClient!.stopSubplebbit(address);
             this.log(address);
         }
+        await plebbit.destroy();
     }
 }
