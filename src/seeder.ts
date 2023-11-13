@@ -74,7 +74,7 @@ async function _seedSub(sub: Subplebbit, pinnedCids: string[]) {
 
 export async function seedSubplebbits(subAddresses: string[], plebbit: Plebbit) {
     const log = Logger("plebbit-cli:server:seed");
-
+    log.trace("test"); // remove this line later
     for (const subAddress of subAddresses) {
         try {
             const sub = await plebbit.getSubplebbit(subAddress);
