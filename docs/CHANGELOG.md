@@ -1,5 +1,22 @@
 
 
+# [0.8.0](https://github.com/plebbit/plebbit-cli/compare/v0.7.15...v0.8.0) (2023-11-13)
+
+
+### Bug Fixes
+
+* **cli:** make sure websocket connection is closed down after cli command ([5b7a3a7](https://github.com/plebbit/plebbit-cli/commit/5b7a3a7637846783020e3ebd264a5dcf32d6d369))
+* **cli:** no need to fetch startedState if -q is used ([26d3ee6](https://github.com/plebbit/plebbit-cli/commit/26d3ee6ed6502d5f3b90b2d740c2fab428753fd6))
+* **daemon:** corrected printed gateway url ([1d722a9](https://github.com/plebbit/plebbit-cli/commit/1d722a9c97c0e40753e25704b138c70c0e69bcdb))
+* **daemon:** make sure rpc server is destroyed when process is exited ([34d1b8d](https://github.com/plebbit/plebbit-cli/commit/34d1b8da89592f0863a7ab780e3b08f8058cff7c))
+* **seeder:** comment out seeding functionality for now ([a566152](https://github.com/plebbit/plebbit-cli/commit/a56615242dc7a533dab8ac6cef108de8a41a9a4c))
+
+
+### Features
+
+* **ci:** to force a new release ([e7405a1](https://github.com/plebbit/plebbit-cli/commit/e7405a19a1d94b4296d43842f29d184cc157e1ac))
+* **ci:** to trigger a new release ([aa6c5a9](https://github.com/plebbit/plebbit-cli/commit/aa6c5a93489b3fd08b75ab8a699fca2ebb282afa))
+
 * build(deps): upgrade plebbit-js and kubo and remove unneeded code (3c9fd7c)
 * fix(daemon): make sure rpc server is destroyed when process is exited (34d1b8d)
 * fix(cli): make sure websocket connection is closed down after cli command (5b7a3a7)
