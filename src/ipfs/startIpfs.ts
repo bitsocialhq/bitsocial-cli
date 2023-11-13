@@ -59,11 +59,7 @@ function _spawnAsync(log: Logger, ...args: any[]) {
         spawedProcess.on("error", (data) => log.error(data.toString()));
     });
 }
-export async function startIpfsNode(
-    apiPortNumber: number,
-    gatewayPortNumber: number,
-    testing: boolean
-): Promise<ChildProcessWithoutNullStreams> {
+export async function startIpfsNode(apiPortNumber: number, gatewayPortNumber: number): Promise<ChildProcessWithoutNullStreams> {
     return new Promise(async (resolve, reject) => {
         const log = Logger("plebbit-cli:ipfs:startIpfsNode");
         const ipfsDataPath = process.env["IPFS_PATH"] || path.join(paths.data, ".ipfs-cli");
@@ -85,10 +81,7 @@ export async function startIpfsNode(
 
         await _spawnAsync(log, ipfsExePath, ["config", "Addresses.API", `/ip4/127.0.0.1/tcp/${apiPortNumber}`], { env, hideWindows: true });
 
-        if (testing) await _spawnAsync(log, ipfsExePath, ["bootstrap", "rm", "--all"], { env });
-
-        const daemonArgs =
-            process.env["OFFLINE_MODE"] === "1" ? ["--offline"] : ["--enable-pubsub-experiment", "--enable-namesys-pubsub", "--migrate"];
+        const daemonArgs = ["--enable-namesys-pubsub", "--migrate"];
 
         const ipfsProcess: ChildProcessWithoutNullStreams = spawn(ipfsExePath, ["daemon", ...daemonArgs], { env, cwd: process.cwd() });
         log.trace(`ipfs daemon process started with pid ${ipfsProcess.pid}`);
@@ -102,7 +95,6 @@ export async function startIpfsNode(
             log.trace(data.toString());
             if (data.toString().match("Daemon is ready")) {
                 assert(typeof ipfsProcess.pid === "number", `ipfsProcess.pid (${ipfsProcess.pid}) is not a valid pid`);
-                if (testing) console.log(data.toString());
                 resolve(ipfsProcess);
             }
         });

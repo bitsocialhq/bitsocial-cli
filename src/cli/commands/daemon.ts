@@ -50,7 +50,7 @@ export default class Daemon extends Command {
     };
 
     static override examples = [
-        "plebbit daemon",
+        "plebbit daemon"
         // "plebbit daemon --seed",
         // "plebbit daemon --seed --seedSubs mysub.eth, myothersub.eth, 12D3KooWEKA6Fhp6qtyttMvNKcNCtqH2N7ZKpPy5rfCeM1otr5qU"
     ];
@@ -65,7 +65,7 @@ export default class Daemon extends Command {
         // Ipfs Node may fail randomly, we need to set a listener so when it exits because of an error we restart it
         let ipfsProcess: ChildProcessWithoutNullStreams;
         const keepIpfsUp = async () => {
-            ipfsProcess = await startIpfsNode(flags.ipfsApiPort, flags.ipfsGatewayPort, false);
+            ipfsProcess = await startIpfsNode(flags.ipfsApiPort, flags.ipfsGatewayPort);
             log(`Started ipfs process with pid (${ipfsProcess.pid})`);
             ipfsProcess.on("exit", async () => {
                 // Restart IPFS process because it failed

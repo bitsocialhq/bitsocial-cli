@@ -2,7 +2,7 @@
     "name": "plebbit-cli",
     "version": "0.7.15",
     "description": "Command line interface to Plebbit API",
-    "types": "./dist/src/index.d.ts",
+    "types": "./dist/index.d.ts",
     "homepage": "https://github.com/plebbit/plebbit-cli",
     "repository": "git@github.com:plebbit/plebbit-cli.git",
     "author": "Esteban Abaroa, Rinse",
@@ -27,11 +27,11 @@
     "bin": {
         "plebbit": "./bin/run"
     },
-    "main": "./dist/src/index.js",
+    "main": "./dist/index.js",
     "oclif": {
         "bin": "plebbit",
         "dirname": "plebbit",
-        "commands": "./dist/src/cli/commands",
+        "commands": "./dist/cli/commands",
         "topicSeparator": " ",
         "plugins": [
             "@oclif/plugin-help",
@@ -103,11 +103,11 @@
         "@oclif/core": "2.11.8",
         "@oclif/plugin-help": "5.2.17",
         "@oclif/plugin-not-found": "2.3.37",
-        "@plebbit/plebbit-js": "https://github.com/plebbit/plebbit-js#e592f894fd1b93d9d0b5f792f6f4f25ce1593631",
+        "@plebbit/plebbit-js": "https://github.com/plebbit/plebbit-js#e7e40aff4d7e806da9f754a7f7944c032f01b70c",
         "dataobject-parser": "1.2.22",
         "env-paths": "2.2.1",
         "is-ipfs": "7.0.3",
-        "kubo": "0.23.0",
+        "kubo": "0.24.0",
         "lodash-es": "4.17.21",
         "skia-canvas": "1.0.0",
         "tslib": "2.6.1",
