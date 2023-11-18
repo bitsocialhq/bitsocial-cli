@@ -8,6 +8,29 @@ import Sinon from "sinon";
 import { CreateSubplebbitOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
 import { CliCreateSubplebbitOptions } from "../../src/cli/types.js";
 
+const createCreateCommand = (createOptions: CreateSubplebbitOptions) => {
+    let command = ["subplebbit create"];
+    const createOptionsFlattened: Record<string, string> = DataObjectParser.untranspose(createOptions);
+    for (const [key, value] of Object.entries(createOptionsFlattened)) command = command.concat(`--${key}`, value);
+    console.log("Final command: ", command.join(" "));
+    return command;
+};
+
+const cliCreateOptions: CliCreateSubplebbitOptions = {
+    privateKeyPath: "test/fixtures/sub_0_private_key.pem",
+    title: "testTitle",
+    description: "testDescription",
+    pubsubTopic: "testPubsubTopic",
+    suggested: {
+        primaryColor: "testPrimaryColor",
+        secondaryColor: "testSecondaryColor",
+        avatarUrl: "http://localhost:8080/avatar.png",
+        bannerUrl: "http://localhost:8080/banner.png",
+        backgroundUrl: "http://localhost:8080/background.png",
+        language: "testLanguage"
+    }
+};
+
 describe("plebbit subplebbit create", () => {
     const sandbox = Sinon.createSandbox();
 
@@ -23,24 +46,8 @@ describe("plebbit subplebbit create", () => {
     });
     after(() => sandbox.restore());
 
-    const cliCreateOptions: CliCreateSubplebbitOptions = {
-        privateKeyPath: "test/fixtures/sub_0_private_key.pem",
-        title: "testTitle",
-        description: "testDescription",
-        pubsubTopic: "testPubsubTopic",
-        suggested: {
-            primaryColor: "testPrimaryColor",
-            secondaryColor: "testSecondaryColor",
-            avatarUrl: "http://localhost:8080/avatar.png",
-            bannerUrl: "http://localhost:8080/banner.png",
-            backgroundUrl: "http://localhost:8080/background.png",
-            language: "testLanguage"
-        }
-    };
-    const cliCreateOptionsFlattened = DataObjectParser.untranspose(cliCreateOptions);
-
     test.stdout()
-        .command(["subplebbit create"].concat(Object.entries(cliCreateOptionsFlattened).map(([key, value]) => `--${key}=${value}`)))
+        .command(createCreateCommand(cliCreateOptions))
         .it(`Parse create options correctly`, (ctx) => {
             expect(plebbitCreateStub.calledOnce).to.be.true;
             //@ts-expect-error
