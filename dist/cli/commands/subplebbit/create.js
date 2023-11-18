@@ -6,9 +6,9 @@ const plebbit_logger_1 = tslib_1.__importDefault(require("@plebbit/plebbit-logge
 const lodash_1 = tslib_1.__importDefault(require("lodash"));
 //@ts-ignore
 const dataobject_parser_1 = tslib_1.__importDefault(require("dataobject-parser"));
-const base_subplebbit_options_js_1 = tslib_1.__importDefault(require("../../base-subplebbit-options.js"));
 const fs_1 = tslib_1.__importDefault(require("fs"));
-class Create extends base_subplebbit_options_js_1.default {
+const base_command_js_1 = require("../../base-command.js");
+class Create extends base_command_js_1.BaseCommand {
     async run() {
         const { flags } = await this.parse(Create);
         const log = (0, plebbit_logger_1.default)("plebbit-cli:commands:subplebbit:create");
@@ -23,16 +23,14 @@ class Create extends base_subplebbit_options_js_1.default {
         this.log(createdSub.address);
     }
 }
-Create.description = "Create a subplebbit with specific properties. A newly created sub will be started after creation and be able to receive publications";
+Create.description = "Create a subplebbit with specific properties. A newly created sub will be started after creation and be able to receive publications. For a list of properties, visit https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions";
 Create.examples = [
     {
         description: "Create a subplebbit with title 'Hello Plebs' and description 'Welcome'",
         command: "<%= config.bin %> <%= command.id %> --title 'Hello Plebs' --description 'Welcome'"
     }
 ];
-// TODO implement roles, flairs flag
 Create.flags = {
-    ...base_subplebbit_options_js_1.default.baseSubplebbitFlags,
     privateKeyPath: core_1.Flags.file({
         exists: true,
         description: "Private key (PEM) of the subplebbit signer that will be used to determine address (if address is not a domain). If it's not provided then Plebbit will generate a private key"
