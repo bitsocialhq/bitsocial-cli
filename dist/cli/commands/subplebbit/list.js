@@ -14,7 +14,6 @@ class List extends base_command_js_1.BaseCommand {
         const subs = await plebbit.listSubplebbits();
         if (flags.quiet) {
             this.log(subs.join(os_1.EOL));
-            return;
         }
         else {
             const subsWithStarted = await Promise.all(subs.map(async (subAddress) => {
