@@ -1,6 +1,6 @@
 {
     "name": "plebbit-cli",
-    "version": "0.8.2",
+    "version": "0.9.0",
     "description": "Command line interface to Plebbit API",
     "types": "./dist/index.d.ts",
     "homepage": "https://github.com/plebbit/plebbit-cli",
@@ -47,9 +47,9 @@
         },
         "hooks": {
             "prerun": [
-              "./dist/cli/hooks/prerun/parse-dynamic-flags-hook"
+                "./dist/cli/hooks/prerun/parse-dynamic-flags-hook"
             ]
-          }
+        }
     },
     "pkg": {
         "scripts": "./dist/**/*.js",
