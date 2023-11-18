@@ -9,5 +9,3 @@ export interface CliCreateSubplebbitOptions
     privateKeyPath?: string;
 }
 
-export interface CliEditSubplebbitOptions
-    extends Pick<SubplebbitEditOptions, "address" | "title" | "description" | "pubsubTopic" | "suggested"> {}

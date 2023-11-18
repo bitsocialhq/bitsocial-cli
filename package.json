@@ -44,7 +44,12 @@
             "subplebbit:role": {
                 "description": "Manage the role of authors in your subplebbits"
             }
-        }
+        },
+        "hooks": {
+            "prerun": [
+              "./dist/cli/hooks/prerun/parse-dynamic-flags-hook"
+            ]
+          }
     },
     "pkg": {
         "scripts": "./dist/**/*.js",

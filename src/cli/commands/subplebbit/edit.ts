@@ -3,10 +3,10 @@ import Logger from "@plebbit/plebbit-logger";
 import lodash from "lodash";
 //@ts-ignore
 import DataObjectParser from "dataobject-parser";
-import BaseSubplebbitOptions from "../../base-subplebbit-options.js";
-import { Flags, Args } from "@oclif/core";
+import { Args } from "@oclif/core";
+import { BaseCommand } from "../../base-command.js";
 
-export default class Edit extends BaseSubplebbitOptions {
+export default class Edit extends BaseCommand {
     static override description = "Edit a subplebbit";
 
     static override args = {
@@ -19,22 +19,20 @@ export default class Edit extends BaseSubplebbitOptions {
 
     static override examples = [];
 
-    // TODO implement roles, flairs flag
-    static override flags = {
-        ...BaseSubplebbitOptions.baseSubplebbitFlags,
-        address: Flags.string({ summary: "New address of the subplebbit" })
-    };
-
     async run(): Promise<void> {
         const { flags, args } = await this.parse(Edit);
 
         const log = Logger("plebbit-cli:commands:subplebbit:edit");
         log(`flags: `, flags);
-        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
         const editOptions: SubplebbitEditOptions = DataObjectParser.transpose(lodash.omit(flags, ["plebbitRpcApiUrl"]))["_data"];
+        log("Edit options parsed:", editOptions);
+        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
 
         const sub = await plebbit.createSubplebbit({ address: args.address });
-        await sub.edit(editOptions);
+        const mergedSubState = lodash.pick(sub.toJSONInternal(), Object.keys(editOptions));
+        lodash.merge(mergedSubState, editOptions);
+        log("Internal sub state after merge:", mergedSubState);
+        await sub.edit(mergedSubState);
 
         this.log(sub.address);
         await plebbit.destroy();
