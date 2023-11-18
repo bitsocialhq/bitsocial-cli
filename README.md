@@ -134,8 +134,6 @@ $ plebbit subplebbit edit mysub.eth '--roles["author-address.eth"]' null
 * [`plebbit subplebbit create`](#plebbit-subplebbit-create)
 * [`plebbit subplebbit edit ADDRESS`](#plebbit-subplebbit-edit-address)
 * [`plebbit subplebbit list`](#plebbit-subplebbit-list)
-* [`plebbit subplebbit role remove SUB-ADDRESS AUTHOR-ADDRESS`](#plebbit-subplebbit-role-remove-sub-address-author-address)
-* [`plebbit subplebbit role set SUB-ADDRESS AUTHOR-ADDRESS`](#plebbit-subplebbit-role-set-sub-address-author-address)
 * [`plebbit subplebbit start ADDRESSES`](#plebbit-subplebbit-start-addresses)
 * [`plebbit subplebbit stop ADDRESSES`](#plebbit-subplebbit-stop-addresses)
 
@@ -163,7 +161,7 @@ EXAMPLES
   $ plebbit daemon
 ```
 
-_See code: [dist/cli/commands/daemon.js](https://github.com/plebbit/plebbit-cli/blob/v0.8.2/dist/cli/commands/daemon.js)_
+_See code: [dist/cli/commands/daemon.js](https://github.com/plebbit/plebbit-cli/blob/v0.9.0/dist/cli/commands/daemon.js)_
 
 ## `plebbit help [COMMANDS]`
 
@@ -187,37 +185,21 @@ _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.2.1
 
 ## `plebbit subplebbit create`
 
-Create a subplebbit with specific properties. A newly created sub will be started after creation and be able to receive publications
+Create a subplebbit with specific properties. A newly created sub will be started after creation and be able to receive publications. For a list of properties, visit https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions
 
 ```
 USAGE
-  $ plebbit subplebbit create --plebbitRpcApiUrl <value> [--title <value>] [--description <value>] [--pubsubTopic
-    <value>] [--suggested.primaryColor <value>] [--suggested.secondaryColor <value>] [--suggested.avatarUrl <value>]
-    [--suggested.bannerUrl <value>] [--suggested.backgroundUrl <value>] [--suggested.language <value>]
-    [--settings.fetchThumbnailUrls] [--settings.fetchThumbnailUrlsProxyUrl <value>] [--privateKeyPath <value>]
+  $ plebbit subplebbit create --plebbitRpcApiUrl <value> [--privateKeyPath <value>]
 
 FLAGS
-  --description=<value>                          Description of the subplebbit
-  --plebbitRpcApiUrl=<value>                     (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
-  --privateKeyPath=<value>                       Private key (PEM) of the subplebbit signer that will be used to
-                                                 determine address (if address is not a domain). If it's not provided
-                                                 then Plebbit will generate a private key
-  --pubsubTopic=<value>                          The string to publish to in the pubsub, a public key of the subplebbit
-                                                 owner's choice
-  --settings.fetchThumbnailUrls                  Fetch the thumbnail URLs of comments with comment.link property, could
-                                                 reveal the IP address of the subplebbit node
-  --settings.fetchThumbnailUrlsProxyUrl=<value>  The HTTP proxy URL used to fetch thumbnail URLs
-  --suggested.avatarUrl=<value>                  The URL of the subplebbit's avatar
-  --suggested.backgroundUrl=<value>              The URL of the subplebbit's background
-  --suggested.bannerUrl=<value>                  The URL of the subplebbit's banner
-  --suggested.language=<value>                   The language of the subplebbit
-  --suggested.primaryColor=<value>               Primary color of the subplebbit in hex
-  --suggested.secondaryColor=<value>             Secondary color of the subplebbit in hex
-  --title=<value>                                Title of the subplebbit
+  --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
+  --privateKeyPath=<value>    Private key (PEM) of the subplebbit signer that will be used to determine address (if
+                              address is not a domain). If it's not provided then Plebbit will generate a private key
 
 DESCRIPTION
   Create a subplebbit with specific properties. A newly created sub will be started after creation and be able to
-  receive publications
+  receive publications. For a list of properties, visit
+  https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions
 
 EXAMPLES
   Create a subplebbit with title 'Hello Plebs' and description 'Welcome'
@@ -225,45 +207,48 @@ EXAMPLES
     $ plebbit subplebbit create --title 'Hello Plebs' --description 'Welcome'
 ```
 
-_See code: [dist/cli/commands/subplebbit/create.js](https://github.com/plebbit/plebbit-cli/blob/v0.8.2/dist/cli/commands/subplebbit/create.js)_
+_See code: [dist/cli/commands/subplebbit/create.js](https://github.com/plebbit/plebbit-cli/blob/v0.9.0/dist/cli/commands/subplebbit/create.js)_
 
 ## `plebbit subplebbit edit ADDRESS`
 
-Edit a subplebbit
+Edit a subplebbit properties. For a list of properties, visit https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions
 
 ```
 USAGE
-  $ plebbit subplebbit edit ADDRESS --plebbitRpcApiUrl <value> [--title <value>] [--description <value>]
-    [--pubsubTopic <value>] [--suggested.primaryColor <value>] [--suggested.secondaryColor <value>]
-    [--suggested.avatarUrl <value>] [--suggested.bannerUrl <value>] [--suggested.backgroundUrl <value>]
-    [--suggested.language <value>] [--settings.fetchThumbnailUrls] [--settings.fetchThumbnailUrlsProxyUrl <value>]
-    [--address <value>]
+  $ plebbit subplebbit edit ADDRESS --plebbitRpcApiUrl <value>
 
 ARGUMENTS
   ADDRESS  Address of the subplebbit address to edit
 
 FLAGS
-  --address=<value>                              New address of the subplebbit
-  --description=<value>                          Description of the subplebbit
-  --plebbitRpcApiUrl=<value>                     (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
-  --pubsubTopic=<value>                          The string to publish to in the pubsub, a public key of the subplebbit
-                                                 owner's choice
-  --settings.fetchThumbnailUrls                  Fetch the thumbnail URLs of comments with comment.link property, could
-                                                 reveal the IP address of the subplebbit node
-  --settings.fetchThumbnailUrlsProxyUrl=<value>  The HTTP proxy URL used to fetch thumbnail URLs
-  --suggested.avatarUrl=<value>                  The URL of the subplebbit's avatar
-  --suggested.backgroundUrl=<value>              The URL of the subplebbit's background
-  --suggested.bannerUrl=<value>                  The URL of the subplebbit's banner
-  --suggested.language=<value>                   The language of the subplebbit
-  --suggested.primaryColor=<value>               Primary color of the subplebbit in hex
-  --suggested.secondaryColor=<value>             Secondary color of the subplebbit in hex
-  --title=<value>                                Title of the subplebbit
+  --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
 
 DESCRIPTION
-  Edit a subplebbit
+  Edit a subplebbit properties. For a list of properties, visit
+  https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions
+
+EXAMPLES
+  Change the address of the sub to a new ENS address
+
+    $ plebbit subplebbit edit 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu --address newAddress.eth
+
+  Add the author address 'esteban.eth' as an admin on the sub
+
+    $ plebbit subplebbit edit mysub.eth '--roles["esteban.eth"].role' admin
+
+  Add two challenges to the sub. The first challenge will be a question and answer, and the second will be an image
+  captcha
+
+    $ plebbit subplebbit edit mysub.eth --settings.challenges[0].name question \
+      --settings.challenges[0].options.question "what is the password?" --settings.challenges[0].options.answer \
+      thepassword --settings.challenges[1].name captcha-canvas-v3
+
+  Change the title and description
+
+    $ plebbit subplebbit edit mysub.eth --title "This is the new title" --description "This is the new description"
 ```
 
-_See code: [dist/cli/commands/subplebbit/edit.js](https://github.com/plebbit/plebbit-cli/blob/v0.8.2/dist/cli/commands/subplebbit/edit.js)_
+_See code: [dist/cli/commands/subplebbit/edit.js](https://github.com/plebbit/plebbit-cli/blob/v0.9.0/dist/cli/commands/subplebbit/edit.js)_
 
 ## `plebbit subplebbit list`
 
@@ -291,57 +276,7 @@ DESCRIPTION
   List your subplebbits
 ```
 
-_See code: [dist/cli/commands/subplebbit/list.js](https://github.com/plebbit/plebbit-cli/blob/v0.8.2/dist/cli/commands/subplebbit/list.js)_
-
-## `plebbit subplebbit role remove SUB-ADDRESS AUTHOR-ADDRESS`
-
-Remove role of an author within the subplebbit
-
-```
-USAGE
-  $ plebbit subplebbit role remove SUB-ADDRESS AUTHOR-ADDRESS --plebbitRpcApiUrl <value>
-
-ARGUMENTS
-  SUB-ADDRESS     Address of subplebbit
-  AUTHOR-ADDRESS  The address of the author to remove their role
-
-FLAGS
-  --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
-
-DESCRIPTION
-  Remove role of an author within the subplebbit
-
-EXAMPLES
-  $ plebbit subplebbit role remove plebbit.eth estebanabaroa.eth
-```
-
-_See code: [dist/cli/commands/subplebbit/role/remove.js](https://github.com/plebbit/plebbit-cli/blob/v0.8.2/dist/cli/commands/subplebbit/role/remove.js)_
-
-## `plebbit subplebbit role set SUB-ADDRESS AUTHOR-ADDRESS`
-
-Set role to an author within the subplebbit. If an author has a role already, it would get overidden with the new role
-
-```
-USAGE
-  $ plebbit subplebbit role set SUB-ADDRESS AUTHOR-ADDRESS --plebbitRpcApiUrl <value> --role admin|moderator|owner
-
-ARGUMENTS
-  SUB-ADDRESS     Address of subplebbit
-  AUTHOR-ADDRESS  The address of the author to set the role to
-
-FLAGS
-  --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
-  --role=<option>             (required) [default: moderator] New role for the author
-                              <options: admin|moderator|owner>
-
-DESCRIPTION
-  Set role to an author within the subplebbit. If an author has a role already, it would get overidden with the new role
-
-EXAMPLES
-  $ plebbit subplebbit role set plebbit.eth estebanabaroa.eth --role admin
-```
-
-_See code: [dist/cli/commands/subplebbit/role/set.js](https://github.com/plebbit/plebbit-cli/blob/v0.8.2/dist/cli/commands/subplebbit/role/set.js)_
+_See code: [dist/cli/commands/subplebbit/list.js](https://github.com/plebbit/plebbit-cli/blob/v0.9.0/dist/cli/commands/subplebbit/list.js)_
 
 ## `plebbit subplebbit start ADDRESSES`
 
@@ -361,7 +296,7 @@ DESCRIPTION
   Start a subplebbit
 ```
 
-_See code: [dist/cli/commands/subplebbit/start.js](https://github.com/plebbit/plebbit-cli/blob/v0.8.2/dist/cli/commands/subplebbit/start.js)_
+_See code: [dist/cli/commands/subplebbit/start.js](https://github.com/plebbit/plebbit-cli/blob/v0.9.0/dist/cli/commands/subplebbit/start.js)_
 
 ## `plebbit subplebbit stop ADDRESSES`
 
@@ -386,7 +321,7 @@ EXAMPLES
   $ plebbit subplebbit stop Qmb99crTbSUfKXamXwZBe829Vf6w5w5TktPkb6WstC9RFW
 ```
 
-_See code: [dist/cli/commands/subplebbit/stop.js](https://github.com/plebbit/plebbit-cli/blob/v0.8.2/dist/cli/commands/subplebbit/stop.js)_
+_See code: [dist/cli/commands/subplebbit/stop.js](https://github.com/plebbit/plebbit-cli/blob/v0.9.0/dist/cli/commands/subplebbit/stop.js)_
 <!-- commandsstop -->
 
 # Contribution

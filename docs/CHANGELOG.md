@@ -1,5 +1,13 @@
 
 
+# [0.9.0](https://github.com/plebbit/plebbit-cli/compare/v0.8.2...v0.9.0) (2023-11-18)
+
+
+### Features
+
+* **create:** implement dynamic flags for subplebbit create ([c3e33d8](https://github.com/plebbit/plebbit-cli/commit/c3e33d831896739f0580cd67c9af1eb42744dd8b))
+* **edit:** implement dynamic flags for editing a subplebbit ([3c3c9c5](https://github.com/plebbit/plebbit-cli/commit/3c3c9c5a32a9f827cb48280298d58ca45de10505))
+
 ## [0.8.2](https://github.com/plebbit/plebbit-cli/compare/v0.8.1...v0.8.2) (2023-11-13)
 
 
