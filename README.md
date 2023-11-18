@@ -64,13 +64,13 @@ In Bash (or powershell if you're on Windows), run `plebbit daemon` to able to co
 
 ```sh-session
 $ plebbit daemon
-IPFS API listening on: http://localhost:32429/api/v0
-IPFS Gateway listening on: http://localhost:32430
-Plebbit API listening on: http://localhost:32431/api/v0
-You can find Plebbit API documentation at: http://localhost:32431/api/v0/docs
+IPFS API listening on: http://localhost:5001/api/v0
+IPFS Gateway listening on: http://localhost:8080
+Plebbit RPC API listening on: ws://localhost:9138
+Plebbit data path: /root/.local/share/plebbit
 ```
 
-### Seeding Subplebbits
+<!-- ### Seeding Subplebbits
 If you're feeling generous, and would like to seed the default subplebbits you can do so by using the `--seed` flag
 
 ```sh-session
@@ -91,31 +91,38 @@ Seeding subplebbits: [
   'censorship-watch.eth',                     
   'reddit-screenshots.eth'                              
 ]     
-```
+``` -->
 
 ### Creating your first sub
 ```sh-session
 $ plebbit subplebbit create --title "Hello Plebs!" --description "This is gonna be great"
-QmPjewdKya8iVkuQiiXQ5qRBsgVUAZg2LQ2m8v3LNJ7Ht8
+12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
 ### Listing all your subs
 ```sh-session
 $ plebbit subplebbit list
-Address                                        Started 
-────────────────────────────────────────────── ─────── 
-QmPjewdKya8iVkuQiiXQ5qRBsgVUAZg2LQ2m8v3LNJ7Ht8 false   
-QmRcyUK7jUhFyPTEvwWyfGZEAaSoDugNJ8PZSC4PWRjUqd false
+Address                                              Started 
+ ──────────────────────────────────────────────────── ─────── 
+ 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu true    
+ business-and-finance.eth                             true    
+ censorship-watch.eth                                 true    
+ health-nutrition-science.eth                         true    
+ movies-tv-anime.eth                                  true    
+ pleblore.eth                                         true    
+ politically-incorrect.eth                            true    
+ reddit-screenshots.eth                               false   
+ videos-livestreams-podcasts.eth                      false
 ```
 
-### Adding an author role
+### Adding a role moderator to your sub
 ```sh-session
-$ plebbit subplebbit role set QmPjewdKya8iVkuQiiXQ5qRBsgVUAZg2LQ2m8v3LNJ7Ht8 author-address.eth --role moderator
+$ plebbit subplebbit edit mysub.eth '--roles["author-address.eth"].role' moderator
 ```
 
 ### Removing a role
 ```sh-session
-$ plebbit subplebbit role remove QmPjewdKya8iVkuQiiXQ5qRBsgVUAZg2LQ2m8v3LNJ7Ht8 author-address.eth 
+$ plebbit subplebbit edit mysub.eth '--roles["author-address.eth"]' null
 ```
 
 

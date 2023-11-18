@@ -10,7 +10,7 @@ import { BaseCommand } from "../../base-command.js";
 
 export default class Create extends BaseCommand {
     static override description =
-        "Create a subplebbit with specific properties. A newly created sub will be started after creation and be able to receive publications";
+        "Create a subplebbit with specific properties. A newly created sub will be started after creation and be able to receive publications. For a list of properties, visit https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions";
 
     static override examples = [
         {

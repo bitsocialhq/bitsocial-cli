@@ -7,7 +7,8 @@ import { Args } from "@oclif/core";
 import { BaseCommand } from "../../base-command.js";
 
 export default class Edit extends BaseCommand {
-    static override description = "Edit a subplebbit";
+    static override description =
+        "Edit a subplebbit properties. For a list of properties, visit https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions";
 
     static override args = {
         address: Args.string({
@@ -17,7 +18,25 @@ export default class Edit extends BaseCommand {
         })
     };
 
-    static override examples = [];
+    static override examples = [
+        {
+            description: "Change the address of the sub to a new ENS address",
+            command: "plebbit subplebbit edit 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu --address newAddress.eth"
+        },
+        {
+            description: "Add the author address 'esteban.eth' as an admin on the sub",
+            command: `plebbit subplebbit edit mysub.eth '--roles["esteban.eth"].role' admin`
+        },
+        {
+            description:
+                "Add two challenges to the sub. The first challenge will be a question and answer, and the second will be an image captcha",
+            command: `plebbit subplebbit edit mysub.eth --settings.challenges[0].name question --settings.challenges[0].options.question "what is the password?" --settings.challenges[0].options.answer thepassword --settings.challenges[1].name captcha-canvas-v3`
+        },
+        {
+            description: "Change the title and description",
+            command: `plebbit subplebbit edit mysub.eth --title "This is the new title" --description "This is the new description" `
+        }
+    ];
 
     async run(): Promise<void> {
         const { flags, args } = await this.parse(Edit);
