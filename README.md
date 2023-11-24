@@ -2,7 +2,7 @@
 
 <img src="https://raw.githubusercontent.com/plebbit/assets/master/letters-grey.svg" width="260" height="73">
 
-# plebbit-cli: A Plebbit Node with HTTP and Command Line Interface
+# plebbit-cli: A Plebbit Node with WebSocket and Command Line Interface
 
 # Table of contents
 
@@ -20,11 +20,11 @@ Plebbit is serverless, admin-less, decentralized Reddit alternative built comple
 
 # What is plebbit-cli?
 
-`plebbit-cli` is an interface to the backend of Plebbit using [plebbit-js](https://github.com/plebbit/plebbit-js). Users can run and manage their subplebbits using it. It is written in Typescript and designed to receive commands via CLI and HTTP.
+`plebbit-cli` is an interface to the backend of Plebbit using [plebbit-js](https://github.com/plebbit/plebbit-js). Users can run and manage their subplebbits using it. It is written in Typescript and designed to receive commands via CLI and WebSocket.
 
 -   Runs an IPFS and Plebbit node
 -   Command Line interface Interface to IPFS-Nodes
--   HTTP RPC API (`/api/v0`) to access and control Plebbit daemon
+-   WebSocket RPC API to access and control your subplebbits and publications
 
 # Install
 
