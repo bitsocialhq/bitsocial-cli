@@ -111,12 +111,14 @@ export default class Daemon extends Command {
             process.exit();
         };
 
+        const subs = await rpcServer.plebbit.listSubplebbits();
         ["SIGINT", "SIGTERM", "SIGHUP", "beforeExit"].forEach((exitSignal) => process.on(exitSignal, handleExit));
 
         console.log(`IPFS API listening on: ${ipfsApiEndpoint}`);
         console.log(`IPFS Gateway listening on: ${ipfsGatewayEndpoint}`);
         console.log(`Plebbit RPC API listening on: ws://localhost:${flags.plebbitRpcApiPort}`);
         console.log(`Plebbit data path: ${path.resolve(<string>rpcServer.plebbit.dataPath)}`);
+        console.log(`Subplebbits in data path: `, subs);
         if (Array.isArray(subsToSeed)) {
             const seedSubsLoop = () => {
                 // I think calling setTimeout constantly here will overflow memory. Need to check later
