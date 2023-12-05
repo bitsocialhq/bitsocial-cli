@@ -9,6 +9,8 @@ import { PlebbitWsServer } from "@plebbit/plebbit-js/dist/node/rpc/src/index";
 import lodash from "lodash";
 import fetch from "node-fetch";
 import path from "path";
+import { randomBytes } from "crypto";
+import fs from "fs-extra";
 
 export default class Daemon extends Command {
     static override description =
@@ -58,6 +60,20 @@ export default class Daemon extends Command {
         // "plebbit daemon --seed --seedSubs mysub.eth, myothersub.eth, 12D3KooWEKA6Fhp6qtyttMvNKcNCtqH2N7ZKpPy5rfCeM1otr5qU"
     ];
 
+    private async _generateRpcAuthKeyIfNotExisting(plebbitDataPath: string) {
+        // generate plebbit rpc auth key if doesn't exist
+        const plebbitRpcAuthKeyPath = path.join(plebbitDataPath, "auth-key");
+        let plebbitRpcAuthKey: string;
+        try {
+            plebbitRpcAuthKey = fs.readFileSync(plebbitRpcAuthKeyPath, "utf8");
+        } catch (e) {
+            plebbitRpcAuthKey = randomBytes(32).toString("base64").replace(/[/+=]/g, "").substring(0, 40);
+            fs.ensureFileSync(plebbitRpcAuthKeyPath);
+            fs.writeFileSync(plebbitRpcAuthKeyPath, plebbitRpcAuthKey);
+        }
+        return plebbitRpcAuthKey;
+    }
+
     async run() {
         const { flags } = await this.parse(Daemon);
 
@@ -97,12 +113,15 @@ export default class Daemon extends Command {
 
         const ipfsApiEndpoint = `http://localhost:${flags.ipfsApiPort}/api/v0`;
         const ipfsGatewayEndpoint = `http://localhost:${flags.ipfsGatewayPort}`;
+        const rpcAuthKey = await this._generateRpcAuthKeyIfNotExisting(flags.plebbitDataPath);
+
         const rpcServer = await PlebbitWsServer({
             port: flags.plebbitRpcApiPort,
             plebbitOptions: {
                 ipfsHttpClientsOptions: [ipfsApiEndpoint],
                 dataPath: flags.plebbitDataPath
-            }
+            },
+            authKey: rpcAuthKey
         });
 
         const handleExit = async (signal: NodeJS.Signals) => {
@@ -116,7 +135,8 @@ export default class Daemon extends Command {
 
         console.log(`IPFS API listening on: ${ipfsApiEndpoint}`);
         console.log(`IPFS Gateway listening on: ${ipfsGatewayEndpoint}`);
-        console.log(`Plebbit RPC API listening on: ws://localhost:${flags.plebbitRpcApiPort}`);
+        console.log(`plebbit rpc: listening on ws://localhost:${flags.plebbitRpcApiPort} (local connections only)`)
+        console.log(`plebbit rpc: listening on ws://localhost:${flags.plebbitRpcApiPort}/${rpcAuthKey} (secret auth key for remote connections)`)
         console.log(`Plebbit data path: ${path.resolve(<string>rpcServer.plebbit.dataPath)}`);
         console.log(`Subplebbits in data path: `, subs);
         if (Array.isArray(subsToSeed)) {
