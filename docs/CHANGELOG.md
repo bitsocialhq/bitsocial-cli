@@ -1,5 +1,12 @@
 
 
+# [0.10.0](https://github.com/plebbit/plebbit-cli/compare/v0.9.6...v0.10.0) (2023-12-05)
+
+
+### Features
+
+* **daemon:** add rpc auth key to plebbit rpc ([79fa920](https://github.com/plebbit/plebbit-cli/commit/79fa9204c408d50a10bc0e8b979c9e8aefb081bf))
+
 ## [0.9.6](https://github.com/plebbit/plebbit-cli/compare/v0.9.5...v0.9.6) (2023-11-24)
 
 ## [0.9.5](https://github.com/plebbit/plebbit-cli/compare/v0.9.4...v0.9.5) (2023-11-24)
