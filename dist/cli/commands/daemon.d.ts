@@ -8,5 +8,6 @@ export default class Daemon extends Command {
         ipfsGatewayPort: import("@oclif/core/lib/interfaces").OptionFlag<number, import("@oclif/core/lib/interfaces/parser").CustomOptions>;
     };
     static examples: string[];
+    private _generateRpcAuthKeyIfNotExisting;
     run(): Promise<void>;
 }
