@@ -37,7 +37,7 @@ export default class Daemon extends Command {
         //     default: []
         // }),
 
-        plebbitRpcApiPort: Flags.integer({
+        plebbitRpcPort: Flags.integer({
             description: "Specify Plebbit RPC API port to listen on",
             required: true,
             default: defaults.PLEBBIT_RPC_API_PORT
@@ -55,7 +55,8 @@ export default class Daemon extends Command {
     };
 
     static override examples = [
-        "plebbit daemon"
+        "plebbit daemon",
+        "plebbit daemon --plebbitRpcPort 80"
         // "plebbit daemon --seed",
         // "plebbit daemon --seed --seedSubs mysub.eth, myothersub.eth, 12D3KooWEKA6Fhp6qtyttMvNKcNCtqH2N7ZKpPy5rfCeM1otr5qU"
     ];
@@ -116,7 +117,7 @@ export default class Daemon extends Command {
         const rpcAuthKey = await this._generateRpcAuthKeyIfNotExisting(flags.plebbitDataPath);
 
         const rpcServer = await PlebbitWsServer({
-            port: flags.plebbitRpcApiPort,
+            port: flags.plebbitRpcPort,
             plebbitOptions: {
                 ipfsHttpClientsOptions: [ipfsApiEndpoint],
                 dataPath: flags.plebbitDataPath
@@ -135,8 +136,8 @@ export default class Daemon extends Command {
 
         console.log(`IPFS API listening on: ${ipfsApiEndpoint}`);
         console.log(`IPFS Gateway listening on: ${ipfsGatewayEndpoint}`);
-        console.log(`plebbit rpc: listening on ws://localhost:${flags.plebbitRpcApiPort} (local connections only)`)
-        console.log(`plebbit rpc: listening on ws://localhost:${flags.plebbitRpcApiPort}/${rpcAuthKey} (secret auth key for remote connections)`)
+        console.log(`plebbit rpc: listening on ws://localhost:${flags.plebbitRpcPort} (local connections only)`)
+        console.log(`plebbit rpc: listening on ws://localhost:${flags.plebbitRpcPort}/${rpcAuthKey} (secret auth key for remote connections)`)
         console.log(`Plebbit data path: ${path.resolve(<string>rpcServer.plebbit.dataPath)}`);
         console.log(`Subplebbits in data path: `, subs);
         if (Array.isArray(subsToSeed)) {
