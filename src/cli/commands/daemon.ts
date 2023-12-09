@@ -1,7 +1,7 @@
 import { Flags, Command } from "@oclif/core";
 import Logger from "@plebbit/plebbit-logger";
 import { ChildProcessWithoutNullStreams } from "child_process";
-import { seedSubplebbits } from "../../seeder";
+// import { seedSubplebbits } from "../../seeder";
 
 import defaults from "../../common-utils/defaults.js";
 import { startIpfsNode } from "../../ipfs/startIpfs.js";
@@ -140,13 +140,13 @@ export default class Daemon extends Command {
         console.log(`plebbit rpc: listening on ws://localhost:${flags.plebbitRpcPort}/${rpcAuthKey} (secret auth key for remote connections)`)
         console.log(`Plebbit data path: ${path.resolve(<string>rpcServer.plebbit.dataPath)}`);
         console.log(`Subplebbits in data path: `, subs);
-        if (Array.isArray(subsToSeed)) {
-            const seedSubsLoop = () => {
-                // I think calling setTimeout constantly here will overflow memory. Need to check later
-                seedSubplebbits(<string[]>subsToSeed, rpcServer.plebbit).then(() => setTimeout(seedSubsLoop, 600000)); // Seed subs every 10 minutes
-            };
-            console.log(`Seeding subplebbits:`, subsToSeed);
-            seedSubsLoop();
-        }
+        // if (Array.isArray(subsToSeed)) {
+        //     const seedSubsLoop = () => {
+        //         // I think calling setTimeout constantly here will overflow memory. Need to check later
+        //         seedSubplebbits(<string[]>subsToSeed, rpcServer.plebbit).then(() => setTimeout(seedSubsLoop, 600000)); // Seed subs every 10 minutes
+        //     };
+        //     console.log(`Seeding subplebbits:`, subsToSeed);
+        //     seedSubsLoop();
+        // }
     }
 }
