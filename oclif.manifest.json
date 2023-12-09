@@ -1,5 +1,5 @@
 {
-  "version": "0.10.0",
+  "version": "0.10.1",
   "commands": {
     "daemon": {
       "id": "daemon",
@@ -10,7 +10,8 @@
       "pluginType": "core",
       "aliases": [],
       "examples": [
-        "plebbit daemon"
+        "plebbit daemon",
+        "plebbit daemon --plebbitRpcPort 80"
       ],
       "flags": {
         "plebbitDataPath": {
@@ -21,8 +22,8 @@
           "multiple": false,
           "default": "/home/runner/.local/share/plebbit"
         },
-        "plebbitRpcApiPort": {
-          "name": "plebbitRpcApiPort",
+        "plebbitRpcPort": {
+          "name": "plebbitRpcPort",
           "type": "option",
           "description": "Specify Plebbit RPC API port to listen on",
           "required": true,
