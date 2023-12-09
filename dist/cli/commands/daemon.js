@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const core_1 = require("@oclif/core");
 const plebbit_logger_1 = tslib_1.__importDefault(require("@plebbit/plebbit-logger"));
-const seeder_1 = require("../../seeder");
+// import { seedSubplebbits } from "../../seeder";
 const defaults_js_1 = tslib_1.__importDefault(require("../../common-utils/defaults.js"));
 const startIpfs_js_1 = require("../../ipfs/startIpfs.js");
 const index_1 = require("@plebbit/plebbit-js/dist/node/rpc/src/index");
@@ -60,7 +60,7 @@ class Daemon extends core_1.Command {
         const ipfsGatewayEndpoint = `http://localhost:${flags.ipfsGatewayPort}`;
         const rpcAuthKey = await this._generateRpcAuthKeyIfNotExisting(flags.plebbitDataPath);
         const rpcServer = await (0, index_1.PlebbitWsServer)({
-            port: flags.plebbitRpcApiPort,
+            port: flags.plebbitRpcPort,
             plebbitOptions: {
                 ipfsHttpClientsOptions: [ipfsApiEndpoint],
                 dataPath: flags.plebbitDataPath
@@ -76,18 +76,18 @@ class Daemon extends core_1.Command {
         ["SIGINT", "SIGTERM", "SIGHUP", "beforeExit"].forEach((exitSignal) => process.on(exitSignal, handleExit));
         console.log(`IPFS API listening on: ${ipfsApiEndpoint}`);
         console.log(`IPFS Gateway listening on: ${ipfsGatewayEndpoint}`);
-        console.log(`plebbit rpc: listening on ws://localhost:${flags.plebbitRpcApiPort} (local connections only)`);
-        console.log(`plebbit rpc: listening on ws://localhost:${flags.plebbitRpcApiPort}/${rpcAuthKey} (secret auth key for remote connections)`);
+        console.log(`plebbit rpc: listening on ws://localhost:${flags.plebbitRpcPort} (local connections only)`);
+        console.log(`plebbit rpc: listening on ws://localhost:${flags.plebbitRpcPort}/${rpcAuthKey} (secret auth key for remote connections)`);
         console.log(`Plebbit data path: ${path_1.default.resolve(rpcServer.plebbit.dataPath)}`);
         console.log(`Subplebbits in data path: `, subs);
-        if (Array.isArray(subsToSeed)) {
-            const seedSubsLoop = () => {
-                // I think calling setTimeout constantly here will overflow memory. Need to check later
-                (0, seeder_1.seedSubplebbits)(subsToSeed, rpcServer.plebbit).then(() => setTimeout(seedSubsLoop, 600000)); // Seed subs every 10 minutes
-            };
-            console.log(`Seeding subplebbits:`, subsToSeed);
-            seedSubsLoop();
-        }
+        // if (Array.isArray(subsToSeed)) {
+        //     const seedSubsLoop = () => {
+        //         // I think calling setTimeout constantly here will overflow memory. Need to check later
+        //         seedSubplebbits(<string[]>subsToSeed, rpcServer.plebbit).then(() => setTimeout(seedSubsLoop, 600000)); // Seed subs every 10 minutes
+        //     };
+        //     console.log(`Seeding subplebbits:`, subsToSeed);
+        //     seedSubsLoop();
+        // }
     }
 }
 Daemon.description = "Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users";
@@ -109,7 +109,7 @@ Daemon.flags = {
     //     multiple: true,
     //     default: []
     // }),
-    plebbitRpcApiPort: core_1.Flags.integer({
+    plebbitRpcPort: core_1.Flags.integer({
         description: "Specify Plebbit RPC API port to listen on",
         required: true,
         default: defaults_js_1.default.PLEBBIT_RPC_API_PORT
@@ -126,7 +126,8 @@ Daemon.flags = {
     })
 };
 Daemon.examples = [
-    "plebbit daemon"
+    "plebbit daemon",
+    "plebbit daemon --plebbitRpcPort 80"
     // "plebbit daemon --seed",
     // "plebbit daemon --seed --seedSubs mysub.eth, myothersub.eth, 12D3KooWEKA6Fhp6qtyttMvNKcNCtqH2N7ZKpPy5rfCeM1otr5qU"
 ];
