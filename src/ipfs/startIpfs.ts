@@ -81,7 +81,7 @@ export async function startIpfsNode(apiPortNumber: number, gatewayPortNumber: nu
 
         await _spawnAsync(log, ipfsExePath, ["config", "Addresses.API", `/ip4/127.0.0.1/tcp/${apiPortNumber}`], { env, hideWindows: true });
 
-        const daemonArgs = ["--enable-namesys-pubsub", "--migrate"];
+        const daemonArgs = ["--enable-namesys-pubsub", "--migrate", "--enable-gc"];
 
         const ipfsProcess: ChildProcessWithoutNullStreams = spawn(ipfsExePath, ["daemon", ...daemonArgs], { env, cwd: process.cwd() });
         log.trace(`ipfs daemon process started with pid ${ipfsProcess.pid}`);
