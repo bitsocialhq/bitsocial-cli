@@ -1284,9 +1284,9 @@
   resolved "https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
   integrity sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==
 
-"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#c854936e2a4c6acf99628c2d9866e25571d6d37c":
+"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#70f898084d7ffb4dd6187fcb00bb36b6fa3e9d25":
   version "0.0.3"
-  resolved "https://github.com/plebbit/plebbit-js#c854936e2a4c6acf99628c2d9866e25571d6d37c"
+  resolved "https://github.com/plebbit/plebbit-js#70f898084d7ffb4dd6187fcb00bb36b6fa3e9d25"
   dependencies:
     "@ensdomains/eth-ens-namehash" "2.0.15"
     "@keyv/sqlite" "3.6.2"
@@ -1297,8 +1297,11 @@
     "@types/uuid" "8.3.4"
     assert "2.0.0"
     async-wait-until "2.0.12"
+    better-sqlite3 "9.2.0"
     buffer "6.0.3"
     captcha-canvas "3.2.1"
+    cbor "9.0.1"
+    debounce "1.2.1"
     err-code "3.0.1"
     ethers "6.7.0"
     file-type "16.5.4"
@@ -2249,6 +2252,14 @@ before-after-hook@^2.2.0:
   resolved "https://registry.yarnpkg.com/before-after-hook/-/before-after-hook-2.2.3.tgz#c51e809c81a4e354084422b9b26bad88249c517c"
   integrity sha512-NzUnlZexiaH/46WDhANlyR2bXRopNg4F/zuSA3OpZnllCUgRaOF2znDioDWrmbNVsuZk6l9pMquQB38cfBZwkQ==
 
+better-sqlite3@9.2.0:
+  version "9.2.0"
+  resolved "https://registry.yarnpkg.com/better-sqlite3/-/better-sqlite3-9.2.0.tgz#0c7d54ccd22c2a77b1efc57bf100d71e46c41511"
+  integrity sha512-MEm49nfxCU6Yn5rTyXJhnTmjuom0YFrU76/7AC+7PMcftAwIVJ2VtBF6HSPRwQ/WWXw/sSbnPRPUSZ6vMXMniQ==
+  dependencies:
+    bindings "^1.5.0"
+    prebuild-install "^7.1.1"
+
 bin-links@^3.0.0:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/bin-links/-/bin-links-3.0.3.tgz#3842711ef3db2cd9f16a5f404a996a12db355a6e"
@@ -2278,6 +2289,13 @@ binaryextensions@^4.15.0, binaryextensions@^4.16.0:
   version "4.19.0"
   resolved "https://registry.yarnpkg.com/binaryextensions/-/binaryextensions-4.19.0.tgz#7944b41ce6bbbcd3e544e05f65794ac48caaa132"
   integrity sha512-DRxnVbOi/1OgA5pA9EDiRT8gvVYeqfuN7TmPfLyt6cyho3KbHCi3EtDQf39TTmGDrR5dZ9CspdXhPkL/j/WGbg==
+
+bindings@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/bindings/-/bindings-1.5.0.tgz#10353c9e945334bc0511a6d90b38fbc7c9c504df"
+  integrity sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==
+  dependencies:
+    file-uri-to-path "1.0.0"
 
 bl@^4.0.3, bl@^4.1.0:
   version "4.1.0"
@@ -2615,6 +2633,13 @@ cargo-cp-artifact@^0.1:
   version "0.1.8"
   resolved "https://registry.yarnpkg.com/cargo-cp-artifact/-/cargo-cp-artifact-0.1.8.tgz#353814f49f6aa76601a4bcb3ea5f3071180b90de"
   integrity sha512-3j4DaoTrsCD1MRkTF2Soacii0Nx7UHCce0EwUf4fHnggwiE4fbmF2AbnfzayR36DF8KGadfh7M/Yfy625kgPlA==
+
+cbor@9.0.1:
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/cbor/-/cbor-9.0.1.tgz#b16e393d4948d44758cd54ac6151379d443b37ae"
+  integrity sha512-/TQOWyamDxvVIv+DY9cOLNuABkoyz8K/F3QE56539pGVYohx0+MEA1f4lChFTX79dBTBS7R1PF6ovH7G+VtBfQ==
+  dependencies:
+    nofilter "^3.1.0"
 
 cborg@^1.5.4, cborg@^1.6.0:
   version "1.10.2"
@@ -3399,6 +3424,11 @@ dateformat@^4.5.0:
   version "4.6.3"
   resolved "https://registry.yarnpkg.com/dateformat/-/dateformat-4.6.3.tgz#556fa6497e5217fedb78821424f8a1c22fa3f4b5"
   integrity sha512-2P0p0pFGzHS5EMnhdxQi7aJN+iMheud0UhG4dlE1DLAlvL8JHjJJTX/CSm4JXwV0Ka5nGk3zC5mcb5bUQUxxMA==
+
+debounce@1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/debounce/-/debounce-1.2.1.tgz#38881d8f4166a5c5848020c11827b834bcb3e0a5"
+  integrity sha512-XRRe6Glud4rd/ZGQfiV1ruXSfbvfJedlV9Y6zOlP+2K04vBYiJEte6stfFkCP03aMnY5tsipamumUjL14fofug==
 
 debug@2:
   version "2.6.9"
@@ -4329,6 +4359,11 @@ file-type@16.5.4:
     readable-web-to-node-stream "^3.0.0"
     strtok3 "^6.2.4"
     token-types "^4.1.1"
+
+file-uri-to-path@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/file-uri-to-path/-/file-uri-to-path-1.0.0.tgz#553a7b8446ff6f684359c445f1e37a05dacc33dd"
+  integrity sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==
 
 file-uri-to-path@2:
   version "2.0.0"
@@ -7384,6 +7419,11 @@ nodemon@2.0.20:
     touch "^3.1.0"
     undefsafe "^2.0.5"
 
+nofilter@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/nofilter/-/nofilter-3.1.0.tgz#c757ba68801d41ff930ba2ec55bab52ca184aa66"
+  integrity sha512-l2NNj07e9afPnhAhvgVrCD/oy2Ai1yfLpuo3EpiO1jFTsB4sFz6oIfAfSZyQzVpkZQ9xS8ZS5g1jCBgq4Hwo0g==
+
 nopt@^5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/nopt/-/nopt-5.0.0.tgz#530942bb58a512fccafe53fe210f13a25355dc88"
@@ -8282,7 +8322,7 @@ pluralize@^8.0.0:
   resolved "https://registry.yarnpkg.com/pluralize/-/pluralize-8.0.0.tgz#1a6fa16a38d12a1901e0320fa017051c539ce3b1"
   integrity sha512-Nc3IT5yHzflTfbjgqWcCPpo7DaKy4FnpB0l/zCAW0Tc7jxAiuqSxHasntB3D7887LSrA93kDJ9IXovxJYxyLCA==
 
-prebuild-install@7.1.1:
+prebuild-install@7.1.1, prebuild-install@^7.1.1:
   version "7.1.1"
   resolved "https://registry.yarnpkg.com/prebuild-install/-/prebuild-install-7.1.1.tgz#de97d5b34a70a0c81334fd24641f2a1702352e45"
   integrity sha512-jAXscXWMcCK8GgCoHOfIr0ODh5ai8mj63L2nWrjuAgXE6tDyYGnx4/8o/rCgU+B4JSyZBKbeZqzhtwtC3ovxjw==

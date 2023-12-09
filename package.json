@@ -54,7 +54,7 @@
     "pkg": {
         "scripts": "./dist/**/*.js",
         "assets": [
-            "node_modules/{swagger-ui-dist, sqlite3, skia-canvas, @keyv/sqlite}/**/*",
+            "node_modules/{swagger-ui-dist, sqlite3, skia-canvas, @keyv/sqlite, better-sqlite3}/**/*",
             "node_modules/**/*sqlite3.node",
             "node_modules/sqlite3/lib/**/node_sqlite3.node",
             "node_modules/**/skia-canvas/lib/v6/index.node",
@@ -108,7 +108,7 @@
         "@oclif/core": "2.11.8",
         "@oclif/plugin-help": "5.2.17",
         "@oclif/plugin-not-found": "2.3.37",
-        "@plebbit/plebbit-js": "https://github.com/plebbit/plebbit-js#c854936e2a4c6acf99628c2d9866e25571d6d37c",
+        "@plebbit/plebbit-js": "https://github.com/plebbit/plebbit-js#70f898084d7ffb4dd6187fcb00bb36b6fa3e9d25",
         "dataobject-parser": "1.2.22",
         "env-paths": "2.2.1",
         "is-ipfs": "7.0.3",
