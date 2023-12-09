@@ -8,7 +8,23 @@ const defaults_js_1 = tslib_1.__importDefault(require("../../common-utils/defaul
 const startIpfs_js_1 = require("../../ipfs/startIpfs.js");
 const index_1 = require("@plebbit/plebbit-js/dist/node/rpc/src/index");
 const path_1 = tslib_1.__importDefault(require("path"));
+const crypto_1 = require("crypto");
+const fs_extra_1 = tslib_1.__importDefault(require("fs-extra"));
 class Daemon extends core_1.Command {
+    async _generateRpcAuthKeyIfNotExisting(plebbitDataPath) {
+        // generate plebbit rpc auth key if doesn't exist
+        const plebbitRpcAuthKeyPath = path_1.default.join(plebbitDataPath, "auth-key");
+        let plebbitRpcAuthKey;
+        try {
+            plebbitRpcAuthKey = fs_extra_1.default.readFileSync(plebbitRpcAuthKeyPath, "utf8");
+        }
+        catch (e) {
+            plebbitRpcAuthKey = (0, crypto_1.randomBytes)(32).toString("base64").replace(/[/+=]/g, "").substring(0, 40);
+            fs_extra_1.default.ensureFileSync(plebbitRpcAuthKeyPath);
+            fs_extra_1.default.writeFileSync(plebbitRpcAuthKeyPath, plebbitRpcAuthKey);
+        }
+        return plebbitRpcAuthKey;
+    }
     async run() {
         const { flags } = await this.parse(Daemon);
         const log = (0, plebbit_logger_1.default)("plebbit-cli:daemon");
@@ -42,12 +58,14 @@ class Daemon extends core_1.Command {
         process.on("exit", () => (mainProcessExited = true) && process.kill(ipfsProcess.pid));
         const ipfsApiEndpoint = `http://localhost:${flags.ipfsApiPort}/api/v0`;
         const ipfsGatewayEndpoint = `http://localhost:${flags.ipfsGatewayPort}`;
+        const rpcAuthKey = await this._generateRpcAuthKeyIfNotExisting(flags.plebbitDataPath);
         const rpcServer = await (0, index_1.PlebbitWsServer)({
             port: flags.plebbitRpcApiPort,
             plebbitOptions: {
                 ipfsHttpClientsOptions: [ipfsApiEndpoint],
                 dataPath: flags.plebbitDataPath
-            }
+            },
+            authKey: rpcAuthKey
         });
         const handleExit = async (signal) => {
             log(`in handle exit (${signal})`);
@@ -58,7 +76,8 @@ class Daemon extends core_1.Command {
         ["SIGINT", "SIGTERM", "SIGHUP", "beforeExit"].forEach((exitSignal) => process.on(exitSignal, handleExit));
         console.log(`IPFS API listening on: ${ipfsApiEndpoint}`);
         console.log(`IPFS Gateway listening on: ${ipfsGatewayEndpoint}`);
-        console.log(`Plebbit RPC API listening on: ws://localhost:${flags.plebbitRpcApiPort}`);
+        console.log(`plebbit rpc: listening on ws://localhost:${flags.plebbitRpcApiPort} (local connections only)`);
+        console.log(`plebbit rpc: listening on ws://localhost:${flags.plebbitRpcApiPort}/${rpcAuthKey} (secret auth key for remote connections)`);
         console.log(`Plebbit data path: ${path_1.default.resolve(rpcServer.plebbit.dataPath)}`);
         console.log(`Subplebbits in data path: `, subs);
         if (Array.isArray(subsToSeed)) {
