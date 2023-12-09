@@ -11,11 +11,9 @@ export abstract class BaseCommand extends Command {
         })
     };
 
-
     _connectToPlebbitRpc = async (plebbitRpcApiUrl: string) => {
         const plebbit = await Plebbit({ plebbitRpcClientsOptions: [plebbitRpcApiUrl] });
         await plebbit.listSubplebbits(); // To make sure we're connected
         return plebbit;
-
-    }
+    };
 }

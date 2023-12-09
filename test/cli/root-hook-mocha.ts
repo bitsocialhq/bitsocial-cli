@@ -13,6 +13,8 @@ exports.mochaHooks = {
 
         Sinon.stub(PlebbitRpcClient.prototype, "_init");
         Sinon.stub(PlebbitRpcClient.prototype, "destroy")
+
+        Sinon.stub(Plebbit.prototype, "listSubplebbits");
     },
     beforeEach: () => {},
     afterAll: () => {},
