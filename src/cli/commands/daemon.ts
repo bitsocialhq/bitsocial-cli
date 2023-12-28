@@ -11,6 +11,7 @@ import fetch from "node-fetch";
 import path from "path";
 import { randomBytes } from "crypto";
 import fs from "fs-extra";
+import tcpPortUsed from "tcp-port-used";
 
 export default class Daemon extends Command {
     static override description =
@@ -82,9 +83,17 @@ export default class Daemon extends Command {
         log(`flags: `, flags);
 
         let mainProcessExited = false;
+        let isIpfsNodeAlreadyRunningByAnotherProgram = false;
         // Ipfs Node may fail randomly, we need to set a listener so when it exits because of an error we restart it
         let ipfsProcess: ChildProcessWithoutNullStreams;
         const keepIpfsUp = async () => {
+            isIpfsNodeAlreadyRunningByAnotherProgram = await tcpPortUsed.check(flags.ipfsApiPort, "127.0.0.1");
+            if (isIpfsNodeAlreadyRunningByAnotherProgram) {
+                log(
+                    `Ipfs API already running on port (${flags.ipfsApiPort}) by another program. Plebbit-cli will use the running ipfs daemon instead of starting a new one`
+                );
+                return;
+            }
             ipfsProcess = await startIpfsNode(flags.ipfsApiPort, flags.ipfsGatewayPort);
             log(`Started ipfs process with pid (${ipfsProcess.pid})`);
             ipfsProcess.on("exit", async () => {
@@ -110,7 +119,10 @@ export default class Daemon extends Command {
 
         await keepIpfsUp();
 
-        process.on("exit", () => (mainProcessExited = true) && process.kill(<number>ipfsProcess.pid));
+        process.on(
+            "exit",
+            () => (mainProcessExited = true) && !isIpfsNodeAlreadyRunningByAnotherProgram && process.kill(<number>ipfsProcess.pid)
+        );
 
         const ipfsApiEndpoint = `http://localhost:${flags.ipfsApiPort}/api/v0`;
         const ipfsGatewayEndpoint = `http://localhost:${flags.ipfsGatewayPort}`;
@@ -136,8 +148,10 @@ export default class Daemon extends Command {
 
         console.log(`IPFS API listening on: ${ipfsApiEndpoint}`);
         console.log(`IPFS Gateway listening on: ${ipfsGatewayEndpoint}`);
-        console.log(`plebbit rpc: listening on ws://localhost:${flags.plebbitRpcPort} (local connections only)`)
-        console.log(`plebbit rpc: listening on ws://localhost:${flags.plebbitRpcPort}/${rpcAuthKey} (secret auth key for remote connections)`)
+        console.log(`plebbit rpc: listening on ws://localhost:${flags.plebbitRpcPort} (local connections only)`);
+        console.log(
+            `plebbit rpc: listening on ws://localhost:${flags.plebbitRpcPort}/${rpcAuthKey} (secret auth key for remote connections)`
+        );
         console.log(`Plebbit data path: ${path.resolve(<string>rpcServer.plebbit.dataPath)}`);
         console.log(`Subplebbits in data path: `, subs);
         // if (Array.isArray(subsToSeed)) {
