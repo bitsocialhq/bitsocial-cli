@@ -84,6 +84,7 @@
         "@types/mocha": "10.0.0",
         "@types/node": "16.18.1",
         "@types/prettier": "2.7.1",
+        "@types/tcp-port-used": "1.0.4",
         "chai": "4.3.7",
         "chai-as-promised": "7.1.1",
         "commitizen": "4.2.5",
@@ -115,6 +116,7 @@
         "kubo": "0.24.0",
         "lodash-es": "4.17.21",
         "skia-canvas": "1.0.0",
+        "tcp-port-used": "1.0.2",
         "tslib": "2.6.1",
         "typescript": "5.1.6"
     },

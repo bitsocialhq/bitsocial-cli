@@ -4,8 +4,9 @@ import { ChildProcess, spawn } from "child_process";
 import defaults from "../../dist/common-utils/defaults.js";
 import fetch from "node-fetch";
 import chai from "chai";
-import { directory } from "tempy";
+import { directory as randomDirectory } from "tempy";
 import WebSocket from "ws";
+import { path as ipfsExePathFunc } from "kubo";
 
 //@ts-ignore
 import chaiAsPromised from "chai-as-promised";
@@ -13,29 +14,47 @@ chai.use(chaiAsPromised);
 
 const { expect, assert } = chai;
 
-describe("plebbit daemon", async () => {
-    let daemonProcess: ChildProcess;
-    const rpcServerEndPoint = `ws://localhost:${defaults.PLEBBIT_RPC_API_PORT}`;
+const rpcServerEndPoint = `ws://localhost:${defaults.PLEBBIT_RPC_API_PORT}`;
 
-    const startDaemon = (args: string[]): Promise<ChildProcess> => {
-        return new Promise(async (resolve, reject) => {
-            const daemonProcess = spawn("node", ["./bin/run", "daemon", ...args], { stdio: ["pipe", "pipe", "inherit"] });
+const startPlebbitDaemon = (args: string[]): Promise<ChildProcess> => {
+    return new Promise(async (resolve, reject) => {
+        const daemonProcess = spawn("node", ["./bin/run", "daemon", ...args], { stdio: ["pipe", "pipe", "inherit"] });
 
-            daemonProcess.on("exit", (exitCode, signal) => {
-                reject(`spawnAsync process '${daemonProcess.pid}' exited with code '${exitCode}' signal '${signal}'`);
-            });
-            daemonProcess.stdout.on("data", (data) => {
-                if (data.toString().match("Plebbit data path")) {
-                    daemonProcess.removeAllListeners();
-                    resolve(daemonProcess);
-                }
-            });
-            daemonProcess.on("error", (data) => reject(data));
+        daemonProcess.on("exit", (exitCode, signal) => {
+            reject(`spawnAsync process '${daemonProcess.pid}' exited with code '${exitCode}' signal '${signal}'`);
         });
-    };
+        daemonProcess.stdout.on("data", (data) => {
+            if (data.toString().match("Plebbit data path")) {
+                daemonProcess.removeAllListeners();
+                resolve(daemonProcess);
+            }
+        });
+        daemonProcess.on("error", (data) => reject(data));
+    });
+};
+
+const startIpfsDaemon = (args: string[]): Promise<ChildProcess> => {
+    return new Promise(async (resolve, reject) => {
+        const daemonProcess = spawn(ipfsExePathFunc(), ["daemon", ...args], { stdio: ["pipe", "pipe", "inherit"] });
+
+        daemonProcess.on("exit", (exitCode, signal) => {
+            reject(`spawnAsync process '${daemonProcess.pid}' exited with code '${exitCode}' signal '${signal}'`);
+        });
+        daemonProcess.stdout.on("data", (data) => {
+            if (data.toString().match("Daemon is ready")) {
+                daemonProcess.removeAllListeners();
+                resolve(daemonProcess);
+            }
+        });
+        daemonProcess.on("error", (data) => reject(data));
+    });
+};
+
+describe("plebbit daemon (ipfs daemon is started by plebbit)", async () => {
+    let daemonProcess: ChildProcess;
 
     before(async () => {
-        daemonProcess = await startDaemon(["--plebbitDataPath", directory()]);
+        daemonProcess = await startPlebbitDaemon(["--plebbitDataPath", randomDirectory()]);
     });
 
     after(async () => {
@@ -52,7 +71,7 @@ describe("plebbit daemon", async () => {
     });
 
     [1, 2].map((tryNumber) =>
-        it(`Ipfs Node is restart after failing for ${tryNumber}st time`, async () => {
+        it(`Ipfs Node is restarted after failing for ${tryNumber}st time`, async () => {
             const shutdownRes = await fetch(`http://localhost:${defaults.IPFS_API_PORT}/api/v0/shutdown`, {
                 method: "POST"
             });
@@ -91,5 +110,26 @@ describe("plebbit daemon", async () => {
         // check if ipfs is reachable too
         //@ts-ignore
         await assert.isRejected(fetch(`http://localhost:${defaults.IPFS_API_PORT}/api/v0/bitswap/stat`, { method: "POST" })); // IPFS node should be down
+    });
+});
+
+describe(`plebbit daemon (ipfs daemon is started by another process on the same port that plebbit-cli is using)`, async () => {
+    let ipfsDaemonProcess: ChildProcess;
+
+    before(async () => {
+        ipfsDaemonProcess = await startIpfsDaemon([]); // will start a daemon at 5001
+    });
+
+    after(async () => {
+        ipfsDaemonProcess.kill();
+    });
+
+    it(`plebbit daemon can use an ipfs node started by another program`, async () => {
+        const plebbitDaemonProcess = await startPlebbitDaemon(["--plebbitDataPath", randomDirectory()]);
+        const rpcClient = new WebSocket(rpcServerEndPoint);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        expect(rpcClient.readyState).to.equal(1); // 1 = connected
+        rpcClient.close();
+        plebbitDaemonProcess.kill();
     });
 });
