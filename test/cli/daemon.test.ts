@@ -41,12 +41,16 @@ const startIpfsDaemon = (args: string[]): Promise<ChildProcess> => {
             reject(`spawnAsync process '${daemonProcess.pid}' exited with code '${exitCode}' signal '${signal}'`);
         });
         daemonProcess.stdout.on("data", (data) => {
+            console.log(`Ipfs daemon log`, String(data));
             if (data.toString().match("Daemon is ready")) {
                 daemonProcess.removeAllListeners();
                 resolve(daemonProcess);
             }
         });
-        daemonProcess.on("error", (data) => reject(data));
+        daemonProcess.on("error", (data) => {
+            console.error(`Failed to start ipfs daemon`, String(data));
+            reject(data);
+        });
     });
 };
 
