@@ -122,7 +122,7 @@ describe(`plebbit daemon (ipfs daemon is started by another process on the same 
 
     before(async () => {
         await new Promise((resolve) => setTimeout(resolve, 5000)); // wait until the previous daemon is killed
-        ipfsDaemonProcess = await startIpfsDaemon([]); // will start a daemon at 5001
+        ipfsDaemonProcess = await startIpfsDaemon(["--init"]); // will start a daemon at 5001
     });
 
     after(async () => {
