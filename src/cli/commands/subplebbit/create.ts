@@ -2,7 +2,6 @@ import { Flags } from "@oclif/core";
 import { CreateSubplebbitOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
 import Logger from "@plebbit/plebbit-logger";
 import lodash from "lodash";
-import fetch from "node-fetch";
 //@ts-ignore
 import DataObjectParser from "dataobject-parser";
 import fs from "fs";
