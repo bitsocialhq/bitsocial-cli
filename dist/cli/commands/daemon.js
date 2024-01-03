@@ -10,6 +10,7 @@ const index_1 = require("@plebbit/plebbit-js/dist/node/rpc/src/index");
 const path_1 = tslib_1.__importDefault(require("path"));
 const crypto_1 = require("crypto");
 const fs_extra_1 = tslib_1.__importDefault(require("fs-extra"));
+const tcp_port_used_1 = tslib_1.__importDefault(require("tcp-port-used"));
 class Daemon extends core_1.Command {
     async _generateRpcAuthKeyIfNotExisting(plebbitDataPath) {
         // generate plebbit rpc auth key if doesn't exist
@@ -30,9 +31,15 @@ class Daemon extends core_1.Command {
         const log = (0, plebbit_logger_1.default)("plebbit-cli:daemon");
         log(`flags: `, flags);
         let mainProcessExited = false;
+        let isIpfsNodeAlreadyRunningByAnotherProgram = false;
         // Ipfs Node may fail randomly, we need to set a listener so when it exits because of an error we restart it
         let ipfsProcess;
         const keepIpfsUp = async () => {
+            isIpfsNodeAlreadyRunningByAnotherProgram = await tcp_port_used_1.default.check(flags.ipfsApiPort, "127.0.0.1");
+            if (isIpfsNodeAlreadyRunningByAnotherProgram) {
+                log(`Ipfs API already running on port (${flags.ipfsApiPort}) by another program. Plebbit-cli will use the running ipfs daemon instead of starting a new one`);
+                return;
+            }
             ipfsProcess = await (0, startIpfs_js_1.startIpfsNode)(flags.ipfsApiPort, flags.ipfsGatewayPort);
             log(`Started ipfs process with pid (${ipfsProcess.pid})`);
             ipfsProcess.on("exit", async () => {
@@ -55,7 +62,7 @@ class Daemon extends core_1.Command {
         // }
         log.trace(`subs to seed:`, subsToSeed);
         await keepIpfsUp();
-        process.on("exit", () => (mainProcessExited = true) && process.kill(ipfsProcess.pid));
+        process.on("exit", () => (mainProcessExited = true) && !isIpfsNodeAlreadyRunningByAnotherProgram && process.kill(ipfsProcess.pid));
         const ipfsApiEndpoint = `http://localhost:${flags.ipfsApiPort}/api/v0`;
         const ipfsGatewayEndpoint = `http://localhost:${flags.ipfsGatewayPort}`;
         const rpcAuthKey = await this._generateRpcAuthKeyIfNotExisting(flags.plebbitDataPath);

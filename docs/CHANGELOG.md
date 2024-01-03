@@ -1,5 +1,12 @@
 
 
+# [0.11.0](https://github.com/plebbit/plebbit-cli/compare/v0.10.2...v0.11.0) (2023-12-31)
+
+
+### Features
+
+* **daemon:** plebbit daemon will use ipfs API instead of starting a new daemon if api port is used ([7c8a1c1](https://github.com/plebbit/plebbit-cli/commit/7c8a1c1c5d336a5ce45f53ea0a8deaa0590f39b0))
+
 ## [0.10.2](https://github.com/plebbit/plebbit-cli/compare/v0.10.1...v0.10.2) (2023-12-11)
 
 ## [0.10.1](https://github.com/plebbit/plebbit-cli/compare/v0.10.0...v0.10.1) (2023-12-09)
