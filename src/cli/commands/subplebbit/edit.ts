@@ -5,6 +5,7 @@ import lodash from "lodash";
 import DataObjectParser from "dataobject-parser";
 import { Args } from "@oclif/core";
 import { BaseCommand } from "../../base-command.js";
+import { RpcLocalSubplebbit } from "@plebbit/plebbit-js/dist/node/subplebbit/rpc-local-subplebbit.js";
 
 export default class Edit extends BaseCommand {
     static override description =
@@ -47,8 +48,8 @@ export default class Edit extends BaseCommand {
         log("Edit options parsed:", editOptions);
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
 
-        const sub = await plebbit.createSubplebbit({ address: args.address });
-        const mergedSubState = lodash.pick(sub.toJSONInternal(), Object.keys(editOptions));
+        const sub = <RpcLocalSubplebbit>(await plebbit.createSubplebbit({ address: args.address }));
+        const mergedSubState = lodash.pick(sub.toJSONInternalRpc(), Object.keys(editOptions));
         lodash.merge(mergedSubState, editOptions);
         log("Internal sub state after merge:", mergedSubState);
         await sub.edit(mergedSubState);
