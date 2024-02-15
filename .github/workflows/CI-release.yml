@@ -20,7 +20,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
           cache: yarn
       - name: Get latest release tag
         id: previoustag
@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Generate macos-x64 executable
-        run: yarn pkg . -t node16-macos-x64 -o plebbit_macos-x64  --compress Brotli
+        run: yarn pkg . -t node18-macos-x64 -o plebbit_macos-x64  --compress Brotli
 
       - name: Upload file to release
         uses: svenstaro/upload-release-action@v2
@@ -50,7 +50,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
           cache: yarn
       - name: Get latest release tag
         id: previoustag
@@ -60,7 +60,7 @@ jobs:
           sudo apt install -y gcc g++ make git build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev libfontconfig1 fontconfig libfontconfig1-dev libfontconfig
           yarn install --frozen-lockfile
       - name: Generate single executable
-        run: yarn pkg . -t node16-linux-x64 -o  plebbit_linux-x64 --compress Brotli
+        run: yarn pkg . -t node18-linux-x64 -o  plebbit_linux-x64 --compress Brotli
       - name: Upload file to release
         uses: svenstaro/upload-release-action@v2
         with:
@@ -81,7 +81,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
           cache: yarn
       - name: Get latest release tag
         id: previoustag
@@ -89,7 +89,7 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Generate single executable
-        run: yarn pkg . -t node16-win-x64 -o plebbit_win-x64_portable.exe --compress Brotli
+        run: yarn pkg . -t node18-win-x64 -o plebbit_win-x64_portable.exe --compress Brotli
       - name: Upload file to release
         uses: svenstaro/upload-release-action@v2
         with:
@@ -109,7 +109,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
           cache: yarn
       - name: Get latest release tag
         id: previoustag
@@ -149,6 +149,7 @@ jobs:
           image_additional_mb: 2048
           import_github_env: true
           bind_mount_repository: true
+          # Need to rewrite this
           commands: |
             sudo apt-get update
             curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh
@@ -158,7 +159,7 @@ jobs:
             sudo apt-get install -y nodejs gcc g++ make git build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev libfontconfig1 fontconfig libfontconfig1-dev libfontconfig
             npm install --global yarn
             yarn install --frozen-lockfile
-            yarn pkg . -t node16-linux-arm64 -o plebbit_linux-arm64 --compress Brotli
+            yarn pkg . -t node18-linux-arm64 -o plebbit_linux-arm64 --compress Brotli
       - name: Upload Binary releases
         uses: svenstaro/upload-release-action@v2
         with:
