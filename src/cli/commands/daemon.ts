@@ -1,17 +1,14 @@
 import { Flags, Command } from "@oclif/core";
-import Logger from "@plebbit/plebbit-logger";
 import { ChildProcessWithoutNullStreams } from "child_process";
 // import { seedSubplebbits } from "../../seeder";
 
 import defaults from "../../common-utils/defaults.js";
 import { startIpfsNode } from "../../ipfs/startIpfs.js";
-import { PlebbitWsServer } from "@plebbit/plebbit-js/dist/node/rpc/src/index";
-import lodash from "lodash";
-import fetch from "node-fetch";
 import path from "path";
 import { randomBytes } from "crypto";
 import fs from "fs-extra";
 import tcpPortUsed from "tcp-port-used";
+import { getPlebbitLogger } from "../../util.js";
 
 export default class Daemon extends Command {
     static override description =
@@ -79,7 +76,7 @@ export default class Daemon extends Command {
     async run() {
         const { flags } = await this.parse(Daemon);
 
-        const log = Logger("plebbit-cli:daemon");
+        const log = (await getPlebbitLogger())("plebbit-cli:daemon");
         log(`flags: `, flags);
 
         let mainProcessExited = false;
@@ -127,8 +124,9 @@ export default class Daemon extends Command {
         const ipfsApiEndpoint = `http://localhost:${flags.ipfsApiPort}/api/v0`;
         const ipfsGatewayEndpoint = `http://localhost:${flags.ipfsGatewayPort}`;
         const rpcAuthKey = await this._generateRpcAuthKeyIfNotExisting(flags.plebbitDataPath);
+        const PlebbitWsServer = await import("@plebbit/plebbit-js/rpc");
 
-        const rpcServer = await PlebbitWsServer({
+        const rpcServer = await PlebbitWsServer.default.PlebbitWsServer({
             port: flags.plebbitRpcPort,
             plebbitOptions: {
                 ipfsHttpClientsOptions: [ipfsApiEndpoint],

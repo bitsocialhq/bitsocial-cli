@@ -1,7 +1,7 @@
 import { Flags, ux } from "@oclif/core";
-import Logger from "@plebbit/plebbit-logger";
 import { BaseCommand } from "../../base-command.js";
 import { EOL } from "os";
+import { getPlebbitLogger } from "../../../util.js";
 
 export default class List extends BaseCommand {
     static override description = "List your subplebbits";
@@ -16,7 +16,7 @@ export default class List extends BaseCommand {
     async run(): Promise<void> {
         const { flags } = await this.parse(List);
 
-        const log = Logger("plebbit-cli:commands:subplebbit:list");
+        const log = (await getPlebbitLogger())("plebbit-cli:commands:subplebbit:list");
         log(`flags: `, flags);
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
         const subs = await plebbit.listSubplebbits();

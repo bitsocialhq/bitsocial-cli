@@ -1,7 +1,6 @@
 import { Command, Flags } from "@oclif/core";
 import { URL } from "url";
 import defaults from "../common-utils/defaults.js";
-import Plebbit from "@plebbit/plebbit-js";
 export abstract class BaseCommand extends Command {
     static override baseFlags = {
         plebbitRpcApiUrl: Flags.url({
@@ -11,9 +10,13 @@ export abstract class BaseCommand extends Command {
         })
     };
 
-    _connectToPlebbitRpc = async (plebbitRpcApiUrl: string) => {
-        const plebbit = await Plebbit({ plebbitRpcClientsOptions: [plebbitRpcApiUrl] });
+    protected async _connectToPlebbitRpc(plebbitRpcApiUrl: string)  {
+        const Plebbit = await import("@plebbit/plebbit-js");
+        const plebbit = await Plebbit.default({ plebbitRpcClientsOptions: [plebbitRpcApiUrl] });
         await plebbit.listSubplebbits(); // To make sure we're connected
         return plebbit;
-    };
+
+    }
+
+    
 }

@@ -22,7 +22,8 @@
         "esModuleInterop": true,
         "importHelpers": true,
         "moduleResolution": "Node16",
-        "module": "CommonJS"
+        "module": "Node16",
+        "skipLibCheck": true
     },
     "include": ["../src/**/*", "../test/**/run*.ts"],
     "exclude": ["../node_modules"],

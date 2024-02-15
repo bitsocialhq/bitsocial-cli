@@ -1,4 +1,4 @@
-import Logger from "@plebbit/plebbit-logger";
+import { getPlebbitLogger } from "../../../util.js";
 import { BaseCommand } from "../../base-command.js";
 import { Args } from "@oclif/core";
 
@@ -21,7 +21,7 @@ export default class Start extends BaseCommand {
         const { argv, flags } = await this.parse(Start);
 
         const addresses = <string[]>argv;
-        const log = Logger("plebbit-cli:commands:subplebbit:start");
+        const log = (await getPlebbitLogger())("plebbit-cli:commands:subplebbit:start");
         log(`addresses: `, addresses);
         log(`flags: `, flags);
 

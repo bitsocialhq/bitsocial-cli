@@ -1,10 +1,13 @@
-import { SubplebbitEditOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
-import Logger from "@plebbit/plebbit-logger";
+//@ts-expect-error
+import type { SubplebbitEditOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
 import lodash from "lodash";
 //@ts-ignore
 import DataObjectParser from "dataobject-parser";
 import { Args } from "@oclif/core";
 import { BaseCommand } from "../../base-command.js";
+//@ts-expect-error
+import type { RpcLocalSubplebbit } from "@plebbit/plebbit-js/dist/node/subplebbit/rpc-local-subplebbit.js";
+import { getPlebbitLogger } from "../../../util.js";
 
 export default class Edit extends BaseCommand {
     static override description =
@@ -41,14 +44,14 @@ export default class Edit extends BaseCommand {
     async run(): Promise<void> {
         const { flags, args } = await this.parse(Edit);
 
-        const log = Logger("plebbit-cli:commands:subplebbit:edit");
+        const log = (await getPlebbitLogger())("plebbit-cli:commands:subplebbit:edit");
         log(`flags: `, flags);
         const editOptions: SubplebbitEditOptions = DataObjectParser.transpose(lodash.omit(flags, ["plebbitRpcApiUrl"]))["_data"];
         log("Edit options parsed:", editOptions);
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
 
-        const sub = await plebbit.createSubplebbit({ address: args.address });
-        const mergedSubState = lodash.pick(sub.toJSONInternal(), Object.keys(editOptions));
+        const sub = <RpcLocalSubplebbit>await plebbit.createSubplebbit({ address: args.address });
+        const mergedSubState = lodash.pick(sub.toJSONInternalRpc(), Object.keys(editOptions));
         lodash.merge(mergedSubState, editOptions);
         log("Internal sub state after merge:", mergedSubState);
         await sub.edit(mergedSubState);

@@ -1,11 +1,14 @@
 import { Flags } from "@oclif/core";
-import { CreateSubplebbitOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
-import Logger from "@plebbit/plebbit-logger";
+//@ts-expect-error
+import type { CreateSubplebbitOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
 import lodash from "lodash";
 //@ts-ignore
 import DataObjectParser from "dataobject-parser";
 import fs from "fs";
 import { BaseCommand } from "../../base-command.js";
+//@ts-expect-error
+import type { RpcLocalSubplebbit } from "@plebbit/plebbit-js/dist/node/subplebbit/rpc-local-subplebbit.js";
+import { getPlebbitLogger } from "../../../util.js";
 
 export default class Create extends BaseCommand {
     static override description =
@@ -29,7 +32,7 @@ export default class Create extends BaseCommand {
     async run(): Promise<void> {
         const { flags } = await this.parse(Create);
 
-        const log = Logger("plebbit-cli:commands:subplebbit:create");
+        const log = (await getPlebbitLogger())("plebbit-cli:commands:subplebbit:create");
         log(`flags: `, flags);
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
         const createOptions: CreateSubplebbitOptions = DataObjectParser.transpose(
@@ -38,7 +41,7 @@ export default class Create extends BaseCommand {
         if (flags.privateKeyPath)
             createOptions.signer = { privateKey: (await fs.promises.readFile(flags.privateKeyPath)).toString(), type: "ed25519" };
 
-        const createdSub = await plebbit.createSubplebbit(createOptions);
+        const createdSub = <RpcLocalSubplebbit>await plebbit.createSubplebbit(createOptions);
         await createdSub.start();
 
         await plebbit.destroy();

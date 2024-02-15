@@ -1,16 +1,16 @@
 import { spawn, ChildProcessWithoutNullStreams } from "child_process";
 import path from "path";
 import envPaths from "env-paths";
-import Logger from "@plebbit/plebbit-logger";
 import { promises as fsPromises } from "fs";
 import fs from "fs";
 import assert from "assert";
 import { path as ipfsExePathFunc } from "kubo";
+import { getPlebbitLogger } from "../util";
 
 const paths = envPaths("plebbit", { suffix: "" });
 
 async function getIpfsExePath(): Promise<string> {
-    const log = Logger("plebbit-cli:ipfs:getIpfsExePath");
+    const log = (await getPlebbitLogger())("plebbit-cli:ipfs:getIpfsExePath");
 
     // If the app is packaged with 'pkg' as a single binary, we have to copy the ipfs binary somewhere so we can execute it
     //@ts-ignore
@@ -45,7 +45,7 @@ async function getIpfsExePath(): Promise<string> {
 // use this custom function instead of spawnSync for better logging
 // also spawnSync might have been causing crash on start on windows
 
-function _spawnAsync(log: Logger, ...args: any[]) {
+function _spawnAsync(log: any, ...args: any[]) {
     return new Promise((resolve, reject) => {
         //@ts-ignore
         const spawedProcess: ChildProcessWithoutNullStreams = spawn(...args);
@@ -61,7 +61,7 @@ function _spawnAsync(log: Logger, ...args: any[]) {
 }
 export async function startIpfsNode(apiPortNumber: number, gatewayPortNumber: number): Promise<ChildProcessWithoutNullStreams> {
     return new Promise(async (resolve, reject) => {
-        const log = Logger("plebbit-cli:ipfs:startIpfsNode");
+        const log = (await getPlebbitLogger())("plebbit-cli:ipfs:startIpfsNode");
         const ipfsDataPath = process.env["IPFS_PATH"] || path.join(paths.data, ".ipfs-cli");
         await fs.promises.mkdir(ipfsDataPath, { recursive: true });
 
