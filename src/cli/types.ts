@@ -8,4 +8,3 @@ export interface CliCreateSubplebbitOptions
     extends Pick<PlebbitCreateSubplebbitOptions, "address" | "title" | "description" | "pubsubTopic" | "suggested"> {
     privateKeyPath?: string;
 }
-

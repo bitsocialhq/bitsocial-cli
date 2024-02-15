@@ -3,7 +3,7 @@ import Logger from "@plebbit/plebbit-logger";
 import { ChildProcessWithoutNullStreams } from "child_process";
 import defaults from "../../common-utils/defaults.js";
 import { startIpfsNode } from "../../ipfs/startIpfs.js";
-import  PlebbitRpc  from "@plebbit/plebbit-js/dist/node/rpc/src/index.js";
+import PlebbitRpc from "@plebbit/plebbit-js/dist/node/rpc/src/index.js";
 import path from "path";
 import { randomBytes } from "crypto";
 import fs from "fs-extra";

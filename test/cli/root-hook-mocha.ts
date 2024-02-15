@@ -9,9 +9,8 @@ export const mochaHooks = {
         Sinon.stub(WebSocketClient.prototype, "on");
         Sinon.stub(WebSocketClient.prototype, "call");
 
-
         Sinon.stub(PlebbitRpcClient.prototype, "_init");
-        Sinon.stub(PlebbitRpcClient.prototype, "destroy")
+        Sinon.stub(PlebbitRpcClient.prototype, "destroy");
 
         Sinon.stub(Plebbit.prototype, "listSubplebbits");
     },

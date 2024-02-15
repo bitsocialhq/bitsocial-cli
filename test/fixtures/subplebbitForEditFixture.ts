@@ -66,7 +66,7 @@ export const objectPropsToEdit: Required<Pick<SubplebbitEditOptions, "roles" | "
             undefined, // Should add a new challenge, settings.challenges[0] should be kept as is
             { options: { question: "What is the password", answer: "The password" } }
         ],
-        fetchThumbnailUrls: true,
+        fetchThumbnailUrls: true
         // fetchThumbnailUrlsProxyUrl: "http://localhost:12345" // explicitly don't modify it
     },
     roles: {
