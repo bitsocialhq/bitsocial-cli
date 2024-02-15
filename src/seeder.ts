@@ -1,3 +1,5 @@
+// // TODO rewrite to use MultiSub json
+// // TODO fetch ipns of seeded subplebbits with cache turned off
 // import lodash from "lodash";
 // import Logger from "@plebbit/plebbit-logger";
 // import { Plebbit } from "@plebbit/plebbit-js/dist/node/plebbit";
@@ -25,8 +27,7 @@
 //     }
 // }
 
-// const seededIpns: Record<string, { lastSeededAt?: number }> = {};
-// async function _seedSub(sub: Subplebbit, pinnedCids: string[]) {
+// async function _seedSub(sub: Subplebbit) {
 //     const log = Logger("plebbit-cli:server:seed");
 //     if (sub.statsCid) await sub.plebbit.fetchCid(sub.statsCid); // Seed stats
 
@@ -40,50 +41,31 @@
 //         log.trace(`Loaded the newest pages of sub (${sub.address}) to seed`);
 //         const pageNames = Object.keys(sub.posts.pageCids);
 //         const loadedPagesWithNames = lodash.zipObject(pageNames, pagesLoaded);
-//         const allCidsToPin: string[] = [];
 //         if (loadedPagesWithNames["new"]) {
 //             // Fetch all comments CID
-//             allCidsToPin.push(...loadedPagesWithNames["new"].map((comment) => <string>comment.cid));
 
-//             // Seed IPNS
 //             for (const comment of loadedPagesWithNames["new"]) {
-//                 assert(comment.ipnsName);
-//                 if (seededIpns[comment.ipnsName]?.lastSeededAt !== comment.updatedAt) {
-//                     try {
-//                         await comment._clientsManager.fetchCommentUpdate(comment.ipnsName);
-//                         seededIpns[comment.ipnsName] = { lastSeededAt: comment.updatedAt };
-//                         log.trace(`Seeded comment (${comment.cid}) IPNS (${comment.ipnsName})`);
-//                     } catch (e) {
-//                         log.error(`Failed to seed comment (${comment.cid}) IPNS (${comment.ipnsName}) due to error`, e);
-//                     }
-//                 }
+//                 // TODO should also load the pages of this comment
+//                 const commentInstance = await sub.plebbit.createComment({ cid: <string>comment.cid });
+//                 commentInstance.update();
+//                 await new Promise((resolve) => commentInstance.once("update", resolve)); // loaded CommentIpfs
+//                 await new Promise((resolve) => commentInstance.once("update", resolve)); // loaded CommentUpdate
+//                 await commentInstance.stop();
 //             }
 //         }
-
-//         // Pin cids that are not already pinned
-//         const newCidsToPin = lodash.difference(lodash.uniq(allCidsToPin), pinnedCids).map((cidString) => CID.parse(cidString));
-//         if (newCidsToPin.length > 0) {
-//             log.trace(`Attempting to pin ${newCidsToPin.length} comments' cids from sub (${sub.address}): `, newCidsToPin);
-//             const defaultIpfsClient = Object.values(sub.plebbit.clients.ipfsClients)[0];
-//             assert(defaultIpfsClient);
-//             await defaultIpfsClient._client.pin.addAll(newCidsToPin);
-//             log.trace(`Pinned ${newCidsToPin.length} cids from sub (${sub.address})`);
-//         } else log.trace(`All ${lodash.uniq(allCidsToPin).length} cids from sub (${sub.address}) are pinned`);
 //     }
 // }
 
 // export async function seedSubplebbits(subAddresses: string[], plebbit: Plebbit) {
 //     const log = Logger("plebbit-cli:server:seed");
-//     log.trace("test"); // remove this line later
 //     for (const subAddress of subAddresses) {
 //         try {
+//             const ipnsAddressOfSub = plebbit._clientsManager.resolveSubplebbitAddressIfNeeded(subAddress);
+//             await plebbit._clientsManager.getDefaultIpfs()._client.name.resolve(ipnsAddressOfSub, { nocache: true }); // make sure ipns nonce is the latest by not using cache
+
 //             const sub = await plebbit.getSubplebbit(subAddress);
 //             log.trace(`Loaded the newest record of sub (${subAddress}) for seeding`);
-//             const defaultIpfsClient = Object.values(sub.plebbit.clients.ipfsClients)[0];
-//             assert(defaultIpfsClient);
-
-//             const pinnedCids: string[] = (await defaultIpfsClient._client.pin.ls()).map((pin) => pin.cid.toString());
-//             await _seedSub(sub, pinnedCids);
+//             await _seedSub(sub);
 //         } catch (e) {
 //             log.error(`Failed to load and seed sub (${subAddress}):`, String(e));
 //         }
