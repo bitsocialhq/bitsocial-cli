@@ -1,6 +1,7 @@
 import { Plebbit } from "@plebbit/plebbit-js/dist/node/plebbit.js";
-import { expect, test } from "@oclif/test";
-import signers from "../fixtures/signers";
+import { expect } from "chai";
+import { test } from "@oclif/test";
+import signers from "../fixtures/signers.js";
 import lodash from "lodash";
 //@ts-ignore
 import DataObjectParser from "dataobject-parser";

@@ -1,13 +1,10 @@
 // This file is to test root commands like `plebbit daemon` or `plebbit get`, whereas commands like `plebbit subplebbit start` are considered nested
-import Plebbit from "@plebbit/plebbit-js";
 import { ChildProcess, spawn } from "child_process";
 import defaults from "../../dist/common-utils/defaults.js";
-import fetch from "node-fetch";
-import chai from "chai";
+import * as chai from "chai";
 import { directory as randomDirectory } from "tempy";
 import WebSocket from "ws";
 import { path as ipfsExePathFunc } from "kubo";
-
 //@ts-ignore
 import chaiAsPromised from "chai-as-promised";
 chai.use(chaiAsPromised);

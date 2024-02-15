@@ -1,4 +1,5 @@
-import { expect, test } from "@oclif/test";
+import { expect } from "chai";
+import { test } from "@oclif/test";
 import { Plebbit } from "@plebbit/plebbit-js/dist/node/plebbit.js";
 import Sinon from "sinon";
 

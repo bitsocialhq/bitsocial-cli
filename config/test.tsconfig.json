@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "noEmit": true,
+        "resolveJsonModule": true
+    },
+    "ts-node": {
+        "esm": true
+    },
+    "include": ["../test/**/*.ts"],
+
+    "extends": "./tsconfig.json"
+}

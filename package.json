@@ -12,8 +12,9 @@
     "exports": null,
     "scripts": {
         "build": "rm -rf dist/  && tsc --project config/tsconfig.json",
+        "build:test": "tsc --project config/test.tsconfig.json",
         "build:watch": "nodemon --config config/build.nodemon.json",
-        "test:cli": " ts-mocha --config config/.mocharc.json -p config/tsconfig.json test/cli/*.test.ts",
+        "test:cli": " ts-mocha --config config/.mocharc.cjs -p config/test.tsconfig.json test/cli/*.test.ts",
         "commit": "cz",
         "prepare": "husky install",
         "release": "HUSKY=0 release-it --config config/.release-it.json"
@@ -47,7 +48,7 @@
         },
         "hooks": {
             "prerun": [
-                "./dist/cli/hooks/prerun/parse-dynamic-flags-hook"
+                "./dist/cli/hooks/prerun/parse-dynamic-flags-hook.js"
             ]
         }
     },
@@ -59,7 +60,6 @@
             "node_modules/better-sqlite3/build/Release/better_sqlite3.node",
             "node_modules/better-sqlite3/deps/*",
             "node_modules/better-sqlite3/deps/**/*",
-
             "node_modules/**/skia-canvas/lib/v6/index.node",
             "node_modules/skia-canvas/lib/v6/index.node",
             "node_modules/captcha-canvas/node_modules/skia-canvas/lib/v6/index.node",
@@ -81,7 +81,6 @@
         "@oclif/test": "3.1.16",
         "@release-it/conventional-changelog": "5.1.1",
         "@tsconfig/node20": "20.1.2",
-        "@types/chai": "4.3.4",
         "@types/fs-extra": "11.0.4",
         "@types/lodash": "4.14.189",
         "@types/mocha": "10.0.6",
@@ -115,7 +114,6 @@
         "@plebbit/plebbit-js": "https://github.com/plebbit/plebbit-js#ca4f5fe49e7f695adde29debb39b9541edcb171d",
         "dataobject-parser": "1.2.22",
         "env-paths": "2.2.1",
-        "is-ipfs": "7.0.3",
         "kubo": "0.24.0",
         "lodash-es": "4.17.21",
         "skia-canvas": "1.0.0",

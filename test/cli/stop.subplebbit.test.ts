@@ -1,4 +1,5 @@
-import { expect, test } from "@oclif/test";
+import { expect } from "chai";
+import { test } from "@oclif/test";
 import { Plebbit } from "@plebbit/plebbit-js/dist/node/plebbit.js";
 import Sinon from "sinon";
 import PlebbitRpcClient from "@plebbit/plebbit-js/dist/node/clients/plebbit-rpc-client.js";
@@ -24,8 +25,7 @@ describe("plebbit subplebbit stop", () => {
             expect(stopFake.callCount).to.equal(addresses.length);
 
             for (let i = 0; i < addresses.length; i++) {
-                //@ts-expect-error
-                const addressToStop = stopFake.args[i][0];
+                const addressToStop = <string>stopFake.args[i][0];
                 expect(addressToStop).to.equal(addresses[i]);
             }
 
