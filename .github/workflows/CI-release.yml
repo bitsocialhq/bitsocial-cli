@@ -7,72 +7,12 @@ on:
       - "completed"
 jobs:
   # Generate and upload executables to Github releases
-  upload-executables-macos:
-    name: macos-x64
+  generate-upload-tarballs-installers-linux-macos-windows:
+    name: Generate and upload tarballs and installers
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: macos-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          ref: ${{ github.head_ref }}
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: yarn
-      - name: Get latest release tag
-        id: previoustag
-        uses: WyriHaximus/github-action-get-previous-tag@v1
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-      - name: Generate macos-x64 executable
-        run: yarn pkg . -t node18-macos-x64 -o plebbit_macos-x64  --compress Brotli
-
-      - name: Upload file to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          file: plebbit_macos-x64
-          tag: ${{ steps.previoustag.outputs.tag }}
-          overwrite: true
-
-  upload-executables-linux:
-    name: linux-x64
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          ref: ${{ github.head_ref }}
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: yarn
-      - name: Get latest release tag
-        id: previoustag
-        uses: WyriHaximus/github-action-get-previous-tag@v1
-      - name: Install dependencies
-        run: |
-          sudo apt install -y gcc g++ make git build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev libfontconfig1 fontconfig libfontconfig1-dev libfontconfig
-          yarn install --frozen-lockfile
-      - name: Generate single executable
-        run: yarn pkg . -t node18-linux-x64 -o  plebbit_linux-x64 --compress Brotli
-      - name: Upload file to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          file: plebbit_linux-x64
-          tag: ${{ steps.previoustag.outputs.tag }}
-          overwrite: true
-
-  upload-executables-windows-single-exe:
-    name: windows-x64-exe
-    runs-on: windows-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    steps:
+      - run: sudo apt update && sudo apt install -y gcc g++ make git build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev libfontconfig1 fontconfig libfontconfig1-dev libfontconfig
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -88,81 +28,22 @@ jobs:
         uses: WyriHaximus/github-action-get-previous-tag@v1
       - name: Install dependencies
         run: yarn install --frozen-lockfile
-      - name: Generate single executable
-        run: yarn pkg . -t node18-win-x64 -o plebbit_win-x64_portable.exe --compress Brotli
-      - name: Upload file to release
+      - name: Generate tarballs
+        run: yarn generate:executable:tarballs
+      - name: Generate Windows installer
+        run: yarn generate:installer:windows
+
+      - name: Rename tarballs and installers
+        run: ts-node config/rename_tarballs_installers.ts
+      - name: Upload tarballs to release
         uses: svenstaro/upload-release-action@v2
         with:
-          file: plebbit_win-x64_portable.exe
+          file: *.tar.gz
           tag: ${{ steps.previoustag.outputs.tag }}
           overwrite: true
-  upload-executables-windows-installer:
-    name: windows-x64-installer
-    runs-on: windows-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          ref: ${{ github.head_ref }}
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: yarn
-      - name: Get latest release tag
-        id: previoustag
-        uses: WyriHaximus/github-action-get-previous-tag@v1
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-      - name: Generate installer
-        run: yarn oclif pack win
-      - name: Rename installer
-        shell: bash
-        run: find dist/win32/ -name *x64.exe -exec bash -c 'mv $0 plebbit_win-x64_installer.exe' {} \;
-
-      - name: Upload installer to release
+      - name: Upload windows installers to release
         uses: svenstaro/upload-release-action@v2
         with:
-          file: plebbit_win-x64_installer.exe
-          tag: ${{ steps.previoustag.outputs.tag }}
-          overwrite: true
-
-  upload-executables-linux-arm64:
-    name: linux-arm64
-    runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          ref: ${{ github.head_ref }}
-      - name: "Get latest release tag"
-        id: previoustag
-        uses: "WyriHaximus/github-action-get-previous-tag@v1"
-      - uses: pguyot/arm-runner-action@v2
-        with:
-          base_image: raspios_lite_arm64:latest
-          cpu_info: cpuinfo/raspberrypi_zero2_w_arm64
-          image_additional_mb: 2048
-          import_github_env: true
-          bind_mount_repository: true
-          # Need to rewrite this
-          commands: |
-            sudo apt-get update
-            curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh
-            chmod 500 nsolid_setup_deb.sh
-            ./nsolid_setup_deb.sh 16
-            sudo apt-get update
-            sudo apt-get install -y nodejs gcc g++ make git build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev libfontconfig1 fontconfig libfontconfig1-dev libfontconfig
-            npm install --global yarn
-            yarn install --frozen-lockfile
-            yarn pkg . -t node18-linux-arm64 -o plebbit_linux-arm64 --compress Brotli
-      - name: Upload Binary releases
-        uses: svenstaro/upload-release-action@v2
-        with:
-          file: plebbit_linux-arm64
+          file: *.exe
           tag: ${{ steps.previoustag.outputs.tag }}
           overwrite: true

@@ -14,10 +14,12 @@
         "build": "rm -rf dist/  && tsc --project config/tsconfig.json",
         "build:test": "tsc --project config/test.tsconfig.json",
         "build:watch": "nodemon --config config/build.nodemon.json",
-        "test:cli": " ts-mocha --config config/.mocharc.json -p config/tsconfig.json test/cli/*.test.ts",
+        "test:cli": " ts-mocha --config config/.mocharc.json test/cli/*.test.ts",
         "commit": "cz",
         "prepare": "husky install",
-        "release": "HUSKY=0 release-it --config config/.release-it.json"
+        "release": "HUSKY=0 release-it --config config/.release-it.json",
+        "generate:executable:tarballs": "oclif pack tarballs --no-xz --targets linux-x64,linux-arm64,darwin-x64,darwin-arm64,win32-x64,win32-x86",
+        "generate:installer:windows": "yarn oclif pack win --targets win32-x64"
     },
     "files": [
         "/bin",
