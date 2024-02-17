@@ -1,5 +1,12 @@
 
 
+## [0.11.2](https://github.com/plebbit/plebbit-cli/compare/v0.11.1...v0.11.2) (2024-02-17)
+
+
+### Bug Fixes
+
+* fix import errors caused by plebbit-js going ESM only ([76b2407](https://github.com/plebbit/plebbit-cli/commit/76b24076f50228e35117ba3bddad16d3af2ce8b3))
+
 ## [0.11.1](https://github.com/plebbit/plebbit-cli/compare/v0.11.0...v0.11.1) (2024-01-03)
 
 # [0.11.0](https://github.com/plebbit/plebbit-cli/compare/v0.10.2...v0.11.0) (2023-12-31)
