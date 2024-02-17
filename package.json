@@ -73,14 +73,14 @@
         }
     },
     "engines": {
-        "node": ">=18.0.0"
+        "node": ">=20.0.0"
     },
     "devDependencies": {
         "@commitlint/cli": "17.3.0",
         "@commitlint/config-conventional": "17.3.0",
         "@oclif/test": "3.1.16",
         "@release-it/conventional-changelog": "5.1.1",
-        "@tsconfig/node18": "18.2.2",
+        "@tsconfig/node20": "20.1.2",
         "@types/chai": "4.3.11",
         "@types/fs-extra": "11.0.4",
         "@types/lodash": "4.14.202",
