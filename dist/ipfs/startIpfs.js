@@ -5,14 +5,14 @@ const tslib_1 = require("tslib");
 const child_process_1 = require("child_process");
 const path_1 = tslib_1.__importDefault(require("path"));
 const env_paths_1 = tslib_1.__importDefault(require("env-paths"));
-const plebbit_logger_1 = tslib_1.__importDefault(require("@plebbit/plebbit-logger"));
 const fs_1 = require("fs");
 const fs_2 = tslib_1.__importDefault(require("fs"));
 const assert_1 = tslib_1.__importDefault(require("assert"));
 const kubo_1 = require("kubo");
+const util_1 = require("../util");
 const paths = (0, env_paths_1.default)("plebbit", { suffix: "" });
 async function getIpfsExePath() {
-    const log = (0, plebbit_logger_1.default)("plebbit-cli:ipfs:getIpfsExePath");
+    const log = (await (0, util_1.getPlebbitLogger)())("plebbit-cli:ipfs:getIpfsExePath");
     // If the app is packaged with 'pkg' as a single binary, we have to copy the ipfs binary somewhere so we can execute it
     //@ts-ignore
     if (process.pkg) {
@@ -61,7 +61,7 @@ function _spawnAsync(log, ...args) {
 }
 async function startIpfsNode(apiPortNumber, gatewayPortNumber) {
     return new Promise(async (resolve, reject) => {
-        const log = (0, plebbit_logger_1.default)("plebbit-cli:ipfs:startIpfsNode");
+        const log = (await (0, util_1.getPlebbitLogger)())("plebbit-cli:ipfs:startIpfsNode");
         const ipfsDataPath = process.env["IPFS_PATH"] || path_1.default.join(paths.data, ".ipfs-cli");
         await fs_2.default.promises.mkdir(ipfsDataPath, { recursive: true });
         const ipfsExePath = await getIpfsExePath();

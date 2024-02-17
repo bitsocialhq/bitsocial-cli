@@ -4,13 +4,13 @@ export default class List extends BaseCommand {
     static examples: never[];
     static flags: {
         columns: import("@oclif/core/lib/interfaces/parser.js").OptionFlag<string | undefined>;
-        sort: import("@oclif/core/lib/interfaces/parser.js").OptionFlag<string | undefined>;
+        csv: import("@oclif/core/lib/interfaces/parser.js").BooleanFlag<boolean>;
+        extended: import("@oclif/core/lib/interfaces/parser.js").BooleanFlag<boolean>;
         filter: import("@oclif/core/lib/interfaces/parser.js").OptionFlag<string | undefined>;
-        csv: import("@oclif/core/lib/interfaces/parser.js").Flag<boolean>;
+        'no-header': import("@oclif/core/lib/interfaces/parser.js").BooleanFlag<boolean>;
+        'no-truncate': import("@oclif/core/lib/interfaces/parser.js").BooleanFlag<boolean>;
         output: import("@oclif/core/lib/interfaces/parser.js").OptionFlag<string | undefined>;
-        extended: import("@oclif/core/lib/interfaces/parser.js").Flag<boolean>;
-        'no-truncate': import("@oclif/core/lib/interfaces/parser.js").Flag<boolean>;
-        'no-header': import("@oclif/core/lib/interfaces/parser.js").Flag<boolean>;
+        sort: import("@oclif/core/lib/interfaces/parser.js").OptionFlag<string | undefined>;
         quiet: import("@oclif/core/lib/interfaces/parser.js").BooleanFlag<boolean>;
     };
     run(): Promise<void>;

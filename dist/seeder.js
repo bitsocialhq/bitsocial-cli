@@ -8,6 +8,7 @@
 // //@ts-expect-error
 // import { CID } from "ipfs-http-client";
 // import { Subplebbit } from "@plebbit/plebbit-js/dist/node/subplebbit/subplebbit";
+Object.defineProperty(exports, "__esModule", { value: true });
 // async function _loadAllPages(pageCid: string, pagesInstance: BasePages): Promise<Comment[]> {
 //     const log = Logger("plebbit-cli:server:seed:_loadAllPages");
 //     try {
