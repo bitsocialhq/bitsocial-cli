@@ -1,10 +1,11 @@
 import { expect, test } from "@oclif/test";
 //@ts-ignore
 import DataObjectParser from "dataobject-parser";
-import { Plebbit } from "@plebbit/plebbit-js/dist/node/plebbit.js";
 import Sinon from "sinon";
-import { SubplebbitEditOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
+//@ts-expect-error
+import type { SubplebbitEditOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
 import { currentSubProps, firstLevelPropsToEdit, objectPropsToEdit, rulesToEdit } from "../fixtures/subplebbitForEditFixture";
+import { BaseCommand } from "../../dist/cli/base-command";
 
 const createEditCommand = (editOptions: SubplebbitEditOptions) => {
     let command = ["subplebbit edit", "plebbit.eth"];
@@ -20,11 +21,12 @@ describe("plebbit subplebbit edit", () => {
     const editFake = sandbox.fake();
 
     before(() => {
-        sandbox.replace(
-            Plebbit.prototype,
-            "createSubplebbit",
-            sandbox.fake.resolves({ edit: editFake, ...currentSubProps, toJSONInternal: () => currentSubProps })
-        );
+        const plebbitInstanceFake = sandbox.fake.resolves({
+            createSubplebbit: sandbox.fake.resolves({ edit: editFake, ...currentSubProps, toJSONInternalRpc: () => currentSubProps }),
+            destroy: () => {}
+        });
+        //@ts-expect-error
+        sandbox.replace(BaseCommand.prototype, "_connectToPlebbitRpc", plebbitInstanceFake);
     });
 
     afterEach(() => editFake.resetHistory());

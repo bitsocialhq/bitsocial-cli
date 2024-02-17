@@ -1,23 +1,27 @@
 import { expect, test } from "@oclif/test";
-import { Plebbit } from "@plebbit/plebbit-js/dist/node/plebbit.js";
 import Sinon from "sinon";
+import { BaseCommand } from "../../dist/cli/base-command";
 
 describe("plebbit subplebbit list", () => {
     const sandbox = Sinon.createSandbox();
+    const fakeSubplebbits = ["plebbit1.eth", "plebbit2.eth"];
 
-    let listSubplebbitsFake: Sinon.SinonSpy;
+    const listSubplebbitsFake = sandbox.fake.resolves(fakeSubplebbits);
     before(() => {
-        listSubplebbitsFake = sandbox.fake.resolves(fakeSubplebbits);
-        sandbox.replace(Plebbit.prototype, "listSubplebbits", listSubplebbitsFake);
+        const plebbitInstanceFake = sandbox.fake.resolves({
+            listSubplebbits: listSubplebbitsFake,
+            destroy: () => {}
+        });
+        //@ts-expect-error
+        sandbox.replace(BaseCommand.prototype, "_connectToPlebbitRpc", plebbitInstanceFake);
     });
 
     after(() => sandbox.restore());
-    const fakeSubplebbits = ["plebbit1.eth", "plebbit2.eth"];
 
     test.stdout()
         .command(["subplebbit list", "-q"])
         .it(`-q Outputs only subplebbit addresses`, (ctx) => {
-            expect(listSubplebbitsFake.callCount).to.equal(2); // should call once to confirm connection, and second to print subplebbits
+            expect(listSubplebbitsFake.callCount).to.equal(1);
             const trimmedOutput: string[] = ctx.stdout.trim().split("\n");
             expect(trimmedOutput).to.deep.equal(fakeSubplebbits);
         });

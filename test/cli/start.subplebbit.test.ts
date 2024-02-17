@@ -1,19 +1,22 @@
 import { expect, test } from "@oclif/test";
-import { Plebbit } from "@plebbit/plebbit-js/dist/node/plebbit.js";
 import Sinon from "sinon";
-import PlebbitRpcClient from "@plebbit/plebbit-js/dist/node/clients/plebbit-rpc-client.js";
+import { BaseCommand } from "../../dist/cli/base-command";
 
 describe("plebbit subplebbit start", () => {
     const addresses = ["plebbit.eth", "plebbit2.eth"];
     const sandbox = Sinon.createSandbox();
-    let startFake: Sinon.SinonSpy;
+    const startFake = sandbox.fake();
 
     before(() => {
-        startFake = sandbox.fake();
+        const plebbitInstanceFake = sandbox.fake.resolves({
+            plebbitRpcClient: {
+                startSubplebbit: startFake
+            },
+            destroy: () => {}
+        });
 
-        sandbox.replace(Plebbit.prototype, "createSubplebbit", sandbox.fake());
-
-        sandbox.replace(PlebbitRpcClient.prototype, "startSubplebbit", startFake);
+        //@ts-expect-error
+        sandbox.replace(BaseCommand.prototype, "_connectToPlebbitRpc", plebbitInstanceFake);
     });
 
     after(() => sandbox.restore());
@@ -24,8 +27,7 @@ describe("plebbit subplebbit start", () => {
             expect(startFake.callCount).to.equal(addresses.length);
 
             for (let i = 0; i < addresses.length; i++) {
-                //@ts-expect-error
-                const addressToStart = startFake.args[i][0];
+                const addressToStart = <string>startFake.args[i][0];
                 expect(addressToStart).to.equal(addresses[i]);
             }
 

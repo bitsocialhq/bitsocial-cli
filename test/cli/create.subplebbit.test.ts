@@ -1,12 +1,14 @@
-import { Plebbit } from "@plebbit/plebbit-js/dist/node/plebbit.js";
-import { expect, test } from "@oclif/test";
+import { test, expect } from "@oclif/test";
 import signers from "../fixtures/signers";
 import lodash from "lodash";
 //@ts-ignore
 import DataObjectParser from "dataobject-parser";
 import Sinon from "sinon";
-import { CreateSubplebbitOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
-import { CliCreateSubplebbitOptions } from "../../src/cli/types.js";
+//@ts-expect-error
+import type { CreateSubplebbitOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
+import { CliCreateSubplebbitOptions } from "../../dist/cli/types.js";
+
+import { BaseCommand } from "../../dist/cli/base-command";
 
 const createCreateCommand = (createOptions: CreateSubplebbitOptions) => {
     let command = ["subplebbit create"];
@@ -35,14 +37,14 @@ describe("plebbit subplebbit create", () => {
     const sandbox = Sinon.createSandbox();
 
     const startFake = sandbox.fake();
-    let plebbitCreateStub: Sinon.SinonSpy;
-
-    before(() => {
-        plebbitCreateStub = sandbox.replace(
-            Plebbit.prototype,
-            "createSubplebbit",
-            sandbox.fake.resolves({ address: signers[0]!.address, start: startFake })
-        );
+    const plebbitCreateStub = sandbox.fake.resolves({ address: signers[0]!.address, start: startFake });
+    before(async () => {
+        const plebbitInstanceFake = sandbox.fake.resolves({
+            createSubplebbit: plebbitCreateStub,
+            destroy: () => {}
+        });
+        //@ts-expect-error
+        sandbox.replace(BaseCommand.prototype, "_connectToPlebbitRpc", plebbitInstanceFake);
     });
     after(() => sandbox.restore());
 
