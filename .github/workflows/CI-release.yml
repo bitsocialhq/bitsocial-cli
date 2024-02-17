@@ -38,12 +38,14 @@ jobs:
       - name: Upload tarballs to release
         uses: svenstaro/upload-release-action@v2
         with:
-          file: "*.tar.gz"
+          file: *.tar.gz
+          file_glob: true
           tag: ${{ steps.previoustag.outputs.tag }}
           overwrite: true
       - name: Upload windows installers to release
         uses: svenstaro/upload-release-action@v2
         with:
-          file: "*.exe"
+          file: *.exe
+          file_glob: true
           tag: ${{ steps.previoustag.outputs.tag }}
           overwrite: true
