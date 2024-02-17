@@ -5,6 +5,9 @@ import chai from "chai";
 import { directory as randomDirectory } from "tempy";
 import WebSocket from "ws";
 import { path as ipfsExePathFunc } from "kubo";
+import dns from "node:dns";
+dns.setDefaultResultOrder("ipv4first"); // to be able to resolve localhost
+
 
 //@ts-ignore
 import chaiAsPromised from "chai-as-promised";
