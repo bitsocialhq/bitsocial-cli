@@ -34,7 +34,7 @@ jobs:
         run: yarn generate:installer:windows
 
       - name: Rename tarballs and installers
-        run: ts-node config/rename_tarballs_installers.ts
+        run: yarn ts-node config/rename_tarballs_installers.ts
       - name: Upload tarballs to release
         uses: svenstaro/upload-release-action@v2
         with:
