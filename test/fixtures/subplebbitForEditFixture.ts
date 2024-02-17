@@ -1,4 +1,5 @@
-import { InternalSubplebbitRpcType, InternalSubplebbitType, SubplebbitEditOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types";
+//@ts-expect-error
+import type { InternalSubplebbitRpcType, InternalSubplebbitType, SubplebbitEditOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types";
 
 export const currentSubProps: InternalSubplebbitRpcType = {
     title: "original title",

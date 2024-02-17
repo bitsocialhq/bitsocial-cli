@@ -1,5 +1,5 @@
 {
-    "exec": "yarn build && yarn oclif manifest",
-    "watch": ["src/", "test/**/run*.ts", "package.json"],
+    "exec": "yarn build && yarn build:test && yarn oclif manifest",
+    "watch": ["src/", "test/", "package.json"],
     "ext": "ts"
 }

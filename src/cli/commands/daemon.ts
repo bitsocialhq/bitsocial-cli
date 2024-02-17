@@ -124,7 +124,8 @@ export default class Daemon extends Command {
         const ipfsApiEndpoint = `http://localhost:${flags.ipfsApiPort}/api/v0`;
         const ipfsGatewayEndpoint = `http://localhost:${flags.ipfsGatewayPort}`;
         const rpcAuthKey = await this._generateRpcAuthKeyIfNotExisting(flags.plebbitDataPath);
-        const PlebbitWsServer = await import("@plebbit/plebbit-js/rpc");
+        //@ts-expect-error
+        const PlebbitWsServer = await import("@plebbit/plebbit-js/dist/node/rpc/src/index.js?");
 
         const rpcServer = await PlebbitWsServer.default.PlebbitWsServer({
             port: flags.plebbitRpcPort,
