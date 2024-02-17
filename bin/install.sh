@@ -4,44 +4,51 @@
 set -e
 
 case $(uname -sm) in
-	"Darwin x86_64") suffix="macos-x64" ;;
-	"Darwin arm64") suffix="macos-x64" ;; # TODO test x64 builds on arm64 arch
+	"Darwin x86_64") suffix="darwin-x64" ;;
+	"Darwin arm64") suffix="darwin-arm64" ;; # TODO test x64 builds on arm64 arch
 	"Linux aarch64") suffix="linux-arm64" ;;
-	*) suffix="linux-x64" ;;
+  "Linux x86_64") suffix="linux-x64" ;;
+	*) suffix="no-file-name" ;;
 	esac
-file_name="plebbit_${suffix}"
-plebbit_uri="https://github.com/plebbit/plebbit-cli/releases/latest/download/${file_name}"
+plebbit_compressed_file_name="plebbit_${suffix}.tar.gz"
+plebbit_uri="https://github.com/plebbit/plebbit-cli/releases/latest/download/${plebbit_compressed_file_name}"
 
-curl --fail --location --progress-bar --output "$file_name" "$plebbit_uri"
-INSTALL_DIR=$(dirname "$0")
-bin="$INSTALL_DIR/$file_name"
+curl --fail --location --progress-bar --output "$plebbit_compressed_file_name" "$plebbit_uri"
+PLEBBIT_INSTALL_DIR="$HOME/.plebbit_install_files"
 
-chmod +x "$bin"
+tar -xzf $plebbit_compressed_file_name --directory "$PLEBBIT_INSTALL_DIR"
+echo "Extractd Plebbit install files to $PLEBBIT_INSTALL_DIR"
+echo "Make sure not to delete this directory"
 
+plebbit_bin_path=$(eval echo "$PLEBBIT_INSTALL_DIR/plebbit/bin/plebbit") # Make sure it's expanded
 binpaths="$HOME/.local/bin /usr/local/bin /usr/bin"
 
 # This variable contains a nonzero length string in case the script fails
 # because of missing write permissions.
 is_write_perm_missing=""
 
-for raw in $binpaths; do
+for system_bin_path_dir in $binpaths; do
   # Expand the $HOME variable.
-  binpath=$(eval echo "$raw")
-  mkdir -p "$binpath"
-  if mv "$bin" "$binpath/plebbit" ; then
-    echo "Plebbit was installed successfully to $binpath"
+  system_plebbit_bin_path=$(eval echo "$system_bin_path_dir/plebbit")
+  mkdir -p "$system_bin_path_dir"
+  if ln -srf "$plebbit_bin_path" "$system_plebbit_bin_path" ; then
+    echo "Plebbit was installed successfully to $system_plebbit_bin_path"
 	echo "Run 'plebbit --help' to get started"
 	echo "Need help? Join our Telegram https://t.me/plebbit"
 
+  # Will only add to $PATH if it's not there already
+  echo '[[ ":$PATH:" == *:/sbin:* ]] || PATH="$PATH:/sbin"' >> ~/.bashrc 
+
+  rm "$plebbit_compressed_file_name"
     exit 0
   else
-    if [ -d "$binpath" ] && [ ! -w "$binpath" ]; then
+    if [ -d "$system_bin_path_dir" ] && [ ! -w "$system_bin_path_dir" ]; then
       is_write_perm_missing=1
     fi
   fi
 done
 
-echo "We cannot install $bin in one of the directories $binpaths"
+echo "We cannot install $system_bin_path_dir in one of the directories $binpaths"
 
 if [ -n "$is_write_perm_missing" ]; then
   echo "It seems that we do not have the necessary write permissions."
