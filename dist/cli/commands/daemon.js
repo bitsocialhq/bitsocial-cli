@@ -2,16 +2,56 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const core_1 = require("@oclif/core");
-const plebbit_logger_1 = tslib_1.__importDefault(require("@plebbit/plebbit-logger"));
 // import { seedSubplebbits } from "../../seeder";
 const defaults_js_1 = tslib_1.__importDefault(require("../../common-utils/defaults.js"));
 const startIpfs_js_1 = require("../../ipfs/startIpfs.js");
-const index_1 = require("@plebbit/plebbit-js/dist/node/rpc/src/index");
 const path_1 = tslib_1.__importDefault(require("path"));
 const crypto_1 = require("crypto");
 const fs_extra_1 = tslib_1.__importDefault(require("fs-extra"));
 const tcp_port_used_1 = tslib_1.__importDefault(require("tcp-port-used"));
+const util_js_1 = require("../../util.js");
 class Daemon extends core_1.Command {
+    static description = "Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users";
+    static flags = {
+        plebbitDataPath: core_1.Flags.directory({
+            description: "Path to plebbit data path where subplebbits and ipfs node are stored",
+            required: true,
+            default: defaults_js_1.default.PLEBBIT_DATA_PATH
+        }),
+        // seed: Flags.boolean({
+        //     description:
+        //         "Seeding flag. Seeding helps subplebbits distribute their publications and latest updates, as well as receiving new publications",
+        //     required: false,
+        //     default: false
+        // }),
+        // seedSubs: Flags.string({
+        //     description: "Subplebbits to seed. If --seed is used and no subs was provided, it will default to seeding default subs",
+        //     required: false,
+        //     multiple: true,
+        //     default: []
+        // }),
+        plebbitRpcPort: core_1.Flags.integer({
+            description: "Specify Plebbit RPC API port to listen on",
+            required: true,
+            default: defaults_js_1.default.PLEBBIT_RPC_API_PORT
+        }),
+        ipfsApiPort: core_1.Flags.integer({
+            description: "Specify the API port of the ipfs node to listen on",
+            required: true,
+            default: defaults_js_1.default.IPFS_API_PORT
+        }),
+        ipfsGatewayPort: core_1.Flags.integer({
+            description: "Specify the gateway port of the ipfs node to listen on",
+            required: true,
+            default: defaults_js_1.default.IPFS_GATEWAY_PORT
+        })
+    };
+    static examples = [
+        "plebbit daemon",
+        "plebbit daemon --plebbitRpcPort 80"
+        // "plebbit daemon --seed",
+        // "plebbit daemon --seed --seedSubs mysub.eth, myothersub.eth, 12D3KooWEKA6Fhp6qtyttMvNKcNCtqH2N7ZKpPy5rfCeM1otr5qU"
+    ];
     async _generateRpcAuthKeyIfNotExisting(plebbitDataPath) {
         // generate plebbit rpc auth key if doesn't exist
         const plebbitRpcAuthKeyPath = path_1.default.join(plebbitDataPath, "auth-key");
@@ -28,7 +68,7 @@ class Daemon extends core_1.Command {
     }
     async run() {
         const { flags } = await this.parse(Daemon);
-        const log = (0, plebbit_logger_1.default)("plebbit-cli:daemon");
+        const log = (await (0, util_js_1.getPlebbitLogger)())("plebbit-cli:daemon");
         log(`flags: `, flags);
         let mainProcessExited = false;
         let isIpfsNodeAlreadyRunningByAnotherProgram = false;
@@ -66,7 +106,9 @@ class Daemon extends core_1.Command {
         const ipfsApiEndpoint = `http://localhost:${flags.ipfsApiPort}/api/v0`;
         const ipfsGatewayEndpoint = `http://localhost:${flags.ipfsGatewayPort}`;
         const rpcAuthKey = await this._generateRpcAuthKeyIfNotExisting(flags.plebbitDataPath);
-        const rpcServer = await (0, index_1.PlebbitWsServer)({
+        //@ts-expect-error
+        const PlebbitWsServer = await import("@plebbit/plebbit-js/dist/node/rpc/src/index.js?");
+        const rpcServer = await PlebbitWsServer.default.PlebbitWsServer({
             port: flags.plebbitRpcPort,
             plebbitOptions: {
                 ipfsHttpClientsOptions: [ipfsApiEndpoint],
@@ -97,45 +139,4 @@ class Daemon extends core_1.Command {
         // }
     }
 }
-Daemon.description = "Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users";
-Daemon.flags = {
-    plebbitDataPath: core_1.Flags.directory({
-        description: "Path to plebbit data path where subplebbits and ipfs node are stored",
-        required: true,
-        default: defaults_js_1.default.PLEBBIT_DATA_PATH
-    }),
-    // seed: Flags.boolean({
-    //     description:
-    //         "Seeding flag. Seeding helps subplebbits distribute their publications and latest updates, as well as receiving new publications",
-    //     required: false,
-    //     default: false
-    // }),
-    // seedSubs: Flags.string({
-    //     description: "Subplebbits to seed. If --seed is used and no subs was provided, it will default to seeding default subs",
-    //     required: false,
-    //     multiple: true,
-    //     default: []
-    // }),
-    plebbitRpcPort: core_1.Flags.integer({
-        description: "Specify Plebbit RPC API port to listen on",
-        required: true,
-        default: defaults_js_1.default.PLEBBIT_RPC_API_PORT
-    }),
-    ipfsApiPort: core_1.Flags.integer({
-        description: "Specify the API port of the ipfs node to listen on",
-        required: true,
-        default: defaults_js_1.default.IPFS_API_PORT
-    }),
-    ipfsGatewayPort: core_1.Flags.integer({
-        description: "Specify the gateway port of the ipfs node to listen on",
-        required: true,
-        default: defaults_js_1.default.IPFS_GATEWAY_PORT
-    })
-};
-Daemon.examples = [
-    "plebbit daemon",
-    "plebbit daemon --plebbitRpcPort 80"
-    // "plebbit daemon --seed",
-    // "plebbit daemon --seed --seedSubs mysub.eth, myothersub.eth, 12D3KooWEKA6Fhp6qtyttMvNKcNCtqH2N7ZKpPy5rfCeM1otr5qU"
-];
 exports.default = Daemon;

@@ -1,62 +1,71 @@
 {
-  "version": "0.11.1",
   "commands": {
     "daemon": {
-      "id": "daemon",
-      "description": "Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users",
-      "strict": true,
-      "pluginName": "plebbit-cli",
-      "pluginAlias": "plebbit-cli",
-      "pluginType": "core",
       "aliases": [],
+      "args": {},
+      "description": "Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users",
       "examples": [
         "plebbit daemon",
         "plebbit daemon --plebbitRpcPort 80"
       ],
       "flags": {
         "plebbitDataPath": {
-          "name": "plebbitDataPath",
-          "type": "option",
           "description": "Path to plebbit data path where subplebbits and ipfs node are stored",
+          "name": "plebbitDataPath",
           "required": true,
+          "default": "/home/runner/.local/share/plebbit",
+          "hasDynamicHelp": false,
           "multiple": false,
-          "default": "/home/runner/.local/share/plebbit"
+          "type": "option"
         },
         "plebbitRpcPort": {
-          "name": "plebbitRpcPort",
-          "type": "option",
           "description": "Specify Plebbit RPC API port to listen on",
+          "name": "plebbitRpcPort",
           "required": true,
+          "default": 9138,
+          "hasDynamicHelp": false,
           "multiple": false,
-          "default": 9138
+          "type": "option"
         },
         "ipfsApiPort": {
-          "name": "ipfsApiPort",
-          "type": "option",
           "description": "Specify the API port of the ipfs node to listen on",
+          "name": "ipfsApiPort",
           "required": true,
+          "default": 5001,
+          "hasDynamicHelp": false,
           "multiple": false,
-          "default": 5001
+          "type": "option"
         },
         "ipfsGatewayPort": {
-          "name": "ipfsGatewayPort",
-          "type": "option",
           "description": "Specify the gateway port of the ipfs node to listen on",
+          "name": "ipfsGatewayPort",
           "required": true,
+          "default": 8080,
+          "hasDynamicHelp": false,
           "multiple": false,
-          "default": 8080
+          "type": "option"
         }
       },
-      "args": {}
+      "hasDynamicHelp": false,
+      "hiddenAliases": [],
+      "id": "daemon",
+      "pluginAlias": "plebbit-cli",
+      "pluginName": "plebbit-cli",
+      "pluginType": "core",
+      "strict": true,
+      "enableJsonFlag": false,
+      "isESM": false,
+      "relativePath": [
+        "dist",
+        "cli",
+        "commands",
+        "daemon.js"
+      ]
     },
     "subplebbit:create": {
-      "id": "subplebbit:create",
-      "description": "Create a subplebbit with specific properties. A newly created sub will be started after creation and be able to receive publications. For a list of properties, visit https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions",
-      "strict": true,
-      "pluginName": "plebbit-cli",
-      "pluginAlias": "plebbit-cli",
-      "pluginType": "core",
       "aliases": [],
+      "args": {},
+      "description": "Create a subplebbit with specific properties. A newly created sub will be started after creation and be able to receive publications. For a list of properties, visit https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions",
       "examples": [
         {
           "description": "Create a subplebbit with title 'Hello Plebs' and description 'Welcome'",
@@ -66,29 +75,48 @@
       "flags": {
         "plebbitRpcApiUrl": {
           "name": "plebbitRpcApiUrl",
-          "type": "option",
-          "summary": "URL to Plebbit RPC API",
           "required": true,
+          "summary": "URL to Plebbit RPC API",
+          "default": "ws://localhost:9138/",
+          "hasDynamicHelp": false,
           "multiple": false,
-          "default": "ws://localhost:9138/"
+          "type": "option"
         },
         "privateKeyPath": {
-          "name": "privateKeyPath",
-          "type": "option",
           "description": "Private key (PEM) of the subplebbit signer that will be used to determine address (if address is not a domain). If it's not provided then Plebbit will generate a private key",
-          "multiple": false
+          "name": "privateKeyPath",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
         }
       },
-      "args": {}
+      "hasDynamicHelp": false,
+      "hiddenAliases": [],
+      "id": "subplebbit:create",
+      "pluginAlias": "plebbit-cli",
+      "pluginName": "plebbit-cli",
+      "pluginType": "core",
+      "strict": true,
+      "enableJsonFlag": false,
+      "isESM": false,
+      "relativePath": [
+        "dist",
+        "cli",
+        "commands",
+        "subplebbit",
+        "create.js"
+      ]
     },
     "subplebbit:edit": {
-      "id": "subplebbit:edit",
-      "description": "Edit a subplebbit properties. For a list of properties, visit https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions",
-      "strict": true,
-      "pluginName": "plebbit-cli",
-      "pluginAlias": "plebbit-cli",
-      "pluginType": "core",
       "aliases": [],
+      "args": {
+        "address": {
+          "description": "Address of the subplebbit address to edit",
+          "name": "address",
+          "required": true
+        }
+      },
+      "description": "Edit a subplebbit properties. For a list of properties, visit https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions",
       "examples": [
         {
           "description": "Change the address of the sub to a new ENS address",
@@ -110,157 +138,197 @@
       "flags": {
         "plebbitRpcApiUrl": {
           "name": "plebbitRpcApiUrl",
-          "type": "option",
-          "summary": "URL to Plebbit RPC API",
           "required": true,
+          "summary": "URL to Plebbit RPC API",
+          "default": "ws://localhost:9138/",
+          "hasDynamicHelp": false,
           "multiple": false,
-          "default": "ws://localhost:9138/"
+          "type": "option"
         }
       },
-      "args": {
-        "address": {
-          "name": "address",
-          "description": "Address of the subplebbit address to edit",
-          "required": true
-        }
-      }
+      "hasDynamicHelp": false,
+      "hiddenAliases": [],
+      "id": "subplebbit:edit",
+      "pluginAlias": "plebbit-cli",
+      "pluginName": "plebbit-cli",
+      "pluginType": "core",
+      "strict": true,
+      "enableJsonFlag": false,
+      "isESM": false,
+      "relativePath": [
+        "dist",
+        "cli",
+        "commands",
+        "subplebbit",
+        "edit.js"
+      ]
     },
     "subplebbit:list": {
-      "id": "subplebbit:list",
-      "description": "List your subplebbits",
-      "strict": true,
-      "pluginName": "plebbit-cli",
-      "pluginAlias": "plebbit-cli",
-      "pluginType": "core",
       "aliases": [],
+      "args": {},
+      "description": "List your subplebbits",
       "examples": [],
       "flags": {
         "plebbitRpcApiUrl": {
           "name": "plebbitRpcApiUrl",
-          "type": "option",
-          "summary": "URL to Plebbit RPC API",
           "required": true,
+          "summary": "URL to Plebbit RPC API",
+          "default": "ws://localhost:9138/",
+          "hasDynamicHelp": false,
           "multiple": false,
-          "default": "ws://localhost:9138/"
+          "type": "option"
         },
         "quiet": {
-          "name": "quiet",
-          "type": "boolean",
           "char": "q",
+          "name": "quiet",
           "summary": "Only display subplebbit addresses",
-          "allowNo": false
+          "allowNo": false,
+          "type": "boolean"
         },
         "columns": {
-          "name": "columns",
-          "type": "option",
           "description": "only show provided columns (comma-separated)",
-          "multiple": false,
           "exclusive": [
             "extended"
-          ]
-        },
-        "sort": {
-          "name": "sort",
-          "type": "option",
-          "description": "property to sort by (prepend '-' for descending)",
-          "multiple": false
-        },
-        "filter": {
-          "name": "filter",
-          "type": "option",
-          "description": "filter property by partial string matching, ex: name=foo",
-          "multiple": false
+          ],
+          "name": "columns",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
         },
         "csv": {
-          "name": "csv",
-          "type": "boolean",
           "description": "output is csv format [alias: --output=csv]",
-          "allowNo": false,
           "exclusive": [
             "no-truncate"
-          ]
+          ],
+          "name": "csv",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "extended": {
+          "char": "x",
+          "description": "show extra columns",
+          "exclusive": [
+            "columns"
+          ],
+          "name": "extended",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "filter": {
+          "description": "filter property by partial string matching, ex: name=foo",
+          "name": "filter",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        },
+        "no-header": {
+          "description": "hide table header from output",
+          "exclusive": [
+            "csv"
+          ],
+          "name": "no-header",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "no-truncate": {
+          "description": "do not truncate output to fit screen",
+          "exclusive": [
+            "csv"
+          ],
+          "name": "no-truncate",
+          "allowNo": false,
+          "type": "boolean"
         },
         "output": {
-          "name": "output",
-          "type": "option",
           "description": "output in a more machine friendly format",
+          "exclusive": [
+            "no-truncate",
+            "csv"
+          ],
+          "name": "output",
+          "hasDynamicHelp": false,
           "multiple": false,
           "options": [
             "csv",
             "json",
             "yaml"
           ],
-          "exclusive": [
-            "no-truncate",
-            "csv"
-          ]
+          "type": "option"
         },
-        "extended": {
-          "name": "extended",
-          "type": "boolean",
-          "char": "x",
-          "description": "show extra columns",
-          "allowNo": false,
-          "exclusive": [
-            "columns"
-          ]
-        },
-        "no-truncate": {
-          "name": "no-truncate",
-          "type": "boolean",
-          "description": "do not truncate output to fit screen",
-          "allowNo": false,
-          "exclusive": [
-            "csv"
-          ]
-        },
-        "no-header": {
-          "name": "no-header",
-          "type": "boolean",
-          "description": "hide table header from output",
-          "allowNo": false,
-          "exclusive": [
-            "csv"
-          ]
+        "sort": {
+          "description": "property to sort by (prepend '-' for descending)",
+          "name": "sort",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
         }
       },
-      "args": {}
+      "hasDynamicHelp": false,
+      "hiddenAliases": [],
+      "id": "subplebbit:list",
+      "pluginAlias": "plebbit-cli",
+      "pluginName": "plebbit-cli",
+      "pluginType": "core",
+      "strict": true,
+      "enableJsonFlag": false,
+      "isESM": false,
+      "relativePath": [
+        "dist",
+        "cli",
+        "commands",
+        "subplebbit",
+        "list.js"
+      ]
     },
     "subplebbit:start": {
-      "id": "subplebbit:start",
-      "description": "Start a subplebbit",
-      "strict": false,
-      "pluginName": "plebbit-cli",
-      "pluginAlias": "plebbit-cli",
-      "pluginType": "core",
       "aliases": [],
+      "args": {
+        "addresses": {
+          "description": "Addresses of subplebbits to start. Separated by space",
+          "name": "addresses",
+          "required": true
+        }
+      },
+      "description": "Start a subplebbit",
       "examples": [],
       "flags": {
         "plebbitRpcApiUrl": {
           "name": "plebbitRpcApiUrl",
-          "type": "option",
-          "summary": "URL to Plebbit RPC API",
           "required": true,
+          "summary": "URL to Plebbit RPC API",
+          "default": "ws://localhost:9138/",
+          "hasDynamicHelp": false,
           "multiple": false,
-          "default": "ws://localhost:9138/"
+          "type": "option"
         }
       },
-      "args": {
-        "addresses": {
-          "name": "addresses",
-          "description": "Addresses of subplebbits to start. Separated by space",
-          "required": true
-        }
-      }
+      "hasDynamicHelp": false,
+      "hiddenAliases": [],
+      "id": "subplebbit:start",
+      "pluginAlias": "plebbit-cli",
+      "pluginName": "plebbit-cli",
+      "pluginType": "core",
+      "strict": false,
+      "enableJsonFlag": false,
+      "isESM": false,
+      "relativePath": [
+        "dist",
+        "cli",
+        "commands",
+        "subplebbit",
+        "start.js"
+      ]
     },
     "subplebbit:stop": {
-      "id": "subplebbit:stop",
-      "description": "Stop a subplebbit. The subplebbit will not publish or receive any publications until it is started again.",
-      "strict": false,
-      "pluginName": "plebbit-cli",
-      "pluginAlias": "plebbit-cli",
-      "pluginType": "core",
       "aliases": [],
+      "args": {
+        "addresses": {
+          "description": "Addresses of subplebbits to stop. Separated by space",
+          "name": "addresses",
+          "required": true
+        }
+      },
+      "description": "Stop a subplebbit. The subplebbit will not publish or receive any publications until it is started again.",
       "examples": [
         "plebbit subplebbit stop plebbit.eth",
         "plebbit subplebbit stop Qmb99crTbSUfKXamXwZBe829Vf6w5w5TktPkb6WstC9RFW"
@@ -268,20 +336,31 @@
       "flags": {
         "plebbitRpcApiUrl": {
           "name": "plebbitRpcApiUrl",
-          "type": "option",
-          "summary": "URL to Plebbit RPC API",
           "required": true,
+          "summary": "URL to Plebbit RPC API",
+          "default": "ws://localhost:9138/",
+          "hasDynamicHelp": false,
           "multiple": false,
-          "default": "ws://localhost:9138/"
+          "type": "option"
         }
       },
-      "args": {
-        "addresses": {
-          "name": "addresses",
-          "description": "Addresses of subplebbits to stop. Separated by space",
-          "required": true
-        }
-      }
+      "hasDynamicHelp": false,
+      "hiddenAliases": [],
+      "id": "subplebbit:stop",
+      "pluginAlias": "plebbit-cli",
+      "pluginName": "plebbit-cli",
+      "pluginType": "core",
+      "strict": false,
+      "enableJsonFlag": false,
+      "isESM": false,
+      "relativePath": [
+        "dist",
+        "cli",
+        "commands",
+        "subplebbit",
+        "stop.js"
+      ]
     }
-  }
+  },
+  "version": "0.11.2"
 }

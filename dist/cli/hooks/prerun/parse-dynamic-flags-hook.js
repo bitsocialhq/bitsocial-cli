@@ -12,6 +12,8 @@ const hook = async function (opts) {
             .slice(Object.keys(opts.Command.args).length) // remove the <address>
             .filter((_, i) => i % 2 === 0) // remove values, we only need keys here
             .map((key) => key.split("--")[1]);
+        if (keys.length > 0 && !opts.Command.flags)
+            opts.Command.flags = {};
         for (const key of keys) {
             opts.Command.flags[key] = core_1.Flags.string({
                 //@ts-expect-error
