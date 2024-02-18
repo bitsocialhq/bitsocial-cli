@@ -34,7 +34,7 @@ For Linux/MacOS
 curl https://raw.githubusercontent.com/plebbit/plebbit-cli/master/bin/install.sh | sh
 ```
 
-For Windows, You need to install [vc-redist](https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170) first. After you install `vc-redist`, download the install [plebbit](https://github.com/plebbit/plebbit-cli/releases/latest/download/plebbit_installer_win32_x64.exe) and next your way to the end
+For Windows, You need to install [vc-redist](https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170) first. After you install `vc-redist`, download the installer of [plebbit](https://github.com/plebbit/plebbit-cli/releases/latest/download/plebbit_installer_win32_x64.exe) and next your way to the end
 
 ## Build your Plebbit executable manually (optional)
 
