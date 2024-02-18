@@ -7,7 +7,7 @@ const defaults_js_1 = tslib_1.__importDefault(require("../../common-utils/defaul
 const startIpfs_js_1 = require("../../ipfs/startIpfs.js");
 const path_1 = tslib_1.__importDefault(require("path"));
 const crypto_1 = require("crypto");
-const fs_extra_1 = tslib_1.__importDefault(require("fs-extra"));
+const promises_1 = tslib_1.__importDefault(require("fs/promises"));
 const tcp_port_used_1 = tslib_1.__importDefault(require("tcp-port-used"));
 const util_js_1 = require("../../util.js");
 class Daemon extends core_1.Command {
@@ -57,12 +57,11 @@ class Daemon extends core_1.Command {
         const plebbitRpcAuthKeyPath = path_1.default.join(plebbitDataPath, "auth-key");
         let plebbitRpcAuthKey;
         try {
-            plebbitRpcAuthKey = fs_extra_1.default.readFileSync(plebbitRpcAuthKeyPath, "utf8");
+            plebbitRpcAuthKey = await promises_1.default.readFile(plebbitRpcAuthKeyPath, "utf-8");
         }
         catch (e) {
             plebbitRpcAuthKey = (0, crypto_1.randomBytes)(32).toString("base64").replace(/[/+=]/g, "").substring(0, 40);
-            fs_extra_1.default.ensureFileSync(plebbitRpcAuthKeyPath);
-            fs_extra_1.default.writeFileSync(plebbitRpcAuthKeyPath, plebbitRpcAuthKey);
+            await promises_1.default.writeFile(plebbitRpcAuthKey, plebbitRpcAuthKey, { flag: "wx" });
         }
         return plebbitRpcAuthKey;
     }
