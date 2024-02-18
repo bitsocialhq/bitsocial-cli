@@ -17,7 +17,7 @@ curl --fail --location --progress-bar --output "$plebbit_compressed_file_name" "
 PLEBBIT_INSTALL_DIR="$HOME/.plebbit_install_files"
 
 tar -xzf $plebbit_compressed_file_name --directory "$PLEBBIT_INSTALL_DIR"
-echo "Extractd Plebbit install files to $PLEBBIT_INSTALL_DIR"
+echo "Extracted Plebbit install files to $PLEBBIT_INSTALL_DIR"
 echo "Make sure not to delete this directory"
 
 plebbit_bin_path=$(eval echo "$PLEBBIT_INSTALL_DIR/plebbit/bin/plebbit") # Make sure it's expanded
@@ -36,11 +36,9 @@ for system_bin_path_dir in $binpaths; do
 	echo "Run 'plebbit --help' to get started"
 	echo "Need help? Join our Telegram https://t.me/plebbit"
 
-  # Will only add to $PATH if it's not there already
-  echo '[[ ":$PATH:" == *:/sbin:* ]] || PATH="$PATH:/sbin"' >> ~/.bashrc 
-
   rm "$plebbit_compressed_file_name"
-    exit 0
+
+  exit 0
   else
     if [ -d "$system_bin_path_dir" ] && [ ! -w "$system_bin_path_dir" ]; then
       is_write_perm_missing=1
