@@ -2,6 +2,8 @@ import { Flags, ux } from "@oclif/core";
 import { BaseCommand } from "../../base-command.js";
 import { EOL } from "os";
 import { getPlebbitLogger } from "../../../util.js";
+//@ts-expect-error
+import type { RpcLocalSubplebbit } from "@plebbit/plebbit-js/dist/node/subplebbit/rpc-local-subplebbit.js";
 
 export default class List extends BaseCommand {
     static override description = "List your subplebbits";
@@ -25,7 +27,7 @@ export default class List extends BaseCommand {
         } else {
             const subsWithStarted = await Promise.all(
                 subs.map(async (subAddress) => {
-                    const subInstance = await plebbit.createSubplebbit({ address: subAddress });
+                    const subInstance = <RpcLocalSubplebbit>await plebbit.createSubplebbit({ address: subAddress });
                     return { address: subInstance.address, started: subInstance.startedState !== "stopped" };
                 })
             );
