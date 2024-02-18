@@ -54,19 +54,6 @@
             ]
         }
     },
-    "pkg": {
-        "scripts": "./dist/**/*.js",
-        "assets": [
-            "node_modules/{swagger-ui-dist, sqlite3, skia-canvas, @keyv/sqlite, better-sqlite3}/**/*",
-            "node_modules/**/*sqlite3.node",
-            "node_modules/sqlite3/lib/**/node_sqlite3.node",
-            "node_modules/**/skia-canvas/lib/v6/index.node",
-            "node_modules/skia-canvas/lib/v6/index.node",
-            "node_modules/captcha-canvas/node_modules/skia-canvas/lib/v6/index.node",
-            "node_modules/skia-canvas/lib/**/*.*",
-            "node_modules/skia-canvas/**/*.*"
-        ]
-    },
     "config": {
         "commitizen": {
             "path": "cz-conventional-changelog"
@@ -98,7 +85,6 @@
         "mocha": "10.3.0",
         "nodemon": "2.0.20",
         "oclif": "4.4.12",
-        "pkg": "5.8.1",
         "release-it": "15.5.1",
         "shx": "0.3.4",
         "sinon": "17.0.1",
