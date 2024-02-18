@@ -6,7 +6,7 @@ import defaults from "../../common-utils/defaults.js";
 import { startIpfsNode } from "../../ipfs/startIpfs.js";
 import path from "path";
 import { randomBytes } from "crypto";
-import fs from "fs-extra";
+import fs from "fs/promises";
 import tcpPortUsed from "tcp-port-used";
 import { getPlebbitLogger } from "../../util.js";
 
@@ -64,11 +64,10 @@ export default class Daemon extends Command {
         const plebbitRpcAuthKeyPath = path.join(plebbitDataPath, "auth-key");
         let plebbitRpcAuthKey: string;
         try {
-            plebbitRpcAuthKey = fs.readFileSync(plebbitRpcAuthKeyPath, "utf8");
+            plebbitRpcAuthKey = await fs.readFile(plebbitRpcAuthKeyPath, "utf-8");
         } catch (e) {
             plebbitRpcAuthKey = randomBytes(32).toString("base64").replace(/[/+=]/g, "").substring(0, 40);
-            fs.ensureFileSync(plebbitRpcAuthKeyPath);
-            fs.writeFileSync(plebbitRpcAuthKeyPath, plebbitRpcAuthKey);
+            await fs.writeFile(plebbitRpcAuthKey, plebbitRpcAuthKey, { flag: "wx" });
         }
         return plebbitRpcAuthKey;
     }
