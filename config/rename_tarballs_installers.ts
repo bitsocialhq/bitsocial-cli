@@ -5,7 +5,13 @@ import path from "path";
     // Rename tarball and windows installers to be ready for CI upload
     const distDirectory = path.join(process.cwd(), "dist");
 
-    const tarballFilenames = await fs.readdir(distDirectory);
+    let tarballFilenames: string[];
+    try {
+        tarballFilenames = await fs.readdir(distDirectory);
+    } catch (e) {
+        console.error("Failed to log tarball files, error", e);
+        tarballFilenames = [];
+    }
 
     for (const tarballFilename of tarballFilenames) {
         if (!tarballFilename.endsWith(".tar.gz")) continue;
@@ -18,7 +24,14 @@ import path from "path";
 
     // Rename windows installer files here
     const windowsInstallerDir = path.join(distDirectory, "win32");
-    const winInstallerFilenames = await fs.readdir(windowsInstallerDir);
+
+    let winInstallerFilenames: string[];
+    try {
+        winInstallerFilenames = await fs.readdir(windowsInstallerDir);
+    } catch (e) {
+        console.error("Failed to log windows install files files, error", e);
+        winInstallerFilenames = [];
+    }
     for (const winInstallerFilename of winInstallerFilenames) {
         if (!winInstallerFilename.endsWith(".exe")) continue;
         const splits = winInstallerFilename.split("-");
