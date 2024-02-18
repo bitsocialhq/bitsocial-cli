@@ -1,0 +1,18 @@
+{
+    "cSpell.words": [
+        "ipfs",
+        "IPNS",
+        "plebbit",
+        "subplebbit",
+        "subplebbits"
+    ],
+    "cSpell.enableFiletypes": [
+        "!java",
+        "!json",
+        "!jsonc",
+        "!python",
+        "!typescript",
+        "!yaml",
+        "!yml"
+    ]
+}
