@@ -120,3 +120,6 @@ test-karma-webpack
 oclif.manifest.json
 
 build/
+.git.bk
+.dist_test/
+tmp/
