@@ -7,8 +7,8 @@ on:
       - "completed"
 jobs:
   # Generate and upload executables to Github releases
-  generate-upload-tarballs-installers-linux-macos-windows:
-    name: Generate and upload tarballs and installers
+  generate-upload-tarballs-linux-macos-windows:
+    name: Generate and upload tarballs
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
@@ -30,9 +30,6 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Generate tarballs
         run: yarn generate:executable:tarballs
-      - name: Generate Windows installer
-        run: yarn generate:installer:windows
-
       - name: Rename tarballs and installers
         run: yarn ts-node config/rename_tarballs_installers.ts
       - name: Upload tarballs to release
@@ -42,6 +39,31 @@ jobs:
           file_glob: true
           tag: ${{ steps.previoustag.outputs.tag }}
           overwrite: true
+
+  generate-upload-windows-installers:
+    name: Generate and upload windows installers
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+      - name: Get latest release tag
+        id: previoustag
+        uses: WyriHaximus/github-action-get-previous-tag@v1
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Generate Windows installer
+        run: yarn generate:installer:windows
+      - name: Rename tarballs and installers
+        run: yarn ts-node config/rename_tarballs_installers.ts
       - name: Upload windows installers to release
         uses: svenstaro/upload-release-action@v2
         with:
