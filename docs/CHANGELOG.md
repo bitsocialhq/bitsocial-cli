@@ -1,5 +1,12 @@
 
 
+## [0.11.9](https://github.com/plebbit/plebbit-cli/compare/v0.11.8...v0.11.9) (2024-02-18)
+
+
+### Bug Fixes
+
+* remove fs-extra, not needed ([9754233](https://github.com/plebbit/plebbit-cli/commit/9754233b275f341354c4a47a0dca2d1544f0da30))
+
 ## [0.11.8](https://github.com/plebbit/plebbit-cli/compare/v0.11.7...v0.11.8) (2024-02-17)
 
 ## [0.11.7](https://github.com/plebbit/plebbit-cli/compare/v0.11.6...v0.11.7) (2024-02-17)

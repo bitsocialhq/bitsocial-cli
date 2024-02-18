@@ -163,7 +163,7 @@ EXAMPLES
   $ plebbit daemon --plebbitRpcPort 80
 ```
 
-_See code: [src/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.8/src/commands/daemon.ts)_
+_See code: [src/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.9/src/commands/daemon.ts)_
 
 ## `plebbit help [COMMANDS]`
 
@@ -209,7 +209,7 @@ EXAMPLES
     $ plebbit subplebbit create --title 'Hello Plebs' --description 'Welcome'
 ```
 
-_See code: [src/commands/subplebbit/create.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.8/src/commands/subplebbit/create.ts)_
+_See code: [src/commands/subplebbit/create.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.9/src/commands/subplebbit/create.ts)_
 
 ## `plebbit subplebbit edit ADDRESS`
 
@@ -250,7 +250,7 @@ EXAMPLES
     $ plebbit subplebbit edit mysub.eth --title "This is the new title" --description "This is the new description"
 ```
 
-_See code: [src/commands/subplebbit/edit.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.8/src/commands/subplebbit/edit.ts)_
+_See code: [src/commands/subplebbit/edit.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.9/src/commands/subplebbit/edit.ts)_
 
 ## `plebbit subplebbit list`
 
@@ -278,7 +278,7 @@ DESCRIPTION
   List your subplebbits
 ```
 
-_See code: [src/commands/subplebbit/list.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.8/src/commands/subplebbit/list.ts)_
+_See code: [src/commands/subplebbit/list.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.9/src/commands/subplebbit/list.ts)_
 
 ## `plebbit subplebbit start ADDRESSES`
 
@@ -298,7 +298,7 @@ DESCRIPTION
   Start a subplebbit
 ```
 
-_See code: [src/commands/subplebbit/start.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.8/src/commands/subplebbit/start.ts)_
+_See code: [src/commands/subplebbit/start.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.9/src/commands/subplebbit/start.ts)_
 
 ## `plebbit subplebbit stop ADDRESSES`
 
@@ -323,7 +323,7 @@ EXAMPLES
   $ plebbit subplebbit stop Qmb99crTbSUfKXamXwZBe829Vf6w5w5TktPkb6WstC9RFW
 ```
 
-_See code: [src/commands/subplebbit/stop.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.8/src/commands/subplebbit/stop.ts)_
+_See code: [src/commands/subplebbit/stop.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.9/src/commands/subplebbit/stop.ts)_
 <!-- commandsstop -->
 
 # Contribution
