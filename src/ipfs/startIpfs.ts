@@ -1,7 +1,6 @@
 import { spawn, ChildProcessWithoutNullStreams } from "child_process";
 import path from "path";
 import envPaths from "env-paths";
-import { promises as fsPromises } from "fs";
 import fs from "fs";
 import assert from "assert";
 import { path as ipfsExePathFunc } from "kubo";
@@ -10,36 +9,7 @@ import { getPlebbitLogger } from "../util";
 const paths = envPaths("plebbit", { suffix: "" });
 
 async function getIpfsExePath(): Promise<string> {
-    const log = (await getPlebbitLogger())("plebbit-cli:ipfs:getIpfsExePath");
-
-    // If the app is packaged with 'pkg' as a single binary, we have to copy the ipfs binary somewhere so we can execute it
-    //@ts-ignore
-    if (process.pkg) {
-        // creating a temporary folder for our executable file
-        const destinationPath = path.join(paths.data, "ipfs_binary", path.basename(ipfsExePathFunc()));
-        await fs.promises.mkdir(path.dirname(destinationPath), { recursive: true });
-
-        const ipfsAsset = await fsPromises.open(ipfsExePathFunc());
-        const ipfsAssetStat = await ipfsAsset.stat();
-
-        let dst: fsPromises.FileHandle | undefined, dstStat: fs.Stats | undefined;
-        try {
-            dst = await fsPromises.open(destinationPath);
-            dstStat = await dst.stat();
-        } catch {}
-
-        log.trace(`Ipfs asset size: ${ipfsAssetStat.size}, dst size: ${dstStat?.size}`);
-        if (dstStat?.size !== ipfsAssetStat.size) {
-            log(`Copying ipfs binary to ${destinationPath}`);
-            await fsPromises.copyFile(ipfsExePathFunc(), destinationPath);
-            await fsPromises.chmod(destinationPath, 0o775);
-        }
-
-        await ipfsAsset.close();
-        if (dst) await dst.close();
-
-        return destinationPath;
-    } else return ipfsExePathFunc();
+    return ipfsExePathFunc();
 }
 
 // use this custom function instead of spawnSync for better logging
