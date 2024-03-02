@@ -1,5 +1,12 @@
 
 
+## [0.11.12](https://github.com/plebbit/plebbit-cli/compare/v0.11.11...v0.11.12) (2024-03-02)
+
+
+### Bug Fixes
+
+* **install:** relative argument not needed ([80e9a83](https://github.com/plebbit/plebbit-cli/commit/80e9a831e0c9a3b364dccf2bc2cc5f43bbf706df))
+
 ## [0.11.11](https://github.com/plebbit/plebbit-cli/compare/v0.11.10...v0.11.11) (2024-02-18)
 
 ## [0.11.10](https://github.com/plebbit/plebbit-cli/compare/v0.11.9...v0.11.10) (2024-02-18)

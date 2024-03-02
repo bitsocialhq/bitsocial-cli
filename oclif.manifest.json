@@ -40,7 +40,7 @@
           "description": "Specify the gateway port of the ipfs node to listen on",
           "name": "ipfsGatewayPort",
           "required": true,
-          "default": 8080,
+          "default": 6473,
           "hasDynamicHelp": false,
           "multiple": false,
           "type": "option"
@@ -362,5 +362,5 @@
       ]
     }
   },
-  "version": "0.11.11"
+  "version": "0.11.12"
 }
