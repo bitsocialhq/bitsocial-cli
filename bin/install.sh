@@ -32,7 +32,7 @@ for system_bin_path_dir in $binpaths; do
   # Expand the $HOME variable.
   system_plebbit_bin_path=$(eval echo "$system_bin_path_dir/plebbit")
   mkdir -p "$system_bin_path_dir"
-  if ln -srf "$plebbit_bin_path" "$system_plebbit_bin_path" ; then
+  if ln -sf "$plebbit_bin_path" "$system_plebbit_bin_path" ; then
     echo "Plebbit was installed successfully to $system_plebbit_bin_path"
 	echo "Run 'plebbit --help' to get started"
 	echo "Need help? Join our Telegram https://t.me/plebbit"
