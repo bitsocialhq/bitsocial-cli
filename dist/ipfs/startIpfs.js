@@ -5,41 +5,13 @@ const tslib_1 = require("tslib");
 const child_process_1 = require("child_process");
 const path_1 = tslib_1.__importDefault(require("path"));
 const env_paths_1 = tslib_1.__importDefault(require("env-paths"));
-const fs_1 = require("fs");
-const fs_2 = tslib_1.__importDefault(require("fs"));
+const fs_1 = tslib_1.__importDefault(require("fs"));
 const assert_1 = tslib_1.__importDefault(require("assert"));
 const kubo_1 = require("kubo");
 const util_1 = require("../util");
 const paths = (0, env_paths_1.default)("plebbit", { suffix: "" });
 async function getIpfsExePath() {
-    const log = (await (0, util_1.getPlebbitLogger)())("plebbit-cli:ipfs:getIpfsExePath");
-    // If the app is packaged with 'pkg' as a single binary, we have to copy the ipfs binary somewhere so we can execute it
-    //@ts-ignore
-    if (process.pkg) {
-        // creating a temporary folder for our executable file
-        const destinationPath = path_1.default.join(paths.data, "ipfs_binary", path_1.default.basename((0, kubo_1.path)()));
-        await fs_2.default.promises.mkdir(path_1.default.dirname(destinationPath), { recursive: true });
-        const ipfsAsset = await fs_1.promises.open((0, kubo_1.path)());
-        const ipfsAssetStat = await ipfsAsset.stat();
-        let dst, dstStat;
-        try {
-            dst = await fs_1.promises.open(destinationPath);
-            dstStat = await dst.stat();
-        }
-        catch { }
-        log.trace(`Ipfs asset size: ${ipfsAssetStat.size}, dst size: ${dstStat?.size}`);
-        if (dstStat?.size !== ipfsAssetStat.size) {
-            log(`Copying ipfs binary to ${destinationPath}`);
-            await fs_1.promises.copyFile((0, kubo_1.path)(), destinationPath);
-            await fs_1.promises.chmod(destinationPath, 0o775);
-        }
-        await ipfsAsset.close();
-        if (dst)
-            await dst.close();
-        return destinationPath;
-    }
-    else
-        return (0, kubo_1.path)();
+    return (0, kubo_1.path)();
 }
 // use this custom function instead of spawnSync for better logging
 // also spawnSync might have been causing crash on start on windows
@@ -63,7 +35,7 @@ async function startIpfsNode(apiPortNumber, gatewayPortNumber) {
     return new Promise(async (resolve, reject) => {
         const log = (await (0, util_1.getPlebbitLogger)())("plebbit-cli:ipfs:startIpfsNode");
         const ipfsDataPath = process.env["IPFS_PATH"] || path_1.default.join(paths.data, ".ipfs-cli");
-        await fs_2.default.promises.mkdir(ipfsDataPath, { recursive: true });
+        await fs_1.default.promises.mkdir(ipfsDataPath, { recursive: true });
         const ipfsExePath = await getIpfsExePath();
         log.trace(`IpfsDataPath (${ipfsDataPath}), ipfsExePath (${ipfsExePath})`);
         const env = { IPFS_PATH: ipfsDataPath };
