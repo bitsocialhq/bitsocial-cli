@@ -137,12 +137,8 @@ jobs:
             commands: |
               sudo apt-get update
               sudo apt-get install -y ca-certificates curl gnupg gcc g++ make git build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev libfontconfig1 fontconfig libfontconfig1-dev libfontconfig
-              mkdir -p ~/.nvm
-              curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-              export NVM_DIR="$HOME/.nvm"
-              [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-              nvm install 20
-              nvm use 20
+              curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+              sudo apt install -y nodejs
               npm install --global yarn
               yarn install --frozen-lockfile
               yarn generate:executable:tarballs:linux:arm64
