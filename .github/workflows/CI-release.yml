@@ -7,7 +7,7 @@ on:
       - "completed"
 jobs:
   # Generate and upload executables to Github releases
-  generate-upload-tarballs-x64:
+  generate-upload-tarballs-linux-x64:
     name: Generate and upload tarballs for Linux x64
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
@@ -29,7 +29,7 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Generate tarballs
-        run: yarn generate:executable:tarballs:x64
+        run: yarn generate:executable:tarballs:linux:x64
       - name: Rename tarballs and installers
         run: yarn ts-node config/rename_tarballs_installers.ts
       - name: Upload tarballs to release
@@ -40,8 +40,8 @@ jobs:
           tag: ${{ steps.previoustag.outputs.tag }}
           overwrite: true
 
-  generate-upload-tarballs-arm64:
-    name: Generate and upload tarballs for Arm64 Linux and Macos
+  generate-upload-tarballs-macos:
+    name: Generate and upload tarballs for Macos
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: macos-latest # should use arm64 arch
     steps:
@@ -61,7 +61,7 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Generate tarballs
-        run: yarn generate:executable:tarballs:arm64
+        run: yarn generate:executable:tarballs:macos
       - name: Rename tarballs and installers
         run: yarn ts-node config/rename_tarballs_installers.ts
       - name: Upload tarballs to release
@@ -113,3 +113,42 @@ jobs:
           file_glob: true
           tag: ${{ steps.previoustag.outputs.tag }}
           overwrite: true
+
+  generate-upload-tarballs-linux-arm64:
+      name: Generate and upload linux arm64 tarballs
+      runs-on: ubuntu-latest
+      if: ${{ github.event.workflow_run.conclusion == 'success' }}
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+            ref: ${{ github.head_ref }}
+        - name: "Get latest release tag"
+          id: previoustag
+          uses: "WyriHaximus/github-action-get-previous-tag@v1"
+        - uses: pguyot/arm-runner-action@v2
+          with:
+            base_image: raspios_lite_arm64:latest
+            cpu_info: cpuinfo/raspberrypi_zero2_w_arm64
+            image_additional_mb: 2048
+            import_github_env: true
+            bind_mount_repository: true
+            commands: |
+              sudo apt-get update
+              sudo apt-get install -y ca-certificates curl gnupg gcc g++ make git build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev libfontconfig1 fontconfig libfontconfig1-dev libfontconfig
+              curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+              source ~/.bashrc
+              nvm install 20
+              nvm use 20
+              npm install --global yarn
+              yarn install --frozen-lockfile
+              yarn generate:executable:tarballs:linux:arm64
+              yarn ts-node config/rename_tarballs_installers.ts
+        - name: Upload windows tarballs to release
+          uses: svenstaro/upload-release-action@v2
+          with:
+            file: "*.tar.gz"
+            file_glob: true
+            tag: ${{ steps.previoustag.outputs.tag }}
+            overwrite: true
