@@ -37,7 +37,7 @@ async function startIpfsNode(apiPortNumber, gatewayPortNumber) {
         const ipfsDataPath = process.env["IPFS_PATH"] || path_1.default.join(paths.data, ".ipfs-cli");
         await fs_1.default.promises.mkdir(ipfsDataPath, { recursive: true });
         const ipfsExePath = await getIpfsExePath();
-        log.trace(`IpfsDataPath (${ipfsDataPath}), ipfsExePath (${ipfsExePath})`);
+        log(`IpfsDataPath (${ipfsDataPath}), ipfsExePath (${ipfsExePath})`);
         const env = { IPFS_PATH: ipfsDataPath };
         try {
             await _spawnAsync(log, ipfsExePath, ["init"], { env, hideWindows: true });
