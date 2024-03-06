@@ -72,8 +72,8 @@ jobs:
           tag: ${{ steps.previoustag.outputs.tag }}
           overwrite: true
 
-  generate-upload-windows-tarballs-installers:
-    name: Generate and upload windows installers and tarballs
+  generate-upload-windows-installers:
+    name: Generate and upload windows installers
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: windows-latest
     steps:
@@ -94,8 +94,9 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Generate Windows installer
         run: yarn generate:installer:windows
-      - name: Generate Windows tarballs
-        run: yarn generate:executable:tarballs:windows
+      # You can't use oclif pack on windows, so we're skipping it for now
+      # - name: Generate Windows tarballs 
+      #   run: yarn generate:executable:tarballs:windows
       - name: Rename tarballs and installers
         run: yarn ts-node config/rename_tarballs_installers.ts
       - name: Upload windows installers to release
