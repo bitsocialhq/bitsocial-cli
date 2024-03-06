@@ -40,10 +40,10 @@ jobs:
           tag: ${{ steps.previoustag.outputs.tag }}
           overwrite: true
 
-  generate-upload-tarballs-macos:
-    name: Generate and upload tarballs for Macos
+  generate-upload-tarballs-macos-x64:
+    name: Generate and upload tarballs for Macos x64
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: macos-latest # should use arm64 arch
+    runs-on: macos-latest # should use x64 arch
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -61,7 +61,39 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Generate tarballs
-        run: yarn generate:executable:tarballs:macos
+        run: yarn generate:executable:tarballs:macos:x64
+      - name: Rename tarballs and installers
+        run: yarn ts-node config/rename_tarballs_installers.ts
+      - name: Upload tarballs to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file: "*.tar.gz"
+          file_glob: true
+          tag: ${{ steps.previoustag.outputs.tag }}
+          overwrite: true
+    
+  generate-upload-tarballs-macos-arm64:
+    name: Generate and upload tarballs for Macos arm64
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: macos-13-xlarge # should use arm64 arch
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+      - name: Get latest release tag
+        id: previoustag
+        uses: WyriHaximus/github-action-get-previous-tag@v1
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Generate tarballs
+        run: yarn generate:executable:tarballs:macos:arm64
       - name: Rename tarballs and installers
         run: yarn ts-node config/rename_tarballs_installers.ts
       - name: Upload tarballs to release
