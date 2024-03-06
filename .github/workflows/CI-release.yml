@@ -61,7 +61,7 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Generate tarballs
-        run: generate:executable:tarballs:arm64
+        run: yarn generate:executable:tarballs:arm64
       - name: Rename tarballs and installers
         run: yarn ts-node config/rename_tarballs_installers.ts
       - name: Upload tarballs to release
