@@ -43,11 +43,14 @@ async function startIpfsNode(apiPortNumber, gatewayPortNumber) {
             await _spawnAsync(log, ipfsExePath, ["init"], { env, hideWindows: true });
         }
         catch (e) { }
+        log("Called ipfs init successfully");
         await _spawnAsync(log, ipfsExePath, ["config", "Addresses.Gateway", `/ip4/127.0.0.1/tcp/${gatewayPortNumber}`], {
             env,
             hideWindows: true
         });
+        log("Called ipfs config Addresses.Gateway successfully");
         await _spawnAsync(log, ipfsExePath, ["config", "Addresses.API", `/ip4/127.0.0.1/tcp/${apiPortNumber}`], { env, hideWindows: true });
+        log("Called ipfs config Addresses.API successfully");
         const daemonArgs = ["--enable-namesys-pubsub", "--migrate"];
         const ipfsProcess = (0, child_process_1.spawn)(ipfsExePath, ["daemon", ...daemonArgs], { env, cwd: process.cwd() });
         log.trace(`ipfs daemon process started with pid ${ipfsProcess.pid}`);
