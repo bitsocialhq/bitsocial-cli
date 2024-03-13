@@ -1926,13 +1926,6 @@
   resolved "https://registry.yarnpkg.com/@multiformats/base-x/-/base-x-4.0.1.tgz#95ff0fa58711789d53aefb2590a8b7a4e715d121"
   integrity sha512-eMk0b9ReBbV23xXU693TAIrLyeO5iTgBZGSJfpqriG8UkYvr/hC9u9pyMlAakDNHWmbhMZCDs6KQO0jzKD8OTw==
 
-"@multiformats/mafmt@^11.0.3":
-  version "11.1.2"
-  resolved "https://registry.yarnpkg.com/@multiformats/mafmt/-/mafmt-11.1.2.tgz#c03ef4022c795b7f230b136f2f974fc263eac4f1"
-  integrity sha512-3n1o5eLU7WzTAPLuz3AodV7Iql6NWf7Ws8fqVaGT7o5nDDabUPYGBm2cZuh3OrqmwyCY61LrNUIsjzivU6UdpQ==
-  dependencies:
-    "@multiformats/multiaddr" "^12.0.0"
-
 "@multiformats/mafmt@^12.1.6":
   version "12.1.6"
   resolved "https://registry.yarnpkg.com/@multiformats/mafmt/-/mafmt-12.1.6.tgz#e7c1831c1e94c94932621826049afc89f3ad43b7"
@@ -1956,7 +1949,7 @@
   dependencies:
     "@multiformats/multiaddr" "^12.0.0"
 
-"@multiformats/multiaddr@^11.0.0", "@multiformats/multiaddr@^11.1.5":
+"@multiformats/multiaddr@^11.1.5":
   version "11.6.1"
   resolved "https://registry.yarnpkg.com/@multiformats/multiaddr/-/multiaddr-11.6.1.tgz#ec46984a298e715e27a398434c087856db5f3185"
   integrity sha512-doST0+aB7/3dGK9+U5y3mtF3jq85KGbke1QiH0KE1F5mGQ9y56mFebTeu2D9FNOm+OT6UHb8Ss8vbSnpGjeLNw==
@@ -2540,9 +2533,9 @@
   resolved "https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
   integrity sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==
 
-"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#28234d10b10b3f424260a063e9da7cabaed3206e":
+"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#ec60da41378d5e14519e2884a9b7eb4957e9eb21":
   version "0.0.3"
-  resolved "https://github.com/plebbit/plebbit-js#28234d10b10b3f424260a063e9da7cabaed3206e"
+  resolved "https://github.com/plebbit/plebbit-js#ec60da41378d5e14519e2884a9b7eb4957e9eb21"
   dependencies:
     "@bonfida/spl-name-service" "2.3.8"
     "@chainsafe/libp2p-gossipsub" "12.0.0"
@@ -2575,7 +2568,7 @@
     file-type "16.5.4"
     hpagent "1.2.0"
     ipfs-only-hash "4.0.0"
-    is-ipfs "8.0.1"
+    is-ipfs "8.0.4"
     jose "4.11.0"
     js-sha256 "0.9.0"
     keyv "4.5.4"
@@ -7846,16 +7839,16 @@ is-interactive@^2.0.0:
   resolved "https://registry.yarnpkg.com/is-interactive/-/is-interactive-2.0.0.tgz#40c57614593826da1100ade6059778d597f16e90"
   integrity sha512-qP1vozQRI+BMOPcjFzrjXuQvdak2pHNUMZoeG2eRbiSqyvbEf/wQtEOTOX1guk6E3t36RkaqiSt8A/6YElNxLQ==
 
-is-ipfs@8.0.1:
-  version "8.0.1"
-  resolved "https://registry.yarnpkg.com/is-ipfs/-/is-ipfs-8.0.1.tgz#23aefd086d32a7fce7b180bc55bf71313a641415"
-  integrity sha512-hoBSElmPath3aDdtaOpVZsuCh2SXTqvLML+H75S7iDgKdqNmENJ6tsRucP1HLfpqEyZ/uIlj/+ZBxIC/F8B5Eg==
+is-ipfs@8.0.4:
+  version "8.0.4"
+  resolved "https://registry.yarnpkg.com/is-ipfs/-/is-ipfs-8.0.4.tgz#686e7c20ec54a25a055519b435e2546fbd8e2a5f"
+  integrity sha512-upkO6a8WgBSZMMmuPzmF2NQLWXtiJtHxdEfEiMWrOzCKoZ+XEiM0XlK4fFMfo/PyiRmPMJ4PsNrXyvJeqMrJXA==
   dependencies:
-    "@multiformats/mafmt" "^11.0.3"
-    "@multiformats/multiaddr" "^11.0.0"
+    "@multiformats/mafmt" "^12.1.6"
+    "@multiformats/multiaddr" "^12.1.14"
     iso-url "^1.1.3"
-    multiformats "^11.0.0"
-    uint8arrays "^4.0.2"
+    multiformats "^13.0.1"
+    uint8arrays "^5.0.1"
 
 is-lambda@^1.0.1:
   version "1.0.1"
