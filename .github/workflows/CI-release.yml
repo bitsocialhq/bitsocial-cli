@@ -144,7 +144,7 @@ jobs:
               yarn install --frozen-lockfile
               yarn generate:executable:tarballs:linux:arm64
               yarn ts-node config/rename_tarballs_installers.ts
-        - name: Upload windows tarballs to release
+        - name: Upload tarballs to release
           uses: svenstaro/upload-release-action@v2
           with:
             file: "*.tar.gz"
