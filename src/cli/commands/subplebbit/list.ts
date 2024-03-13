@@ -28,7 +28,7 @@ export default class List extends BaseCommand {
             const subsWithStarted = await Promise.all(
                 subs.map(async (subAddress) => {
                     const subInstance = <RpcLocalSubplebbit>await plebbit.createSubplebbit({ address: subAddress });
-                    return { address: subInstance.address, started: subInstance.startedState !== "stopped" };
+                    return { address: subInstance.address, started: subInstance.started };
                 })
             );
             ux.table(
