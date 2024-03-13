@@ -130,7 +130,7 @@ $ plebbit subplebbit edit mysub.eth '--roles["author-address.eth"]' null
 
 <!-- commands -->
 * [`plebbit daemon`](#plebbit-daemon)
-* [`plebbit help [COMMANDS]`](#plebbit-help-commands)
+* [`plebbit help [COMMAND]`](#plebbit-help-command)
 * [`plebbit subplebbit create`](#plebbit-subplebbit-create)
 * [`plebbit subplebbit edit ADDRESS`](#plebbit-subplebbit-edit-address)
 * [`plebbit subplebbit list`](#plebbit-subplebbit-list)
@@ -163,18 +163,18 @@ EXAMPLES
   $ plebbit daemon --plebbitRpcPort 80
 ```
 
-_See code: [src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.24/src/cli/commands/daemon.ts)_
+_See code: [src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.25/src/cli/commands/daemon.ts)_
 
-## `plebbit help [COMMANDS]`
+## `plebbit help [COMMAND]`
 
 Display help for plebbit.
 
 ```
 USAGE
-  $ plebbit help [COMMANDS] [-n]
+  $ plebbit help [COMMAND...] [-n]
 
 ARGUMENTS
-  COMMANDS  Command to show help for.
+  COMMAND...  Command to show help for.
 
 FLAGS
   -n, --nested-commands  Include all nested commands in the output.
@@ -183,7 +183,7 @@ DESCRIPTION
   Display help for plebbit.
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.0.12/src/cli/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.0.18/src/cli/commands/help.ts)_
 
 ## `plebbit subplebbit create`
 
@@ -209,7 +209,7 @@ EXAMPLES
     $ plebbit subplebbit create --title 'Hello Plebs' --description 'Welcome'
 ```
 
-_See code: [src/cli/commands/subplebbit/create.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.24/src/cli/commands/subplebbit/create.ts)_
+_See code: [src/cli/commands/subplebbit/create.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.25/src/cli/commands/subplebbit/create.ts)_
 
 ## `plebbit subplebbit edit ADDRESS`
 
@@ -250,7 +250,7 @@ EXAMPLES
     $ plebbit subplebbit edit mysub.eth --title "This is the new title" --description "This is the new description"
 ```
 
-_See code: [src/cli/commands/subplebbit/edit.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.24/src/cli/commands/subplebbit/edit.ts)_
+_See code: [src/cli/commands/subplebbit/edit.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.25/src/cli/commands/subplebbit/edit.ts)_
 
 ## `plebbit subplebbit list`
 
@@ -278,7 +278,7 @@ DESCRIPTION
   List your subplebbits
 ```
 
-_See code: [src/cli/commands/subplebbit/list.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.24/src/cli/commands/subplebbit/list.ts)_
+_See code: [src/cli/commands/subplebbit/list.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.25/src/cli/commands/subplebbit/list.ts)_
 
 ## `plebbit subplebbit start ADDRESSES`
 
@@ -286,10 +286,10 @@ Start a subplebbit
 
 ```
 USAGE
-  $ plebbit subplebbit start ADDRESSES --plebbitRpcApiUrl <value>
+  $ plebbit subplebbit start ADDRESSES... --plebbitRpcApiUrl <value>
 
 ARGUMENTS
-  ADDRESSES  Addresses of subplebbits to start. Separated by space
+  ADDRESSES...  Addresses of subplebbits to start. Separated by space
 
 FLAGS
   --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
@@ -298,7 +298,7 @@ DESCRIPTION
   Start a subplebbit
 ```
 
-_See code: [src/cli/commands/subplebbit/start.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.24/src/cli/commands/subplebbit/start.ts)_
+_See code: [src/cli/commands/subplebbit/start.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.25/src/cli/commands/subplebbit/start.ts)_
 
 ## `plebbit subplebbit stop ADDRESSES`
 
@@ -306,10 +306,10 @@ Stop a subplebbit. The subplebbit will not publish or receive any publications u
 
 ```
 USAGE
-  $ plebbit subplebbit stop ADDRESSES --plebbitRpcApiUrl <value>
+  $ plebbit subplebbit stop ADDRESSES... --plebbitRpcApiUrl <value>
 
 ARGUMENTS
-  ADDRESSES  Addresses of subplebbits to stop. Separated by space
+  ADDRESSES...  Addresses of subplebbits to stop. Separated by space
 
 FLAGS
   --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
@@ -323,7 +323,7 @@ EXAMPLES
   $ plebbit subplebbit stop Qmb99crTbSUfKXamXwZBe829Vf6w5w5TktPkb6WstC9RFW
 ```
 
-_See code: [src/cli/commands/subplebbit/stop.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.24/src/cli/commands/subplebbit/stop.ts)_
+_See code: [src/cli/commands/subplebbit/stop.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.25/src/cli/commands/subplebbit/stop.ts)_
 <!-- commandsstop -->
 
 # Contribution

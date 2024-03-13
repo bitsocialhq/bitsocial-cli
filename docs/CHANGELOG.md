@@ -1,5 +1,12 @@
 
 
+## [0.11.25](https://github.com/plebbit/plebbit-cli/compare/v0.11.24...v0.11.25) (2024-03-13)
+
+
+### Bug Fixes
+
+* **list:** fix bug with started = true when sub isn't actually running ([e5f5ee6](https://github.com/plebbit/plebbit-cli/commit/e5f5ee69ddebc1a363902583d83881a7295839aa))
+
 ## [0.11.24](https://github.com/plebbit/plebbit-cli/compare/v0.11.23...v0.11.24) (2024-03-12)
 
 ## [0.11.23](https://github.com/plebbit/plebbit-cli/compare/v0.11.22...v0.11.23) (2024-03-12)
