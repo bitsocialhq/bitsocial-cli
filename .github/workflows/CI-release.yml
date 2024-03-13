@@ -76,7 +76,7 @@ jobs:
   generate-upload-windows-installers:
     name: Generate and upload windows installers
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -91,12 +91,11 @@ jobs:
       - name: Get latest release tag
         id: previoustag
         uses: WyriHaximus/github-action-get-previous-tag@v1
-      - name: Install deps needed to create windows installer
-        run: sudo apt install -y nsis p7zip
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Generate Windows installer
         run: yarn generate:installer:windows
+        shell: bash
       # You can't use oclif pack on windows, so we're skipping it for now
       # - name: Generate Windows tarballs 
       #   run: yarn generate:executable:tarballs:windows
