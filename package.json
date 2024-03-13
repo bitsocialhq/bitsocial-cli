@@ -70,7 +70,7 @@
     "devDependencies": {
         "@commitlint/cli": "17.3.0",
         "@commitlint/config-conventional": "17.3.0",
-        "@oclif/test": "3.1.16",
+        "@oclif/test": "3.2.5",
         "@release-it/conventional-changelog": "5.1.1",
         "@tsconfig/node20": "20.1.2",
         "@types/chai": "4.3.11",
@@ -89,7 +89,7 @@
         "husky": "8.0.2",
         "mocha": "10.3.0",
         "nodemon": "2.0.20",
-        "oclif": "4.4.12",
+        "oclif": "4.5.4",
         "release-it": "15.5.1",
         "shx": "0.3.4",
         "sinon": "17.0.1",
@@ -99,10 +99,10 @@
         "wait-on": "6.0.1"
     },
     "dependencies": {
-        "@oclif/core": "3.19.2",
-        "@oclif/plugin-help": "6.0.12",
-        "@oclif/plugin-not-found": "3.0.10",
-        "@plebbit/plebbit-js": "https://github.com/plebbit/plebbit-js#64b61f3e4a92eb540342d003927caa08bffb3341",
+        "@oclif/core": "3.25.0",
+        "@oclif/plugin-help": "6.0.18",
+        "@oclif/plugin-not-found": "3.0.14",
+        "@plebbit/plebbit-js": "https://github.com/plebbit/plebbit-js#28234d10b10b3f424260a063e9da7cabaed3206e",
         "dataobject-parser": "1.2.22",
         "env-paths": "2.2.1",
         "kubo": "0.24.0",
