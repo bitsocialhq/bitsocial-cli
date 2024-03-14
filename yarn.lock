@@ -2533,9 +2533,9 @@
   resolved "https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
   integrity sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==
 
-"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#ec60da41378d5e14519e2884a9b7eb4957e9eb21":
+"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#812ab96b25a986892a4112cbf2d9f31a07e34124":
   version "0.0.3"
-  resolved "https://github.com/plebbit/plebbit-js#ec60da41378d5e14519e2884a9b7eb4957e9eb21"
+  resolved "https://github.com/plebbit/plebbit-js#812ab96b25a986892a4112cbf2d9f31a07e34124"
   dependencies:
     "@bonfida/spl-name-service" "2.3.8"
     "@chainsafe/libp2p-gossipsub" "12.0.0"
@@ -2568,7 +2568,7 @@
     file-type "16.5.4"
     hpagent "1.2.0"
     ipfs-only-hash "4.0.0"
-    is-ipfs "8.0.4"
+    is-ipfs "6.0.2"
     jose "4.11.0"
     js-sha256 "0.9.0"
     keyv "4.5.4"
@@ -5606,6 +5606,15 @@ dir-glob@^3.0.1:
   dependencies:
     path-type "^4.0.0"
 
+dns-over-http-resolver@^1.2.3:
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/dns-over-http-resolver/-/dns-over-http-resolver-1.2.3.tgz#194d5e140a42153f55bb79ac5a64dd2768c36af9"
+  integrity sha512-miDiVSI6KSNbi4SVifzO/reD8rMnxgrlnkrlkugOLQpWQTe2qMdHsZp5DmfKjxNE+/T3VAAYLQUZMv9SMr6+AA==
+  dependencies:
+    debug "^4.3.1"
+    native-fetch "^3.0.0"
+    receptacle "^1.3.2"
+
 dns-over-http-resolver@^2.1.0:
   version "2.1.3"
   resolved "https://registry.yarnpkg.com/dns-over-http-resolver/-/dns-over-http-resolver-2.1.3.tgz#bb7f2e10cc18d960339a6e30e21b8c1d99be7b38"
@@ -7560,7 +7569,7 @@ ip-address@^9.0.5:
     jsbn "1.1.0"
     sprintf-js "^1.1.3"
 
-ip-regex@^4.1.0:
+ip-regex@^4.0.0, ip-regex@^4.1.0:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/ip-regex/-/ip-regex-4.3.0.tgz#687275ab0f57fa76978ff8f4dddc8a23d5990db5"
   integrity sha512-B9ZWJxHHOHUhUjCPrMpLD4xEq35bUTClHM1S6CBU5ixQnkZmwipwgc96vAd7AAGM9TGHvJR+Uss+/Ak6UphK+Q==
@@ -7839,16 +7848,23 @@ is-interactive@^2.0.0:
   resolved "https://registry.yarnpkg.com/is-interactive/-/is-interactive-2.0.0.tgz#40c57614593826da1100ade6059778d597f16e90"
   integrity sha512-qP1vozQRI+BMOPcjFzrjXuQvdak2pHNUMZoeG2eRbiSqyvbEf/wQtEOTOX1guk6E3t36RkaqiSt8A/6YElNxLQ==
 
-is-ipfs@8.0.4:
-  version "8.0.4"
-  resolved "https://registry.yarnpkg.com/is-ipfs/-/is-ipfs-8.0.4.tgz#686e7c20ec54a25a055519b435e2546fbd8e2a5f"
-  integrity sha512-upkO6a8WgBSZMMmuPzmF2NQLWXtiJtHxdEfEiMWrOzCKoZ+XEiM0XlK4fFMfo/PyiRmPMJ4PsNrXyvJeqMrJXA==
+is-ip@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/is-ip/-/is-ip-3.1.0.tgz#2ae5ddfafaf05cb8008a62093cf29734f657c5d8"
+  integrity sha512-35vd5necO7IitFPjd/YBeqwWnyDWbuLH9ZXQdMfDA8TEo7pv5X8yfrvVO3xbJbLUlERCMvf6X0hTUamQxCYJ9Q==
   dependencies:
-    "@multiformats/mafmt" "^12.1.6"
-    "@multiformats/multiaddr" "^12.1.14"
+    ip-regex "^4.0.0"
+
+is-ipfs@6.0.2:
+  version "6.0.2"
+  resolved "https://registry.yarnpkg.com/is-ipfs/-/is-ipfs-6.0.2.tgz#8cc195fd6f39500aa6d844bc4a6dd05acf1cf084"
+  integrity sha512-RinUnsggL4hlLoHlZcvs2+92OE46Uflg/YVU1m5fXhyDBS/zh3bq+i6Aw7IbzJZ9oZXJx26TgxpqCuCr+LH/DA==
+  dependencies:
     iso-url "^1.1.3"
-    multiformats "^13.0.1"
-    uint8arrays "^5.0.1"
+    mafmt "^10.0.0"
+    multiaddr "^10.0.0"
+    multiformats "^9.0.0"
+    uint8arrays "^3.0.0"
 
 is-lambda@^1.0.1:
   version "1.0.1"
@@ -8973,6 +8989,13 @@ macos-release@^3.0.1:
   resolved "https://registry.yarnpkg.com/macos-release/-/macos-release-3.2.0.tgz#dcee82b6a4932971b1538dbf6f3aabc4a903b613"
   integrity sha512-fSErXALFNsnowREYZ49XCdOHF8wOPWuFOGQrAhP7x5J/BqQv+B02cNsTykGpDgRVx43EKg++6ANmTaGTtW+hUA==
 
+mafmt@^10.0.0:
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/mafmt/-/mafmt-10.0.0.tgz#431726f16e51090b32ada621c402acbdb64fce9c"
+  integrity sha512-K1bziJOXcnepfztu+2Xy9FLKVLaFMDuspmiyJIYRxnO0WOxFSV7XKSdMxMrVZxcvg1+YjlTIvSGTImUHU2k4Aw==
+  dependencies:
+    multiaddr "^10.0.0"
+
 make-dir@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/make-dir/-/make-dir-3.1.0.tgz#415e967046b3a7f1d185277d84aa58203726a13f"
@@ -9432,6 +9455,18 @@ ms@2.1.3, ms@^2.0.0, ms@^2.1.1:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.3.tgz#574c8138ce1d2b5861f0b44579dbadd60c6615b2"
   integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
 
+multiaddr@^10.0.0:
+  version "10.0.1"
+  resolved "https://registry.yarnpkg.com/multiaddr/-/multiaddr-10.0.1.tgz#0d15848871370860a4d266bb44d93b3dac5d90ef"
+  integrity sha512-G5upNcGzEGuTHkzxezPrrD6CaIHR9uo+7MwqhNVcXTs33IInon4y7nMiGxl2CY5hG7chvYQUQhz5V52/Qe3cbg==
+  dependencies:
+    dns-over-http-resolver "^1.2.3"
+    err-code "^3.0.1"
+    is-ip "^3.1.0"
+    multiformats "^9.4.5"
+    uint8arrays "^3.0.0"
+    varint "^6.0.0"
+
 multibase@^4.0.1:
   version "4.0.6"
   resolved "https://registry.yarnpkg.com/multibase/-/multibase-4.0.6.tgz#6e624341483d6123ca1ede956208cb821b440559"
@@ -9462,7 +9497,7 @@ multiformats@^13.0.0, multiformats@^13.0.1, multiformats@^13.1.0:
   resolved "https://registry.yarnpkg.com/multiformats/-/multiformats-13.1.0.tgz#5aa9d2175108a448fc3bdb54ba8a3d0b6cab3ac3"
   integrity sha512-HzdtdBwxsIkzpeXzhQ5mAhhuxcHbjEHH+JQoxt7hG/2HGFjjwyolLo7hbaexcnhoEuV4e0TNJ8kkpMjiEYY4VQ==
 
-multiformats@^9.4.2, multiformats@^9.4.5:
+multiformats@^9.0.0, multiformats@^9.4.2, multiformats@^9.4.5:
   version "9.9.0"
   resolved "https://registry.yarnpkg.com/multiformats/-/multiformats-9.9.0.tgz#c68354e7d21037a8f1f8833c8ccd68618e8f1d37"
   integrity sha512-HoMUjhH9T8DDBNT+6xzkrd9ga/XiBI4xLr58LJACwK6G3HTOPeMz4nB4KJs33L2BelrIJa7P0VuNaVF3hMYfjg==
