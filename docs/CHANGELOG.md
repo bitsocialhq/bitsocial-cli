@@ -1,5 +1,12 @@
 
 
+## [0.11.31](https://github.com/plebbit/plebbit-cli/compare/v0.11.30...v0.11.31) (2024-03-22)
+
+
+### Bug Fixes
+
+* **edit:** throw if user tries to edit a remote sub ([2b4c245](https://github.com/plebbit/plebbit-cli/commit/2b4c245785397f2d2745004baca8cc3c00484d4c))
+
 ## [0.11.30](https://github.com/plebbit/plebbit-cli/compare/v0.11.29...v0.11.30) (2024-03-14)
 
 ## [0.11.29](https://github.com/plebbit/plebbit-cli/compare/v0.11.28...v0.11.29) (2024-03-14)
