@@ -23,6 +23,7 @@ describe("plebbit subplebbit edit", () => {
     before(() => {
         const plebbitInstanceFake = sandbox.fake.resolves({
             createSubplebbit: sandbox.fake.resolves({ edit: editFake, ...currentSubProps, toJSONInternalRpc: () => currentSubProps }),
+            listSubplebbits: sandbox.fake.resolves(["plebbit.eth"]),
             destroy: () => {}
         });
         //@ts-expect-error

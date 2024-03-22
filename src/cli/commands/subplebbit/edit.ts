@@ -49,6 +49,8 @@ export default class Edit extends BaseCommand {
         const editOptions: SubplebbitEditOptions = DataObjectParser.transpose(lodash.omit(flags, ["plebbitRpcApiUrl"]))["_data"];
         log("Edit options parsed:", editOptions);
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
+        const localSubs = await plebbit.listSubplebbits();
+        if (!localSubs.includes(args.address)) this.error("Can't edit a remote subplebbit, make sure you're editing a local sub");
 
         const sub = <RpcLocalSubplebbit>await plebbit.createSubplebbit({ address: args.address });
         const mergedSubState = lodash.pick(sub.toJSONInternalRpc(), Object.keys(editOptions));
