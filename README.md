@@ -28,11 +28,15 @@ Plebbit is serverless, admin-less, decentralized Reddit alternative built comple
 
 # Install
 
-For Linux/MacOS
+## For Linux/MacOS
 
 ```sh-session
 curl https://raw.githubusercontent.com/plebbit/plebbit-cli/master/bin/install.sh | sh
 ```
+
+If you get `libfontconfig dependency error`, then you need to install libfontconfig by running `sudo apt install -y libfontconfig1 fontconfig libfontconfig1-dev libfontconfig`
+
+## For Windows
 
 For Windows, You need to install [vc-redist](https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170) first. After you install `vc-redist`, download the installer of [plebbit](https://github.com/plebbit/plebbit-cli/releases/latest/download/plebbit_installer_win32_x64.exe) and next your way to the end
 
@@ -45,7 +49,7 @@ git clone https://github.com/plebbit/plebbit-cli
 cd plebbit-cli
 yarn install --frozen-lockfile
 yarn build && yarn oclif manifest
-yarn pkg -t node20-linux-x64 .
+node bin/run
 ```
 
 After running the last command you should have your executable in the directory. In this example we have generated an executables for linux. If you want to generate executables for different operating systems, visit [pkg documentation](https://github.com/vercel/pkg)
@@ -53,10 +57,12 @@ After running the last command you should have your executable in the directory.
 # Usage
 
 ## The data/config path of Plebbit
+
 This is the directory where plebbit-cli will keep its config, as well as data for local subplebbits:
-- macOS: ~/Library/Application Support/plebbit
-- Windows: %LOCALAPPDATA%\plebbit
-- Linux: ~/.local/share/plebbit
+
+-   macOS: ~/Library/Application Support/plebbit
+-   Windows: %LOCALAPPDATA%\plebbit
+-   Linux: ~/.local/share/plebbit
 
 ## Running Daemon
 
@@ -65,7 +71,7 @@ In Bash (or powershell if you're on Windows), run `plebbit daemon` to able to co
 ```sh-session
 $ plebbit daemon
 IPFS API listening on: http://localhost:5001/api/v0
-IPFS Gateway listening on: http://localhost:8080
+IPFS Gateway listening on: http://localhost:6473
 Plebbit RPC API listening on: ws://localhost:9138
 Plebbit data path: /root/.local/share/plebbit
 ```
@@ -79,63 +85,67 @@ IPFS API listening on: http://localhost:32429/api/v0
 IPFS Gateway listening on: http://localhost:32430
 Plebbit API listening on: http://localhost:32431/api/v0
 You can find Plebbit API documentation at: http://localhost:32431/api/v0/docs
-Seeding subplebbits: [                                                                                   
-  '12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu',                                                
-  'plebshelpingplebs.eth',                                               
-  'plebwhales.eth',                                                                                      
-  'politically-incorrect.eth',                                                     
-  'business-and-finance.eth',                        
-  'movies-tv-anime.eth',                   
-  'videos-livestreams-podcasts.eth',                          
-  'health-nutrition-science.eth',                  
-  'censorship-watch.eth',                     
-  'reddit-screenshots.eth'                              
-]     
+Seeding subplebbits: [
+  '12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu',
+  'plebshelpingplebs.eth',
+  'plebwhales.eth',
+  'politically-incorrect.eth',
+  'business-and-finance.eth',
+  'movies-tv-anime.eth',
+  'videos-livestreams-podcasts.eth',
+  'health-nutrition-science.eth',
+  'censorship-watch.eth',
+  'reddit-screenshots.eth'
+]
 ``` -->
 
 ### Creating your first sub
+
 ```sh-session
 $ plebbit subplebbit create --title "Hello Plebs!" --description "This is gonna be great"
 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
 ### Listing all your subs
+
 ```sh-session
 $ plebbit subplebbit list
-Address                                              Started 
- ──────────────────────────────────────────────────── ─────── 
- 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu true    
- business-and-finance.eth                             true    
- censorship-watch.eth                                 true    
- health-nutrition-science.eth                         true    
- movies-tv-anime.eth                                  true    
- pleblore.eth                                         true    
- politically-incorrect.eth                            true    
- reddit-screenshots.eth                               false   
+Address                                              Started
+ ──────────────────────────────────────────────────── ───────
+ 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu true
+ business-and-finance.eth                             true
+ censorship-watch.eth                                 true
+ health-nutrition-science.eth                         true
+ movies-tv-anime.eth                                  true
+ pleblore.eth                                         true
+ politically-incorrect.eth                            true
+ reddit-screenshots.eth                               false
  videos-livestreams-podcasts.eth                      false
 ```
 
 ### Adding a role moderator to your sub
+
 ```sh-session
 $ plebbit subplebbit edit mysub.eth '--roles["author-address.eth"].role' moderator
 ```
 
 ### Removing a role
+
 ```sh-session
 $ plebbit subplebbit edit mysub.eth '--roles["author-address.eth"]' null
 ```
 
-
 # Commands
 
 <!-- commands -->
-* [`plebbit daemon`](#plebbit-daemon)
-* [`plebbit help [COMMAND]`](#plebbit-help-command)
-* [`plebbit subplebbit create`](#plebbit-subplebbit-create)
-* [`plebbit subplebbit edit ADDRESS`](#plebbit-subplebbit-edit-address)
-* [`plebbit subplebbit list`](#plebbit-subplebbit-list)
-* [`plebbit subplebbit start ADDRESSES`](#plebbit-subplebbit-start-addresses)
-* [`plebbit subplebbit stop ADDRESSES`](#plebbit-subplebbit-stop-addresses)
+
+-   [`plebbit daemon`](#plebbit-daemon)
+-   [`plebbit help [COMMAND]`](#plebbit-help-command)
+-   [`plebbit subplebbit create`](#plebbit-subplebbit-create)
+-   [`plebbit subplebbit edit ADDRESS`](#plebbit-subplebbit-edit-address)
+-   [`plebbit subplebbit list`](#plebbit-subplebbit-list)
+-   [`plebbit subplebbit start ADDRESSES`](#plebbit-subplebbit-start-addresses)
+-   [`plebbit subplebbit stop ADDRESSES`](#plebbit-subplebbit-stop-addresses)
 
 ## `plebbit daemon`
 
@@ -324,6 +334,7 @@ EXAMPLES
 ```
 
 _See code: [src/cli/commands/subplebbit/stop.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.30/src/cli/commands/subplebbit/stop.ts)_
+
 <!-- commandsstop -->
 
 # Contribution
