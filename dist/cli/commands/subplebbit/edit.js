@@ -41,6 +41,9 @@ class Edit extends base_command_js_1.BaseCommand {
         const editOptions = dataobject_parser_1.default.transpose(lodash_1.default.omit(flags, ["plebbitRpcApiUrl"]))["_data"];
         log("Edit options parsed:", editOptions);
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
+        const localSubs = await plebbit.listSubplebbits();
+        if (!localSubs.includes(args.address))
+            this.error("Can't edit a remote subplebbit, make sure you're editing a local sub");
         const sub = await plebbit.createSubplebbit({ address: args.address });
         const mergedSubState = lodash_1.default.pick(sub.toJSONInternalRpc(), Object.keys(editOptions));
         lodash_1.default.merge(mergedSubState, editOptions);
