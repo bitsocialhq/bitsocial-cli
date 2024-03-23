@@ -22,7 +22,7 @@ export default class Daemon extends Command {
         }),
 
         plebbitRpcPort: Flags.integer({
-            description: "Specify Plebbit RPC API port to listen on",
+            description: "Specify Plebbit RPC port to listen on",
             required: true,
             default: defaults.PLEBBIT_RPC_API_PORT
         }),
@@ -102,7 +102,7 @@ export default class Daemon extends Command {
             if (isRpcPortTaken && usingDifferentProcessRpc) return;
             if (isRpcPortTaken) {
                 log(
-                    `Plebbit WS RPC is already running on port (${flags.plebbitRpcPort}) by another program. Plebbit-cli will use the running RPC server, and if shuts down, plebbit-cli will start a new RPC instance`
+                    `Plebbit RPC is already running on port (${flags.plebbitRpcPort}) by another program. Plebbit-cli will use the running RPC server, and if shuts down, plebbit-cli will start a new RPC instance`
                 );
                 const plebbitRpcApiUrl = `ws://localhost:${flags.plebbitRpcPort}`;
                 console.log("Using the already started RPC server at:", plebbitRpcApiUrl);

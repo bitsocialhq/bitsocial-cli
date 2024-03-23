@@ -24,7 +24,7 @@ Plebbit is serverless, admin-less, decentralized Reddit alternative built comple
 
 -   Runs an IPFS and Plebbit node
 -   Command Line interface Interface to IPFS-Nodes
--   WebSocket RPC API to access and control your subplebbits and publications
+-   WebSocket RPC to access and control your subplebbits and publications
 
 # Install
 
@@ -49,16 +49,16 @@ git clone https://github.com/plebbit/plebbit-cli
 cd plebbit-cli
 yarn install --frozen-lockfile
 yarn build && yarn oclif manifest
-node bin/run
+node bin/run --help
 ```
 
-After running the last command you should have your executable in the directory. In this example we have generated an executables for linux. If you want to generate executables for different operating systems, visit [pkg documentation](https://github.com/vercel/pkg)
+After running the last command you should be able to run commands directly against `bin/run`
 
 # Usage
 
 ## The data/config path of Plebbit
 
-This is the directory where plebbit-cli will keep its config, as well as data for local subplebbits:
+This is the default directory where plebbit-cli will keep its config, as well as data for local subplebbits:
 
 -   macOS: ~/Library/Application Support/plebbit
 -   Windows: %LOCALAPPDATA%\plebbit
@@ -72,7 +72,7 @@ In Bash (or powershell if you're on Windows), run `plebbit daemon` to able to co
 $ plebbit daemon
 IPFS API listening on: http://localhost:5001/api/v0
 IPFS Gateway listening on: http://localhost:6473
-Plebbit RPC API listening on: ws://localhost:9138
+Plebbit RPC listening on: ws://localhost:9138
 Plebbit data path: /root/.local/share/plebbit
 ```
 
@@ -129,6 +129,18 @@ Address                                              Started
 $ plebbit subplebbit edit mysub.eth '--roles["author-address.eth"].role' moderator
 ```
 
+### Adding a role owner to your sub
+
+```sh-session
+$ plebbit subplebbit edit mysub.eth '--roles["author-address.eth"].role' owner
+```
+
+### Adding a role admin to your sub
+
+```sh-session
+$ plebbit subplebbit edit mysub.eth '--roles["author-address.eth"].role' admin
+```
+
 ### Removing a role
 
 ```sh-session
@@ -138,13 +150,14 @@ $ plebbit subplebbit edit mysub.eth '--roles["author-address.eth"]' null
 # Commands
 
 <!-- commands -->
-* [`plebbit daemon`](#plebbit-daemon)
-* [`plebbit help [COMMAND]`](#plebbit-help-command)
-* [`plebbit subplebbit create`](#plebbit-subplebbit-create)
-* [`plebbit subplebbit edit ADDRESS`](#plebbit-subplebbit-edit-address)
-* [`plebbit subplebbit list`](#plebbit-subplebbit-list)
-* [`plebbit subplebbit start ADDRESSES`](#plebbit-subplebbit-start-addresses)
-* [`plebbit subplebbit stop ADDRESSES`](#plebbit-subplebbit-stop-addresses)
+
+-   [`plebbit daemon`](#plebbit-daemon)
+-   [`plebbit help [COMMAND]`](#plebbit-help-command)
+-   [`plebbit subplebbit create`](#plebbit-subplebbit-create)
+-   [`plebbit subplebbit edit ADDRESS`](#plebbit-subplebbit-edit-address)
+-   [`plebbit subplebbit list`](#plebbit-subplebbit-list)
+-   [`plebbit subplebbit start ADDRESSES`](#plebbit-subplebbit-start-addresses)
+-   [`plebbit subplebbit stop ADDRESSES`](#plebbit-subplebbit-stop-addresses)
 
 ## `plebbit daemon`
 
@@ -160,7 +173,7 @@ FLAGS
   --ipfsGatewayPort=<value>  (required) [default: 6473] Specify the gateway port of the ipfs node to listen on
   --plebbitDataPath=<value>  (required) [default: /home/runner/.local/share/plebbit] Path to plebbit data path where
                              subplebbits and ipfs node are stored
-  --plebbitRpcPort=<value>   (required) [default: 9138] Specify Plebbit RPC API port to listen on
+  --plebbitRpcPort=<value>   (required) [default: 9138] Specify Plebbit RPC port to listen on
 
 DESCRIPTION
   Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive
@@ -203,7 +216,7 @@ USAGE
   $ plebbit subplebbit create --plebbitRpcApiUrl <value> [--privateKeyPath <value>]
 
 FLAGS
-  --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
+  --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC
   --privateKeyPath=<value>    Private key (PEM) of the subplebbit signer that will be used to determine address (if
                               address is not a domain). If it's not provided then Plebbit will generate a private key
 
@@ -232,7 +245,7 @@ ARGUMENTS
   ADDRESS  Address of the subplebbit address to edit
 
 FLAGS
-  --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
+  --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC
 
 DESCRIPTION
   Edit a subplebbit properties. For a list of properties, visit
@@ -280,7 +293,7 @@ FLAGS
       --no-truncate               do not truncate output to fit screen
       --output=<option>           output in a more machine friendly format
                                   <options: csv|json|yaml>
-      --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
+      --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC
       --sort=<value>              property to sort by (prepend '-' for descending)
 
 DESCRIPTION
@@ -301,7 +314,7 @@ ARGUMENTS
   ADDRESSES...  Addresses of subplebbits to start. Separated by space
 
 FLAGS
-  --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
+  --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC
 
 DESCRIPTION
   Start a subplebbit
@@ -321,7 +334,7 @@ ARGUMENTS
   ADDRESSES...  Addresses of subplebbits to stop. Separated by space
 
 FLAGS
-  --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
+  --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC
 
 DESCRIPTION
   Stop a subplebbit. The subplebbit will not publish or receive any publications until it is started again.
@@ -333,6 +346,7 @@ EXAMPLES
 ```
 
 _See code: [src/cli/commands/subplebbit/stop.ts](https://github.com/plebbit/plebbit-cli/blob/v0.11.31/src/cli/commands/subplebbit/stop.ts)_
+
 <!-- commandsstop -->
 
 # Contribution
