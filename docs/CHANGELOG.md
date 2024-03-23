@@ -1,5 +1,14 @@
 
 
+## [0.11.32](https://github.com/plebbit/plebbit-cli/compare/v0.11.31...v0.11.32) (2024-03-23)
+
+
+### Bug Fixes
+
+* **daemon:** fix bugs with starting multiple ipfs and plebbit daemons ([c2d1539](https://github.com/plebbit/plebbit-cli/commit/c2d153941fe8f4cb2952d8a272195ecad179d014))
+* **daemon:** plebbit daemon will use and monitor IPFS and Plebbit RPC started by other processes ([2aea8f5](https://github.com/plebbit/plebbit-cli/commit/2aea8f58512fab0c02ad703cebe978c4c2e4b2b1))
+* **daemon:** write rpc auth key to the correct path ([5408abf](https://github.com/plebbit/plebbit-cli/commit/5408abf949a19f04369f1df0dd3d4fc8733b4a3d))
+
 ## [0.11.31](https://github.com/plebbit/plebbit-cli/compare/v0.11.30...v0.11.31) (2024-03-22)
 
 
