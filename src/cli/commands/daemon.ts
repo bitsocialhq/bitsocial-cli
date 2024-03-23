@@ -67,7 +67,7 @@ export default class Daemon extends Command {
             plebbitRpcAuthKey = await fs.readFile(plebbitRpcAuthKeyPath, "utf-8");
         } catch (e) {
             plebbitRpcAuthKey = randomBytes(32).toString("base64").replace(/[/+=]/g, "").substring(0, 40);
-            await fs.writeFile(plebbitRpcAuthKey, plebbitRpcAuthKey, { flag: "wx" });
+            await fs.writeFile(plebbitRpcAuthKeyPath, plebbitRpcAuthKey, { flag: "wx" });
         }
         return plebbitRpcAuthKey;
     }
