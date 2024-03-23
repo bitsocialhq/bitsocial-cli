@@ -78,20 +78,25 @@ export default class Daemon extends Command {
         const log = (await getPlebbitLogger())("plebbit-cli:daemon");
         log(`flags: `, flags);
 
+        const ipfsApiEndpoint = `http://localhost:${flags.ipfsApiPort}/api/v0`;
+        const ipfsGatewayEndpoint = `http://localhost:${flags.ipfsGatewayPort}`;
+
         let mainProcessExited = false;
-        let isIpfsNodeAlreadyRunningByAnotherProgram = false;
         // Ipfs Node may fail randomly, we need to set a listener so when it exits because of an error we restart it
         let ipfsProcess: ChildProcessWithoutNullStreams;
         const keepIpfsUp = async () => {
-            isIpfsNodeAlreadyRunningByAnotherProgram = await tcpPortUsed.check(flags.ipfsApiPort, "127.0.0.1");
-            if (isIpfsNodeAlreadyRunningByAnotherProgram) {
+            if (ipfsProcess) return; // already started, no need to intervene
+            const isIpfsApiPortTaken = await tcpPortUsed.check(flags.ipfsApiPort, "127.0.0.1");
+            if (isIpfsApiPortTaken) {
                 log(
-                    `Ipfs API already running on port (${flags.ipfsApiPort}) by another program. Plebbit-cli will use the running ipfs daemon instead of starting a new one`
+                    `Ipfs API already running on port (${flags.ipfsApiPort}) and gateway (${flags.ipfsGatewayPort}) by another program. Plebbit-cli will use the running ipfs daemon instead of starting a new one`
                 );
                 return;
             }
             ipfsProcess = await startIpfsNode(flags.ipfsApiPort, flags.ipfsGatewayPort);
             log(`Started ipfs process with pid (${ipfsProcess.pid})`);
+            console.log(`IPFS API listening on: ${ipfsApiEndpoint}`);
+            console.log(`IPFS Gateway listening on: ${ipfsGatewayEndpoint}`);
             ipfsProcess.on("exit", async () => {
                 // Restart IPFS process because it failed
                 log(`Ipfs node with pid (${ipfsProcess.pid}) exited`);
@@ -100,65 +105,68 @@ export default class Daemon extends Command {
             });
         };
 
-        let subsToSeed: string[] | undefined;
+        let startedOwnRpc = false;
+        let usingDifferentProcessRpc = false;
 
-        // if (flags.seed) {
-        //     if (lodash.isEmpty(flags.seedSubs)) {
-        //         // load default subs here
-        //         const res = await fetch("https://raw.githubusercontent.com/plebbit/temporary-default-subplebbits/master/subplebbits.json");
-        //         const subs: { title: string; address: string }[] = await res.json();
-        //         subsToSeed = subs.map((sub) => sub.address);
-        //     } else subsToSeed = flags.seedSubs;
-        // }
+        const createOrConnectRpc = async () => {
+            if (startedOwnRpc) return;
+            const isRpcPortTaken = await tcpPortUsed.check(flags.plebbitRpcPort, "127.0.0.1");
+            if (isRpcPortTaken && usingDifferentProcessRpc) return;
+            if (isRpcPortTaken) {
+                log(
+                    `Plebbit WS RPC is already running on port (${flags.plebbitRpcPort}) by another program. Plebbit-cli will use the running RPC server, and if shuts down, plebbit-cli will start a new RPC instance`
+                );
+                const plebbitRpcApiUrl = `ws://localhost:${flags.plebbitRpcPort}`;
+                console.log("Using the already started RPC server at:", plebbitRpcApiUrl);
+                console.log(
+                    "plebbit-cli daemon will monitor the plebbit RPC and ipfs API to make sure they're always up"
+                );
+                const Plebbit = await import("@plebbit/plebbit-js");
+                const plebbit = await Plebbit.default({ plebbitRpcClientsOptions: [plebbitRpcApiUrl] });
+                console.log(`Subplebbits in data path: `, await plebbit.listSubplebbits());
+                usingDifferentProcessRpc = true;
+                return;
+            }
 
-        log.trace(`subs to seed:`, subsToSeed);
+            const rpcAuthKey = await this._generateRpcAuthKeyIfNotExisting(flags.plebbitDataPath);
+            const PlebbitWsServer = await import("@plebbit/plebbit-js/dist/node/rpc/src/index.js");
+            const rpcServer = await PlebbitWsServer.default.PlebbitWsServer({
+                port: flags.plebbitRpcPort,
+                plebbitOptions: {
+                    ipfsHttpClientsOptions: [ipfsApiEndpoint],
+                    dataPath: flags.plebbitDataPath
+                },
+                authKey: rpcAuthKey
+            });
+            usingDifferentProcessRpc = false;
+            startedOwnRpc = true;
+            console.log(`plebbit rpc: listening on ws://localhost:${flags.plebbitRpcPort} (local connections only)`);
+            console.log(
+                `plebbit rpc: listening on ws://localhost:${flags.plebbitRpcPort}/${rpcAuthKey} (secret auth key for remote connections)`
+            );
+            console.log(`Plebbit data path: ${path.resolve(<string>rpcServer.plebbit.dataPath)}`);
+            console.log(`Subplebbits in data path: `, await rpcServer.plebbit.listSubplebbits());
 
-        await keepIpfsUp();
+            const handlRpcExit = async (signal: NodeJS.Signals) => {
+                log(`in handle exit (${signal})`);
+                await rpcServer.destroy();
+                process.exit();
+            };
 
-        process.on(
-            "exit",
-            () => (mainProcessExited = true) && !isIpfsNodeAlreadyRunningByAnotherProgram && process.kill(<number>ipfsProcess.pid)
-        );
-
-        const ipfsApiEndpoint = `http://localhost:${flags.ipfsApiPort}/api/v0`;
-        const ipfsGatewayEndpoint = `http://localhost:${flags.ipfsGatewayPort}`;
-        const rpcAuthKey = await this._generateRpcAuthKeyIfNotExisting(flags.plebbitDataPath);
-        //@ts-expect-error
-        const PlebbitWsServer = await import("@plebbit/plebbit-js/dist/node/rpc/src/index.js?");
-
-        const rpcServer = await PlebbitWsServer.default.PlebbitWsServer({
-            port: flags.plebbitRpcPort,
-            plebbitOptions: {
-                ipfsHttpClientsOptions: [ipfsApiEndpoint],
-                dataPath: flags.plebbitDataPath
-            },
-            authKey: rpcAuthKey
-        });
-
-        const handleExit = async (signal: NodeJS.Signals) => {
-            log(`in handle exit (${signal})`);
-            await rpcServer.destroy();
-            process.exit();
+            ["SIGINT", "SIGTERM", "SIGHUP", "beforeExit"].forEach((exitSignal) => process.on(exitSignal, handlRpcExit));
         };
 
-        const subs = await rpcServer.plebbit.listSubplebbits();
-        ["SIGINT", "SIGTERM", "SIGHUP", "beforeExit"].forEach((exitSignal) => process.on(exitSignal, handleExit));
+        await keepIpfsUp();
+        await createOrConnectRpc();
 
-        console.log(`IPFS API listening on: ${ipfsApiEndpoint}`);
-        console.log(`IPFS Gateway listening on: ${ipfsGatewayEndpoint}`);
-        console.log(`plebbit rpc: listening on ws://localhost:${flags.plebbitRpcPort} (local connections only)`);
-        console.log(
-            `plebbit rpc: listening on ws://localhost:${flags.plebbitRpcPort}/${rpcAuthKey} (secret auth key for remote connections)`
-        );
-        console.log(`Plebbit data path: ${path.resolve(<string>rpcServer.plebbit.dataPath)}`);
-        console.log(`Subplebbits in data path: `, subs);
-        // if (Array.isArray(subsToSeed)) {
-        //     const seedSubsLoop = () => {
-        //         // I think calling setTimeout constantly here will overflow memory. Need to check later
-        //         seedSubplebbits(<string[]>subsToSeed, rpcServer.plebbit).then(() => setTimeout(seedSubsLoop, 600000)); // Seed subs every 10 minutes
-        //     };
-        //     console.log(`Seeding subplebbits:`, subsToSeed);
-        //     seedSubsLoop();
-        // }
+        setInterval(async () => {
+            await keepIpfsUp();
+            await createOrConnectRpc();
+        }, 5000);
+
+        process.on("exit", () => {
+            mainProcessExited = true;
+            if (typeof ipfsProcess?.pid === "number") process.kill(ipfsProcess.pid);
+        });
     }
 }
