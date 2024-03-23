@@ -10,12 +10,15 @@ export default class Start extends BaseCommand {
     static override args = {
         addresses: Args.string({
             name: "addresses", // name of arg to show in help and reference with args[name]
-            required: true, 
+            required: true,
             description: "Addresses of subplebbits to start. Separated by space"
         })
     };
 
-    static override examples = [];
+    static override examples = [
+        "plebbit subplebbit start plebbit.eth",
+        "plebbit subplebbit start 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu"
+    ];
 
     async run() {
         const { argv, flags } = await this.parse(Start);
