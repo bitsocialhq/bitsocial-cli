@@ -5,6 +5,6 @@ export default class Start extends BaseCommand {
     static args: {
         addresses: import("@oclif/core/lib/interfaces/parser.js").Arg<string, Record<string, unknown>>;
     };
-    static examples: never[];
+    static examples: string[];
     run(): Promise<void>;
 }
