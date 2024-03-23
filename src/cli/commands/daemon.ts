@@ -21,20 +21,6 @@ export default class Daemon extends Command {
             default: defaults.PLEBBIT_DATA_PATH
         }),
 
-        // seed: Flags.boolean({
-        //     description:
-        //         "Seeding flag. Seeding helps subplebbits distribute their publications and latest updates, as well as receiving new publications",
-        //     required: false,
-        //     default: false
-        // }),
-
-        // seedSubs: Flags.string({
-        //     description: "Subplebbits to seed. If --seed is used and no subs was provided, it will default to seeding default subs",
-        //     required: false,
-        //     multiple: true,
-        //     default: []
-        // }),
-
         plebbitRpcPort: Flags.integer({
             description: "Specify Plebbit RPC API port to listen on",
             required: true,
@@ -83,13 +69,13 @@ export default class Daemon extends Command {
 
         let mainProcessExited = false;
         // Ipfs Node may fail randomly, we need to set a listener so when it exits because of an error we restart it
-        let ipfsProcess: ChildProcessWithoutNullStreams;
+        let ipfsProcess: ChildProcessWithoutNullStreams | undefined;
         const keepIpfsUp = async () => {
-            if (ipfsProcess) return; // already started, no need to intervene
+            if (ipfsProcess || usingDifferentProcessRpc) return; // already started, no need to intervene
             const isIpfsApiPortTaken = await tcpPortUsed.check(flags.ipfsApiPort, "127.0.0.1");
             if (isIpfsApiPortTaken) {
                 log(
-                    `Ipfs API already running on port (${flags.ipfsApiPort}) and gateway (${flags.ipfsGatewayPort}) by another program. Plebbit-cli will use the running ipfs daemon instead of starting a new one`
+                    `Ipfs API already running on port (${flags.ipfsApiPort}) by another program. Plebbit-cli will use the running ipfs daemon instead of starting a new one`
                 );
                 return;
             }
@@ -99,9 +85,11 @@ export default class Daemon extends Command {
             console.log(`IPFS Gateway listening on: ${ipfsGatewayEndpoint}`);
             ipfsProcess.on("exit", async () => {
                 // Restart IPFS process because it failed
-                log(`Ipfs node with pid (${ipfsProcess.pid}) exited`);
-                if (!mainProcessExited) await keepIpfsUp();
-                else ipfsProcess.removeAllListeners();
+                log(`Ipfs node with pid (${ipfsProcess?.pid}) exited`);
+                if (!mainProcessExited) {
+                    ipfsProcess = undefined;
+                    await keepIpfsUp();
+                } else ipfsProcess!.removeAllListeners();
             });
         };
 
@@ -118,11 +106,10 @@ export default class Daemon extends Command {
                 );
                 const plebbitRpcApiUrl = `ws://localhost:${flags.plebbitRpcPort}`;
                 console.log("Using the already started RPC server at:", plebbitRpcApiUrl);
-                console.log(
-                    "plebbit-cli daemon will monitor the plebbit RPC and ipfs API to make sure they're always up"
-                );
+                console.log("plebbit-cli daemon will monitor the plebbit RPC and ipfs API to make sure they're always up");
                 const Plebbit = await import("@plebbit/plebbit-js");
                 const plebbit = await Plebbit.default({ plebbitRpcClientsOptions: [plebbitRpcApiUrl] });
+                plebbit.on("error", () => {});
                 console.log(`Subplebbits in data path: `, await plebbit.listSubplebbits());
                 usingDifferentProcessRpc = true;
                 return;
@@ -166,7 +153,7 @@ export default class Daemon extends Command {
 
         process.on("exit", () => {
             mainProcessExited = true;
-            if (typeof ipfsProcess?.pid === "number") process.kill(ipfsProcess.pid);
+            if (typeof ipfsProcess?.pid === "number" && !ipfsProcess.killed) process.kill(ipfsProcess.pid);
         });
     }
 }
