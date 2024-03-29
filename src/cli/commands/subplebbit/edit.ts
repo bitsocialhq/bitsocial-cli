@@ -53,7 +53,7 @@ export default class Edit extends BaseCommand {
         if (!localSubs.includes(args.address)) this.error("Can't edit a remote subplebbit, make sure you're editing a local sub");
 
         const sub = <RpcLocalSubplebbit>await plebbit.createSubplebbit({ address: args.address });
-        const mergedSubState = lodash.pick(sub.toJSONInternalRpc(), Object.keys(editOptions));
+        const mergedSubState = lodash.pick(sub.toJSONInternalRpc(), <(keyof SubplebbitEditOptions)[]>Object.keys(editOptions));
         lodash.merge(mergedSubState, editOptions);
         log("Internal sub state after merge:", mergedSubState);
         await sub.edit(mergedSubState);
