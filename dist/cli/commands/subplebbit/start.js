@@ -13,7 +13,10 @@ class Start extends base_command_js_1.BaseCommand {
             description: "Addresses of subplebbits to start. Separated by space"
         })
     };
-    static examples = [];
+    static examples = [
+        "plebbit subplebbit start plebbit.eth",
+        "plebbit subplebbit start 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu"
+    ];
     async run() {
         const { argv, flags } = await this.parse(Start);
         const addresses = argv;

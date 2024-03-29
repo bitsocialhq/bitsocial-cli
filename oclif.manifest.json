@@ -19,7 +19,7 @@
           "type": "option"
         },
         "plebbitRpcPort": {
-          "description": "Specify Plebbit RPC API port to listen on",
+          "description": "Specify Plebbit RPC port to listen on",
           "name": "plebbitRpcPort",
           "required": true,
           "default": 9138,
@@ -290,7 +290,10 @@
         }
       },
       "description": "Start a subplebbit",
-      "examples": [],
+      "examples": [
+        "plebbit subplebbit start plebbit.eth",
+        "plebbit subplebbit start 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu"
+      ],
       "flags": {
         "plebbitRpcApiUrl": {
           "name": "plebbitRpcApiUrl",
@@ -362,5 +365,5 @@
       ]
     }
   },
-  "version": "0.11.31"
+  "version": "0.11.32"
 }
