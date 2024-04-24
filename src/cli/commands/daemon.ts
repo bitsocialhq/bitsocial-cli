@@ -1,14 +1,12 @@
 import { Flags, Command } from "@oclif/core";
 import { ChildProcessWithoutNullStreams } from "child_process";
-// import { seedSubplebbits } from "../../seeder";
 
 import defaults from "../../common-utils/defaults.js";
 import { startIpfsNode } from "../../ipfs/startIpfs.js";
 import path from "path";
-import { randomBytes } from "crypto";
-import fs from "fs/promises";
 import tcpPortUsed from "tcp-port-used";
 import { getPlebbitLogger } from "../../util.js";
+import { startDaemonServer } from "../../webui/daemon-server.js";
 
 export default class Daemon extends Command {
     static override description =
@@ -45,17 +43,8 @@ export default class Daemon extends Command {
         // "plebbit daemon --seed --seedSubs mysub.eth, myothersub.eth, 12D3KooWEKA6Fhp6qtyttMvNKcNCtqH2N7ZKpPy5rfCeM1otr5qU"
     ];
 
-    private async _generateRpcAuthKeyIfNotExisting(plebbitDataPath: string) {
-        // generate plebbit rpc auth key if doesn't exist
-        const plebbitRpcAuthKeyPath = path.join(plebbitDataPath, "auth-key");
-        let plebbitRpcAuthKey: string;
-        try {
-            plebbitRpcAuthKey = await fs.readFile(plebbitRpcAuthKeyPath, "utf-8");
-        } catch (e) {
-            plebbitRpcAuthKey = randomBytes(32).toString("base64").replace(/[/+=]/g, "").substring(0, 40);
-            await fs.writeFile(plebbitRpcAuthKeyPath, plebbitRpcAuthKey, { flag: "wx" });
-        }
-        return plebbitRpcAuthKey;
+    private async _pipeDebugLogsToLogFile(plebbitDataPath: string) {
+        const logFilePath = path.join(plebbitDataPath, "log");
     }
 
     async run() {
@@ -67,6 +56,7 @@ export default class Daemon extends Command {
         const ipfsApiEndpoint = `http://localhost:${flags.ipfsApiPort}/api/v0`;
         const ipfsGatewayEndpoint = `http://localhost:${flags.ipfsGatewayPort}`;
 
+        await this._pipeDebugLogsToLogFile(flags.plebbitDataPath);
         let mainProcessExited = false;
         // Ipfs Node may fail randomly, we need to set a listener so when it exits because of an error we restart it
         let ipfsProcess: ChildProcessWithoutNullStreams | undefined;
@@ -115,32 +105,19 @@ export default class Daemon extends Command {
                 return;
             }
 
-            const rpcAuthKey = await this._generateRpcAuthKeyIfNotExisting(flags.plebbitDataPath);
-            const PlebbitWsServer = await import("@plebbit/plebbit-js/dist/node/rpc/src/index.js");
-            const rpcServer = await PlebbitWsServer.default.PlebbitWsServer({
-                port: flags.plebbitRpcPort,
-                plebbitOptions: {
-                    ipfsHttpClientsOptions: [ipfsApiEndpoint],
-                    dataPath: flags.plebbitDataPath
-                },
-                authKey: rpcAuthKey
-            });
+            const webuiName = "seedit";
+
+            const daemonServer = await startDaemonServer(flags.plebbitRpcPort, ipfsApiEndpoint, flags.plebbitDataPath, webuiName);
+
             usingDifferentProcessRpc = false;
             startedOwnRpc = true;
             console.log(`plebbit rpc: listening on ws://localhost:${flags.plebbitRpcPort} (local connections only)`);
             console.log(
-                `plebbit rpc: listening on ws://localhost:${flags.plebbitRpcPort}/${rpcAuthKey} (secret auth key for remote connections)`
+                `plebbit rpc: listening on ws://localhost:${flags.plebbitRpcPort}/${daemonServer.rpcAuthKey} (secret auth key for remote connections)`
             );
-            console.log(`Plebbit data path: ${path.resolve(<string>rpcServer.plebbit.dataPath)}`);
-            console.log(`Subplebbits in data path: `, await rpcServer.plebbit.listSubplebbits());
-
-            const handlRpcExit = async (signal: NodeJS.Signals) => {
-                log(`in handle exit (${signal})`);
-                await rpcServer.destroy();
-                process.exit();
-            };
-
-            ["SIGINT", "SIGTERM", "SIGHUP", "beforeExit"].forEach((exitSignal) => process.on(exitSignal, handlRpcExit));
+            console.log(`Plebbit Web UI (${webuiName}) hosted on http://localhost:${daemonServer.webuiPort}/${webuiName}`);
+            console.log(`Plebbit data path: ${path.resolve(flags.plebbitDataPath)}`);
+            console.log(`Subplebbits in data path: `, daemonServer.listedSub);
         };
 
         await keepIpfsUp();
