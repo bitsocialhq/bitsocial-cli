@@ -891,10 +891,10 @@
     bs58 "5.0.0"
     buffer "^6.0.3"
 
-"@bonfida/spl-name-service@2.3.8":
-  version "2.3.8"
-  resolved "https://registry.yarnpkg.com/@bonfida/spl-name-service/-/spl-name-service-2.3.8.tgz#be0f0806c9e504cb053e69faaa2f9972d6e445f0"
-  integrity sha512-X/rqQf7WWZrQlkFgfdRh02afv3vahbDjzRHj1wOrw2jaBXWCmCrLnmqKUhKeAv12IoZyPM+AIg8AXemXShX8Hg==
+"@bonfida/spl-name-service@2.4.2":
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/@bonfida/spl-name-service/-/spl-name-service-2.4.2.tgz#a5802320781fa4c0a1be1b6d2f889746e53f7705"
+  integrity sha512-LfxHVIN8dxStUFJy963S1hlkDpUG/X4v5JFUGcZNNIuGpPREqd7+C2dxjNe2/gGOV/a3pyljwoTI5S+Qhmy8Eg==
   dependencies:
     "@bonfida/sns-records" "0.0.1"
     "@noble/curves" "^1.3.0"
@@ -2519,11 +2519,11 @@
   resolved "https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
   integrity sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==
 
-"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#347579798478c27eea4808b923ab6f21799fce89":
+"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#65065d1e126d4b1c6da3f7d275d0f3ff31ec9648":
   version "0.0.3"
-  resolved "https://github.com/plebbit/plebbit-js#347579798478c27eea4808b923ab6f21799fce89"
+  resolved "https://github.com/plebbit/plebbit-js#65065d1e126d4b1c6da3f7d275d0f3ff31ec9648"
   dependencies:
-    "@bonfida/spl-name-service" "2.3.8"
+    "@bonfida/spl-name-service" "2.4.2"
     "@chainsafe/libp2p-gossipsub" "12.0.0"
     "@chainsafe/libp2p-noise" "15.0.0"
     "@chainsafe/libp2p-yamux" "6.0.2"
@@ -9023,10 +9023,10 @@ kubo-rpc-client@3.0.3:
     stream-to-it "^0.2.4"
     uint8arrays "^4.0.3"
 
-kubo@0.24.0:
-  version "0.24.0"
-  resolved "https://registry.yarnpkg.com/kubo/-/kubo-0.24.0.tgz#ec84a42569c96735a732751a9a44981ad4091bd5"
-  integrity sha512-z1OdN4UzvW/qk5BRyalhTcWsmm4H84wYlwKe31arlOQi9iKLBvb7veg9F+TADdOpgNjZJv742BvbgliWrBP1kg==
+kubo@0.28.0:
+  version "0.28.0"
+  resolved "https://registry.yarnpkg.com/kubo/-/kubo-0.28.0.tgz#1f016f7a7333ca2b6e23a911f18302406777b9dd"
+  integrity sha512-PPi6JWio3z8z1W1lKaifoSKvZef2iVCh/SCZ++OpxoVbkg1V0mUIzO/hAjvFsjvSRMOs16yYNim0Wyfwr6B4rQ==
   dependencies:
     cachedir "^2.3.0"
     got "^11.7.0"
