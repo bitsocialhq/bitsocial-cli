@@ -32,11 +32,13 @@ async function _downloadWebuiIfNeeded(plebbitDataPath: string, webuiName: string
                 if (versionParsed !== latestReleaseNameParsed) {
                     log(`Discovered old ${webuiName}`, webuiDir, "Will proceed with updating webui", webuiName);
                     // remove old seedit directory
-                    await fs.rmdir(webuiDir);
+                    await fs.rm(path.join(webuiPath, webuiDir), { recursive: true });
                 } else return path.join(webuiPath, webuiDir);
             }
         }
-    } catch (e) {}
+    } catch (e) {
+        console.error(e);
+    }
 
     // we either didn't have the correct version of seedit, or no UI was downloaded before
     // download seedit
@@ -60,8 +62,9 @@ async function _downloadWebuiIfNeeded(plebbitDataPath: string, webuiName: string
         // add default plebbit options
         const indexHtmlPath = path.join(unzippedDirectoryPath, "index.html");
 
-        const defaultRpcOptionString = `["ws://" + window.location.href.split('${webuiName}')[0]]`;
+        const defaultRpcOptionString = `[window.location.origin.replace("https", "ws").replace("http", "ws") + '/' + window.location.pathname.split("/")[1]]`;
         const defaultOptionsString = `<script>window.defaultPlebbitOptions = {plebbitRpcClientsOptions: ${defaultRpcOptionString}}</script>`;
+        await prependFile(indexHtmlPath, "<script>console.log('window.defaultPlebbitOptions', window.defaultPlebbitOptions)</script>");
         await prependFile(indexHtmlPath, defaultOptionsString);
         log("Prepended the default options", defaultOptionsString, "to", indexHtmlPath);
 
@@ -86,10 +89,12 @@ async function _generateRpcAuthKeyIfNotExisting(plebbitDataPath: string) {
 export async function startDaemonServer(daemonPort: number, ipfsApiEndpoint: string, plebbitDataPath: string, webuiName: string) {
     // Start plebbit-js RPC
     const log = (await getPlebbitLogger())("plebbit-cli:daemon:startDaemonServer");
+    const webuiExpressApp = express();
+    const httpServer = webuiExpressApp.listen(daemonPort);
     const rpcAuthKey = await _generateRpcAuthKeyIfNotExisting(plebbitDataPath);
     const PlebbitWsServer = await import("@plebbit/plebbit-js/dist/node/rpc/src/index.js");
     const rpcServer = await PlebbitWsServer.default.PlebbitWsServer({
-        port: daemonPort,
+        rpcOptions: { server: httpServer },
         plebbitOptions: {
             ipfsHttpClientsOptions: [ipfsApiEndpoint],
             dataPath: plebbitDataPath
@@ -99,33 +104,24 @@ export async function startDaemonServer(daemonPort: number, ipfsApiEndpoint: str
 
     const webuiDirPath = await _downloadWebuiIfNeeded(plebbitDataPath, webuiName);
 
-    const webuiExpressApp = express();
-
     log(webuiDirPath);
-    webuiExpressApp.use("/" + webuiName, express.static(webuiDirPath));
-
-    // webuiExpressApp.use("/" + webuiName);
-
-    webuiExpressApp.get("/" + webuiName, (req, res) => {
-        res.sendFile(path.join(webuiDirPath, "index.html"));
-    });
-
-    const webuiPort = daemonPort + 1;
-
-    const webuiListener = webuiExpressApp.listen(webuiPort);
+    const webuiHttpPathNoAuthKey = `/${webuiName}`;
+    webuiExpressApp.use(webuiHttpPathNoAuthKey, express.static(webuiDirPath));
+    const webuiHttpPathWithAuthKey = `/${rpcAuthKey}/${webuiName}`;
+    webuiExpressApp.use(webuiHttpPathWithAuthKey, express.static(webuiDirPath));
 
     process.on("exit", async () => {
         await rpcServer.destroy();
-        webuiListener.close();
+        httpServer.close();
     });
     const handlRpcExit = async (signal: NodeJS.Signals) => {
         log(`Detecting exit signal ${signal}, shutting down rpc server and webui`);
         await rpcServer.destroy();
-        webuiListener.close();
+        httpServer.close();
         process.exit();
     };
 
     ["SIGINT", "SIGTERM", "SIGHUP", "beforeExit"].forEach((exitSignal) => process.on(exitSignal, handlRpcExit));
 
-    return { rpcAuthKey, listedSub: await rpcServer.plebbit.listSubplebbits(), webuiPort };
+    return { rpcAuthKey, listedSub: await rpcServer.plebbit.listSubplebbits(), webuiHttpPathNoAuthKey, webuiHttpPathWithAuthKey };
 }

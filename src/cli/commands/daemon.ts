@@ -115,7 +115,13 @@ export default class Daemon extends Command {
             console.log(
                 `plebbit rpc: listening on ws://localhost:${flags.plebbitRpcPort}/${daemonServer.rpcAuthKey} (secret auth key for remote connections)`
             );
-            console.log(`Plebbit Web UI (${webuiName}) hosted on http://localhost:${daemonServer.webuiPort}/${webuiName}`);
+            console.log(
+                `Plebbit Web UI (${webuiName}) hosted on http://localhost:${flags.plebbitRpcPort}${daemonServer.webuiHttpPathNoAuthKey} (local connections only)`
+            );
+            console.log(
+                `Plebbit Web UI (${webuiName}) hosted on http://localhost:${flags.plebbitRpcPort}${daemonServer.webuiHttpPathWithAuthKey} (secret auth key for remote connections)`
+            );
+
             console.log(`Plebbit data path: ${path.resolve(flags.plebbitDataPath)}`);
             console.log(`Subplebbits in data path: `, daemonServer.listedSub);
         };
