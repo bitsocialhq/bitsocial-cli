@@ -5,7 +5,7 @@ set -e
 
 case $(uname -sm) in
 	"Darwin x86_64") suffix="darwin-x64" ;;
-	"Darwin arm64") suffix="darwin-x64" ;; # TODO test x64 builds on arm64 arch
+	"Darwin arm64") suffix="darwin-x64" ;; 
 	"Linux aarch64") suffix="linux-arm64" ;;
   "Linux x86_64") suffix="linux-x64" ;;
 	*) suffix="no-file-name" ;;

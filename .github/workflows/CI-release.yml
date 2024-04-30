@@ -108,13 +108,6 @@ jobs:
           file_glob: true
           tag: ${{ steps.previoustag.outputs.tag }}
           overwrite: true
-      # - name: Upload windows tarballs to release
-      #   uses: svenstaro/upload-release-action@v2
-      #   with:
-      #     file: "*.tar.gz"
-      #     file_glob: true
-      #     tag: ${{ steps.previoustag.outputs.tag }}
-      #     overwrite: true
 
   generate-upload-tarballs-linux-arm64:
       name: Generate and upload linux arm64 tarballs
