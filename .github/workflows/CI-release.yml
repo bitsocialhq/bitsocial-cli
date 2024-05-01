@@ -28,6 +28,8 @@ jobs:
         uses: WyriHaximus/github-action-get-previous-tag@v1
       - name: Install dependencies
         run: yarn install --frozen-lockfile
+      - name: Download web uis
+        run: yarn ci:download-web-uis
       - name: Generate tarballs
         run: yarn generate:executable:tarballs:linux:x64
       - name: Rename tarballs and installers
@@ -60,6 +62,8 @@ jobs:
         uses: WyriHaximus/github-action-get-previous-tag@v1
       - name: Install dependencies
         run: yarn install --frozen-lockfile
+      - name: Download web uis
+        run: yarn ci:download-web-uis
       - name: Generate tarballs
         run: yarn generate:executable:tarballs:macos:x64
       - name: Rename tarballs and installers
@@ -93,6 +97,8 @@ jobs:
         uses: WyriHaximus/github-action-get-previous-tag@v1
       - name: Install dependencies
         run: yarn install --frozen-lockfile
+      - name: Download web uis
+        run: yarn ci:download-web-uis
       - name: Generate Windows installer
         run: yarn generate:installer:windows
         shell: bash
@@ -136,6 +142,7 @@ jobs:
               sudo apt install -y nodejs
               npm install --global yarn
               yarn install --frozen-lockfile
+              yarn ci:download-web-uis
               yarn generate:executable:tarballs:linux:arm64
               yarn ts-node config/rename_tarballs_installers.ts
         - name: Upload tarballs to release
