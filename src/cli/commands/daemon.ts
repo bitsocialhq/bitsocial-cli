@@ -5,7 +5,7 @@ import defaults from "../../common-utils/defaults.js";
 import { startIpfsNode } from "../../ipfs/startIpfs.js";
 import path from "path";
 import tcpPortUsed from "tcp-port-used";
-import { getPlebbitLogger } from "../../util.js";
+import { getLanIpV4Address, getPlebbitLogger } from "../../util.js";
 import { startDaemonServer } from "../../webui/daemon-server.js";
 
 export default class Daemon extends Command {
@@ -45,6 +45,7 @@ export default class Daemon extends Command {
 
     private async _pipeDebugLogsToLogFile(plebbitDataPath: string) {
         const logFilePath = path.join(plebbitDataPath, "log");
+        // TODO implement this function
     }
 
     async run() {
@@ -105,9 +106,12 @@ export default class Daemon extends Command {
                 return;
             }
 
-            const webuiName = "seedit";
-
-            const daemonServer = await startDaemonServer(flags.plebbitRpcPort, ipfsApiEndpoint, flags.plebbitDataPath, webuiName);
+            const daemonServer = await startDaemonServer(
+                flags.plebbitRpcPort,
+                flags.ipfsGatewayPort,
+                ipfsApiEndpoint,
+                flags.plebbitDataPath
+            );
 
             usingDifferentProcessRpc = false;
             startedOwnRpc = true;
@@ -115,15 +119,20 @@ export default class Daemon extends Command {
             console.log(
                 `plebbit rpc: listening on ws://localhost:${flags.plebbitRpcPort}/${daemonServer.rpcAuthKey} (secret auth key for remote connections)`
             );
-            console.log(
-                `Plebbit Web UI (${webuiName}) hosted on http://localhost:${flags.plebbitRpcPort}${daemonServer.webuiHttpPathNoAuthKey} (local connections only)`
-            );
-            console.log(
-                `Plebbit Web UI (${webuiName}) hosted on http://localhost:${flags.plebbitRpcPort}${daemonServer.webuiHttpPathWithAuthKey} (secret auth key for remote connections)`
-            );
 
             console.log(`Plebbit data path: ${path.resolve(flags.plebbitDataPath)}`);
             console.log(`Subplebbits in data path: `, daemonServer.listedSub);
+
+            const localIpAddress = "localhost";
+            const remoteIpAddress = getLanIpV4Address() || localIpAddress;
+            for (const webui of daemonServer.webuis) {
+                console.log(
+                    `WebUI (${webui.name}): http://${localIpAddress}:${flags.plebbitRpcPort}${webui.endpointLocal} (local connections only)`
+                );
+                console.log(
+                    `WebUI (${webui.name}): http://${remoteIpAddress}:${flags.plebbitRpcPort}${webui.endpointRemote} (secret auth key for remote connections)`
+                );
+            }
         };
 
         await keepIpfsUp();

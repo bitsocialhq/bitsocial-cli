@@ -1,75 +1,22 @@
 import path from "path";
 import fs from "fs/promises";
-import { createWriteStream } from "fs";
-import { Readable } from "stream";
 import { getPlebbitLogger } from "../util";
-import decompress from "decompress";
-import prependFile from "prepend-file";
-import { finished as streamFinished } from "stream/promises";
 import { randomBytes } from "crypto";
 import express from "express";
 
-async function _downloadWebuiIfNeeded(plebbitDataPath: string, webuiName: string): Promise<string> {
-    const log = (await getPlebbitLogger())("plebbit-cli:daemon-server:_downloadWebuiIfNeeded");
-    // webui is defaulted to seedit for now
-    const webuiPath = path.join(plebbitDataPath, ".ipfs-cli-webui");
-    await fs.mkdir(webuiPath, { recursive: true });
-    const latestSeeditReleaseReq = await fetch(`https://api.github.com/repos/plebbit/${webuiName}/releases/latest`);
-    if (!latestSeeditReleaseReq.ok)
-        throw Error(
-            `Failed to fetch the release of ${webuiName}, status code ${latestSeeditReleaseReq.status}, status text ${latestSeeditReleaseReq.statusText}`
-        );
-    const latestRelease = <any>await latestSeeditReleaseReq.json();
-    const latestReleaseNameParsed = latestRelease.name.substring(1); // remove v
-    log.trace(`Latest ${webuiName} release is: ${latestReleaseNameParsed}`);
-    try {
-        const dirsUnderWebui = await fs.readdir(webuiPath);
-        // parse seedit directory name, and compare it with latest release version from github
-        for (const webuiDir of dirsUnderWebui) {
-            if (webuiDir.includes(webuiName)) {
-                const versionParsed = webuiDir.split("-")[2];
-                log.trace("current seedit version is", versionParsed);
-                if (versionParsed !== latestReleaseNameParsed) {
-                    log(`Discovered old ${webuiName}`, webuiDir, "Will proceed with updating webui", webuiName);
-                    // remove old seedit directory
-                    await fs.rm(path.join(webuiPath, webuiDir), { recursive: true });
-                } else return path.join(webuiPath, webuiDir);
-            }
-        }
-    } catch (e) {
-        console.error(e);
-    }
+async function _writeModifiedIndexHtmlWithDefaultSettings(webuiPath: string, webuiName: string, ipfsGatewayPort: number) {
+    const indexHtmlString = (await fs.readFile(path.join(webuiPath, "index.html"))).toString();
+    const defaultRpcOptionString = `[window.location.origin.replace("https", "wss").replace("http", "ws") + window.location.pathname.split('/' + '${webuiName}')[0]]`;
+    const defaultIpfsMedia = `window.defaultMediaIpfsGatewayUrl = 'http://' + window.location.hostname + ':' + ${ipfsGatewayPort}`;
+    const defaultOptionsString = `<script>window.defaultPlebbitOptions = {plebbitRpcClientsOptions: ${defaultRpcOptionString}};${defaultIpfsMedia};console.log(window.defaultPlebbitOptions, window.defaultMediaIpfsGatewayUrl)</script>`;
 
-    // we either didn't have the correct version of seedit, or no UI was downloaded before
-    // download seedit
-    // then add defaultPlebbitOptions
+    const modifiedIndexHtmlFileName = `index_with_rpc_settings.html`;
 
-    const htmlZipAsset = latestRelease.assets.find((asset: any) => asset.name.includes("html"));
-    log.trace(webuiName, "zip file url", htmlZipAsset["browser_download_url"]);
-    const seeditHtmlRequest = await fetch(htmlZipAsset["browser_download_url"]);
-    if (seeditHtmlRequest.ok && seeditHtmlRequest.body) {
-        const zipfilePath = path.join(webuiPath, htmlZipAsset.name);
-        const writer = createWriteStream(zipfilePath);
-        await streamFinished(Readable.fromWeb(seeditHtmlRequest.body).pipe(writer));
-        writer.close();
-        log("Downloaded", webuiName, "webui successfully. Attempting to unzip");
+    const modifiedIndexHtmlContent = "<!DOCTYPE html>" + defaultOptionsString + indexHtmlString.replace("<!DOCTYPE html>", "");
 
-        const unzippedDirectoryPath = zipfilePath.replace(".zip", "");
+    await fs.writeFile(path.join(webuiPath, modifiedIndexHtmlFileName), modifiedIndexHtmlContent);
 
-        await decompress(zipfilePath, webuiPath);
-        log("Unzipped", webuiName);
-        await fs.rm(zipfilePath);
-        // add default plebbit options
-        const indexHtmlPath = path.join(unzippedDirectoryPath, "index.html");
-
-        const defaultRpcOptionString = `[window.location.origin.replace("https", "ws").replace("http", "ws") + '/' + window.location.pathname.split("/")[1]]`;
-        const defaultOptionsString = `<script>window.defaultPlebbitOptions = {plebbitRpcClientsOptions: ${defaultRpcOptionString}}</script>`;
-        await prependFile(indexHtmlPath, "<script>console.log('window.defaultPlebbitOptions', window.defaultPlebbitOptions)</script>");
-        await prependFile(indexHtmlPath, defaultOptionsString);
-        log("Prepended the default options", defaultOptionsString, "to", indexHtmlPath);
-
-        return unzippedDirectoryPath;
-    } else throw Error(`Failed to fetch ${webuiName} html zip file ` + seeditHtmlRequest.status + " " + seeditHtmlRequest.statusText);
+    return modifiedIndexHtmlFileName;
 }
 
 async function _generateRpcAuthKeyIfNotExisting(plebbitDataPath: string) {
@@ -86,7 +33,7 @@ async function _generateRpcAuthKeyIfNotExisting(plebbitDataPath: string) {
 }
 
 // The daemon server will host both RPC and webui on the same port
-export async function startDaemonServer(daemonPort: number, ipfsApiEndpoint: string, plebbitDataPath: string, webuiName: string) {
+export async function startDaemonServer(daemonPort: number, ipfsGatewayPort: number, ipfsApiEndpoint: string, plebbitDataPath: string) {
     // Start plebbit-js RPC
     const log = (await getPlebbitLogger())("plebbit-cli:daemon:startDaemonServer");
     const webuiExpressApp = express();
@@ -94,7 +41,7 @@ export async function startDaemonServer(daemonPort: number, ipfsApiEndpoint: str
     const rpcAuthKey = await _generateRpcAuthKeyIfNotExisting(plebbitDataPath);
     const PlebbitWsServer = await import("@plebbit/plebbit-js/dist/node/rpc/src/index.js");
     const rpcServer = await PlebbitWsServer.default.PlebbitWsServer({
-        rpcOptions: { server: httpServer },
+        server: httpServer,
         plebbitOptions: {
             ipfsHttpClientsOptions: [ipfsApiEndpoint],
             dataPath: plebbitDataPath
@@ -102,13 +49,31 @@ export async function startDaemonServer(daemonPort: number, ipfsApiEndpoint: str
         authKey: rpcAuthKey
     });
 
-    const webuiDirPath = await _downloadWebuiIfNeeded(plebbitDataPath, webuiName);
+    const webuisDir = path.join(process.cwd(), "dist", "webuis");
 
-    log(webuiDirPath);
-    const webuiHttpPathNoAuthKey = `/${webuiName}`;
-    webuiExpressApp.use(webuiHttpPathNoAuthKey, express.static(webuiDirPath));
-    const webuiHttpPathWithAuthKey = `/${rpcAuthKey}/${webuiName}`;
-    webuiExpressApp.use(webuiHttpPathWithAuthKey, express.static(webuiDirPath));
+    const webUiNames = (await fs.readdir(webuisDir, { withFileTypes: true })).filter((file) => file.isDirectory()).map((file) => file.name);
+
+    const webuis: { name: string; endpointLocal: string; endpointRemote: string }[] = [];
+    log("Discovered webuis", webUiNames);
+    for (const webuiNameWithVersion of webUiNames) {
+        const webuiDirPath = path.join(webuisDir, webuiNameWithVersion);
+        const webuiName = webuiNameWithVersion.split("-")[0]; // should be "seedit", "plebchan", "plebones"
+
+        const modifiedIndexHtmlFileName = await _writeModifiedIndexHtmlWithDefaultSettings(webuiDirPath, webuiName, ipfsGatewayPort);
+
+        const endpointLocal = `/${webuiName}`;
+        webuiExpressApp.get(endpointLocal, (req, res, next) => {
+            const isLocal = req.socket.localAddress === req.socket.remoteAddress;
+            if (!isLocal) res.status(403).send("This endpoint does not exist for remote connections");
+            else next();
+        });
+        webuiExpressApp.use(endpointLocal, express.static(webuiDirPath, { index: modifiedIndexHtmlFileName }));
+
+        const endpointRemote = `/${rpcAuthKey}/${webuiName}`;
+        webuiExpressApp.use(endpointRemote, express.static(webuiDirPath, { index: modifiedIndexHtmlFileName }));
+
+        webuis.push({ name: webuiName, endpointLocal, endpointRemote });
+    }
 
     process.on("exit", async () => {
         await rpcServer.destroy();
@@ -123,5 +88,5 @@ export async function startDaemonServer(daemonPort: number, ipfsApiEndpoint: str
 
     ["SIGINT", "SIGTERM", "SIGHUP", "beforeExit"].forEach((exitSignal) => process.on(exitSignal, handlRpcExit));
 
-    return { rpcAuthKey, listedSub: await rpcServer.plebbit.listSubplebbits(), webuiHttpPathNoAuthKey, webuiHttpPathWithAuthKey };
+    return { rpcAuthKey, listedSub: await rpcServer.plebbit.listSubplebbits(), webuis };
 }
