@@ -24,7 +24,8 @@
         "generate:executable:tarballs:linux:arm64": "oclif pack tarballs --no-xz --targets linux-arm64",
         "generate:executable:tarballs:windows": "oclif pack tarballs --no-xz --targets win32-x64,win32-x86",
         "generate:executable:tarballs:linux:x64": "oclif pack tarballs --no-xz --targets linux-x64",
-        "generate:installer:windows": "yarn oclif pack win --targets win32-x64"
+        "generate:installer:windows": "yarn oclif pack win --targets win32-x64",
+        "ci:download-web-uis": "yarn ts-node ci-bin/download-web-uis.ts"
     },
     "files": [
         "/bin",
@@ -111,7 +112,6 @@
         "express": "4.19.2",
         "kubo": "0.28.0",
         "lodash-es": "4.17.21",
-        "prepend-file": "2.0.1",
         "skia-canvas": "1.0.0",
         "tcp-port-used": "1.0.2",
         "tslib": "2.6.2",
