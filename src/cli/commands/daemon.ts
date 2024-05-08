@@ -55,7 +55,7 @@ export default class Daemon extends Command {
 
     private async _getNewLogfileByEvacuatingOldLogsIfNeeded() {
         try {
-            await fsPromise.mkdir(defaults.PLEBBIT_LOG_PATH);
+            await fsPromise.mkdir(defaults.PLEBBIT_LOG_PATH, {recursive: true});
         } catch (e) {
             //@ts-expect-error
             if (e.code !== "EEXIST") throw e;
