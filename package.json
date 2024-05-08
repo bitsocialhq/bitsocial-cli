@@ -25,6 +25,7 @@
         "generate:executable:tarballs:windows": "oclif pack tarballs --no-xz --targets win32-x64,win32-x86",
         "generate:executable:tarballs:linux:x64": "oclif pack tarballs --no-xz --targets linux-x64",
         "generate:installer:windows": "yarn oclif pack win --targets win32-x64",
+        "ci:rename-tarballs": "yarn ts-node ci-bin/rename-tarballs-installers.ts",
         "ci:download-web-uis": "yarn ts-node ci-bin/download-web-uis.ts"
     },
     "files": [

@@ -33,7 +33,7 @@ jobs:
       - name: Generate tarballs
         run: yarn generate:executable:tarballs:linux:x64
       - name: Rename tarballs and installers
-        run: yarn ts-node config/rename_tarballs_installers.ts
+        run: yarn ci:rename-tarballs
       - name: Upload tarballs to release
         uses: svenstaro/upload-release-action@v2
         with:
@@ -67,7 +67,7 @@ jobs:
       - name: Generate tarballs
         run: yarn generate:executable:tarballs:macos:x64
       - name: Rename tarballs and installers
-        run: yarn ts-node config/rename_tarballs_installers.ts
+        run: yarn ci:rename-tarballs
       - name: Upload tarballs to release
         uses: svenstaro/upload-release-action@v2
         with:
@@ -106,7 +106,7 @@ jobs:
       # - name: Generate Windows tarballs 
       #   run: yarn generate:executable:tarballs:windows
       - name: Rename tarballs and installers
-        run: yarn ts-node config/rename_tarballs_installers.ts
+        run: yarn ci:rename-tarballs
       - name: Upload windows installers to release
         uses: svenstaro/upload-release-action@v2
         with:
@@ -144,7 +144,7 @@ jobs:
               yarn install --frozen-lockfile
               yarn ci:download-web-uis
               yarn generate:executable:tarballs:linux:arm64
-              yarn ts-node config/rename_tarballs_installers.ts
+              yarn ci:rename-tarballs
         - name: Upload tarballs to release
           uses: svenstaro/upload-release-action@v2
           with:
