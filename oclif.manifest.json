@@ -163,6 +163,48 @@
         "edit.js"
       ]
     },
+    "subplebbit:get": {
+      "aliases": [],
+      "args": {
+        "address": {
+          "description": "Address of the subplebbit address to fetch",
+          "name": "address",
+          "required": true
+        }
+      },
+      "description": "Fetch a local or remote subplebbit, and print its json in the terminal",
+      "examples": [
+        "plebbit subplebbit get plebmusic.eth",
+        "plebbit subplebbit get 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu"
+      ],
+      "flags": {
+        "plebbitRpcApiUrl": {
+          "name": "plebbitRpcApiUrl",
+          "required": true,
+          "summary": "URL to Plebbit RPC API",
+          "default": "ws://localhost:9138/",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "hasDynamicHelp": false,
+      "hiddenAliases": [],
+      "id": "subplebbit:get",
+      "pluginAlias": "plebbit-cli",
+      "pluginName": "plebbit-cli",
+      "pluginType": "core",
+      "strict": true,
+      "enableJsonFlag": false,
+      "isESM": false,
+      "relativePath": [
+        "dist",
+        "cli",
+        "commands",
+        "subplebbit",
+        "get.js"
+      ]
+    },
     "subplebbit:list": {
       "aliases": [],
       "args": {},
@@ -365,5 +407,5 @@
       ]
     }
   },
-  "version": "0.11.37"
+  "version": "0.12.0"
 }

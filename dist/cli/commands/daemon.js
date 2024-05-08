@@ -2,14 +2,15 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const core_1 = require("@oclif/core");
-// import { seedSubplebbits } from "../../seeder";
 const defaults_js_1 = tslib_1.__importDefault(require("../../common-utils/defaults.js"));
 const startIpfs_js_1 = require("../../ipfs/startIpfs.js");
 const path_1 = tslib_1.__importDefault(require("path"));
-const crypto_1 = require("crypto");
-const promises_1 = tslib_1.__importDefault(require("fs/promises"));
 const tcp_port_used_1 = tslib_1.__importDefault(require("tcp-port-used"));
 const util_js_1 = require("../../util.js");
+const daemon_server_js_1 = require("../../webui/daemon-server.js");
+const fs_1 = tslib_1.__importDefault(require("fs"));
+const promises_1 = tslib_1.__importDefault(require("fs/promises"));
+const node_os_1 = require("node:os");
 class Daemon extends core_1.Command {
     static description = "Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users";
     static flags = {
@@ -34,28 +35,70 @@ class Daemon extends core_1.Command {
             default: defaults_js_1.default.IPFS_GATEWAY_PORT
         })
     };
-    static examples = [
-        "plebbit daemon",
-        "plebbit daemon --plebbitRpcPort 80"
-        // "plebbit daemon --seed",
-        // "plebbit daemon --seed --seedSubs mysub.eth, myothersub.eth, 12D3KooWEKA6Fhp6qtyttMvNKcNCtqH2N7ZKpPy5rfCeM1otr5qU"
-    ];
-    async _generateRpcAuthKeyIfNotExisting(plebbitDataPath) {
-        // generate plebbit rpc auth key if doesn't exist
-        const plebbitRpcAuthKeyPath = path_1.default.join(plebbitDataPath, "auth-key");
-        let plebbitRpcAuthKey;
+    static examples = ["plebbit daemon", "plebbit daemon --plebbitRpcPort 80"];
+    _setupLogger(Logger) {
+        const envDebug = process.env["DEBUG"];
+        const debugNamespace = envDebug === "0" || envDebug === "" ? undefined : envDebug || "plebbit*, -plebbit*trace";
+        if (debugNamespace) {
+            console.log("Debug logs is on with namespace", `"${debugNamespace}"`);
+            Logger.enable(debugNamespace);
+        }
+        else {
+            console.log("Debug logs are disabled");
+            Logger.disable();
+        }
+    }
+    async _getNewLogfileByEvacuatingOldLogsIfNeeded() {
         try {
-            plebbitRpcAuthKey = await promises_1.default.readFile(plebbitRpcAuthKeyPath, "utf-8");
+            await promises_1.default.mkdir(defaults_js_1.default.PLEBBIT_LOG_PATH, { recursive: true });
         }
         catch (e) {
-            plebbitRpcAuthKey = (0, crypto_1.randomBytes)(32).toString("base64").replace(/[/+=]/g, "").substring(0, 40);
-            await promises_1.default.writeFile(plebbitRpcAuthKeyPath, plebbitRpcAuthKey, { flag: "wx" });
+            //@ts-expect-error
+            if (e.code !== "EEXIST")
+                throw e;
         }
-        return plebbitRpcAuthKey;
+        const logFiles = (await promises_1.default.readdir(defaults_js_1.default.PLEBBIT_LOG_PATH, { withFileTypes: true })).filter((file) => file.name.startsWith("plebbit_cli_daemon"));
+        const logfilesCapacity = 5; // we only store 5 log files
+        if (logFiles.length >= logfilesCapacity) {
+            // we need to pick the oldest log to delete
+            const logFileToDelete = logFiles.map((logFile) => logFile.name).sort()[0]; // TODO need to test this, not sure if it works
+            console.log(`Will remove log (${logFileToDelete}) because we reached capacity (${logfilesCapacity})`);
+            await promises_1.default.rm(path_1.default.join(defaults_js_1.default.PLEBBIT_LOG_PATH, logFileToDelete));
+        }
+        return path_1.default.join(defaults_js_1.default.PLEBBIT_LOG_PATH, `plebbit_cli_daemon_${new Date().toISOString()}.log`);
+    }
+    async _pipeDebugLogsToLogFile() {
+        const logFilePath = await this._getNewLogfileByEvacuatingOldLogsIfNeeded();
+        const logFile = fs_1.default.createWriteStream(logFilePath, { flags: "a" });
+        const stdoutWrite = process.stdout.write.bind(process.stdout);
+        const stderrWrite = process.stderr.write.bind(process.stderr);
+        const removeColor = (data) => {
+            const parsedData = data instanceof Uint8Array ? Buffer.from(data).toString() : data;
+            return parsedData.replaceAll(/\u001b\[.*?m/g, "");
+        };
+        process.stdout.write = (...args) => {
+            //@ts-expect-error
+            const res = stdoutWrite(...args);
+            logFile.write(removeColor(args[0]) + node_os_1.EOL);
+            return res;
+        };
+        process.stderr.write = (...args) => {
+            //@ts-expect-error
+            const res = stderrWrite(...args);
+            logFile.write(removeColor(args[0]).trimStart() + node_os_1.EOL);
+            return res;
+        };
+        console.log("Will store stderr + stdout log to", logFilePath);
+        // errors aren't console logged
+        process.on("uncaughtException", console.error);
+        process.on("unhandledRejection", console.error);
     }
     async run() {
         const { flags } = await this.parse(Daemon);
-        const log = (await (0, util_js_1.getPlebbitLogger)())("plebbit-cli:daemon");
+        const Logger = await (0, util_js_1.getPlebbitLogger)();
+        this._setupLogger(Logger);
+        await this._pipeDebugLogsToLogFile();
+        const log = Logger("plebbit-cli:daemon");
         log(`flags: `, flags);
         const ipfsApiEndpoint = `http://localhost:${flags.ipfsApiPort}/api/v0`;
         const ipfsGatewayEndpoint = `http://localhost:${flags.ipfsGatewayPort}`;
@@ -105,28 +148,19 @@ class Daemon extends core_1.Command {
                 usingDifferentProcessRpc = true;
                 return;
             }
-            const rpcAuthKey = await this._generateRpcAuthKeyIfNotExisting(flags.plebbitDataPath);
-            const PlebbitWsServer = await import("@plebbit/plebbit-js/dist/node/rpc/src/index.js");
-            const rpcServer = await PlebbitWsServer.default.PlebbitWsServer({
-                port: flags.plebbitRpcPort,
-                plebbitOptions: {
-                    ipfsHttpClientsOptions: [ipfsApiEndpoint],
-                    dataPath: flags.plebbitDataPath
-                },
-                authKey: rpcAuthKey
-            });
+            const daemonServer = await (0, daemon_server_js_1.startDaemonServer)(flags.plebbitRpcPort, flags.ipfsGatewayPort, ipfsApiEndpoint, flags.plebbitDataPath);
             usingDifferentProcessRpc = false;
             startedOwnRpc = true;
             console.log(`plebbit rpc: listening on ws://localhost:${flags.plebbitRpcPort} (local connections only)`);
-            console.log(`plebbit rpc: listening on ws://localhost:${flags.plebbitRpcPort}/${rpcAuthKey} (secret auth key for remote connections)`);
-            console.log(`Plebbit data path: ${path_1.default.resolve(rpcServer.plebbit.dataPath)}`);
-            console.log(`Subplebbits in data path: `, await rpcServer.plebbit.listSubplebbits());
-            const handlRpcExit = async (signal) => {
-                log(`in handle exit (${signal})`);
-                await rpcServer.destroy();
-                process.exit();
-            };
-            ["SIGINT", "SIGTERM", "SIGHUP", "beforeExit"].forEach((exitSignal) => process.on(exitSignal, handlRpcExit));
+            console.log(`plebbit rpc: listening on ws://localhost:${flags.plebbitRpcPort}/${daemonServer.rpcAuthKey} (secret auth key for remote connections)`);
+            console.log(`Plebbit data path: ${path_1.default.resolve(flags.plebbitDataPath)}`);
+            console.log(`Subplebbits in data path: `, daemonServer.listedSub);
+            const localIpAddress = "localhost";
+            const remoteIpAddress = (0, util_js_1.getLanIpV4Address)() || localIpAddress;
+            for (const webui of daemonServer.webuis) {
+                console.log(`WebUI (${webui.name}): http://${localIpAddress}:${flags.plebbitRpcPort}${webui.endpointLocal} (local connections only)`);
+                console.log(`WebUI (${webui.name}): http://${remoteIpAddress}:${flags.plebbitRpcPort}${webui.endpointRemote} (secret auth key for remote connections)`);
+            }
         };
         await keepIpfsUp();
         await createOrConnectRpc();
