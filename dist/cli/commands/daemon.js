@@ -12,7 +12,7 @@ const fs_1 = tslib_1.__importDefault(require("fs"));
 const promises_1 = tslib_1.__importDefault(require("fs/promises"));
 const node_os_1 = require("node:os");
 class Daemon extends core_1.Command {
-    static description = "Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users";
+    static description = "Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any machine. Within the web ui users are able to browse, create and manage their subs fully P2P";
     static flags = {
         plebbitDataPath: core_1.Flags.directory({
             description: "Path to plebbit data path where subplebbits and ipfs node are stored",
