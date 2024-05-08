@@ -7,7 +7,8 @@ import express from "express";
 async function _writeModifiedIndexHtmlWithDefaultSettings(webuiPath: string, webuiName: string, ipfsGatewayPort: number) {
     const indexHtmlString = (await fs.readFile(path.join(webuiPath, "index.html"))).toString();
     const defaultRpcOptionString = `[window.location.origin.replace("https", "wss").replace("http", "ws") + window.location.pathname.split('/' + '${webuiName}')[0]]`;
-    const defaultIpfsMedia = `window.defaultMediaIpfsGatewayUrl = 'http://' + window.location.hostname + ':' + ${ipfsGatewayPort}`;
+    // Ipfs media only locally because ipfs gateway doesn't allow remote connections
+    const defaultIpfsMedia = `if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")window.defaultMediaIpfsGatewayUrl = 'http://' + window.location.hostname + ':' + ${ipfsGatewayPort}`;
     const defaultOptionsString = `<script>window.defaultPlebbitOptions = {plebbitRpcClientsOptions: ${defaultRpcOptionString}};${defaultIpfsMedia};console.log(window.defaultPlebbitOptions, window.defaultMediaIpfsGatewayUrl)</script>`;
 
     const modifiedIndexHtmlFileName = `index_with_rpc_settings.html`;
@@ -63,14 +64,19 @@ export async function startDaemonServer(daemonPort: number, ipfsGatewayPort: num
 
         const endpointLocal = `/${webuiName}`;
         webuiExpressApp.get(endpointLocal, (req, res, next) => {
-            const isLocal = req.socket.localAddress === req.socket.remoteAddress;
+            const isLocal = req.socket.localAddress && req.socket.localAddress === req.socket.remoteAddress;
             if (!isLocal) res.status(403).send("This endpoint does not exist for remote connections");
             else next();
         });
-        webuiExpressApp.use(endpointLocal, express.static(webuiDirPath, { index: modifiedIndexHtmlFileName }));
+        webuiExpressApp.use(endpointLocal, express.static(webuiDirPath, { index: modifiedIndexHtmlFileName, cacheControl: false }));
 
         const endpointRemote = `/${rpcAuthKey}/${webuiName}`;
-        webuiExpressApp.use(endpointRemote, express.static(webuiDirPath, { index: modifiedIndexHtmlFileName }));
+        webuiExpressApp.get(endpointRemote, (req, res, next) => {
+            const isLocal = req.socket.localAddress && req.socket.localAddress === req.socket.remoteAddress;
+            if (isLocal) res.redirect(`http://localhost:${daemonPort}${endpointLocal}`);
+            else next();
+        });
+        webuiExpressApp.use(endpointRemote, express.static(webuiDirPath, { index: modifiedIndexHtmlFileName, cacheControl: false }));
 
         webuis.push({ name: webuiName, endpointLocal, endpointRemote });
     }
