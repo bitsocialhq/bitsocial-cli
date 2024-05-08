@@ -13,7 +13,7 @@ import { EOL } from "node:os";
 
 export default class Daemon extends Command {
     static override description =
-        "Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users";
+        "Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any machine. Within the web ui users are able to browse, create and manage their subs fully P2P";
 
     static override flags = {
         plebbitDataPath: Flags.directory({
@@ -55,7 +55,7 @@ export default class Daemon extends Command {
 
     private async _getNewLogfileByEvacuatingOldLogsIfNeeded() {
         try {
-            await fsPromise.mkdir(defaults.PLEBBIT_LOG_PATH, {recursive: true});
+            await fsPromise.mkdir(defaults.PLEBBIT_LOG_PATH, { recursive: true });
         } catch (e) {
             //@ts-expect-error
             if (e.code !== "EEXIST") throw e;
