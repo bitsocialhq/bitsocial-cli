@@ -1,5 +1,23 @@
 
 
+# [0.12.0](https://github.com/plebbit/plebbit-cli/compare/v0.11.37...v0.12.0) (2024-05-08)
+
+
+### Bug Fixes
+
+* **ipfs:** config server seems to not cause congestion, needs further testing ([fc651b6](https://github.com/plebbit/plebbit-cli/commit/fc651b679656256ef42687e322f5da4790a650e9))
+* **log:** make sure directory of logs is recurisvely created ([6417cea](https://github.com/plebbit/plebbit-cli/commit/6417cea8223f25e5a681b9dbd4dc0103bd0d8474))
+* **webui:** fix some bugs related to rpc within webui ([f3d734b](https://github.com/plebbit/plebbit-cli/commit/f3d734b031c52bcbc98ed6d20b97cbe385080dde))
+* **webui:** fix some bugs with web ui ([43134b1](https://github.com/plebbit/plebbit-cli/commit/43134b13dce3c24dfec797f2285991f8d4cea914))
+* **webui:** rework the webui logic to include web uis as part of the .tar.gz of plebbit-cli ([f7a603e](https://github.com/plebbit/plebbit-cli/commit/f7a603e51189699aa44a8e3d8864dc3e98b2a962))
+
+
+### Features
+
+* **daemon:** daemon will host seedit web ui to manage subs by default (WIP) ([6acac53](https://github.com/plebbit/plebbit-cli/commit/6acac5357bbd7342d8c3be1caa193256d356b000))
+* **logs:** implement storing logs and default debug namespace ([c9e9c2d](https://github.com/plebbit/plebbit-cli/commit/c9e9c2dade6ab9c9adfcb56f5fd34463fae55020))
+* **subplebbit-get:** implement plebbit subplebbit get ([6b83c53](https://github.com/plebbit/plebbit-cli/commit/6b83c5330aaa38ead091612c67bc6df106d279df))
+
 ## [0.11.37](https://github.com/plebbit/plebbit-cli/compare/v0.11.36...v0.11.37) (2024-04-03)
 
 ## [0.11.36](https://github.com/plebbit/plebbit-cli/compare/v0.11.35...v0.11.36) (2024-03-31)
