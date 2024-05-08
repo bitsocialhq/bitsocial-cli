@@ -7,6 +7,9 @@ import path from "path";
 import tcpPortUsed from "tcp-port-used";
 import { getLanIpV4Address, getPlebbitLogger } from "../../util.js";
 import { startDaemonServer } from "../../webui/daemon-server.js";
+import fs from "fs";
+import fsPromise from "fs/promises";
+import { EOL } from "node:os";
 
 export default class Daemon extends Command {
     static override description =
@@ -36,28 +39,86 @@ export default class Daemon extends Command {
         })
     };
 
-    static override examples = [
-        "plebbit daemon",
-        "plebbit daemon --plebbitRpcPort 80"
-        // "plebbit daemon --seed",
-        // "plebbit daemon --seed --seedSubs mysub.eth, myothersub.eth, 12D3KooWEKA6Fhp6qtyttMvNKcNCtqH2N7ZKpPy5rfCeM1otr5qU"
-    ];
+    static override examples = ["plebbit daemon", "plebbit daemon --plebbitRpcPort 80"];
 
-    private async _pipeDebugLogsToLogFile(plebbitDataPath: string) {
-        const logFilePath = path.join(plebbitDataPath, "log");
-        // TODO implement this function
+    private _setupLogger(Logger: any) {
+        const envDebug: string | undefined = process.env["DEBUG"];
+        const debugNamespace = envDebug === "0" || envDebug === "" ? undefined : envDebug || "plebbit*, -plebbit*trace";
+        if (debugNamespace) {
+            console.log("Debug logs is on with namespace", `"${debugNamespace}"`);
+            Logger.enable(debugNamespace);
+        } else {
+            console.log("Debug logs are disabled");
+            Logger.disable();
+        }
+    }
+
+    private async _getNewLogfileByEvacuatingOldLogsIfNeeded() {
+        try {
+            await fsPromise.mkdir(defaults.PLEBBIT_LOG_PATH);
+        } catch (e) {
+            //@ts-expect-error
+            if (e.code !== "EEXIST") throw e;
+        }
+        const logFiles = (await fsPromise.readdir(defaults.PLEBBIT_LOG_PATH, { withFileTypes: true })).filter((file) =>
+            file.name.startsWith("plebbit_cli_daemon")
+        );
+        const logfilesCapacity = 5; // we only store 5 log files
+        if (logFiles.length >= logfilesCapacity) {
+            // we need to pick the oldest log to delete
+            const logFileToDelete = logFiles.map((logFile) => logFile.name).sort()[0]; // TODO need to test this, not sure if it works
+            console.log(`Will remove log (${logFileToDelete}) because we reached capacity (${logfilesCapacity})`);
+            await fsPromise.rm(path.join(defaults.PLEBBIT_LOG_PATH, logFileToDelete));
+        }
+
+        return path.join(defaults.PLEBBIT_LOG_PATH, `plebbit_cli_daemon_${new Date().toISOString()}.log`);
+    }
+
+    private async _pipeDebugLogsToLogFile() {
+        const logFilePath = await this._getNewLogfileByEvacuatingOldLogsIfNeeded();
+
+        const logFile = fs.createWriteStream(logFilePath, { flags: "a" });
+        const stdoutWrite = process.stdout.write.bind(process.stdout);
+        const stderrWrite = process.stderr.write.bind(process.stderr);
+
+        const removeColor = (data: string | Uint8Array) => {
+            const parsedData = data instanceof Uint8Array ? Buffer.from(data).toString() : data;
+            return parsedData.replaceAll(/\u001b\[.*?m/g, "");
+        };
+
+        process.stdout.write = (...args) => {
+            //@ts-expect-error
+            const res = stdoutWrite(...args);
+            logFile.write(removeColor(args[0]) + EOL);
+            return res;
+        };
+
+        process.stderr.write = (...args) => {
+            //@ts-expect-error
+            const res = stderrWrite(...args);
+            logFile.write(removeColor(args[0]).trimStart() + EOL);
+            return res;
+        };
+
+        console.log("Will store stderr + stdout log to", logFilePath);
+
+        // errors aren't console logged
+        process.on("uncaughtException", console.error);
+        process.on("unhandledRejection", console.error);
     }
 
     async run() {
         const { flags } = await this.parse(Daemon);
+        const Logger = await getPlebbitLogger();
+        this._setupLogger(Logger);
+        await this._pipeDebugLogsToLogFile();
+        const log = Logger("plebbit-cli:daemon");
 
-        const log = (await getPlebbitLogger())("plebbit-cli:daemon");
         log(`flags: `, flags);
 
         const ipfsApiEndpoint = `http://localhost:${flags.ipfsApiPort}/api/v0`;
         const ipfsGatewayEndpoint = `http://localhost:${flags.ipfsGatewayPort}`;
 
-        await this._pipeDebugLogsToLogFile(flags.plebbitDataPath);
         let mainProcessExited = false;
         // Ipfs Node may fail randomly, we need to set a listener so when it exits because of an error we restart it
         let ipfsProcess: ChildProcessWithoutNullStreams | undefined;
