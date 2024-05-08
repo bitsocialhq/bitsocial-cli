@@ -50,6 +50,11 @@ export async function startIpfsNode(apiPortNumber: number, gatewayPortNumber: nu
             hideWindows: true
         });
 
+        await _spawnAsync(log, ipfsExePath, ["config", "profile", "apply", `server`], {
+            env,
+            hideWindows: true
+        });
+
         log("Called ipfs config Addresses.Gateway successfully");
 
         await _spawnAsync(log, ipfsExePath, ["config", "Addresses.API", `/ip4/127.0.0.1/tcp/${apiPortNumber}`], { env, hideWindows: true });
