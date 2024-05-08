@@ -8,19 +8,24 @@ import decompress from "decompress";
 (async () => {
     const webuiGithubRepos = ["plebbit/seedit", "plebbit/plebones"];
     console.log("Github repos to download", webuiGithubRepos);
+    const githubToken: string | undefined = process.env["GITHUB_TOKEN"]; // we need a token to avoid getting rate limited in CI
+    if (githubToken) console.log("github token length", githubToken.length);
     const dstOfWebui = path.join(__dirname, "..", "dist", "webuis");
     console.log("Destination of web uis will be", dstOfWebui);
     await fs.mkdir(dstOfWebui);
 
     for (const githubRepo of webuiGithubRepos) {
-        const latestSeeditReleaseReq = await fetch(`https://api.github.com/repos/${githubRepo}/releases/latest`);
+        const headers = githubToken ? { authorization: `Bearer ${githubToken}` } : undefined;
+        const latestSeeditReleaseReq = await fetch(`https://api.github.com/repos/${githubRepo}/releases/latest`, {
+            headers
+        });
         if (!latestSeeditReleaseReq.ok)
             throw Error(
                 `Failed to fetch the release of ${githubRepo}, status code ${latestSeeditReleaseReq.status}, status text ${latestSeeditReleaseReq.statusText}`
             );
         const latestRelease = <any>await latestSeeditReleaseReq.json();
         const htmlZipAsset = latestRelease.assets.find((asset: any) => asset.name.includes("html"));
-        const htmlZipRequest = await fetch(htmlZipAsset["browser_download_url"]);
+        const htmlZipRequest = await fetch(htmlZipAsset["browser_download_url"], { headers });
         if (!htmlZipRequest.body)
             throw Error(
                 `Failed to fetch ${htmlZipAsset["browser_download_url"]} html zip file ` +

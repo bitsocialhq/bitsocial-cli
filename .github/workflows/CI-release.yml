@@ -30,6 +30,8 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Download web uis
         run: yarn ci:download-web-uis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Generate tarballs
         run: yarn generate:executable:tarballs:linux:x64
       - name: Rename tarballs and installers
@@ -64,6 +66,8 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Download web uis
         run: yarn ci:download-web-uis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Generate tarballs
         run: yarn generate:executable:tarballs:macos:x64
       - name: Rename tarballs and installers
@@ -99,6 +103,8 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Download web uis
         run: yarn ci:download-web-uis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Generate Windows installer
         run: yarn generate:installer:windows
         shell: bash
@@ -129,6 +135,8 @@ jobs:
           id: previoustag
           uses: "WyriHaximus/github-action-get-previous-tag@v1"
         - uses: pguyot/arm-runner-action@v2
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           with:
             base_image: raspios_lite_arm64:latest
             cpu_info: cpuinfo/raspberrypi_zero2_w_arm64
