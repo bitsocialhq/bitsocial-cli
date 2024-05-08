@@ -10,7 +10,7 @@ import decompress from "decompress";
     console.log("Github repos to download", webuiGithubRepos);
     const githubToken: string | undefined = process.env["GITHUB_TOKEN"]; // we need a token to avoid getting rate limited in CI
     if (githubToken) console.log("github token length", githubToken.length);
-    const dstOfWebui = path.join(__dirname, "..", "dist", "webuis");
+    const dstOfWebui = path.join(process.cwd(), "dist", "webuis");
     console.log("Destination of web uis will be", dstOfWebui);
     await fs.mkdir(dstOfWebui);
 
