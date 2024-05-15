@@ -106,7 +106,7 @@
         "@oclif/core": "3.25.0",
         "@oclif/plugin-help": "6.0.18",
         "@oclif/plugin-not-found": "3.0.14",
-        "@plebbit/plebbit-js": "https://github.com/plebbit/plebbit-js#910eece3a5fb8f437f00aed62aed420914cf1551",
+        "@plebbit/plebbit-js": "https://github.com/plebbit/plebbit-js#7b5e685ce904e08b92c5a1da5124372f1a6e1d3e",
         "dataobject-parser": "1.2.22",
         "decompress": "4.2.1",
         "env-paths": "2.2.1",
