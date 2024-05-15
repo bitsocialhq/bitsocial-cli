@@ -86,17 +86,19 @@ export default class Daemon extends Command {
             return parsedData.replaceAll(/\u001b\[.*?m/g, "");
         };
 
+        const isLogFileOverLimit = () => logFile.bytesWritten > 20000000; // 20mb
+
         process.stdout.write = (...args) => {
             //@ts-expect-error
             const res = stdoutWrite(...args);
-            logFile.write(removeColor(args[0]) + EOL);
+            if (!isLogFileOverLimit()) logFile.write(removeColor(args[0]) + EOL);
             return res;
         };
 
         process.stderr.write = (...args) => {
             //@ts-expect-error
             const res = stderrWrite(...args);
-            logFile.write(removeColor(args[0]).trimStart() + EOL);
+            if (!isLogFileOverLimit()) logFile.write(removeColor(args[0]).trimStart() + EOL);
             return res;
         };
 
@@ -105,6 +107,8 @@ export default class Daemon extends Command {
         // errors aren't console logged
         process.on("uncaughtException", console.error);
         process.on("unhandledRejection", console.error);
+
+        process.on("exit", () => logFile.close());
     }
 
     async run() {
