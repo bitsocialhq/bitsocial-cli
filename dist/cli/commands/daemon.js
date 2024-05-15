@@ -76,22 +76,26 @@ class Daemon extends core_1.Command {
             const parsedData = data instanceof Uint8Array ? Buffer.from(data).toString() : data;
             return parsedData.replaceAll(/\u001b\[.*?m/g, "");
         };
+        const isLogFileOverLimit = () => logFile.bytesWritten > 20000000; // 20mb
         process.stdout.write = (...args) => {
             //@ts-expect-error
             const res = stdoutWrite(...args);
-            logFile.write(removeColor(args[0]) + node_os_1.EOL);
+            if (!isLogFileOverLimit())
+                logFile.write(removeColor(args[0]) + node_os_1.EOL);
             return res;
         };
         process.stderr.write = (...args) => {
             //@ts-expect-error
             const res = stderrWrite(...args);
-            logFile.write(removeColor(args[0]).trimStart() + node_os_1.EOL);
+            if (!isLogFileOverLimit())
+                logFile.write(removeColor(args[0]).trimStart() + node_os_1.EOL);
             return res;
         };
         console.log("Will store stderr + stdout log to", logFilePath);
         // errors aren't console logged
         process.on("uncaughtException", console.error);
         process.on("unhandledRejection", console.error);
+        process.on("exit", () => logFile.close());
     }
     async run() {
         const { flags } = await this.parse(Daemon);
