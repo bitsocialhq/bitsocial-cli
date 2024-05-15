@@ -47,7 +47,7 @@ async function startDaemonServer(daemonPort, ipfsGatewayPort, ipfsApiEndpoint, p
         },
         authKey: rpcAuthKey
     });
-    const webuisDir = path_1.default.join(process.cwd(), "dist", "webuis");
+    const webuisDir = path_1.default.join(__dirname, "..", "..", "dist", "webuis");
     const webUiNames = (await promises_1.default.readdir(webuisDir, { withFileTypes: true })).filter((file) => file.isDirectory()).map((file) => file.name);
     const webuis = [];
     log("Discovered webuis", webUiNames);

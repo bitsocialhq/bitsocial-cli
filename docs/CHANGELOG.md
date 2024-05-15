@@ -1,5 +1,12 @@
 
 
+## [0.12.4](https://github.com/plebbit/plebbit-cli/compare/v0.12.3...v0.12.4) (2024-05-08)
+
+
+### Bug Fixes
+
+* **web ui:** correct the traversal of web uis dir when calling plebbit from anywhere ([52a0c87](https://github.com/plebbit/plebbit-cli/commit/52a0c875899d19dc03f9fa64e3b2c565da5e40ea))
+
 ## [0.12.3](https://github.com/plebbit/plebbit-cli/compare/v0.12.2...v0.12.3) (2024-05-08)
 
 ## [0.12.2](https://github.com/plebbit/plebbit-cli/compare/v0.12.1...v0.12.2) (2024-05-08)

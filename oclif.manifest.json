@@ -3,7 +3,7 @@
     "daemon": {
       "aliases": [],
       "args": {},
-      "description": "Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users",
+      "description": "Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any machine. Within the web ui users are able to browse, create and manage their subs fully P2P",
       "examples": [
         "plebbit daemon",
         "plebbit daemon --plebbitRpcPort 80"
@@ -407,5 +407,5 @@
       ]
     }
   },
-  "version": "0.12.3"
+  "version": "0.12.4"
 }
