@@ -22,7 +22,6 @@ const cliCreateOptions: CliCreateSubplebbitOptions = {
     privateKeyPath: "test/fixtures/sub_0_private_key.pem",
     title: "testTitle",
     description: "testDescription",
-    pubsubTopic: "testPubsubTopic",
     suggested: {
         primaryColor: "testPrimaryColor",
         secondaryColor: "testSecondaryColor",
