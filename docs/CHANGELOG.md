@@ -1,5 +1,17 @@
 
 
+# [0.13.0](https://github.com/plebbit/plebbit-cli/compare/v0.12.4...v0.13.0) (2024-05-15)
+
+
+### Bug Fixes
+
+* **logs:** make sure to close the log file on process exiting, also don't write to file if over 20mb ([85629ad](https://github.com/plebbit/plebbit-cli/commit/85629ad52d2a07c51e7ebfe8aa8f00344cfe6405))
+
+
+### Features
+
+* **types:** correct types and tests ([48ad0bb](https://github.com/plebbit/plebbit-cli/commit/48ad0bb3fe4a33136e41f79db87efa6d3a194e13))
+
 ## [0.12.4](https://github.com/plebbit/plebbit-cli/compare/v0.12.3...v0.12.4) (2024-05-08)
 
 
