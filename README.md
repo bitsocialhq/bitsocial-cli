@@ -42,27 +42,37 @@ For Windows, You need to install [vc-redist](https://learn.microsoft.com/en-US/c
 
 ## Build your Plebbit executable manually (optional)
 
-You need to have `NodeJS 20`, `npm` and `yarn` installed
+In case the installation script is not working for you or you just want to build the source code directly. First, Yyu need to have `NodeJS 20`, `npm` and `yarn` installed
 
 ```
 git clone https://github.com/plebbit/plebbit-cli
 cd plebbit-cli
 yarn install --frozen-lockfile
-yarn build && yarn oclif manifest
-node bin/run --help
+yarn build
+yarn oclif manifest
+yarn ci:download-web-uis
+./bin/run --help
 ```
 
-After running the last command you should be able to run commands directly against `bin/run`
+After running the last command you should be able to run commands directly against `./bin/run`, for example `./bin/run daemon`
 
 # Usage
 
-## The data/config path of Plebbit
+## The data/config directory of Plebbit
 
 This is the default directory where plebbit-cli will keep its config, as well as data for local subplebbits:
 
 -   macOS: ~/Library/Application Support/plebbit
 -   Windows: %LOCALAPPDATA%\plebbit
 -   Linux: ~/.local/share/plebbit
+
+## The logs directory of Plebbit
+
+Plebbit-cli will keep logs in this directory, with a cap of 10M per log file.
+
+-   macOS: ~/Library/Logs/plebbit
+-   Windows: %LOCALAPPDATA%\plebbit\Log
+-   Linux: ~/.local/state/plebbit
 
 ## Running Daemon
 
@@ -72,33 +82,18 @@ In Bash (or powershell if you're on Windows), run `plebbit daemon` to able to co
 $ plebbit daemon
 IPFS API listening on: http://localhost:5001/api/v0
 IPFS Gateway listening on: http://localhost:6473
-Plebbit RPC listening on: ws://localhost:9138
+plebbit rpc: listening on ws://localhost:9138 (local connections only)
+plebbit rpc: listening on ws://localhost:9138/MHA1tm2QWG19z0bnkRarDNWIajDobl7iN2eM2PmL (secret auth key for remote connections)
 Plebbit data path: /root/.local/share/plebbit
+Subplebbits in data path:  [ 'pleblore.eth' ]
+WebUI (plebones): http://localhost:9138/plebones (local connections only)
+WebUI (plebones): http://192.168.1.60:9138/MHA1tm2QWG19z0bnkRarDNWIajDobl7iN2eM2PmL/plebones (secret auth key for remote connections)
+WebUI (seedit): http://localhost:9138/seedit (local connections only)
+WebUI (seedit): http://192.168.1.60:9138/MHA1tm2QWG19z0bnkRarDNWIajDobl7iN2eM2PmL/seedit (secret auth key for remote connections)
+
 ```
 
-<!-- ### Seeding Subplebbits
-If you're feeling generous, and would like to seed the default subplebbits you can do so by using the `--seed` flag
-
-```sh-session
-$ plebbit daemon --seed
-IPFS API listening on: http://localhost:32429/api/v0
-IPFS Gateway listening on: http://localhost:32430
-Plebbit API listening on: http://localhost:32431/api/v0
-You can find Plebbit API documentation at: http://localhost:32431/api/v0/docs
-Seeding subplebbits: [
-  '12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu',
-  'plebshelpingplebs.eth',
-  'plebwhales.eth',
-  'politically-incorrect.eth',
-  'business-and-finance.eth',
-  'movies-tv-anime.eth',
-  'videos-livestreams-podcasts.eth',
-  'health-nutrition-science.eth',
-  'censorship-watch.eth',
-  'reddit-screenshots.eth'
-]
-``` -->
-
+Once `plebbit daemon` is running, you can create and manage your subplebbits through the web interfaces, either seedit or plebones. If you're a power user and prefer CLI, then you can take a look at the commands below.
 ### Creating your first sub
 
 ```sh-session
