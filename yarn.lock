@@ -2324,9 +2324,9 @@
   resolved "https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
   integrity sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==
 
-"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#b6f43c4b639b57622318c46a2e46792ae5fb01c3":
+"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#e44773dc4bb20b5d886699e229c0efc997842d79":
   version "0.0.3"
-  resolved "https://github.com/plebbit/plebbit-js#b6f43c4b639b57622318c46a2e46792ae5fb01c3"
+  resolved "https://github.com/plebbit/plebbit-js#e44773dc4bb20b5d886699e229c0efc997842d79"
   dependencies:
     "@bonfida/spl-name-service" "2.4.2"
     "@chainsafe/libp2p-gossipsub" "12.0.0"
@@ -2390,7 +2390,7 @@
   version "0.0.1"
   resolved "https://codeload.github.com/plebbit/plebbit-logger/tar.gz/355a96d7659ed820047980049dfa627d30d83a69"
   dependencies:
-    debug "4.3.4"
+    debug "4.3.3"
 
 "@plebbit/proper-lockfile@github:plebbit/node-proper-lockfile#7fd6332117340c1d3d98dd0afee2d31cc06f72b8":
   version "4.1.2"
