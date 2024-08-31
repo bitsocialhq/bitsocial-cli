@@ -36,7 +36,7 @@ describe("plebbit subplebbit create", () => {
     const sandbox = Sinon.createSandbox();
 
     const startFake = sandbox.fake();
-    const plebbitCreateStub = sandbox.fake.resolves({ address: signers[0]!.address, start: startFake });
+    const plebbitCreateStub = sandbox.fake.resolves({ address: signers[0]!.address, start: startFake, started: false });
     before(async () => {
         const plebbitInstanceFake = sandbox.fake.resolves({
             createSubplebbit: plebbitCreateStub,
