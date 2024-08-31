@@ -1,5 +1,12 @@
 
 
+## [0.13.6](https://github.com/plebbit/plebbit-cli/compare/v0.13.5...v0.13.6) (2024-08-31)
+
+
+### Bug Fixes
+
+* **type:** make sure to not to use internal types of plebbit-js ([591a7c4](https://github.com/plebbit/plebbit-cli/commit/591a7c4e51547c0ebf8fb4463d62a5ffd129ca72))
+
 ## [0.13.5](https://github.com/plebbit/plebbit-cli/compare/v0.13.4...v0.13.5) (2024-07-06)
 
 ## [0.13.4](https://github.com/plebbit/plebbit-cli/compare/v0.13.3...v0.13.4) (2024-06-12)
