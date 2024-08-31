@@ -1,5 +1,7 @@
 
 
+## [0.13.7](https://github.com/plebbit/plebbit-cli/compare/v0.13.6...v0.13.7) (2024-08-31)
+
 ## [0.13.6](https://github.com/plebbit/plebbit-cli/compare/v0.13.5...v0.13.6) (2024-08-31)
 
 
