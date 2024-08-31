@@ -6,8 +6,6 @@ import lodash from "lodash";
 import DataObjectParser from "dataobject-parser";
 import fs from "fs";
 import { BaseCommand } from "../../base-command.js";
-//@ts-expect-error
-import type { RpcLocalSubplebbit } from "@plebbit/plebbit-js/dist/node/subplebbit/rpc-local-subplebbit.js";
 import { getPlebbitLogger } from "../../../util.js";
 
 export default class Create extends BaseCommand {
@@ -41,7 +39,8 @@ export default class Create extends BaseCommand {
         if (flags.privateKeyPath)
             createOptions.signer = { privateKey: (await fs.promises.readFile(flags.privateKeyPath)).toString(), type: "ed25519" };
 
-        const createdSub = <RpcLocalSubplebbit>await plebbit.createSubplebbit(createOptions);
+        const createdSub = await plebbit.createSubplebbit(createOptions);
+        if (!("started" in createdSub)) throw Error("plebbit-js failed to create a local sub");
         await createdSub.start();
 
         await plebbit.destroy();

@@ -1,7 +1,7 @@
 //@ts-expect-error
-import type { InternalSubplebbitRpcType, InternalSubplebbitType, SubplebbitEditOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types";
+import type { SubplebbitEditOptions, SubplebbitIpfsType } from "@plebbit/plebbit-js/dist/node/subplebbit/types";
 
-export const currentSubProps: InternalSubplebbitRpcType = {
+export const currentSubProps: SubplebbitIpfsType & SubplebbitEditOptions = {
     title: "original title",
     description: "original description",
     pubsubTopic: "original pubsub topic",
@@ -42,6 +42,7 @@ export const currentSubProps: InternalSubplebbitRpcType = {
     settings: { challenges: [{ name: "captcha-canvas-v3" }], fetchThumbnailUrls: false, fetchThumbnailUrlsProxyUrl: undefined },
     roles: { "rinse12.eth": { role: "admin" } },
     createdAt: 12345678,
+    started: true,
     updatedAt: 123456,
     //@ts-expect-error
     encryption: {},
@@ -67,7 +68,7 @@ export const objectPropsToEdit: Required<Pick<SubplebbitEditOptions, "roles" | "
             undefined, // Should add a new challenge, settings.challenges[0] should be kept as is
             { options: { question: "What is the password", answer: "The password" } }
         ],
-        fetchThumbnailUrls: true,
+        fetchThumbnailUrls: true
         // fetchThumbnailUrlsProxyUrl: "http://localhost:12345" // explicitly don't modify it
     },
     roles: {

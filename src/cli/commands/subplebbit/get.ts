@@ -1,11 +1,7 @@
 import { Args } from "@oclif/core";
 import { BaseCommand } from "../../base-command.js";
-//@ts-expect-error
-import type { RpcLocalSubplebbit } from "@plebbit/plebbit-js/dist/node/subplebbit/rpc-local-subplebbit.js";
-//@ts-expect-error
-import type { RpcRemoteSubplebbit } from "@plebbit/plebbit-js/dist/node/subplebbit/rpc-remote-subplebbit.js";
 
-import lodash from "lodash";
+import * as remeda from "remeda";
 
 export default class Get extends BaseCommand {
     static override description = "Fetch a local or remote subplebbit, and print its json in the terminal";
@@ -28,8 +24,9 @@ export default class Get extends BaseCommand {
 
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
 
-        const sub = <RpcLocalSubplebbit | RpcRemoteSubplebbit>await plebbit.getSubplebbit(args.address);
+        const sub = await plebbit.getSubplebbit(args.address);
         await plebbit.destroy();
-        this.logJson({ posts: sub.toJSON().posts, ...lodash.omit(sub.toJSON(), "posts") }); // make sure posts is printed first, because most users won't look at it
+        const subJson = JSON.parse(JSON.stringify(sub));
+        this.logJson({ posts: subJson.posts, ...remeda.omit(subJson, ["posts"]) }); // make sure posts is printed first, because most users won't look at it
     }
 }

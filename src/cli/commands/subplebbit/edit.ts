@@ -1,13 +1,12 @@
 //@ts-expect-error
 import type { SubplebbitEditOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
-import lodash from "lodash";
 //@ts-ignore
 import DataObjectParser from "dataobject-parser";
 import { Args } from "@oclif/core";
 import { BaseCommand } from "../../base-command.js";
-//@ts-expect-error
-import type { RpcLocalSubplebbit } from "@plebbit/plebbit-js/dist/node/subplebbit/rpc-local-subplebbit.js";
 import { getPlebbitLogger } from "../../../util.js";
+import * as remeda from "remeda";
+import lodash from "lodash";
 
 export default class Edit extends BaseCommand {
     static override description =
@@ -46,14 +45,16 @@ export default class Edit extends BaseCommand {
 
         const log = (await getPlebbitLogger())("plebbit-cli:commands:subplebbit:edit");
         log(`flags: `, flags);
-        const editOptions: SubplebbitEditOptions = DataObjectParser.transpose(lodash.omit(flags, ["plebbitRpcApiUrl"]))["_data"];
+        const editOptions: SubplebbitEditOptions = DataObjectParser.transpose(remeda.omit(flags, ["plebbitRpcApiUrl"]))["_data"];
         log("Edit options parsed:", editOptions);
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
         const localSubs = await plebbit.listSubplebbits();
         if (!localSubs.includes(args.address)) this.error("Can't edit a remote subplebbit, make sure you're editing a local sub");
 
-        const sub = <RpcLocalSubplebbit>await plebbit.createSubplebbit({ address: args.address });
-        const mergedSubState = lodash.pick(sub.toJSONInternalRpc(), <(keyof SubplebbitEditOptions)[]>Object.keys(editOptions));
+        const sub = await plebbit.createSubplebbit({ address: args.address });
+        if (!("started" in sub)) throw Error("plebbit-js failed to create a local subplebbit");
+
+        const mergedSubState = remeda.pick(sub, remeda.keys.strict(editOptions));
         lodash.merge(mergedSubState, editOptions);
         log("Internal sub state after merge:", mergedSubState);
         await sub.edit(mergedSubState);
