@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const core_1 = require("@oclif/core");
 const base_command_js_1 = require("../../base-command.js");
-const lodash_1 = tslib_1.__importDefault(require("lodash"));
+const remeda = tslib_1.__importStar(require("remeda"));
 class Get extends base_command_js_1.BaseCommand {
     static description = "Fetch a local or remote subplebbit, and print its json in the terminal";
     static examples = [
@@ -22,7 +22,8 @@ class Get extends base_command_js_1.BaseCommand {
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
         const sub = await plebbit.getSubplebbit(args.address);
         await plebbit.destroy();
-        this.logJson({ posts: sub.toJSON().posts, ...lodash_1.default.omit(sub.toJSON(), "posts") }); // make sure posts is printed first, because most users won't look at it
+        const subJson = JSON.parse(JSON.stringify(sub));
+        this.logJson({ posts: subJson.posts, ...remeda.omit(subJson, ["posts"]) }); // make sure posts is printed first, because most users won't look at it
     }
 }
 exports.default = Get;

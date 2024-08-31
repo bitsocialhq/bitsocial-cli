@@ -23,6 +23,8 @@ class List extends base_command_js_1.BaseCommand {
         else {
             const subsWithStarted = await Promise.all(subs.map(async (subAddress) => {
                 const subInstance = await plebbit.createSubplebbit({ address: subAddress });
+                if (!("started" in subInstance))
+                    throw Error("plebbit-js failed to create a local subplebbit");
                 return { address: subInstance.address, started: subInstance.started };
             }));
             core_1.ux.table(subsWithStarted, { address: {}, started: {} }, {
