@@ -48,11 +48,10 @@ export default class Edit extends BaseCommand {
         const editOptions: SubplebbitEditOptions = DataObjectParser.transpose(remeda.omit(flags, ["plebbitRpcApiUrl"]))["_data"];
         log("Edit options parsed:", editOptions);
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
-        const localSubs = await plebbit.listSubplebbits();
+        const localSubs = plebbit.subplebbits;
         if (!localSubs.includes(args.address)) this.error("Can't edit a remote subplebbit, make sure you're editing a local sub");
 
         const sub = await plebbit.createSubplebbit({ address: args.address });
-        if (!("started" in sub)) throw Error("plebbit-js failed to create a local subplebbit");
 
         const mergedSubState = remeda.pick(sub, remeda.keys.strict(editOptions));
         lodash.merge(mergedSubState, editOptions);

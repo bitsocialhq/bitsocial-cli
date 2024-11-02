@@ -165,8 +165,9 @@ export default class Daemon extends Command {
                 console.log("plebbit-cli daemon will monitor the plebbit RPC and ipfs API to make sure they're always up");
                 const Plebbit = await import("@plebbit/plebbit-js");
                 const plebbit = await Plebbit.default({ plebbitRpcClientsOptions: [plebbitRpcApiUrl] });
+                await new Promise((resolve) => plebbit.once("subplebbitschange", resolve));
                 plebbit.on("error", () => {});
-                console.log(`Subplebbits in data path: `, await plebbit.listSubplebbits());
+                console.log(`Subplebbits in data path: `, plebbit.subplebbits);
                 usingDifferentProcessRpc = true;
                 return;
             }

@@ -32,7 +32,8 @@ export default class Stop extends BaseCommand {
 
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
         for (const address of addresses) {
-            await plebbit.plebbitRpcClient!.stopSubplebbit(address);
+            const sub = await plebbit.createSubplebbit({ address });
+            await sub.stop(); // should stop the original subplebbit instance from running
             this.log(address);
         }
         await plebbit.destroy();

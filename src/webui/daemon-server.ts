@@ -94,5 +94,5 @@ export async function startDaemonServer(daemonPort: number, ipfsGatewayPort: num
 
     ["SIGINT", "SIGTERM", "SIGHUP", "beforeExit"].forEach((exitSignal) => process.on(exitSignal, handlRpcExit));
 
-    return { rpcAuthKey, listedSub: await rpcServer.plebbit.listSubplebbits(), webuis };
+    return { rpcAuthKey, listedSub: rpcServer.plebbit.subplebbits, webuis };
 }

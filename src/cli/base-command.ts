@@ -13,7 +13,7 @@ export abstract class BaseCommand extends Command {
     protected async _connectToPlebbitRpc(plebbitRpcApiUrl: string) {
         const Plebbit = await import("@plebbit/plebbit-js");
         const plebbit = await Plebbit.default({ plebbitRpcClientsOptions: [plebbitRpcApiUrl] });
-        await plebbit.listSubplebbits(); // To make sure we're connected, will throw if there's no connection
+        await new Promise((resolve) => plebbit.once("subplebbitschange", resolve));
         return plebbit;
     }
 }
