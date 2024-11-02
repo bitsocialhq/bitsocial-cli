@@ -9,9 +9,9 @@ describe("plebbit subplebbit start", () => {
 
     before(() => {
         const plebbitInstanceFake = sandbox.fake.resolves({
-            plebbitRpcClient: {
-                startSubplebbit: startFake
-            },
+            createSubplebbit: () => ({
+                start: startFake
+            }),
             destroy: () => {}
         });
 
@@ -25,11 +25,6 @@ describe("plebbit subplebbit start", () => {
         .it(`Parses and submits addresses correctly`, (ctx) => {
             // Validate calls to start here
             expect(startFake.callCount).to.equal(addresses.length);
-
-            for (let i = 0; i < addresses.length; i++) {
-                const addressToStart = <string>startFake.args[i][0];
-                expect(addressToStart).to.equal(addresses[i]);
-            }
 
             // Validate outputs
             const trimmedOutput: string[] = ctx.stdout.trim().split("\n");

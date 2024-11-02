@@ -6,10 +6,9 @@ describe("plebbit subplebbit list", () => {
     const sandbox = Sinon.createSandbox();
     const fakeSubplebbits = ["plebbit1.eth", "plebbit2.eth"];
 
-    const listSubplebbitsFake = sandbox.fake.resolves(fakeSubplebbits);
     before(() => {
         const plebbitInstanceFake = sandbox.fake.resolves({
-            listSubplebbits: listSubplebbitsFake,
+            subplebbits: fakeSubplebbits,
             destroy: () => {}
         });
         //@ts-expect-error
@@ -21,7 +20,6 @@ describe("plebbit subplebbit list", () => {
     test.stdout()
         .command(["subplebbit list", "-q"])
         .it(`-q Outputs only subplebbit addresses`, (ctx) => {
-            expect(listSubplebbitsFake.callCount).to.equal(1);
             const trimmedOutput: string[] = ctx.stdout.trim().split("\n");
             expect(trimmedOutput).to.deep.equal(fakeSubplebbits);
         });

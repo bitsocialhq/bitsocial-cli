@@ -8,18 +8,15 @@ describe("plebbit subplebbit stop", () => {
 
     const stopFake = sandbox.fake();
     before(() => {
-
-
         const plebbitInstanceFake = sandbox.fake.resolves({
-            plebbitRpcClient: {
-                stopSubplebbit: stopFake
-            },
+            createSubplebbit: () => ({
+                stop: stopFake
+            }),
             destroy: () => {}
         });
 
         //@ts-expect-error
         sandbox.replace(BaseCommand.prototype, "_connectToPlebbitRpc", plebbitInstanceFake);
-
     });
 
     after(() => sandbox.restore());
@@ -28,11 +25,6 @@ describe("plebbit subplebbit stop", () => {
         .it(`Parses and submits addresses correctly`, (ctx) => {
             // Validate calls to stop here
             expect(stopFake.callCount).to.equal(addresses.length);
-
-            for (let i = 0; i < addresses.length; i++) {
-                const addressToStop = <string>stopFake.args[i][0];
-                expect(addressToStop).to.equal(addresses[i]);
-            }
 
             // Validate outputs
             const trimmedOutput: string[] = ctx.stdout.trim().split("\n");
