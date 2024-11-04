@@ -14,7 +14,7 @@
         "build": "rm -rf dist/  && tsc --project config/tsconfig.json",
         "build:test": "tsc --project config/test.tsconfig.json",
         "build:watch": "nodemon --config config/build.nodemon.json",
-        "test:cli": "yarn ci:download-web-uis && ts-mocha  --config config/.mocharc.json test/cli/*.test.ts",
+        "test:cli": "yarn ci:download-web-uis && ts-mocha  --bail --config config/.mocharc.json test/cli/*.test.ts",
         "commit": "cz",
         "prepare": "husky install",
         "release": "HUSKY=0 release-it --config config/.release-it.json",
