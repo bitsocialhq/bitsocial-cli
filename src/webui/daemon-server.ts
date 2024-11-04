@@ -41,11 +41,16 @@ export async function startDaemonServer(daemonPort: number, ipfsGatewayPort: num
     const httpServer = webuiExpressApp.listen(daemonPort);
     const rpcAuthKey = await _generateRpcAuthKeyIfNotExisting(plebbitDataPath);
     const PlebbitWsServer = await import("@plebbit/plebbit-js/dist/node/rpc/src/index.js");
+
+    // Will add ability to edit later, but it's hard coded for now
+    const defaultHttpTrackers = ["https://peers.pleb.bot", "https://routing.lol"];
+
     const rpcServer = await PlebbitWsServer.default.PlebbitWsServer({
         server: httpServer,
         plebbitOptions: {
             ipfsHttpClientsOptions: [ipfsApiEndpoint],
-            dataPath: plebbitDataPath
+            dataPath: plebbitDataPath,
+            httpRoutersOptions: defaultHttpTrackers
         },
         authKey: rpcAuthKey
     });
