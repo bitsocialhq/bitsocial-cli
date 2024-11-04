@@ -15,6 +15,7 @@ plebbit_uri="https://github.com/plebbit/plebbit-cli/releases/latest/download/${p
 
 curl --fail --location --progress-bar --output "$plebbit_compressed_file_name" "$plebbit_uri"
 PLEBBIT_INSTALL_DIR="$HOME/.plebbit_install_files"
+rm -rf "$PLEBBIT_INSTALL_DIR"
 mkdir -p "$PLEBBIT_INSTALL_DIR"
 
 tar -xzf $plebbit_compressed_file_name --directory "$PLEBBIT_INSTALL_DIR"
