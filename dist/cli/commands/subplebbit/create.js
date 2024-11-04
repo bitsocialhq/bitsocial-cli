@@ -31,8 +31,6 @@ class Create extends base_command_js_1.BaseCommand {
         if (flags.privateKeyPath)
             createOptions.signer = { privateKey: (await fs_1.default.promises.readFile(flags.privateKeyPath)).toString(), type: "ed25519" };
         const createdSub = await plebbit.createSubplebbit(createOptions);
-        if (!("started" in createdSub))
-            throw Error("plebbit-js failed to create a local sub");
         await createdSub.start();
         await plebbit.destroy();
         this.log(createdSub.address);

@@ -16,15 +16,13 @@ class List extends base_command_js_1.BaseCommand {
         const log = (await (0, util_js_1.getPlebbitLogger)())("plebbit-cli:commands:subplebbit:list");
         log(`flags: `, flags);
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
-        const subs = await plebbit.listSubplebbits();
+        const subs = plebbit.subplebbits;
         if (flags.quiet) {
             this.log(subs.join(os_1.EOL));
         }
         else {
             const subsWithStarted = await Promise.all(subs.map(async (subAddress) => {
                 const subInstance = await plebbit.createSubplebbit({ address: subAddress });
-                if (!("started" in subInstance))
-                    throw Error("plebbit-js failed to create a local subplebbit");
                 return { address: subInstance.address, started: subInstance.started };
             }));
             core_1.ux.table(subsWithStarted, { address: {}, started: {} }, {
