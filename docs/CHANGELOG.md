@@ -1,5 +1,17 @@
 
 
+# [0.14.0](https://github.com/plebbit/plebbit-cli/compare/v0.13.5...v0.14.0) (2024-11-04)
+
+
+### Bug Fixes
+
+* **type:** make sure to not to use internal types of plebbit-js ([591a7c4](https://github.com/plebbit/plebbit-cli/commit/591a7c4e51547c0ebf8fb4463d62a5ffd129ca72))
+
+
+### Features
+
+* **daemon:** plebbit-cli will use http router (trackers) by default ([2b23129](https://github.com/plebbit/plebbit-cli/commit/2b23129f28d593d19fde170e63022830ee0e54c5))
+
 ## [0.13.7](https://github.com/plebbit/plebbit-cli/compare/v0.13.6...v0.13.7) (2024-08-31)
 
 ## [0.13.6](https://github.com/plebbit/plebbit-cli/compare/v0.13.5...v0.13.6) (2024-08-31)
