@@ -1,5 +1,12 @@
 
 
+## [0.14.1](https://github.com/plebbit/plebbit-cli/compare/v0.14.0...v0.14.1) (2024-11-04)
+
+
+### Bug Fixes
+
+* **install:** make sure to remove prior versions files ([e9593ed](https://github.com/plebbit/plebbit-cli/commit/e9593ed84320bf5597f63b581e8d16c2935bbdc1))
+
 # [0.14.0](https://github.com/plebbit/plebbit-cli/compare/v0.13.5...v0.14.0) (2024-11-04)
 
 
