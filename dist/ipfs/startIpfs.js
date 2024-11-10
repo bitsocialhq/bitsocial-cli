@@ -38,7 +38,7 @@ async function startIpfsNode(apiPortNumber, gatewayPortNumber) {
         await fs_1.default.promises.mkdir(ipfsDataPath, { recursive: true });
         const ipfsExePath = await getIpfsExePath();
         log(`IpfsDataPath (${ipfsDataPath}), ipfsExePath (${ipfsExePath})`);
-        const env = { IPFS_PATH: ipfsDataPath };
+        const env = { IPFS_PATH: ipfsDataPath, DEBUG_COLORS: "1" };
         try {
             await _spawnAsync(log, ipfsExePath, ["init"], { env, hideWindows: true });
         }
