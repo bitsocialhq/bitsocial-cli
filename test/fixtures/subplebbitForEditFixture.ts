@@ -50,16 +50,6 @@ export const currentSubProps: SubplebbitIpfsType & SubplebbitEditOptions = {
     signature: {}
 };
 
-export const firstLevelPropsToEdit: SubplebbitEditOptions = {
-    address: "newAddress.eth",
-    title: "new Title",
-    description: "new Description",
-    pubsubTopic: "new Pubsub topic"
-};
-
-//@ts-expect-error
-export const rulesToEdit: Required<Pick<SubplebbitEditOptions, "rules">> = { rules: [undefined, undefined, "Rule 3", "Rule 4"] };
-
 //TODO add flairs here
 export const objectPropsToEdit: Required<Pick<SubplebbitEditOptions, "roles" | "features" | "suggested" | "settings">> = {
     settings: {
