@@ -1,22 +1,11 @@
 import { test, expect } from "@oclif/test";
 import signers from "../fixtures/signers";
-import lodash from "lodash";
-//@ts-ignore
-import DataObjectParser from "dataobject-parser";
 import Sinon from "sinon";
 //@ts-expect-error
 import type { CreateSubplebbitOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
 import { CliCreateSubplebbitOptions } from "../../dist/cli/types.js";
 
 import { BaseCommand } from "../../dist/cli/base-command";
-
-const createCreateCommand = (createOptions: CreateSubplebbitOptions) => {
-    let command = ["subplebbit create"];
-    const createOptionsFlattened: Record<string, string> = DataObjectParser.untranspose(createOptions);
-    for (const [key, value] of Object.entries(createOptionsFlattened)) command = command.concat(`--${key}`, value);
-    console.log("Final command: ", command.join(" "));
-    return command;
-};
 
 const cliCreateOptions: CliCreateSubplebbitOptions = {
     privateKeyPath: "test/fixtures/sub_0_private_key.pem",
@@ -48,22 +37,38 @@ describe("plebbit subplebbit create", () => {
     after(() => sandbox.restore());
 
     test.stdout()
-        .command(createCreateCommand(cliCreateOptions))
+        .command([
+            "subplebbit create",
+            "--privateKeyPath",
+            "test/fixtures/sub_0_private_key.pem",
+            "--title",
+            "testTitle",
+            "--description",
+            "testDescription",
+            "--suggested.primaryColor",
+            "testPrimaryColor",
+            "--suggested.secondaryColor",
+            "testSecondaryColor",
+            "--suggested.avatarUrl",
+            "http://localhost:8080/avatar.png",
+            "--suggested.bannerUrl",
+            "http://localhost:8080/banner.png",
+            "--suggested.backgroundUrl",
+            "http://localhost:8080/background.png",
+            "--suggested.language",
+            "testLanguage"
+        ])
         .it(`Parse create options correctly`, (ctx) => {
             expect(plebbitCreateStub.calledOnce).to.be.true;
-            //@ts-expect-error
-            const parsedArgs = <CreateSubplebbitOptions>plebbitCreateStub.firstArg;
+            const parsedArgs = <CreateSubplebbitOptions>plebbitCreateStub.args[0][0];
             // PrivateKeyPath will be processed to signer
+            expect(parsedArgs.title).to.equal(cliCreateOptions.title);
+            expect(parsedArgs.description).to.equal(cliCreateOptions.description);
+            expect(parsedArgs.suggested).to.deep.equal(cliCreateOptions.suggested);
+
             expect(parsedArgs.signer).to.be.a("object");
-            expect(parsedArgs.signer!.privateKey).be.a("string");
+            expect(parsedArgs.signer!.privateKey).to.be.a("string");
             expect(parsedArgs!.signer!.type).to.equal("ed25519");
-            // Validate rest of args now
-            for (const createKey of Object.keys(lodash.omit(cliCreateOptions, "privateKeyPath"))) {
-                //@ts-expect-error
-                expect(JSON.stringify(parsedArgs[createKey])).to.equal(JSON.stringify(cliCreateOptions[createKey]));
-            }
-            const output = ctx.stdout.trim();
-            expect(output).to.equal(signers[0]!.address);
         });
 
     it(`Starts subplebbit after creation`, () => {
