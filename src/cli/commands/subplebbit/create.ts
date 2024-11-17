@@ -1,6 +1,6 @@
 import { Flags } from "@oclif/core";
 //@ts-expect-error
-import type { CreateSubplebbitOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
+import type { CreateNewLocalSubplebbitUserOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
 import lodash from "lodash";
 //@ts-ignore
 import DataObjectParser from "dataobject-parser";
@@ -33,7 +33,7 @@ export default class Create extends BaseCommand {
         const log = (await getPlebbitLogger())("plebbit-cli:commands:subplebbit:create");
         log(`flags: `, flags);
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
-        const createOptions: CreateSubplebbitOptions = DataObjectParser.transpose(
+        const createOptions: CreateNewLocalSubplebbitUserOptions = DataObjectParser.transpose(
             lodash.omit(flags, ["plebbitRpcApiUrl", "privateKeyPath"])
         )["_data"];
         if (flags.privateKeyPath)
