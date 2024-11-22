@@ -2,6 +2,8 @@ import { spawn, ChildProcessWithoutNullStreams } from "child_process";
 import path from "path";
 import envPaths from "env-paths";
 import fs from "fs";
+import * as fsPromises from "fs/promises";
+import * as remeda from "remeda";
 import assert from "assert";
 import { path as ipfsExePathFunc } from "kubo";
 import { getPlebbitLogger } from "../util";
@@ -44,22 +46,37 @@ export async function startIpfsNode(apiPortNumber: number, gatewayPortNumber: nu
             await _spawnAsync(log, ipfsExePath, ["init"], { env, hideWindows: true });
         } catch (e) {}
 
-        log("Called ipfs init successfully");
-        await _spawnAsync(log, ipfsExePath, ["config", "Addresses.Gateway", `/ip4/127.0.0.1/tcp/${gatewayPortNumber}`], {
-            env,
-            hideWindows: true
-        });
-
         await _spawnAsync(log, ipfsExePath, ["config", "profile", "apply", `server`], {
             env,
             hideWindows: true
         });
 
-        log("Called ipfs config Addresses.Gateway successfully");
+        log("Called ipfs config profile apply successfully");
 
-        await _spawnAsync(log, ipfsExePath, ["config", "Addresses.API", `/ip4/127.0.0.1/tcp/${apiPortNumber}`], { env, hideWindows: true });
+        const ipfsConfigPath = path.join(ipfsDataPath, "config");
+        const ipfsConfig = JSON.parse((await fsPromises.readFile(ipfsConfigPath)).toString());
 
-        log("Called ipfs config Addresses.API successfully");
+        const mergedIpfsConfig = {
+            ...ipfsConfig,
+            Addresses: {
+                ...ipfsConfig["Addresses"],
+                Gateway: `/ip4/127.0.0.1/tcp/${gatewayPortNumber}`,
+                API: `/ip4/127.0.0.1/tcp/${apiPortNumber}`,
+                Swarm: remeda
+                    .unique([
+                        ...ipfsConfig["Addresses"]["Swarm"],
+                        "/ip4/0.0.0.0/tcp/4002/tls/sni/*.libp2p.direct/ws",
+                        "/ip6/::/tcp/4002/tls/sni/*.libp2p.direct/ws"
+                    ])
+                    .sort()
+            },
+            AutoTLS: {
+                ...ipfsConfig["AutoTLS"],
+                Enabled: true
+            }
+        };
+
+        await fsPromises.writeFile(ipfsConfigPath, JSON.stringify(mergedIpfsConfig));
 
         const daemonArgs = ["--enable-namesys-pubsub", "--migrate"];
 
