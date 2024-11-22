@@ -8967,10 +8967,10 @@ kubo-rpc-client@5.0.1:
     uint8arrays "^5.0.3"
     wherearewe "^2.0.1"
 
-kubo@0.31.0:
-  version "0.31.0"
-  resolved "https://registry.yarnpkg.com/kubo/-/kubo-0.31.0.tgz#f6dfee1c64c58b43775cce517654fa91233e1fe1"
-  integrity sha512-3he8THK76gyYkVNnHpTo4LnMl/5fpZjNnaepCn2IKO+R5GXjLPvzydj+WJhyRuPT19H1c/tBW3COF03IXCO4lQ==
+kubo@0.32.1:
+  version "0.32.1"
+  resolved "https://registry.yarnpkg.com/kubo/-/kubo-0.32.1.tgz#aa11e6a954b3e461c5aaf6857fd595f28907d1ce"
+  integrity sha512-vXTprOeWACNpU86ldCBSBMRgq4MahLIr/YBn6DBb0SvHHVe4ZD8Djma6ncfVmxzrWxEiIMq9XOxJcQ27UOZ6kw==
   dependencies:
     cachedir "^2.3.0"
     got "^11.7.0"
