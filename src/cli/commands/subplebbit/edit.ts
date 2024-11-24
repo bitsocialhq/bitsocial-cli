@@ -37,6 +37,18 @@ export default class Edit extends BaseCommand {
         {
             description: "Change the title and description",
             command: `plebbit subplebbit edit mysub.eth --title "This is the new title" --description "This is the new description" `
+        },
+        {
+            description: "Remove a role from a moderator/admin/owner",
+            command: "plebbit subplebbit edit plebbit.eth --roles['rinse12.eth'] null"
+        },
+        {
+            description: "Enable settings.fetchThumbnailUrls to fetch the thumbnail of url submitted by authors",
+            command: "subplebbit edit plebbit.eth --settings.fetchThumbnailUrls"
+        },
+        {
+            description: "disable settings.fetchThumbnailUrls",
+            command: "subplebbit edit plebbit.eth --settings.fetchThumbnailUrls=false"
         }
     ];
 
