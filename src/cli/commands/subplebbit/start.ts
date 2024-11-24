@@ -28,7 +28,7 @@ export default class Start extends BaseCommand {
         log(`addresses: `, addresses);
         log(`flags: `, flags);
 
-        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
+        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcUrl.toString());
         for (const address of addresses) {
             const sub = await plebbit.createSubplebbit({ address });
             await sub.start();

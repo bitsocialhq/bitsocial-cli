@@ -1,6 +1,6 @@
 //@ts-expect-error
 import type { SubplebbitEditOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
-//@ts-ignore
+//@ts-expect-error
 import DataObjectParser from "dataobject-parser";
 import { Args } from "@oclif/core";
 import { BaseCommand } from "../../base-command.js";
@@ -47,7 +47,7 @@ export default class Edit extends BaseCommand {
         log(`flags: `, flags);
         const editOptions: SubplebbitEditOptions = DataObjectParser.transpose(remeda.omit(flags, ["plebbitRpcApiUrl"]))["_data"];
         log("Edit options parsed:", editOptions);
-        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
+        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcUrl.toString());
         const localSubs = plebbit.subplebbits;
         if (!localSubs.includes(args.address)) this.error("Can't edit a remote subplebbit, make sure you're editing a local sub");
 

@@ -31,7 +31,7 @@ function _spawnAsync(log: any, ...args: any[]) {
         spawedProcess.on("error", (data) => log.error(data.toString()));
     });
 }
-export async function startIpfsNode(apiPortNumber: number, gatewayPortNumber: number): Promise<ChildProcessWithoutNullStreams> {
+export async function startIpfsNode(apiUrl: URL, gatewayUrl: URL): Promise<ChildProcessWithoutNullStreams> {
     return new Promise(async (resolve, reject) => {
         const log = (await getPlebbitLogger())("plebbit-cli:ipfs:startIpfsNode");
         const ipfsDataPath = process.env["IPFS_PATH"] || path.join(paths.data, ".ipfs-cli");
@@ -60,8 +60,8 @@ export async function startIpfsNode(apiPortNumber: number, gatewayPortNumber: nu
             ...ipfsConfig,
             Addresses: {
                 ...ipfsConfig["Addresses"],
-                Gateway: `/ip4/127.0.0.1/tcp/${gatewayPortNumber}`,
-                API: `/ip4/127.0.0.1/tcp/${apiPortNumber}`,
+                Gateway: `/ip4/${gatewayUrl.hostname}/tcp/${gatewayUrl.port}`,
+                API: `/ip4/${apiUrl.hostname}/tcp/${apiUrl.port}`,
                 Swarm: remeda
                     .unique([
                         ...ipfsConfig["Addresses"]["Swarm"],

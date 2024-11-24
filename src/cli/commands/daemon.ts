@@ -10,36 +10,48 @@ import { startDaemonServer } from "../../webui/daemon-server.js";
 import fs from "fs";
 import fsPromise from "fs/promises";
 import { EOL } from "node:os";
+//@ts-expect-error
+import type { InputPlebbitOptions } from "@plebbit/plebbit-js/dist/node/types.js";
+//@ts-expect-error
+import DataObjectParser from "dataobject-parser";
+
+import * as remeda from "remeda";
+
+const defaultPlebbitOptions: InputPlebbitOptions = {
+    dataPath: defaults.PLEBBIT_DATA_PATH,
+    ipfsHttpClientsOptions: [defaults.IPFS_API_URL.toString()],
+    httpRoutersOptions: defaults.HTTP_TRACKERS
+};
 
 export default class Daemon extends Command {
-    static override description =
-        "Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any machine. Within the web ui users are able to browse, create and manage their subs fully P2P";
+    static override description = `Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any machine. Within the web ui users are able to browse, create and manage their subs fully P2P.
+    Options can be passed to the RPC's instance through flag --plebbitOptions.optionName. For a list of plebbit options (https://github.com/plebbit/plebbit-js?tab=readme-ov-file#plebbitoptions)`;
 
     static override flags = {
-        plebbitDataPath: Flags.directory({
-            description: "Path to plebbit data path where subplebbits and ipfs node are stored",
+        plebbitRpcUrl: Flags.url({
+            description: "Specify Plebbit RPC URL to listen on",
             required: true,
-            default: defaults.PLEBBIT_DATA_PATH
+            default: defaults.PLEBBIT_RPC_URL
         }),
-
-        plebbitRpcPort: Flags.integer({
-            description: "Specify Plebbit RPC port to listen on",
+        ipfsApiUrl: Flags.url({
+            description: "Specify the API URL of the ipfs node to listen on",
             required: true,
-            default: defaults.PLEBBIT_RPC_API_PORT
+            default: defaults.IPFS_API_URL
         }),
-        ipfsApiPort: Flags.integer({
-            description: "Specify the API port of the ipfs node to listen on",
-            required: true,
-            default: defaults.IPFS_API_PORT
-        }),
-        ipfsGatewayPort: Flags.integer({
+        ipfsGatewayUrl: Flags.url({
             description: "Specify the gateway port of the ipfs node to listen on",
             required: true,
-            default: defaults.IPFS_GATEWAY_PORT
+            default: defaults.IPFS_GATEWAY_URL
         })
     };
 
-    static override examples = ["plebbit daemon", "plebbit daemon --plebbitRpcPort 80"];
+    static override examples = [
+        "plebbit daemon",
+        "plebbit daemon --plebbitRpcUrl ws://localhost:53812",
+        "plebbit daemon --plebbitOptions.dataPath /tmp/plebbit-datapath/",
+        "plebbit daemon --plebbitOptions.chainProviders.eth[0].url https://ethrpc.com",
+        "plebbit daemon --plebbitOptions.ipfsHttpClientsOption[0] http://remoteipfsnode.com"
+    ];
 
     private _setupLogger(Logger: any) {
         const envDebug: string | undefined = process.env["DEBUG"];
@@ -120,22 +132,41 @@ export default class Daemon extends Command {
 
         log(`flags: `, flags);
 
-        const ipfsApiEndpoint = `http://localhost:${flags.ipfsApiPort}/api/v0`;
-        const ipfsGatewayEndpoint = `http://localhost:${flags.ipfsGatewayPort}`;
+        const plebbitOptionsFlagNames = Object.keys(flags).filter((flag) => flag.startsWith("plebbitOptions"));
+        const plebbitOptionsFromFlag: InputPlebbitOptions | undefined =
+            plebbitOptionsFlagNames.length > 0
+                ? DataObjectParser.transpose(remeda.pick(flags, plebbitOptionsFlagNames))["_data"]?.["plebbitOptions"]
+                : undefined;
+        if (plebbitOptionsFromFlag?.ipfsHttpClientsOptions && flags.ipfsApiUrl !== defaults.IPFS_API_URL) {
+            this.error(
+                "Can't provide plebbitOptions.ipfsHttpClientsOptions and --ipfsApiUrl simuatelounsly. You have to choose between connecting to an ipfs node or starting up a new ipfs node"
+            );
+        }
+
+        if (plebbitOptionsFromFlag?.plebbitRpcClientsOptions && flags.plebbitRpcUrl !== defaults.PLEBBIT_RPC_URL) {
+            this.error(
+                "Can't provide plebbitOptions.plebbitRpcClientsOptions and --plebbitRpcUrl simuatelounsly. You have to choose between connecting to an RPC or starting up a new RPC"
+            );
+        }
+        const mergedPlebbitOptions = { ...defaultPlebbitOptions, ...plebbitOptionsFromFlag };
+
+        const ipfsApiEndpoint = flags.ipfsApiUrl;
+        const ipfsGatewayEndpoint = flags.ipfsGatewayUrl;
 
         let mainProcessExited = false;
         // Ipfs Node may fail randomly, we need to set a listener so when it exits because of an error we restart it
         let ipfsProcess: ChildProcessWithoutNullStreams | undefined;
         const keepIpfsUp = async () => {
+            const ipfsApiPort = Number(ipfsApiEndpoint.port);
             if (ipfsProcess || usingDifferentProcessRpc) return; // already started, no need to intervene
-            const isIpfsApiPortTaken = await tcpPortUsed.check(flags.ipfsApiPort, "127.0.0.1");
+            const isIpfsApiPortTaken = await tcpPortUsed.check(ipfsApiPort, flags.ipfsApiUrl.hostname);
             if (isIpfsApiPortTaken) {
                 log(
-                    `Ipfs API already running on port (${flags.ipfsApiPort}) by another program. Plebbit-cli will use the running ipfs daemon instead of starting a new one`
+                    `Ipfs API already running on port (${ipfsApiPort}) by another program. Plebbit-cli will use the running ipfs daemon instead of starting a new one`
                 );
                 return;
             }
-            ipfsProcess = await startIpfsNode(flags.ipfsApiPort, flags.ipfsGatewayPort);
+            ipfsProcess = await startIpfsNode(ipfsApiEndpoint, ipfsGatewayEndpoint);
             log(`Started ipfs process with pid (${ipfsProcess.pid})`);
             console.log(`IPFS API listening on: ${ipfsApiEndpoint}`);
             console.log(`IPFS Gateway listening on: ${ipfsGatewayEndpoint}`);
@@ -152,19 +183,19 @@ export default class Daemon extends Command {
         let startedOwnRpc = false;
         let usingDifferentProcessRpc = false;
 
+        const plebbitRpcUrl = flags.plebbitRpcUrl;
         const createOrConnectRpc = async () => {
             if (startedOwnRpc) return;
-            const isRpcPortTaken = await tcpPortUsed.check(flags.plebbitRpcPort, "127.0.0.1");
+            const isRpcPortTaken = await tcpPortUsed.check(Number(plebbitRpcUrl.port), plebbitRpcUrl.hostname);
             if (isRpcPortTaken && usingDifferentProcessRpc) return;
             if (isRpcPortTaken) {
                 log(
-                    `Plebbit RPC is already running on port (${flags.plebbitRpcPort}) by another program. Plebbit-cli will use the running RPC server, and if shuts down, plebbit-cli will start a new RPC instance`
+                    `Plebbit RPC is already running (${plebbitRpcUrl}) by another program. Plebbit-cli will use the running RPC server, and if shuts down, plebbit-cli will start a new RPC instance`
                 );
-                const plebbitRpcApiUrl = `ws://localhost:${flags.plebbitRpcPort}`;
-                console.log("Using the already started RPC server at:", plebbitRpcApiUrl);
+                console.log("Using the already started RPC server at:", plebbitRpcUrl);
                 console.log("plebbit-cli daemon will monitor the plebbit RPC and ipfs API to make sure they're always up");
                 const Plebbit = await import("@plebbit/plebbit-js");
-                const plebbit = await Plebbit.default({ plebbitRpcClientsOptions: [plebbitRpcApiUrl] });
+                const plebbit = await Plebbit.default({ plebbitRpcClientsOptions: [plebbitRpcUrl.toString()] });
                 await new Promise((resolve) => plebbit.once("subplebbitschange", resolve));
                 plebbit.on("error", () => {});
                 console.log(`Subplebbits in data path: `, plebbit.subplebbits);
@@ -172,40 +203,32 @@ export default class Daemon extends Command {
                 return;
             }
 
-            const daemonServer = await startDaemonServer(
-                flags.plebbitRpcPort,
-                flags.ipfsGatewayPort,
-                ipfsApiEndpoint,
-                flags.plebbitDataPath
-            );
+            const daemonServer = await startDaemonServer(plebbitRpcUrl, ipfsGatewayEndpoint, mergedPlebbitOptions);
 
             usingDifferentProcessRpc = false;
             startedOwnRpc = true;
-            console.log(`plebbit rpc: listening on ws://localhost:${flags.plebbitRpcPort} (local connections only)`);
-            console.log(
-                `plebbit rpc: listening on ws://localhost:${flags.plebbitRpcPort}/${daemonServer.rpcAuthKey} (secret auth key for remote connections)`
-            );
+            console.log(`plebbit rpc: listening on ${plebbitRpcUrl} (local connections only)`);
+            console.log(`plebbit rpc: listening on ${plebbitRpcUrl}/${daemonServer.rpcAuthKey} (secret auth key for remote connections)`);
 
-            console.log(`Plebbit data path: ${path.resolve(flags.plebbitDataPath)}`);
+            console.log(`Plebbit data path: ${path.resolve(mergedPlebbitOptions.dataPath!)}`);
             console.log(`Subplebbits in data path: `, daemonServer.listedSub);
 
             const localIpAddress = "localhost";
             const remoteIpAddress = getLanIpV4Address() || localIpAddress;
+            const rpcPort = plebbitRpcUrl.port;
             for (const webui of daemonServer.webuis) {
+                console.log(`WebUI (${webui.name}): http://${localIpAddress}:${rpcPort}${webui.endpointLocal} (local connections only)`);
                 console.log(
-                    `WebUI (${webui.name}): http://${localIpAddress}:${flags.plebbitRpcPort}${webui.endpointLocal} (local connections only)`
-                );
-                console.log(
-                    `WebUI (${webui.name}): http://${remoteIpAddress}:${flags.plebbitRpcPort}${webui.endpointRemote} (secret auth key for remote connections)`
+                    `WebUI (${webui.name}): http://${remoteIpAddress}:${rpcPort}${webui.endpointRemote} (secret auth key for remote connections)`
                 );
             }
         };
 
-        await keepIpfsUp();
+        if (!plebbitOptionsFromFlag?.ipfsHttpClientsOptions) await keepIpfsUp();
         await createOrConnectRpc();
 
         setInterval(async () => {
-            await keepIpfsUp();
+            if (!plebbitOptionsFromFlag?.ipfsHttpClientsOptions) await keepIpfsUp();
             await createOrConnectRpc();
         }, 5000);
 

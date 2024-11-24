@@ -22,7 +22,7 @@ export default class Get extends BaseCommand {
     async run(): Promise<void> {
         const { args, flags } = await this.parse(Get);
 
-        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
+        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcUrl.toString());
 
         const sub = await plebbit.getSubplebbit(args.address);
         await plebbit.destroy();

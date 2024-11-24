@@ -18,7 +18,7 @@ export default class List extends BaseCommand {
 
         const log = (await getPlebbitLogger())("plebbit-cli:commands:subplebbit:list");
         log(`flags: `, flags);
-        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
+        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcUrl.toString());
         const subs = plebbit.subplebbits;
         if (flags.quiet) {
             this.log(subs.join(EOL));
