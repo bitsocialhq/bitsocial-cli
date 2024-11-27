@@ -71,10 +71,16 @@ export async function startIpfsNode(apiUrl: URL, gatewayUrl: URL, dataPath: stri
             AutoTLS: {
                 ...ipfsConfig["AutoTLS"],
                 Enabled: true
+            },
+            Datastore: {
+                GCPeriod: "1h",
+                StorageGCWatermark: 90,
+                StorageMax: "10GB",
+                ...ipfsConfig["Datastore"]
             }
         };
 
-        await fsPromises.writeFile(ipfsConfigPath, JSON.stringify(mergedIpfsConfig));
+        await fsPromises.writeFile(ipfsConfigPath, JSON.stringify(mergedIpfsConfig, null, 4));
 
         const daemonArgs = ["--enable-namesys-pubsub", "--migrate"];
 
