@@ -8,8 +8,6 @@ import assert from "assert";
 import { path as ipfsExePathFunc } from "kubo";
 import { getPlebbitLogger } from "../util";
 
-const paths = envPaths("plebbit", { suffix: "" });
-
 async function getIpfsExePath(): Promise<string> {
     return ipfsExePathFunc();
 }
@@ -31,10 +29,10 @@ function _spawnAsync(log: any, ...args: any[]) {
         spawedProcess.on("error", (data) => log.error(data.toString()));
     });
 }
-export async function startIpfsNode(apiUrl: URL, gatewayUrl: URL): Promise<ChildProcessWithoutNullStreams> {
+export async function startIpfsNode(apiUrl: URL, gatewayUrl: URL, dataPath: string): Promise<ChildProcessWithoutNullStreams> {
     return new Promise(async (resolve, reject) => {
         const log = (await getPlebbitLogger())("plebbit-cli:ipfs:startIpfsNode");
-        const ipfsDataPath = process.env["IPFS_PATH"] || path.join(paths.data, ".ipfs-cli");
+        const ipfsDataPath = process.env["IPFS_PATH"] || path.join(dataPath, ".ipfs-plebbit-cli");
         await fs.promises.mkdir(ipfsDataPath, { recursive: true });
 
         const ipfsExePath = await getIpfsExePath();

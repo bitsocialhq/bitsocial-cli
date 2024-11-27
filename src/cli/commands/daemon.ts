@@ -171,7 +171,7 @@ export default class Daemon extends Command {
                 );
                 return;
             }
-            ipfsProcess = await startIpfsNode(ipfsApiEndpoint, ipfsGatewayEndpoint);
+            ipfsProcess = await startIpfsNode(ipfsApiEndpoint, ipfsGatewayEndpoint, mergedPlebbitOptions.dataPath!);
             log(`Started ipfs process with pid (${ipfsProcess.pid})`);
             console.log(`IPFS API listening on: ${ipfsApiEndpoint}`);
             console.log(`IPFS Gateway listening on: ${ipfsGatewayEndpoint}`);
