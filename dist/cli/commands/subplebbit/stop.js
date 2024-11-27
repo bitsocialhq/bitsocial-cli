@@ -25,7 +25,7 @@ class Stop extends base_command_js_1.BaseCommand {
         const addresses = argv;
         if (!Array.isArray(addresses))
             this.error(`Failed to parse addresses correctly (${addresses})`);
-        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
+        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcUrl.toString());
         for (const address of addresses) {
             const sub = await plebbit.createSubplebbit({ address });
             await sub.stop(); // should stop the original subplebbit instance from running

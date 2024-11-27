@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
-//@ts-ignore
+//@ts-expect-error
 const dataobject_parser_1 = tslib_1.__importDefault(require("dataobject-parser"));
 const core_1 = require("@oclif/core");
 const base_command_js_1 = require("../../base-command.js");
@@ -33,6 +33,18 @@ class Edit extends base_command_js_1.BaseCommand {
         {
             description: "Change the title and description",
             command: `plebbit subplebbit edit mysub.eth --title "This is the new title" --description "This is the new description" `
+        },
+        {
+            description: "Remove a role from a moderator/admin/owner",
+            command: "plebbit subplebbit edit plebbit.eth --roles['rinse12.eth'] null"
+        },
+        {
+            description: "Enable settings.fetchThumbnailUrls to fetch the thumbnail of url submitted by authors",
+            command: "subplebbit edit plebbit.eth --settings.fetchThumbnailUrls"
+        },
+        {
+            description: "disable settings.fetchThumbnailUrls",
+            command: "subplebbit edit plebbit.eth --settings.fetchThumbnailUrls=false"
         }
     ];
     async run() {
@@ -41,7 +53,7 @@ class Edit extends base_command_js_1.BaseCommand {
         log(`flags: `, flags);
         const editOptions = dataobject_parser_1.default.transpose(remeda.omit(flags, ["plebbitRpcApiUrl"]))["_data"];
         log("Edit options parsed:", editOptions);
-        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
+        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcUrl.toString());
         const localSubs = plebbit.subplebbits;
         if (!localSubs.includes(args.address))
             this.error("Can't edit a remote subplebbit, make sure you're editing a local sub");

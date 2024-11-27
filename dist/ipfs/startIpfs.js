@@ -1,15 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.startIpfsNode = void 0;
+exports.startIpfsNode = startIpfsNode;
 const tslib_1 = require("tslib");
 const child_process_1 = require("child_process");
 const path_1 = tslib_1.__importDefault(require("path"));
-const env_paths_1 = tslib_1.__importDefault(require("env-paths"));
 const fs_1 = tslib_1.__importDefault(require("fs"));
+const fsPromises = tslib_1.__importStar(require("fs/promises"));
+const remeda = tslib_1.__importStar(require("remeda"));
 const assert_1 = tslib_1.__importDefault(require("assert"));
 const kubo_1 = require("kubo");
 const util_1 = require("../util");
-const paths = (0, env_paths_1.default)("plebbit", { suffix: "" });
 async function getIpfsExePath() {
     return (0, kubo_1.path)();
 }
@@ -31,10 +31,10 @@ function _spawnAsync(log, ...args) {
         spawedProcess.on("error", (data) => log.error(data.toString()));
     });
 }
-async function startIpfsNode(apiPortNumber, gatewayPortNumber) {
+async function startIpfsNode(apiUrl, gatewayUrl, dataPath) {
     return new Promise(async (resolve, reject) => {
         const log = (await (0, util_1.getPlebbitLogger)())("plebbit-cli:ipfs:startIpfsNode");
-        const ipfsDataPath = process.env["IPFS_PATH"] || path_1.default.join(paths.data, ".ipfs-cli");
+        const ipfsDataPath = process.env["IPFS_PATH"] || path_1.default.join(dataPath, ".ipfs-plebbit-cli");
         await fs_1.default.promises.mkdir(ipfsDataPath, { recursive: true });
         const ipfsExePath = await getIpfsExePath();
         log(`IpfsDataPath (${ipfsDataPath}), ipfsExePath (${ipfsExePath})`);
@@ -43,18 +43,39 @@ async function startIpfsNode(apiPortNumber, gatewayPortNumber) {
             await _spawnAsync(log, ipfsExePath, ["init"], { env, hideWindows: true });
         }
         catch (e) { }
-        log("Called ipfs init successfully");
-        await _spawnAsync(log, ipfsExePath, ["config", "Addresses.Gateway", `/ip4/127.0.0.1/tcp/${gatewayPortNumber}`], {
-            env,
-            hideWindows: true
-        });
         await _spawnAsync(log, ipfsExePath, ["config", "profile", "apply", `server`], {
             env,
             hideWindows: true
         });
-        log("Called ipfs config Addresses.Gateway successfully");
-        await _spawnAsync(log, ipfsExePath, ["config", "Addresses.API", `/ip4/127.0.0.1/tcp/${apiPortNumber}`], { env, hideWindows: true });
-        log("Called ipfs config Addresses.API successfully");
+        log("Called ipfs config profile apply successfully");
+        const ipfsConfigPath = path_1.default.join(ipfsDataPath, "config");
+        const ipfsConfig = JSON.parse((await fsPromises.readFile(ipfsConfigPath)).toString());
+        const mergedIpfsConfig = {
+            ...ipfsConfig,
+            Addresses: {
+                ...ipfsConfig["Addresses"],
+                Gateway: `/ip4/${gatewayUrl.hostname}/tcp/${gatewayUrl.port}`,
+                API: `/ip4/${apiUrl.hostname}/tcp/${apiUrl.port}`,
+                Swarm: remeda
+                    .unique([
+                    ...ipfsConfig["Addresses"]["Swarm"],
+                    "/ip4/0.0.0.0/tcp/4002/tls/sni/*.libp2p.direct/ws",
+                    "/ip6/::/tcp/4002/tls/sni/*.libp2p.direct/ws"
+                ])
+                    .sort()
+            },
+            AutoTLS: {
+                ...ipfsConfig["AutoTLS"],
+                Enabled: true
+            },
+            Datastore: {
+                GCPeriod: "1h",
+                StorageGCWatermark: 90,
+                StorageMax: "10GB",
+                ...ipfsConfig["Datastore"]
+            }
+        };
+        await fsPromises.writeFile(ipfsConfigPath, JSON.stringify(mergedIpfsConfig, null, 4));
         const daemonArgs = ["--enable-namesys-pubsub", "--migrate"];
         const ipfsProcess = (0, child_process_1.spawn)(ipfsExePath, ["daemon", ...daemonArgs], { env, cwd: process.cwd() });
         log.trace(`ipfs daemon process started with pid ${ipfsProcess.pid}`);
@@ -78,4 +99,3 @@ async function startIpfsNode(apiPortNumber, gatewayPortNumber) {
         });
     });
 }
-exports.startIpfsNode = startIpfsNode;

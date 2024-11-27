@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.startDaemonServer = void 0;
+exports.startDaemonServer = startDaemonServer;
 const tslib_1 = require("tslib");
 const path_1 = tslib_1.__importDefault(require("path"));
 const promises_1 = tslib_1.__importDefault(require("fs/promises"));
@@ -9,7 +9,7 @@ const crypto_1 = require("crypto");
 const express_1 = tslib_1.__importDefault(require("express"));
 async function _writeModifiedIndexHtmlWithDefaultSettings(webuiPath, webuiName, ipfsGatewayPort) {
     const indexHtmlString = (await promises_1.default.readFile(path_1.default.join(webuiPath, "index.html"))).toString();
-    const defaultRpcOptionString = `[window.location.origin.replace("https", "wss").replace("http", "ws") + window.location.pathname.split('/' + '${webuiName}')[0]]`;
+    const defaultRpcOptionString = `[window.location.origin.replace("https://", "wss://").replace("http://", "ws://") + window.location.pathname.split('/' + '${webuiName}')[0]]`;
     // Ipfs media only locally because ipfs gateway doesn't allow remote connections
     const defaultIpfsMedia = `if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")window.defaultMediaIpfsGatewayUrl = 'http://' + window.location.hostname + ':' + ${ipfsGatewayPort}`;
     const defaultOptionsString = `<script>window.defaultPlebbitOptions = {plebbitRpcClientsOptions: ${defaultRpcOptionString}};${defaultIpfsMedia};console.log(window.defaultPlebbitOptions, window.defaultMediaIpfsGatewayUrl)</script>`;
@@ -32,22 +32,19 @@ async function _generateRpcAuthKeyIfNotExisting(plebbitDataPath) {
     return plebbitRpcAuthKey;
 }
 // The daemon server will host both RPC and webui on the same port
-async function startDaemonServer(daemonPort, ipfsGatewayPort, ipfsApiEndpoint, plebbitDataPath) {
+async function startDaemonServer(rpcUrl, ipfsGatewayUrl, plebbitOptions) {
     // Start plebbit-js RPC
     const log = (await (0, util_1.getPlebbitLogger)())("plebbit-cli:daemon:startDaemonServer");
     const webuiExpressApp = (0, express_1.default)();
-    const httpServer = webuiExpressApp.listen(daemonPort);
-    const rpcAuthKey = await _generateRpcAuthKeyIfNotExisting(plebbitDataPath);
+    const httpServer = webuiExpressApp.listen(Number(rpcUrl.port));
+    log("HTTP server is running on", "0.0.0.0" + ":" + rpcUrl.port);
+    const rpcAuthKey = await _generateRpcAuthKeyIfNotExisting(plebbitOptions.dataPath);
     const PlebbitWsServer = await import("@plebbit/plebbit-js/dist/node/rpc/src/index.js");
     // Will add ability to edit later, but it's hard coded for now
-    const defaultHttpTrackers = ["https://peers.pleb.bot", "https://routing.lol"];
+    log("Will be passing plebbit options to RPC server", plebbitOptions);
     const rpcServer = await PlebbitWsServer.default.PlebbitWsServer({
         server: httpServer,
-        plebbitOptions: {
-            ipfsHttpClientsOptions: [ipfsApiEndpoint],
-            dataPath: plebbitDataPath,
-            httpRoutersOptions: defaultHttpTrackers
-        },
+        plebbitOptions: plebbitOptions,
         authKey: rpcAuthKey
     });
     const webuisDir = path_1.default.join(__dirname, "..", "..", "dist", "webuis");
@@ -57,10 +54,12 @@ async function startDaemonServer(daemonPort, ipfsGatewayPort, ipfsApiEndpoint, p
     for (const webuiNameWithVersion of webUiNames) {
         const webuiDirPath = path_1.default.join(webuisDir, webuiNameWithVersion);
         const webuiName = webuiNameWithVersion.split("-")[0]; // should be "seedit", "plebchan", "plebones"
-        const modifiedIndexHtmlFileName = await _writeModifiedIndexHtmlWithDefaultSettings(webuiDirPath, webuiName, ipfsGatewayPort);
+        const modifiedIndexHtmlFileName = await _writeModifiedIndexHtmlWithDefaultSettings(webuiDirPath, webuiName, Number(ipfsGatewayUrl.port));
         const endpointLocal = `/${webuiName}`;
         webuiExpressApp.get(endpointLocal, (req, res, next) => {
+            res.setHeader("Cache-Control", "public, max-age=3600");
             const isLocal = req.socket.localAddress && req.socket.localAddress === req.socket.remoteAddress;
+            log("Received local connection request for webui", endpointRemote, "with socket.localAddress", req.socket.localAddress, "and socket.remoteAddress", req.socket.remoteAddress);
             if (!isLocal)
                 res.status(403).send("This endpoint does not exist for remote connections");
             else
@@ -69,9 +68,12 @@ async function startDaemonServer(daemonPort, ipfsGatewayPort, ipfsApiEndpoint, p
         webuiExpressApp.use(endpointLocal, express_1.default.static(webuiDirPath, { index: modifiedIndexHtmlFileName, cacheControl: false }));
         const endpointRemote = `/${rpcAuthKey}/${webuiName}`;
         webuiExpressApp.get(endpointRemote, (req, res, next) => {
+            res.setHeader("Cache-Control", "public, max-age=3600");
             const isLocal = req.socket.localAddress && req.socket.localAddress === req.socket.remoteAddress;
-            if (isLocal)
-                res.redirect(`http://localhost:${daemonPort}${endpointLocal}`);
+            log("Received remote connection request for webui", endpointRemote, "with socket.localAddress", req.socket.localAddress, "and socket.remoteAddress", req.socket.remoteAddress, "with req.url", req.url);
+            if (isLocal) {
+                res.redirect(`http://localhost:${rpcUrl.port}/${webuiName}`);
+            }
             else
                 next();
         });
@@ -91,4 +93,3 @@ async function startDaemonServer(daemonPort, ipfsGatewayPort, ipfsApiEndpoint, p
     ["SIGINT", "SIGTERM", "SIGHUP", "beforeExit"].forEach((exitSignal) => process.on(exitSignal, handlRpcExit));
     return { rpcAuthKey, listedSub: rpcServer.plebbit.subplebbits, webuis };
 }
-exports.startDaemonServer = startDaemonServer;

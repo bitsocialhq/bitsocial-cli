@@ -15,7 +15,7 @@ class List extends base_command_js_1.BaseCommand {
         const { flags } = await this.parse(List);
         const log = (await (0, util_js_1.getPlebbitLogger)())("plebbit-cli:commands:subplebbit:list");
         log(`flags: `, flags);
-        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
+        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcUrl.toString());
         const subs = plebbit.subplebbits;
         if (flags.quiet) {
             this.log(subs.join(os_1.EOL));

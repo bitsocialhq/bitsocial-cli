@@ -23,7 +23,7 @@ class Start extends base_command_js_1.BaseCommand {
         const log = (await (0, util_js_1.getPlebbitLogger)())("plebbit-cli:commands:subplebbit:start");
         log(`addresses: `, addresses);
         log(`flags: `, flags);
-        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcApiUrl.toString());
+        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcUrl.toString());
         for (const address of addresses) {
             const sub = await plebbit.createSubplebbit({ address });
             await sub.start();

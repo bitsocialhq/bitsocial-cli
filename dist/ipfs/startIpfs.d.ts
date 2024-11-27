@@ -1,3 +1,2 @@
-/// <reference types="node" />
 import { ChildProcessWithoutNullStreams } from "child_process";
-export declare function startIpfsNode(apiPortNumber: number, gatewayPortNumber: number): Promise<ChildProcessWithoutNullStreams>;
+export declare function startIpfsNode(apiUrl: URL, gatewayUrl: URL, dataPath: string): Promise<ChildProcessWithoutNullStreams>;
