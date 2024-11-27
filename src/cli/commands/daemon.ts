@@ -42,6 +42,11 @@ export default class Daemon extends Command {
             description: "Specify the gateway port of the ipfs node to listen on",
             required: true,
             default: defaults.IPFS_GATEWAY_URL
+        }),
+        logPath: Flags.directory({
+            description: "Specify a directory which will be used to store logs",
+            required: true,
+            default: defaults.PLEBBIT_LOG_PATH
         })
     };
 
@@ -65,14 +70,14 @@ export default class Daemon extends Command {
         }
     }
 
-    private async _getNewLogfileByEvacuatingOldLogsIfNeeded() {
+    private async _getNewLogfileByEvacuatingOldLogsIfNeeded(logPath: string) {
         try {
-            await fsPromise.mkdir(defaults.PLEBBIT_LOG_PATH, { recursive: true });
+            await fsPromise.mkdir(logPath, { recursive: true });
         } catch (e) {
             //@ts-expect-error
             if (e.code !== "EEXIST") throw e;
         }
-        const logFiles = (await fsPromise.readdir(defaults.PLEBBIT_LOG_PATH, { withFileTypes: true })).filter((file) =>
+        const logFiles = (await fsPromise.readdir(logPath, { withFileTypes: true })).filter((file) =>
             file.name.startsWith("plebbit_cli_daemon")
         );
         const logfilesCapacity = 5; // we only store 5 log files
@@ -80,14 +85,14 @@ export default class Daemon extends Command {
             // we need to pick the oldest log to delete
             const logFileToDelete = logFiles.map((logFile) => logFile.name).sort()[0]; // TODO need to test this, not sure if it works
             console.log(`Will remove log (${logFileToDelete}) because we reached capacity (${logfilesCapacity})`);
-            await fsPromise.rm(path.join(defaults.PLEBBIT_LOG_PATH, logFileToDelete));
+            await fsPromise.rm(path.join(logPath, logFileToDelete));
         }
 
-        return path.join(defaults.PLEBBIT_LOG_PATH, `plebbit_cli_daemon_${new Date().toISOString()}.log`);
+        return path.join(logPath, `plebbit_cli_daemon_${new Date().toISOString()}.log`);
     }
 
-    private async _pipeDebugLogsToLogFile() {
-        const logFilePath = await this._getNewLogfileByEvacuatingOldLogsIfNeeded();
+    private async _pipeDebugLogsToLogFile(logPath: string) {
+        const logFilePath = await this._getNewLogfileByEvacuatingOldLogsIfNeeded(logPath);
 
         const logFile = fs.createWriteStream(logFilePath, { flags: "a" });
         const stdoutWrite = process.stdout.write.bind(process.stdout);
@@ -127,7 +132,7 @@ export default class Daemon extends Command {
         const { flags } = await this.parse(Daemon);
         const Logger = await getPlebbitLogger();
         this._setupLogger(Logger);
-        await this._pipeDebugLogsToLogFile();
+        await this._pipeDebugLogsToLogFile(flags.logPath);
         const log = Logger("plebbit-cli:daemon");
 
         log(`flags: `, flags);
