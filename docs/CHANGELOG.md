@@ -1,5 +1,16 @@
 
 
+# [0.15.0](https://github.com/plebbit/plebbit-cli/compare/v0.14.4...v0.15.0) (2024-11-27)
+
+
+### Features
+
+* **command line parsing:** make sure --field value --field value is parsed as an array (WIP) ([f65e82d](https://github.com/plebbit/plebbit-cli/commit/f65e82d92d7239f362b503388705024124bf572b))
+* **daemon:** enable AutoTLS by default to allow browser nodes to connect to daemon runners ([6219ace](https://github.com/plebbit/plebbit-cli/commit/6219ace4c231f25ce661fa92b80cc19549a82ee8))
+* **daemon:** enable ipfs gc by default ([de8dee1](https://github.com/plebbit/plebbit-cli/commit/de8dee1e764ce54f653c3593ae57baf4e71fb769))
+* **daemon:** implement plebbit options for daemon and change names of flags ([25519cf](https://github.com/plebbit/plebbit-cli/commit/25519cfce5c3cc08c4111359e46e944c9cc6319b))
+* **logs:** add a new flag to specify directory which will be used to store logs ([a704661](https://github.com/plebbit/plebbit-cli/commit/a7046615b55a757a34b4554e7b07b4b3c4d5b016))
+
 ## [0.14.4](https://github.com/plebbit/plebbit-cli/compare/v0.14.3...v0.14.4) (2024-11-10)
 
 ## [0.14.3](https://github.com/plebbit/plebbit-cli/compare/v0.14.2...v0.14.3) (2024-11-05)

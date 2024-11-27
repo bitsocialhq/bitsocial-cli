@@ -156,32 +156,41 @@ $ plebbit subplebbit edit mysub.eth '--roles["author-address.eth"]' null
 
 ## `plebbit daemon`
 
-Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any machine. Within the web ui users are able to browse, create and manage their subs fully P2P
+Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any machine. Within the web ui users are able to browse, create and manage their subs fully P2P.
 
 ```
 USAGE
-  $ plebbit daemon --plebbitDataPath <value> --plebbitRpcPort <value> --ipfsApiPort <value>
-    --ipfsGatewayPort <value>
+  $ plebbit daemon --plebbitRpcUrl <value> --ipfsApiUrl <value> --ipfsGatewayUrl <value> --logPath <value>
 
 FLAGS
-  --ipfsApiPort=<value>      (required) [default: 5001] Specify the API port of the ipfs node to listen on
-  --ipfsGatewayPort=<value>  (required) [default: 6473] Specify the gateway port of the ipfs node to listen on
-  --plebbitDataPath=<value>  (required) [default: /home/runner/.local/share/plebbit] Path to plebbit data path where
-                             subplebbits and ipfs node are stored
-  --plebbitRpcPort=<value>   (required) [default: 9138] Specify Plebbit RPC port to listen on
+  --ipfsApiUrl=<value>      (required) [default: http://127.0.0.1:5001/api/v0] Specify the API URL of the ipfs node to
+                            listen on
+  --ipfsGatewayUrl=<value>  (required) [default: http://127.0.0.1:6473/] Specify the gateway port of the ipfs node to
+                            listen on
+  --logPath=<value>         (required) [default: /home/runner/.local/state/plebbit] Specify a directory which will be
+                            used to store logs
+  --plebbitRpcUrl=<value>   (required) [default: ws://localhost:9138/] Specify Plebbit RPC URL to listen on
 
 DESCRIPTION
   Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive
   publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any
-  machine. Within the web ui users are able to browse, create and manage their subs fully P2P
+  machine. Within the web ui users are able to browse, create and manage their subs fully P2P.
+  Options can be passed to the RPC's instance through flag --plebbitOptions.optionName. For a list of plebbit options
+  (https://github.com/plebbit/plebbit-js?tab=readme-ov-file#plebbitoptions)
 
 EXAMPLES
   $ plebbit daemon
 
-  $ plebbit daemon --plebbitRpcPort 80
+  $ plebbit daemon --plebbitRpcUrl ws://localhost:53812
+
+  $ plebbit daemon --plebbitOptions.dataPath /tmp/plebbit-datapath/
+
+  $ plebbit daemon --plebbitOptions.chainProviders.eth[0].url https://ethrpc.com
+
+  $ plebbit daemon --plebbitOptions.ipfsHttpClientsOption[0] http://remoteipfsnode.com
 ```
 
-_See code: [src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v0.14.4/src/cli/commands/daemon.ts)_
+_See code: [src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v0.15.0/src/cli/commands/daemon.ts)_
 
 ## `plebbit help [COMMAND]`
 
@@ -209,12 +218,12 @@ Create a subplebbit with specific properties. A newly created sub will be starte
 
 ```
 USAGE
-  $ plebbit subplebbit create --plebbitRpcApiUrl <value> [--privateKeyPath <value>]
+  $ plebbit subplebbit create --plebbitRpcUrl <value> [--privateKeyPath <value>]
 
 FLAGS
-  --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
-  --privateKeyPath=<value>    Private key (PEM) of the subplebbit signer that will be used to determine address (if
-                              address is not a domain). If it's not provided then Plebbit will generate a private key
+  --plebbitRpcUrl=<value>   (required) [default: ws://localhost:9138/] URL to Plebbit RPC
+  --privateKeyPath=<value>  Private key (PEM) of the subplebbit signer that will be used to determine address (if
+                            address is not a domain). If it's not provided then Plebbit will generate a private key
 
 DESCRIPTION
   Create a subplebbit with specific properties. A newly created sub will be started after creation and be able to
@@ -227,7 +236,7 @@ EXAMPLES
     $ plebbit subplebbit create --title 'Hello Plebs' --description 'Welcome'
 ```
 
-_See code: [src/cli/commands/subplebbit/create.ts](https://github.com/plebbit/plebbit-cli/blob/v0.14.4/src/cli/commands/subplebbit/create.ts)_
+_See code: [src/cli/commands/subplebbit/create.ts](https://github.com/plebbit/plebbit-cli/blob/v0.15.0/src/cli/commands/subplebbit/create.ts)_
 
 ## `plebbit subplebbit edit ADDRESS`
 
@@ -235,13 +244,13 @@ Edit a subplebbit properties. For a list of properties, visit https://github.com
 
 ```
 USAGE
-  $ plebbit subplebbit edit ADDRESS --plebbitRpcApiUrl <value>
+  $ plebbit subplebbit edit ADDRESS --plebbitRpcUrl <value>
 
 ARGUMENTS
   ADDRESS  Address of the subplebbit address to edit
 
 FLAGS
-  --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
+  --plebbitRpcUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC
 
 DESCRIPTION
   Edit a subplebbit properties. For a list of properties, visit
@@ -266,9 +275,21 @@ EXAMPLES
   Change the title and description
 
     $ plebbit subplebbit edit mysub.eth --title "This is the new title" --description "This is the new description"
+
+  Remove a role from a moderator/admin/owner
+
+    $ plebbit subplebbit edit plebbit.eth --roles['rinse12.eth'] null
+
+  Enable settings.fetchThumbnailUrls to fetch the thumbnail of url submitted by authors
+
+    subplebbit edit plebbit.eth --settings.fetchThumbnailUrls
+
+  disable settings.fetchThumbnailUrls
+
+    subplebbit edit plebbit.eth --settings.fetchThumbnailUrls=false
 ```
 
-_See code: [src/cli/commands/subplebbit/edit.ts](https://github.com/plebbit/plebbit-cli/blob/v0.14.4/src/cli/commands/subplebbit/edit.ts)_
+_See code: [src/cli/commands/subplebbit/edit.ts](https://github.com/plebbit/plebbit-cli/blob/v0.15.0/src/cli/commands/subplebbit/edit.ts)_
 
 ## `plebbit subplebbit get ADDRESS`
 
@@ -276,13 +297,13 @@ Fetch a local or remote subplebbit, and print its json in the terminal
 
 ```
 USAGE
-  $ plebbit subplebbit get ADDRESS --plebbitRpcApiUrl <value>
+  $ plebbit subplebbit get ADDRESS --plebbitRpcUrl <value>
 
 ARGUMENTS
   ADDRESS  Address of the subplebbit address to fetch
 
 FLAGS
-  --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
+  --plebbitRpcUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC
 
 DESCRIPTION
   Fetch a local or remote subplebbit, and print its json in the terminal
@@ -293,7 +314,7 @@ EXAMPLES
   $ plebbit subplebbit get 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
-_See code: [src/cli/commands/subplebbit/get.ts](https://github.com/plebbit/plebbit-cli/blob/v0.14.4/src/cli/commands/subplebbit/get.ts)_
+_See code: [src/cli/commands/subplebbit/get.ts](https://github.com/plebbit/plebbit-cli/blob/v0.15.0/src/cli/commands/subplebbit/get.ts)_
 
 ## `plebbit subplebbit list`
 
@@ -301,27 +322,27 @@ List your subplebbits
 
 ```
 USAGE
-  $ plebbit subplebbit list --plebbitRpcApiUrl <value> [-q] [--columns <value> | -x] [--filter <value>] [--no-header
-    | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort <value>]
+  $ plebbit subplebbit list --plebbitRpcUrl <value> [-q] [--columns <value> | -x] [--filter <value>] [--no-header |
+    [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort <value>]
 
 FLAGS
-  -q, --quiet                     Only display subplebbit addresses
-  -x, --extended                  show extra columns
-      --columns=<value>           only show provided columns (comma-separated)
-      --csv                       output is csv format [alias: --output=csv]
-      --filter=<value>            filter property by partial string matching, ex: name=foo
-      --no-header                 hide table header from output
-      --no-truncate               do not truncate output to fit screen
-      --output=<option>           output in a more machine friendly format
-                                  <options: csv|json|yaml>
-      --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
-      --sort=<value>              property to sort by (prepend '-' for descending)
+  -q, --quiet                  Only display subplebbit addresses
+  -x, --extended               show extra columns
+      --columns=<value>        only show provided columns (comma-separated)
+      --csv                    output is csv format [alias: --output=csv]
+      --filter=<value>         filter property by partial string matching, ex: name=foo
+      --no-header              hide table header from output
+      --no-truncate            do not truncate output to fit screen
+      --output=<option>        output in a more machine friendly format
+                               <options: csv|json|yaml>
+      --plebbitRpcUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC
+      --sort=<value>           property to sort by (prepend '-' for descending)
 
 DESCRIPTION
   List your subplebbits
 ```
 
-_See code: [src/cli/commands/subplebbit/list.ts](https://github.com/plebbit/plebbit-cli/blob/v0.14.4/src/cli/commands/subplebbit/list.ts)_
+_See code: [src/cli/commands/subplebbit/list.ts](https://github.com/plebbit/plebbit-cli/blob/v0.15.0/src/cli/commands/subplebbit/list.ts)_
 
 ## `plebbit subplebbit start ADDRESSES`
 
@@ -329,13 +350,13 @@ Start a subplebbit
 
 ```
 USAGE
-  $ plebbit subplebbit start ADDRESSES... --plebbitRpcApiUrl <value>
+  $ plebbit subplebbit start ADDRESSES... --plebbitRpcUrl <value>
 
 ARGUMENTS
   ADDRESSES...  Addresses of subplebbits to start. Separated by space
 
 FLAGS
-  --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
+  --plebbitRpcUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC
 
 DESCRIPTION
   Start a subplebbit
@@ -346,7 +367,7 @@ EXAMPLES
   $ plebbit subplebbit start 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
-_See code: [src/cli/commands/subplebbit/start.ts](https://github.com/plebbit/plebbit-cli/blob/v0.14.4/src/cli/commands/subplebbit/start.ts)_
+_See code: [src/cli/commands/subplebbit/start.ts](https://github.com/plebbit/plebbit-cli/blob/v0.15.0/src/cli/commands/subplebbit/start.ts)_
 
 ## `plebbit subplebbit stop ADDRESSES`
 
@@ -354,13 +375,13 @@ Stop a subplebbit. The subplebbit will not publish or receive any publications u
 
 ```
 USAGE
-  $ plebbit subplebbit stop ADDRESSES... --plebbitRpcApiUrl <value>
+  $ plebbit subplebbit stop ADDRESSES... --plebbitRpcUrl <value>
 
 ARGUMENTS
   ADDRESSES...  Addresses of subplebbits to stop. Separated by space
 
 FLAGS
-  --plebbitRpcApiUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC API
+  --plebbitRpcUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC
 
 DESCRIPTION
   Stop a subplebbit. The subplebbit will not publish or receive any publications until it is started again.
@@ -371,7 +392,7 @@ EXAMPLES
   $ plebbit subplebbit stop Qmb99crTbSUfKXamXwZBe829Vf6w5w5TktPkb6WstC9RFW
 ```
 
-_See code: [src/cli/commands/subplebbit/stop.ts](https://github.com/plebbit/plebbit-cli/blob/v0.14.4/src/cli/commands/subplebbit/stop.ts)_
+_See code: [src/cli/commands/subplebbit/stop.ts](https://github.com/plebbit/plebbit-cli/blob/v0.15.0/src/cli/commands/subplebbit/stop.ts)_
 <!-- commandsstop -->
 
 # Contribution

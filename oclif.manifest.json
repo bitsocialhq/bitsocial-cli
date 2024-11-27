@@ -3,44 +3,47 @@
     "daemon": {
       "aliases": [],
       "args": {},
-      "description": "Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any machine. Within the web ui users are able to browse, create and manage their subs fully P2P",
+      "description": "Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any machine. Within the web ui users are able to browse, create and manage their subs fully P2P.\n    Options can be passed to the RPC's instance through flag --plebbitOptions.optionName. For a list of plebbit options (https://github.com/plebbit/plebbit-js?tab=readme-ov-file#plebbitoptions)",
       "examples": [
         "plebbit daemon",
-        "plebbit daemon --plebbitRpcPort 80"
+        "plebbit daemon --plebbitRpcUrl ws://localhost:53812",
+        "plebbit daemon --plebbitOptions.dataPath /tmp/plebbit-datapath/",
+        "plebbit daemon --plebbitOptions.chainProviders.eth[0].url https://ethrpc.com",
+        "plebbit daemon --plebbitOptions.ipfsHttpClientsOption[0] http://remoteipfsnode.com"
       ],
       "flags": {
-        "plebbitDataPath": {
-          "description": "Path to plebbit data path where subplebbits and ipfs node are stored",
-          "name": "plebbitDataPath",
+        "plebbitRpcUrl": {
+          "description": "Specify Plebbit RPC URL to listen on",
+          "name": "plebbitRpcUrl",
           "required": true,
-          "default": "/home/runner/.local/share/plebbit",
+          "default": "ws://localhost:9138/",
           "hasDynamicHelp": false,
           "multiple": false,
           "type": "option"
         },
-        "plebbitRpcPort": {
-          "description": "Specify Plebbit RPC port to listen on",
-          "name": "plebbitRpcPort",
+        "ipfsApiUrl": {
+          "description": "Specify the API URL of the ipfs node to listen on",
+          "name": "ipfsApiUrl",
           "required": true,
-          "default": 9138,
+          "default": "http://127.0.0.1:5001/api/v0",
           "hasDynamicHelp": false,
           "multiple": false,
           "type": "option"
         },
-        "ipfsApiPort": {
-          "description": "Specify the API port of the ipfs node to listen on",
-          "name": "ipfsApiPort",
-          "required": true,
-          "default": 5001,
-          "hasDynamicHelp": false,
-          "multiple": false,
-          "type": "option"
-        },
-        "ipfsGatewayPort": {
+        "ipfsGatewayUrl": {
           "description": "Specify the gateway port of the ipfs node to listen on",
-          "name": "ipfsGatewayPort",
+          "name": "ipfsGatewayUrl",
           "required": true,
-          "default": 6473,
+          "default": "http://127.0.0.1:6473/",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        },
+        "logPath": {
+          "description": "Specify a directory which will be used to store logs",
+          "name": "logPath",
+          "required": true,
+          "default": "/home/runner/.local/state/plebbit",
           "hasDynamicHelp": false,
           "multiple": false,
           "type": "option"
@@ -73,10 +76,10 @@
         }
       ],
       "flags": {
-        "plebbitRpcApiUrl": {
-          "name": "plebbitRpcApiUrl",
+        "plebbitRpcUrl": {
+          "name": "plebbitRpcUrl",
           "required": true,
-          "summary": "URL to Plebbit RPC API",
+          "summary": "URL to Plebbit RPC",
           "default": "ws://localhost:9138/",
           "hasDynamicHelp": false,
           "multiple": false,
@@ -133,13 +136,25 @@
         {
           "description": "Change the title and description",
           "command": "plebbit subplebbit edit mysub.eth --title \"This is the new title\" --description \"This is the new description\" "
+        },
+        {
+          "description": "Remove a role from a moderator/admin/owner",
+          "command": "plebbit subplebbit edit plebbit.eth --roles['rinse12.eth'] null"
+        },
+        {
+          "description": "Enable settings.fetchThumbnailUrls to fetch the thumbnail of url submitted by authors",
+          "command": "subplebbit edit plebbit.eth --settings.fetchThumbnailUrls"
+        },
+        {
+          "description": "disable settings.fetchThumbnailUrls",
+          "command": "subplebbit edit plebbit.eth --settings.fetchThumbnailUrls=false"
         }
       ],
       "flags": {
-        "plebbitRpcApiUrl": {
-          "name": "plebbitRpcApiUrl",
+        "plebbitRpcUrl": {
+          "name": "plebbitRpcUrl",
           "required": true,
-          "summary": "URL to Plebbit RPC API",
+          "summary": "URL to Plebbit RPC",
           "default": "ws://localhost:9138/",
           "hasDynamicHelp": false,
           "multiple": false,
@@ -178,10 +193,10 @@
         "plebbit subplebbit get 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu"
       ],
       "flags": {
-        "plebbitRpcApiUrl": {
-          "name": "plebbitRpcApiUrl",
+        "plebbitRpcUrl": {
+          "name": "plebbitRpcUrl",
           "required": true,
-          "summary": "URL to Plebbit RPC API",
+          "summary": "URL to Plebbit RPC",
           "default": "ws://localhost:9138/",
           "hasDynamicHelp": false,
           "multiple": false,
@@ -211,10 +226,10 @@
       "description": "List your subplebbits",
       "examples": [],
       "flags": {
-        "plebbitRpcApiUrl": {
-          "name": "plebbitRpcApiUrl",
+        "plebbitRpcUrl": {
+          "name": "plebbitRpcUrl",
           "required": true,
-          "summary": "URL to Plebbit RPC API",
+          "summary": "URL to Plebbit RPC",
           "default": "ws://localhost:9138/",
           "hasDynamicHelp": false,
           "multiple": false,
@@ -337,10 +352,10 @@
         "plebbit subplebbit start 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu"
       ],
       "flags": {
-        "plebbitRpcApiUrl": {
-          "name": "plebbitRpcApiUrl",
+        "plebbitRpcUrl": {
+          "name": "plebbitRpcUrl",
           "required": true,
-          "summary": "URL to Plebbit RPC API",
+          "summary": "URL to Plebbit RPC",
           "default": "ws://localhost:9138/",
           "hasDynamicHelp": false,
           "multiple": false,
@@ -379,10 +394,10 @@
         "plebbit subplebbit stop Qmb99crTbSUfKXamXwZBe829Vf6w5w5TktPkb6WstC9RFW"
       ],
       "flags": {
-        "plebbitRpcApiUrl": {
-          "name": "plebbitRpcApiUrl",
+        "plebbitRpcUrl": {
+          "name": "plebbitRpcUrl",
           "required": true,
-          "summary": "URL to Plebbit RPC API",
+          "summary": "URL to Plebbit RPC",
           "default": "ws://localhost:9138/",
           "hasDynamicHelp": false,
           "multiple": false,
@@ -407,5 +422,5 @@
       ]
     }
   },
-  "version": "0.14.4"
+  "version": "0.15.0"
 }
