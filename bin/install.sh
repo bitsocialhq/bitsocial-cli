@@ -11,8 +11,14 @@ case $(uname -sm) in
 	*) suffix="no-file-name" ;;
 	esac
 plebbit_compressed_file_name="plebbit_${suffix}.tar.gz"
-plebbit_uri="https://github.com/plebbit/plebbit-cli/releases/latest/download/${plebbit_compressed_file_name}"
-
+VERSION=${1:-latest}
+# Construct URI based on version
+if [ "$VERSION" = "latest" ]; then
+    plebbit_uri="https://github.com/plebbit/plebbit-cli/releases/latest/download/${plebbit_compressed_file_name}"
+else
+    plebbit_uri="https://github.com/plebbit/plebbit-cli/releases/download/v${VERSION}/${plebbit_compressed_file_name}"
+fi
+echo "Downloading plebbit-cli, version: ${VERSION}"
 curl --fail --location --progress-bar --output "$plebbit_compressed_file_name" "$plebbit_uri"
 PLEBBIT_INSTALL_DIR="$HOME/.plebbit_install_files"
 rm -rf "$PLEBBIT_INSTALL_DIR"
