@@ -34,6 +34,12 @@ Plebbit is serverless, admin-less, decentralized Reddit alternative built comple
 curl https://raw.githubusercontent.com/plebbit/plebbit-cli/master/bin/install.sh | sh
 ```
 
+### If you want to install a specific plebbit-cli version
+
+```sh-session
+curl https://raw.githubusercontent.com/plebbit/plebbit-cli/master/bin/install.sh | sh -s 0.14.4
+```
+
 If you get `libfontconfig dependency error`, then you need to install libfontconfig by running `sudo apt install -y libfontconfig1 fontconfig libfontconfig1-dev libfontconfig`
 
 ## For Windows
