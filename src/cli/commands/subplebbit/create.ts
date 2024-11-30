@@ -34,7 +34,7 @@ export default class Create extends BaseCommand {
         log(`flags: `, flags);
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcUrl.toString());
         const createOptions: CreateNewLocalSubplebbitUserOptions = DataObjectParser.transpose(
-            lodash.omit(flags, ["plebbitRpcApiUrl", "privateKeyPath"])
+            lodash.omit(flags, ["plebbitRpcUrl", "privateKeyPath"])
         )["_data"];
         if (flags.privateKeyPath)
             createOptions.signer = { privateKey: (await fs.promises.readFile(flags.privateKeyPath)).toString(), type: "ed25519" };
