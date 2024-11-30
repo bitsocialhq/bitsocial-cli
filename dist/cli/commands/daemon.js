@@ -141,7 +141,7 @@ class Daemon extends core_1.Command {
                 return; // already started, no need to intervene
             const isIpfsApiPortTaken = await tcp_port_used_1.default.check(ipfsApiPort, flags.ipfsApiUrl.hostname);
             if (isIpfsApiPortTaken) {
-                log(`Ipfs API already running on port (${ipfsApiPort}) by another program. Plebbit-cli will use the running ipfs daemon instead of starting a new one`);
+                log.trace(`Ipfs API already running on port (${ipfsApiPort}) by another program. Plebbit-cli will use the running ipfs daemon instead of starting a new one`);
                 return;
             }
             ipfsProcess = await (0, startIpfs_js_1.startIpfsNode)(ipfsApiEndpoint, ipfsGatewayEndpoint, mergedPlebbitOptions.dataPath);

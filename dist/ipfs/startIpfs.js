@@ -19,16 +19,26 @@ function _spawnAsync(log, ...args) {
     return new Promise((resolve, reject) => {
         //@ts-ignore
         const spawedProcess = (0, child_process_1.spawn)(...args);
+        let errorMessage = "";
         spawedProcess.on("exit", (exitCode, signal) => {
             if (exitCode === 0)
                 resolve(null);
-            else
-                reject(Error(`spawnAsync process '${spawedProcess.pid}' exited with code '${exitCode}' signal '${signal}'`));
+            else {
+                const error = new Error(errorMessage);
+                Object.assign(error, { exitCode, pid: spawedProcess.pid, signal });
+                reject(error);
+            }
         });
-        spawedProcess.stderr.on("data", (data) => log.trace(data.toString()));
+        spawedProcess.stderr.on("data", (data) => {
+            log.trace(data.toString());
+            errorMessage += data.toString();
+        });
         spawedProcess.stdin.on("data", (data) => log.trace(data.toString()));
         spawedProcess.stdout.on("data", (data) => log.trace(data.toString()));
-        spawedProcess.on("error", (data) => log.error(data.toString()));
+        spawedProcess.on("error", (data) => {
+            errorMessage += data.toString();
+            log.error(data.toString());
+        });
     });
 }
 async function startIpfsNode(apiUrl, gatewayUrl, dataPath) {
@@ -42,12 +52,16 @@ async function startIpfsNode(apiUrl, gatewayUrl, dataPath) {
         try {
             await _spawnAsync(log, ipfsExePath, ["init"], { env, hideWindows: true });
         }
-        catch (e) { }
+        catch (e) {
+            const error = e;
+            if (!error?.message?.includes("ipfs configuration file already exists!"))
+                throw new Error("Failed to call ipfs init" + error);
+        }
         await _spawnAsync(log, ipfsExePath, ["config", "profile", "apply", `server`], {
             env,
             hideWindows: true
         });
-        log("Called ipfs config profile apply successfully");
+        log("Called 'ipfs config profile apply server' successfully");
         const ipfsConfigPath = path_1.default.join(ipfsDataPath, "config");
         const ipfsConfig = JSON.parse((await fsPromises.readFile(ipfsConfigPath)).toString());
         const mergedIpfsConfig = {
@@ -67,12 +81,6 @@ async function startIpfsNode(apiUrl, gatewayUrl, dataPath) {
             AutoTLS: {
                 ...ipfsConfig["AutoTLS"],
                 Enabled: true
-            },
-            Datastore: {
-                GCPeriod: "1h",
-                StorageGCWatermark: 90,
-                StorageMax: "10GB",
-                ...ipfsConfig["Datastore"]
             }
         };
         await fsPromises.writeFile(ipfsConfigPath, JSON.stringify(mergedIpfsConfig, null, 4));

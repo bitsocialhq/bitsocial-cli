@@ -27,7 +27,7 @@ class Create extends base_command_js_1.BaseCommand {
         const log = (await (0, util_js_1.getPlebbitLogger)())("plebbit-cli:commands:subplebbit:create");
         log(`flags: `, flags);
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcUrl.toString());
-        const createOptions = dataobject_parser_1.default.transpose(lodash_1.default.omit(flags, ["plebbitRpcApiUrl", "privateKeyPath"]))["_data"];
+        const createOptions = dataobject_parser_1.default.transpose(lodash_1.default.omit(flags, ["plebbitRpcUrl", "privateKeyPath"]))["_data"];
         if (flags.privateKeyPath)
             createOptions.signer = { privateKey: (await fs_1.default.promises.readFile(flags.privateKeyPath)).toString(), type: "ed25519" };
         const createdSub = await plebbit.createSubplebbit(createOptions);

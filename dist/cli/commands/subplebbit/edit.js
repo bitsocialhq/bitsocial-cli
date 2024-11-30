@@ -51,7 +51,7 @@ class Edit extends base_command_js_1.BaseCommand {
         const { flags, args } = await this.parse(Edit);
         const log = (await (0, util_js_1.getPlebbitLogger)())("plebbit-cli:commands:subplebbit:edit");
         log(`flags: `, flags);
-        const editOptions = dataobject_parser_1.default.transpose(remeda.omit(flags, ["plebbitRpcApiUrl"]))["_data"];
+        const editOptions = dataobject_parser_1.default.transpose(remeda.omit(flags, ["plebbitRpcUrl"]))["_data"];
         log("Edit options parsed:", editOptions);
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcUrl.toString());
         const localSubs = plebbit.subplebbits;
