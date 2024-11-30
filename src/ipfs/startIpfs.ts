@@ -19,14 +19,25 @@ function _spawnAsync(log: any, ...args: any[]) {
     return new Promise((resolve, reject) => {
         //@ts-ignore
         const spawedProcess: ChildProcessWithoutNullStreams = spawn(...args);
+        let errorMessage = "";
         spawedProcess.on("exit", (exitCode, signal) => {
             if (exitCode === 0) resolve(null);
-            else reject(Error(`spawnAsync process '${spawedProcess.pid}' exited with code '${exitCode}' signal '${signal}'`));
+            else {
+                const error = new Error(errorMessage);
+                Object.assign(error, { exitCode, pid: spawedProcess.pid, signal });
+                reject(error);
+            }
         });
-        spawedProcess.stderr.on("data", (data) => log.trace(data.toString()));
+        spawedProcess.stderr.on("data", (data) => {
+            log.trace(data.toString());
+            errorMessage += data.toString();
+        });
         spawedProcess.stdin.on("data", (data) => log.trace(data.toString()));
         spawedProcess.stdout.on("data", (data) => log.trace(data.toString()));
-        spawedProcess.on("error", (data) => log.error(data.toString()));
+        spawedProcess.on("error", (data) => {
+            errorMessage += data.toString();
+            log.error(data.toString());
+        });
     });
 }
 export async function startIpfsNode(apiUrl: URL, gatewayUrl: URL, dataPath: string): Promise<ChildProcessWithoutNullStreams> {
