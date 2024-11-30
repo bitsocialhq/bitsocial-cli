@@ -53,7 +53,10 @@ export async function startIpfsNode(apiUrl: URL, gatewayUrl: URL, dataPath: stri
 
         try {
             await _spawnAsync(log, ipfsExePath, ["init"], { env, hideWindows: true });
-        } catch (e) {}
+        } catch (e) {
+            const error = <Error>e;
+            if (!error?.message?.includes("ipfs configuration file already exists!")) throw new Error("Failed to call ipfs init" + error);
+        }
 
         await _spawnAsync(log, ipfsExePath, ["config", "profile", "apply", `server`], {
             env,
