@@ -2571,9 +2571,9 @@
   resolved "https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
   integrity sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==
 
-"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#0a1d1606b21cf460d684484cecfd8c5a0ca50673":
+"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#ecf3a0612a0145ad73797532a3893f791601de23":
   version "0.0.4"
-  resolved "https://github.com/plebbit/plebbit-js#0a1d1606b21cf460d684484cecfd8c5a0ca50673"
+  resolved "https://github.com/plebbit/plebbit-js#ecf3a0612a0145ad73797532a3893f791601de23"
   dependencies:
     "@bonfida/spl-name-service" "2.4.2"
     "@chainsafe/libp2p-gossipsub" "12.0.0"
@@ -2626,6 +2626,7 @@
     safe-stable-stringify "2.4.3"
     sha1-uint8array "0.10.7"
     skia-canvas "1.0.2"
+    tcp-port-used "1.0.2"
     tiny-typed-emitter "2.1.0"
     tinycache "1.1.2"
     ts-custom-error "3.3.1"
@@ -2638,7 +2639,7 @@
   version "0.0.1"
   resolved "https://codeload.github.com/plebbit/plebbit-logger/tar.gz/355a96d7659ed820047980049dfa627d30d83a69"
   dependencies:
-    debug "4.3.4"
+    debug "4.3.3"
 
 "@plebbit/proper-lockfile@github:plebbit/node-proper-lockfile#7fd6332117340c1d3d98dd0afee2d31cc06f72b8":
   version "4.1.2"
