@@ -1,5 +1,14 @@
 
 
+## [0.15.3](https://github.com/plebbit/plebbit-cli/compare/v0.15.2...v0.15.3) (2024-11-30)
+
+
+### Bug Fixes
+
+* **flag:** forgot to omit rpc url ([f364816](https://github.com/plebbit/plebbit-cli/commit/f36481635493d65a4e6e8905c1b6d2118cc499a0))
+* **ipfs:** remove gc config that caused pubsub to not work ([206d9fb](https://github.com/plebbit/plebbit-cli/commit/206d9fbdb8712be976c3cc809866c2fba1f2851d))
+* **ipfs:** throw a proper error for ipfs init ([9b514e7](https://github.com/plebbit/plebbit-cli/commit/9b514e7f720b5cdb3b2d3571cc7de784bd067fa6))
+
 ## [0.15.2](https://github.com/plebbit/plebbit-cli/compare/v0.15.1...v0.15.2) (2024-11-30)
 
 ## [0.15.1](https://github.com/plebbit/plebbit-cli/compare/v0.15.0...v0.15.1) (2024-11-27)
