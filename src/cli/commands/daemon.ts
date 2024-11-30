@@ -166,7 +166,7 @@ export default class Daemon extends Command {
             if (ipfsProcess || usingDifferentProcessRpc) return; // already started, no need to intervene
             const isIpfsApiPortTaken = await tcpPortUsed.check(ipfsApiPort, flags.ipfsApiUrl.hostname);
             if (isIpfsApiPortTaken) {
-                log(
+                log.trace(
                     `Ipfs API already running on port (${ipfsApiPort}) by another program. Plebbit-cli will use the running ipfs daemon instead of starting a new one`
                 );
                 return;
