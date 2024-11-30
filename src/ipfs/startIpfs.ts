@@ -62,8 +62,7 @@ export async function startIpfsNode(apiUrl: URL, gatewayUrl: URL, dataPath: stri
             env,
             hideWindows: true
         });
-
-        log("Called ipfs config profile apply successfully");
+        log("Called 'ipfs config profile apply server' successfully");
 
         const ipfsConfigPath = path.join(ipfsDataPath, "config");
         const ipfsConfig = JSON.parse((await fsPromises.readFile(ipfsConfigPath)).toString());
