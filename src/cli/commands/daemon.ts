@@ -94,6 +94,7 @@ export default class Daemon extends Command {
     private async _pipeDebugLogsToLogFile(logPath: string) {
         const logFilePath = await this._getNewLogfileByEvacuatingOldLogsIfNeeded(logPath);
 
+        await fsPromise.writeFile(logFilePath, ""); // make sure it exists first
         const logFile = fs.createWriteStream(logFilePath, { flags: "a" });
         const stdoutWrite = process.stdout.write.bind(process.stdout);
         const stderrWrite = process.stderr.write.bind(process.stderr);
