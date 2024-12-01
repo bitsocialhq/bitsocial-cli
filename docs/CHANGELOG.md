@@ -1,5 +1,13 @@
 
 
+## [0.15.5](https://github.com/plebbit/plebbit-cli/compare/v0.15.4...v0.15.5) (2024-12-01)
+
+
+### Bug Fixes
+
+* **webuis:** no longer write modified index.html to disk, should fix windows problem ([f674144](https://github.com/plebbit/plebbit-cli/commit/f6741445112bddae4061091c7b3c597f810193ab))
+* **windows:** might fix bug with windows failing because it expects log file to be there ([ecf7b29](https://github.com/plebbit/plebbit-cli/commit/ecf7b296eac19eebce41f3c7e100d9fbab0c5a51))
+
 ## [0.15.4](https://github.com/plebbit/plebbit-cli/compare/v0.15.3...v0.15.4) (2024-11-30)
 
 ## [0.15.3](https://github.com/plebbit/plebbit-cli/compare/v0.15.2...v0.15.3) (2024-11-30)
