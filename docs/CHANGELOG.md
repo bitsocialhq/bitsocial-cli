@@ -1,5 +1,12 @@
 
 
+## [0.15.6](https://github.com/plebbit/plebbit-cli/compare/v0.15.5...v0.15.6) (2024-12-02)
+
+
+### Bug Fixes
+
+* **windows:** make sure dir is there first (might fix error with windows) ([04df721](https://github.com/plebbit/plebbit-cli/commit/04df72101d0c871f32060fb83f0b3ed62c88916c))
+
 ## [0.15.5](https://github.com/plebbit/plebbit-cli/compare/v0.15.4...v0.15.5) (2024-12-01)
 
 
