@@ -28,16 +28,22 @@ const startPlebbitDaemon = async (args: string[]): Promise<ChildProcess> => {
 };
 
 (async () => {
+    const Logger = await import("@plebbit/plebbit-logger");
+    const log = Logger.default("plebbit-cli:ci:run-daemon-before-release");
+
     const Plebbit = await import("@plebbit/plebbit-js");
 
     const plebDaemon = await startPlebbitDaemon([]);
 
+    await new Promise((resolve) => setTimeout(resolve, 8000)); // wait until the ipfs node restarts
+
     const plebbit = await Plebbit.default({ plebbitRpcClientsOptions: ["ws://localhost:9138"] });
+
+    plebbit.on("error", (err) => log.error("Client Plebbit has emitted an error", err));
 
     const sub = await plebbit.createSubplebbit({});
     if (typeof sub.address !== "string") throw Error("Failed to create a sub via RPC");
 
-    await new Promise((resolve) => setTimeout(resolve, 5000)); // wait until the ipfs node restarts
     await sub.start();
     await new Promise((resolve) => sub.once("update", resolve));
 
