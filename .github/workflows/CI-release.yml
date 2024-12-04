@@ -32,6 +32,8 @@ jobs:
         run: yarn ci:download-web-uis
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run daemon and make sure it's online
+        run: yarn ci:daemon:test-before-release
       - name: Generate tarballs
         run: yarn generate:executable:tarballs:linux:x64
       - name: Rename tarballs and installers
@@ -71,6 +73,8 @@ jobs:
         run: yarn ci:download-web-uis
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run daemon and make sure it's online
+        run: yarn ci:daemon:test-before-release
       - name: Generate tarballs
         run: yarn generate:executable:tarballs:macos:${{ matrix.arch }}
       - name: Rename tarballs and installers
@@ -107,6 +111,8 @@ jobs:
         run: yarn ci:download-web-uis
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run daemon and make sure it's online
+        run: yarn ci:daemon:test-before-release
       - name: Generate Windows installer
         run: yarn generate:installer:windows
         shell: bash
@@ -153,6 +159,7 @@ jobs:
               npm install --global yarn
               yarn install --frozen-lockfile
               yarn ci:download-web-uis
+              yarn ci:daemon:test-before-release
               yarn generate:executable:tarballs:linux:arm64
               yarn ci:rename-tarballs
         - name: Upload tarballs to release
