@@ -1,5 +1,12 @@
 
 
+## [0.15.9](https://github.com/plebbit/plebbit-cli/compare/v0.15.8...v0.15.9) (2024-12-04)
+
+
+### Bug Fixes
+
+* **ci:** forgot to add command ([c6e1afc](https://github.com/plebbit/plebbit-cli/commit/c6e1afc7d1c5aca3b3327dee215b93e69a51ef8a))
+
 ## [0.15.8](https://github.com/plebbit/plebbit-cli/compare/v0.15.7...v0.15.8) (2024-12-04)
 
 ## [0.15.7](https://github.com/plebbit/plebbit-cli/compare/v0.15.6...v0.15.7) (2024-12-04)
