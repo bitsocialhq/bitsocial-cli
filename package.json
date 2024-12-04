@@ -1,6 +1,6 @@
 {
     "name": "plebbit-cli",
-    "version": "0.15.7",
+    "version": "0.15.5",
     "description": "Command line interface to Plebbit API",
     "types": "./dist/index.d.ts",
     "homepage": "https://github.com/plebbit/plebbit-cli",
@@ -27,7 +27,8 @@
         "generate:executable:tarballs:linux:x64": "oclif pack tarballs --no-xz --targets linux-x64",
         "generate:installer:windows": "yarn oclif pack win --targets win32-x64",
         "ci:rename-tarballs": "yarn ts-node ci-bin/rename-tarballs-installers.ts",
-        "ci:download-web-uis": "yarn ts-node ci-bin/download-web-uis.ts"
+        "ci:download-web-uis": "yarn ts-node ci-bin/download-web-uis.ts",
+        "ci:daemon:test-before-release": "yarn ts-node ci-bin/run-daemon-before-release.ts"
     },
     "files": [
         "/bin",
