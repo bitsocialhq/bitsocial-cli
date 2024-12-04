@@ -22,6 +22,7 @@ on:
       - 'test/**'
       - 'src/**'
       - 'config/**'
+      - 'ci-bin/**'
       - '.github/**'
       - 'package.json'
       - 'yarn.lock'
