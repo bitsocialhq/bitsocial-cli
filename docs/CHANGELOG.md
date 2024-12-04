@@ -1,5 +1,12 @@
 
 
+## [0.15.11](https://github.com/plebbit/plebbit-cli/compare/v0.15.10...v0.15.11) (2024-12-04)
+
+
+### Bug Fixes
+
+* **ci:** handle error emitting by RPC client ([a1a0e38](https://github.com/plebbit/plebbit-cli/commit/a1a0e389f1a663437a7bfc5190f2bf35f009cb49))
+
 ## [0.15.10](https://github.com/plebbit/plebbit-cli/compare/v0.15.9...v0.15.10) (2024-12-04)
 
 
