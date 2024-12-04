@@ -88,14 +88,12 @@ export default class Daemon extends Command {
             await fsPromise.rm(path.join(logPath, logFileToDelete));
         }
 
-        return path.join(logPath, `plebbit_cli_daemon_${new Date().toISOString()}.log`);
+        return path.join(logPath, `plebbit_cli_daemon_${new Date().toISOString().replace(/:/g, "-")}.log`);
     }
 
     private async _pipeDebugLogsToLogFile(logPath: string) {
         const logFilePath = await this._getNewLogfileByEvacuatingOldLogsIfNeeded(logPath);
 
-        await fsPromise.mkdir(path.dirname(logFilePath), { recursive: true });
-        await fsPromise.writeFile(logFilePath, ""); // make sure it exists first
         const logFile = fs.createWriteStream(logFilePath, { flags: "a" });
         const stdoutWrite = process.stdout.write.bind(process.stdout);
         const stderrWrite = process.stderr.write.bind(process.stderr);
