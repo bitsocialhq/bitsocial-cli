@@ -80,12 +80,10 @@ class Daemon extends core_1.Command {
             console.log(`Will remove log (${logFileToDelete}) because we reached capacity (${logfilesCapacity})`);
             await promises_1.default.rm(path_1.default.join(logPath, logFileToDelete));
         }
-        return path_1.default.join(logPath, `plebbit_cli_daemon_${new Date().toISOString()}.log`);
+        return path_1.default.join(logPath, `plebbit_cli_daemon_${new Date().toISOString().replace(/:/g, "-")}.log`);
     }
     async _pipeDebugLogsToLogFile(logPath) {
         const logFilePath = await this._getNewLogfileByEvacuatingOldLogsIfNeeded(logPath);
-        await promises_1.default.mkdir(path_1.default.dirname(logFilePath), { recursive: true });
-        await promises_1.default.writeFile(logFilePath, ""); // make sure it exists first
         const logFile = fs_1.default.createWriteStream(logFilePath, { flags: "a" });
         const stdoutWrite = process.stdout.write.bind(process.stdout);
         const stderrWrite = process.stderr.write.bind(process.stderr);

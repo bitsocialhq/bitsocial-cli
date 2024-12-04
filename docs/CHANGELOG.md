@@ -1,5 +1,12 @@
 
 
+## [0.15.7](https://github.com/plebbit/plebbit-cli/compare/v0.15.6...v0.15.7) (2024-12-04)
+
+
+### Bug Fixes
+
+* **daemon:** remove colon in log file name which is causing windows to throw ([7bc6312](https://github.com/plebbit/plebbit-cli/commit/7bc6312d4cb66d2c3a95a37f06c8ea9fbb98c206))
+
 ## [0.15.6](https://github.com/plebbit/plebbit-cli/compare/v0.15.5...v0.15.6) (2024-12-02)
 
 
