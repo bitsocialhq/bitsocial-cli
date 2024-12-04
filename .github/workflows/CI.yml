@@ -10,7 +10,8 @@ on:
       - 'test/**'
       - 'src/**'
       - 'config/**'
-      - "ci-bin/**"
+      - 'ci-bin/**'
+      - 'ci-bin/*'
       - 'package.json'
       - 'yarn.lock'
   push:
