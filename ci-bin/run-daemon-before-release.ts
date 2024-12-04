@@ -36,6 +36,8 @@ const startPlebbitDaemon = async (args: string[]): Promise<ChildProcess> => {
 
     const sub = await plebbit.createSubplebbit({});
     if (typeof sub.address !== "string") throw Error("Failed to create a sub via RPC");
+
+    await new Promise((resolve) => setTimeout(resolve, 5000)); // wait until the ipfs node restarts
     await sub.start();
     await new Promise((resolve) => sub.once("update", resolve));
 
