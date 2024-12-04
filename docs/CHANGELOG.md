@@ -1,5 +1,12 @@
 
 
+## [0.15.10](https://github.com/plebbit/plebbit-cli/compare/v0.15.9...v0.15.10) (2024-12-04)
+
+
+### Bug Fixes
+
+* **ci:** make sure to wait a bit before starting the sub ([b3e1755](https://github.com/plebbit/plebbit-cli/commit/b3e175567909cb008a8fdef085d6a9b885db9756))
+
 ## [0.15.9](https://github.com/plebbit/plebbit-cli/compare/v0.15.8...v0.15.9) (2024-12-04)
 
 
