@@ -1,4 +1,7 @@
 import os from "os";
+import path from "path";
+import fs from "fs";
+import * as fsPromises from "fs/promises";
 
 export async function getPlebbitLogger() {
     const Logger = await import("@plebbit/plebbit-logger");
@@ -16,4 +19,28 @@ export function getLanIpV4Address(): string | undefined {
         if (lanAddress) return lanAddress;
     }
     return undefined;
+}
+
+export async function loadIpfsConfigFile(plebbitDataPath: string): Promise<any | undefined> {
+    const ipfsFilePath = path.join(plebbitDataPath, ".ipfs-plebbit-cli", "config");
+
+    if (!fs.existsSync(ipfsFilePath)) return undefined;
+
+    const ipfsConfig = JSON.parse((await fsPromises.readFile(ipfsFilePath)).toString());
+    return ipfsConfig;
+}
+
+async function parseMultiAddr(multiAddrString: string) {
+    const module = await import("@multiformats/multiaddr");
+    return module.multiaddr(multiAddrString);
+}
+
+export async function parseMultiAddrIpfsApiToUrl(ipfsApimultiAddrString: string) {
+    const multiAddrObj = await parseMultiAddr(ipfsApimultiAddrString);
+    return new URL(`http://${multiAddrObj.nodeAddress().address}:${multiAddrObj.nodeAddress().port}/api/v0`);
+}
+
+export async function parseMultiAddrIpfsGatewayToUrl(ipfsGatewaymultiAddrString: string) {
+    const multiAddrObj = await parseMultiAddr(ipfsGatewaymultiAddrString);
+    return new URL(`http://${multiAddrObj.nodeAddress().address}:${multiAddrObj.nodeAddress().port}`);
 }

@@ -47,7 +47,7 @@ export async function startIpfsNode(apiUrl: URL, gatewayUrl: URL, dataPath: stri
         await fs.promises.mkdir(ipfsDataPath, { recursive: true });
 
         const ipfsExePath = await getIpfsExePath();
-        log(`IpfsDataPath (${ipfsDataPath}), ipfsExePath (${ipfsExePath})`);
+        log(`IpfsDataPath (${ipfsDataPath}), ipfsExePath (${ipfsExePath})`, "ipfs config file", path.join(ipfsDataPath, "config"));
 
         const env = { IPFS_PATH: ipfsDataPath, DEBUG_COLORS: "1" };
 
