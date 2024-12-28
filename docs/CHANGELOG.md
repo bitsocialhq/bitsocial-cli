@@ -1,5 +1,12 @@
 
 
+## [0.15.14](https://github.com/plebbit/plebbit-cli/compare/v0.15.13...v0.15.14) (2024-12-28)
+
+
+### Bug Fixes
+
+* **web-ui:** fix bug where web ui would be cached indefintely ([58b8937](https://github.com/plebbit/plebbit-cli/commit/58b8937b4de95cafcff2cdbaa1db0c2d9f426f45))
+
 ## [0.15.13](https://github.com/plebbit/plebbit-cli/compare/v0.15.12...v0.15.13) (2024-12-28)
 
 ## [0.15.12](https://github.com/plebbit/plebbit-cli/compare/v0.15.11...v0.15.12) (2024-12-09)
