@@ -3,13 +3,13 @@
     "daemon": {
       "aliases": [],
       "args": {},
-      "description": "Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any machine. Within the web ui users are able to browse, create and manage their subs fully P2P.\n    Options can be passed to the RPC's instance through flag --plebbitOptions.optionName. For a list of plebbit options (https://github.com/plebbit/plebbit-js?tab=readme-ov-file#plebbitoptions)",
+      "description": "Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any machine. Within the web ui users are able to browse, create and manage their subs fully P2P.\n    Options can be passed to the RPC's instance through flag --plebbitOptions.optionName. For a list of plebbit options (https://github.com/plebbit/plebbit-js?tab=readme-ov-file#plebbitoptions)\n    If you need to modify ipfs config, you should head to {plebbit-data-path}/.ipfs-plebbit-cli/config and modify the config file\n    ",
       "examples": [
         "plebbit daemon",
         "plebbit daemon --plebbitRpcUrl ws://localhost:53812",
         "plebbit daemon --plebbitOptions.dataPath /tmp/plebbit-datapath/",
         "plebbit daemon --plebbitOptions.chainProviders.eth[0].url https://ethrpc.com",
-        "plebbit daemon --plebbitOptions.ipfsHttpClientsOption[0] http://remoteipfsnode.com"
+        "plebbit daemon --plebbitOptions.ipfsHttpClientsOptions[0] https://remoteipfsnode.com"
       ],
       "flags": {
         "plebbitRpcUrl": {
@@ -17,24 +17,6 @@
           "name": "plebbitRpcUrl",
           "required": true,
           "default": "ws://localhost:9138/",
-          "hasDynamicHelp": false,
-          "multiple": false,
-          "type": "option"
-        },
-        "ipfsApiUrl": {
-          "description": "Specify the API URL of the ipfs node to listen on",
-          "name": "ipfsApiUrl",
-          "required": true,
-          "default": "http://127.0.0.1:5001/api/v0",
-          "hasDynamicHelp": false,
-          "multiple": false,
-          "type": "option"
-        },
-        "ipfsGatewayUrl": {
-          "description": "Specify the gateway port of the ipfs node to listen on",
-          "name": "ipfsGatewayUrl",
-          "required": true,
-          "default": "http://127.0.0.1:6473/",
           "hasDynamicHelp": false,
           "multiple": false,
           "type": "option"
@@ -422,5 +404,5 @@
       ]
     }
   },
-  "version": "0.15.12"
+  "version": "0.15.13"
 }

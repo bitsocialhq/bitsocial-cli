@@ -166,16 +166,12 @@ Run a network-connected Plebbit node. Once the daemon is running you can create 
 
 ```
 USAGE
-  $ plebbit daemon --plebbitRpcUrl <value> --ipfsApiUrl <value> --ipfsGatewayUrl <value> --logPath <value>
+  $ plebbit daemon --plebbitRpcUrl <value> --logPath <value>
 
 FLAGS
-  --ipfsApiUrl=<value>      (required) [default: http://127.0.0.1:5001/api/v0] Specify the API URL of the ipfs node to
-                            listen on
-  --ipfsGatewayUrl=<value>  (required) [default: http://127.0.0.1:6473/] Specify the gateway port of the ipfs node to
-                            listen on
-  --logPath=<value>         (required) [default: /home/runner/.local/state/plebbit] Specify a directory which will be
-                            used to store logs
-  --plebbitRpcUrl=<value>   (required) [default: ws://localhost:9138/] Specify Plebbit RPC URL to listen on
+  --logPath=<value>        (required) [default: /home/runner/.local/state/plebbit] Specify a directory which will be
+                           used to store logs
+  --plebbitRpcUrl=<value>  (required) [default: ws://localhost:9138/] Specify Plebbit RPC URL to listen on
 
 DESCRIPTION
   Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive
@@ -183,6 +179,9 @@ DESCRIPTION
   machine. Within the web ui users are able to browse, create and manage their subs fully P2P.
   Options can be passed to the RPC's instance through flag --plebbitOptions.optionName. For a list of plebbit options
   (https://github.com/plebbit/plebbit-js?tab=readme-ov-file#plebbitoptions)
+  If you need to modify ipfs config, you should head to {plebbit-data-path}/.ipfs-plebbit-cli/config and modify the
+  config file
+
 
 EXAMPLES
   $ plebbit daemon
@@ -193,10 +192,10 @@ EXAMPLES
 
   $ plebbit daemon --plebbitOptions.chainProviders.eth[0].url https://ethrpc.com
 
-  $ plebbit daemon --plebbitOptions.ipfsHttpClientsOption[0] http://remoteipfsnode.com
+  $ plebbit daemon --plebbitOptions.ipfsHttpClientsOptions[0] https://remoteipfsnode.com
 ```
 
-_See code: [src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v0.15.12/src/cli/commands/daemon.ts)_
+_See code: [src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v0.15.13/src/cli/commands/daemon.ts)_
 
 ## `plebbit help [COMMAND]`
 
@@ -242,7 +241,7 @@ EXAMPLES
     $ plebbit subplebbit create --title 'Hello Plebs' --description 'Welcome'
 ```
 
-_See code: [src/cli/commands/subplebbit/create.ts](https://github.com/plebbit/plebbit-cli/blob/v0.15.12/src/cli/commands/subplebbit/create.ts)_
+_See code: [src/cli/commands/subplebbit/create.ts](https://github.com/plebbit/plebbit-cli/blob/v0.15.13/src/cli/commands/subplebbit/create.ts)_
 
 ## `plebbit subplebbit edit ADDRESS`
 
@@ -295,7 +294,7 @@ EXAMPLES
     subplebbit edit plebbit.eth --settings.fetchThumbnailUrls=false
 ```
 
-_See code: [src/cli/commands/subplebbit/edit.ts](https://github.com/plebbit/plebbit-cli/blob/v0.15.12/src/cli/commands/subplebbit/edit.ts)_
+_See code: [src/cli/commands/subplebbit/edit.ts](https://github.com/plebbit/plebbit-cli/blob/v0.15.13/src/cli/commands/subplebbit/edit.ts)_
 
 ## `plebbit subplebbit get ADDRESS`
 
@@ -320,7 +319,7 @@ EXAMPLES
   $ plebbit subplebbit get 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
-_See code: [src/cli/commands/subplebbit/get.ts](https://github.com/plebbit/plebbit-cli/blob/v0.15.12/src/cli/commands/subplebbit/get.ts)_
+_See code: [src/cli/commands/subplebbit/get.ts](https://github.com/plebbit/plebbit-cli/blob/v0.15.13/src/cli/commands/subplebbit/get.ts)_
 
 ## `plebbit subplebbit list`
 
@@ -348,7 +347,7 @@ DESCRIPTION
   List your subplebbits
 ```
 
-_See code: [src/cli/commands/subplebbit/list.ts](https://github.com/plebbit/plebbit-cli/blob/v0.15.12/src/cli/commands/subplebbit/list.ts)_
+_See code: [src/cli/commands/subplebbit/list.ts](https://github.com/plebbit/plebbit-cli/blob/v0.15.13/src/cli/commands/subplebbit/list.ts)_
 
 ## `plebbit subplebbit start ADDRESSES`
 
@@ -373,7 +372,7 @@ EXAMPLES
   $ plebbit subplebbit start 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
-_See code: [src/cli/commands/subplebbit/start.ts](https://github.com/plebbit/plebbit-cli/blob/v0.15.12/src/cli/commands/subplebbit/start.ts)_
+_See code: [src/cli/commands/subplebbit/start.ts](https://github.com/plebbit/plebbit-cli/blob/v0.15.13/src/cli/commands/subplebbit/start.ts)_
 
 ## `plebbit subplebbit stop ADDRESSES`
 
@@ -398,7 +397,7 @@ EXAMPLES
   $ plebbit subplebbit stop Qmb99crTbSUfKXamXwZBe829Vf6w5w5TktPkb6WstC9RFW
 ```
 
-_See code: [src/cli/commands/subplebbit/stop.ts](https://github.com/plebbit/plebbit-cli/blob/v0.15.12/src/cli/commands/subplebbit/stop.ts)_
+_See code: [src/cli/commands/subplebbit/stop.ts](https://github.com/plebbit/plebbit-cli/blob/v0.15.13/src/cli/commands/subplebbit/stop.ts)_
 <!-- commandsstop -->
 
 # Contribution
