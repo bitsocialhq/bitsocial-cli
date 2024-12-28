@@ -69,19 +69,25 @@ describe("plebbit daemon (ipfs daemon is started by plebbit-cli)", async () => {
 
     before(async () => {
         daemonProcess = await startPlebbitDaemon(["--plebbitOptions.dataPath", randomDirectory()]);
+        expect(daemonProcess.pid).to.be.a("number");
+        expect(daemonProcess.killed).to.be.false;
     });
 
     after(async () => {
         daemonProcess.kill();
     });
 
-    it(`Starts a daemon successfully with default args`, async () => {
-        expect(daemonProcess.pid).to.be.a("number");
-        expect(daemonProcess.killed).to.be.false;
+    it(`Plebbit RPC server is started with default args`, async () => {
         const rpcClient = new WebSocket(rpcServerEndPoint);
         await new Promise((resolve) => setTimeout(resolve, 1000));
         expect(rpcClient.readyState).to.equal(1); // 1 = connected
         rpcClient.close();
+    });
+
+    it(`Ipfs API is started with default args`, async () => {
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+        const res = await fetch(`${defaults.IPFS_API_URL}/bitswap/stat`, { method: "POST" });
+        expect(res.status).to.equal(200);
     });
 
     [1, 2].map((tryNumber) =>
@@ -129,11 +135,11 @@ describe("plebbit daemon (ipfs daemon is started by plebbit-cli)", async () => {
 
 describe(`plebbit daemon (ipfs daemon is started by another process on the same port that plebbit-cli is using)`, async () => {
     let ipfsDaemonProcess: ChildProcess;
-
+    const ipfsApiUrl = new URL(`http://127.0.0.1:5001/api/v0`); // we're using the default here
     before(async () => {
         await new Promise((resolve) => setTimeout(resolve, 5000)); // wait until the previous daemon is killed
         ipfsDaemonProcess = await startIpfsDaemon(["--init"]); // will start a daemon at 5001
-        const res = await makeRequestToIpfsApi(defaults.IPFS_API_URL.port);
+        const res = await makeRequestToIpfsApi(ipfsApiUrl.port);
         expect(res.status).to.equal(200);
     });
 
@@ -142,7 +148,12 @@ describe(`plebbit daemon (ipfs daemon is started by another process on the same 
     });
 
     it(`plebbit daemon can use an ipfs node started by another program`, async () => {
-        const plebbitDaemonProcess = await startPlebbitDaemon(["--plebbitOptions.dataPath", randomDirectory()]);
+        const plebbitDaemonProcess = await startPlebbitDaemon([
+            "--plebbitOptions.dataPath",
+            randomDirectory(),
+            "--plebbitOptions.ipfsHttpClientsOptions[0]",
+            ipfsApiUrl.toString()
+        ]);
         const rpcClient = new WebSocket(rpcServerEndPoint);
         await new Promise((resolve) => setTimeout(resolve, 1000));
         expect(rpcClient.readyState).to.equal(1); // 1 = connected
@@ -151,14 +162,19 @@ describe(`plebbit daemon (ipfs daemon is started by another process on the same 
     });
 
     it(`plebbit daemon monitors ipfs API started by another process, and start a new IPFS process if needed`, async () => {
-        const plebbitDaemonProcess = await startPlebbitDaemon(["--plebbitOptions.dataPath", randomDirectory()]); // should use ipfsDaemonProcess
+        const plebbitDaemonProcess = await startPlebbitDaemon([
+            "--plebbitOptions.dataPath",
+            randomDirectory(),
+            "--plebbitOptions.ipfsHttpClientsOptions[0]",
+            ipfsApiUrl.toString()
+        ]); // should use ipfsDaemonProcess
         const rpcClient = new WebSocket(rpcServerEndPoint);
         await new Promise((resolve) => setTimeout(resolve, 2000));
         expect(rpcClient.readyState).to.equal(1); // 1 = connected
 
         ipfsDaemonProcess.kill();
-        await new Promise((resolve) => setTimeout(resolve, 10000)); // plebbit daemon should start a new ipfs within 10 seconds ish
-        const resAfterRestart = await makeRequestToIpfsApi(defaults.IPFS_API_URL.port);
+        await new Promise((resolve) => setTimeout(resolve, 15000)); // plebbit daemon should start a new ipfs within 10 seconds ish
+        const resAfterRestart = await makeRequestToIpfsApi(ipfsApiUrl.port);
         expect(resAfterRestart.status).to.equal(200);
 
         await plebbitDaemonProcess.kill();
@@ -170,7 +186,7 @@ describe(`plebbit daemon (relying on plebbit RPC started by another process)`, a
     before(async () => {
         await new Promise((resolve) => setTimeout(resolve, 5000)); // wait until the previous daemon is killed
         rpcProcess = await startPlebbitDaemon(["--plebbitOptions.dataPath", randomDirectory()]); // will start a daemon at 5001
-        await testConnectionToPlebbitRpc(9138);
+        await testConnectionToPlebbitRpc(defaults.PLEBBIT_RPC_URL.port);
     });
 
     after(async () => {
@@ -189,6 +205,15 @@ describe(`plebbit daemon (relying on plebbit RPC started by another process)`, a
         await new Promise((resolve) => setTimeout(resolve, 6000)); // wait until anotherRpcProcess restart the rpc
         await testConnectionToPlebbitRpc(defaults.PLEBBIT_RPC_URL.port);
         await anotherRpcProcess.kill();
+    });
+});
+
+describe(`plebbit daemon --plebbitRpcUrl`, async () => {
+    it(`A plebbit daemon should be change where to listen URL`, async () => {
+        const rpcUrl = new URL("ws://localhost:11138");
+        const firstRpcProcess = await startPlebbitDaemon(["--plebbitRpcUrl", rpcUrl.toString()]); // will start a daemon at 9138
+        await testConnectionToPlebbitRpc(rpcUrl.port);
+        await firstRpcProcess.kill();
     });
 });
 
