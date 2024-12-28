@@ -1,5 +1,12 @@
 
 
+## [0.15.12](https://github.com/plebbit/plebbit-cli/compare/v0.15.11...v0.15.12) (2024-12-09)
+
+
+### Reverts
+
+* Revert "refactor(ipfs): change default ipfs port to 50019" ([9f828de](https://github.com/plebbit/plebbit-cli/commit/9f828dee9e3d4971371210a6d89ec50991887e9c))
+
 ## [0.15.11](https://github.com/plebbit/plebbit-cli/compare/v0.15.10...v0.15.11) (2024-12-04)
 
 
