@@ -60,8 +60,12 @@ async function startDaemonServer(rpcUrl, ipfsGatewayUrl, plebbitOptions) {
             log("Received local connection request for webui", endpointLocal, "with socket.localAddress", req.socket.localAddress, "and socket.remoteAddress", req.socket.remoteAddress);
             if (!isLocal)
                 res.status(403).send("This endpoint does not exist for remote connections");
-            else
+            else {
+                res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
+                res.set("Expires", "-1");
+                res.set("Pragma", "no-cache");
                 res.type("html").send(modifiedIndexHtmlString);
+            }
         });
         const endpointRemote = `/${rpcAuthKey}/${webuiName}`;
         webuiExpressApp.use(endpointRemote, express_1.default.static(webuiDirPath, { index: false }));
@@ -71,8 +75,10 @@ async function startDaemonServer(rpcUrl, ipfsGatewayUrl, plebbitOptions) {
             if (isLocal) {
                 res.redirect(`http://localhost:${rpcUrl.port}/${webuiName}`);
             }
-            else
+            else {
+                res.set("Cache-Control", "public, max-age=600"); // 600 seconds = 10 minutes
                 res.type("html").send(modifiedIndexHtmlString);
+            }
         });
         webuis.push({ name: webuiName, endpointLocal, endpointRemote });
     }
