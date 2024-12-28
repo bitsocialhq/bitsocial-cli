@@ -80,7 +80,12 @@ export async function startDaemonServer(rpcUrl: URL, ipfsGatewayUrl: URL, plebbi
                 req.socket.remoteAddress
             );
             if (!isLocal) res.status(403).send("This endpoint does not exist for remote connections");
-            else res.type("html").send(modifiedIndexHtmlString);
+            else {
+                res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
+                res.set("Expires", "-1");
+                res.set("Pragma", "no-cache");
+                res.type("html").send(modifiedIndexHtmlString);
+            }
         });
 
         const endpointRemote = `/${rpcAuthKey}/${webuiName}`;
@@ -100,7 +105,10 @@ export async function startDaemonServer(rpcUrl: URL, ipfsGatewayUrl: URL, plebbi
 
             if (isLocal) {
                 res.redirect(`http://localhost:${rpcUrl.port}/${webuiName}`);
-            } else res.type("html").send(modifiedIndexHtmlString);
+            } else {
+                res.set("Cache-Control", "public, max-age=600"); // 600 seconds = 10 minutes
+                res.type("html").send(modifiedIndexHtmlString);
+            }
         });
 
         webuis.push({ name: webuiName, endpointLocal, endpointRemote });
