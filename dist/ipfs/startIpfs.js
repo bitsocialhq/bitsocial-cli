@@ -47,7 +47,7 @@ async function startIpfsNode(apiUrl, gatewayUrl, dataPath) {
         const ipfsDataPath = process.env["IPFS_PATH"] || path_1.default.join(dataPath, ".ipfs-plebbit-cli");
         await fs_1.default.promises.mkdir(ipfsDataPath, { recursive: true });
         const ipfsExePath = await getIpfsExePath();
-        log(`IpfsDataPath (${ipfsDataPath}), ipfsExePath (${ipfsExePath})`);
+        log(`IpfsDataPath (${ipfsDataPath}), ipfsExePath (${ipfsExePath})`, "ipfs config file", path_1.default.join(ipfsDataPath, "config"));
         const env = { IPFS_PATH: ipfsDataPath, DEBUG_COLORS: "1" };
         try {
             await _spawnAsync(log, ipfsExePath, ["init"], { env, hideWindows: true });

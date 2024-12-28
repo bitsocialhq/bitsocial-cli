@@ -16,27 +16,18 @@ const dataobject_parser_1 = tslib_1.__importDefault(require("dataobject-parser")
 const remeda = tslib_1.__importStar(require("remeda"));
 const defaultPlebbitOptions = {
     dataPath: defaults_js_1.default.PLEBBIT_DATA_PATH,
-    ipfsHttpClientsOptions: [defaults_js_1.default.IPFS_API_URL.toString()],
     httpRoutersOptions: defaults_js_1.default.HTTP_TRACKERS
 };
 class Daemon extends core_1.Command {
     static description = `Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any machine. Within the web ui users are able to browse, create and manage their subs fully P2P.
-    Options can be passed to the RPC's instance through flag --plebbitOptions.optionName. For a list of plebbit options (https://github.com/plebbit/plebbit-js?tab=readme-ov-file#plebbitoptions)`;
+    Options can be passed to the RPC's instance through flag --plebbitOptions.optionName. For a list of plebbit options (https://github.com/plebbit/plebbit-js?tab=readme-ov-file#plebbitoptions)
+    If you need to modify ipfs config, you should head to {plebbit-data-path}/.ipfs-plebbit-cli/config and modify the config file
+    `;
     static flags = {
         plebbitRpcUrl: core_1.Flags.url({
             description: "Specify Plebbit RPC URL to listen on",
             required: true,
             default: defaults_js_1.default.PLEBBIT_RPC_URL
-        }),
-        ipfsApiUrl: core_1.Flags.url({
-            description: "Specify the API URL of the ipfs node to listen on",
-            required: true,
-            default: defaults_js_1.default.IPFS_API_URL
-        }),
-        ipfsGatewayUrl: core_1.Flags.url({
-            description: "Specify the gateway port of the ipfs node to listen on",
-            required: true,
-            default: defaults_js_1.default.IPFS_GATEWAY_URL
         }),
         logPath: core_1.Flags.directory({
             description: "Specify a directory which will be used to store logs",
@@ -49,7 +40,7 @@ class Daemon extends core_1.Command {
         "plebbit daemon --plebbitRpcUrl ws://localhost:53812",
         "plebbit daemon --plebbitOptions.dataPath /tmp/plebbit-datapath/",
         "plebbit daemon --plebbitOptions.chainProviders.eth[0].url https://ethrpc.com",
-        "plebbit daemon --plebbitOptions.ipfsHttpClientsOption[0] http://remoteipfsnode.com"
+        "plebbit daemon --plebbitOptions.ipfsHttpClientsOptions[0] https://remoteipfsnode.com"
     ];
     _setupLogger(Logger) {
         const envDebug = process.env["DEBUG"];
@@ -119,19 +110,32 @@ class Daemon extends core_1.Command {
         await this._pipeDebugLogsToLogFile(flags.logPath);
         const log = Logger("plebbit-cli:daemon");
         log(`flags: `, flags);
+        const plebbitRpcUrl = new URL(flags.plebbitRpcUrl);
         const plebbitOptionsFlagNames = Object.keys(flags).filter((flag) => flag.startsWith("plebbitOptions"));
         const plebbitOptionsFromFlag = plebbitOptionsFlagNames.length > 0
             ? dataobject_parser_1.default.transpose(remeda.pick(flags, plebbitOptionsFlagNames))["_data"]?.["plebbitOptions"]
             : undefined;
-        if (plebbitOptionsFromFlag?.ipfsHttpClientsOptions && flags.ipfsApiUrl !== defaults_js_1.default.IPFS_API_URL) {
-            this.error("Can't provide plebbitOptions.ipfsHttpClientsOptions and --ipfsApiUrl simuatelounsly. You have to choose between connecting to an ipfs node or starting up a new ipfs node");
-        }
-        if (plebbitOptionsFromFlag?.plebbitRpcClientsOptions && flags.plebbitRpcUrl !== defaults_js_1.default.PLEBBIT_RPC_URL) {
+        if (plebbitOptionsFromFlag?.plebbitRpcClientsOptions && plebbitRpcUrl.toString() !== defaults_js_1.default.PLEBBIT_RPC_URL.toString()) {
             this.error("Can't provide plebbitOptions.plebbitRpcClientsOptions and --plebbitRpcUrl simuatelounsly. You have to choose between connecting to an RPC or starting up a new RPC");
         }
+        if (plebbitOptionsFromFlag?.ipfsHttpClientsOptions && plebbitOptionsFromFlag.ipfsHttpClientsOptions.length !== 1)
+            this.error("Can't provide plebbitOptions.ipfsHttpClientOptions as an array with more than 1 element, or as a non array");
+        if (plebbitOptionsFromFlag?.ipfsGatewayUrls && plebbitOptionsFromFlag.ipfsGatewayUrls.length !== 1)
+            this.error("Can't provide plebbitOptions.ipfsGatewayUrls as an array with more than 1 element, or as a non array");
+        const ipfsConfig = await (0, util_js_1.loadIpfsConfigFile)(plebbitOptionsFromFlag?.dataPath || defaultPlebbitOptions.dataPath);
+        const ipfsApiEndpoint = plebbitOptionsFromFlag?.ipfsHttpClientsOptions
+            ? new URL(plebbitOptionsFromFlag.ipfsHttpClientsOptions[0].toString())
+            : ipfsConfig?.["Addresses"]?.["API"]
+                ? await (0, util_js_1.parseMultiAddrIpfsApiToUrl)(ipfsConfig?.["Addresses"]?.["API"])
+                : defaults_js_1.default.IPFS_API_URL;
+        const ipfsGatewayEndpoint = plebbitOptionsFromFlag?.ipfsGatewayUrls
+            ? new URL(plebbitOptionsFromFlag.ipfsGatewayUrls[0])
+            : ipfsConfig?.["Addresses"]?.["Gateway"]
+                ? await (0, util_js_1.parseMultiAddrIpfsGatewayToUrl)(ipfsConfig?.["Addresses"]?.["Gateway"])
+                : defaults_js_1.default.IPFS_GATEWAY_URL;
+        defaultPlebbitOptions.ipfsHttpClientsOptions = [ipfsApiEndpoint.toString()];
         const mergedPlebbitOptions = { ...defaultPlebbitOptions, ...plebbitOptionsFromFlag };
-        const ipfsApiEndpoint = flags.ipfsApiUrl;
-        const ipfsGatewayEndpoint = flags.ipfsGatewayUrl;
+        log("Merged plebbit options that will be used for this node", mergedPlebbitOptions);
         let mainProcessExited = false;
         // Ipfs Node may fail randomly, we need to set a listener so when it exits because of an error we restart it
         let ipfsProcess;
@@ -139,7 +143,7 @@ class Daemon extends core_1.Command {
             const ipfsApiPort = Number(ipfsApiEndpoint.port);
             if (ipfsProcess || usingDifferentProcessRpc)
                 return; // already started, no need to intervene
-            const isIpfsApiPortTaken = await tcp_port_used_1.default.check(ipfsApiPort, flags.ipfsApiUrl.hostname);
+            const isIpfsApiPortTaken = await tcp_port_used_1.default.check(ipfsApiPort, ipfsApiEndpoint.hostname);
             if (isIpfsApiPortTaken) {
                 log.trace(`Ipfs API already running on port (${ipfsApiPort}) by another program. Plebbit-cli will use the running ipfs daemon instead of starting a new one`);
                 return;
@@ -161,7 +165,6 @@ class Daemon extends core_1.Command {
         };
         let startedOwnRpc = false;
         let usingDifferentProcessRpc = false;
-        const plebbitRpcUrl = flags.plebbitRpcUrl;
         const createOrConnectRpc = async () => {
             if (startedOwnRpc)
                 return;
@@ -195,11 +198,15 @@ class Daemon extends core_1.Command {
                 console.log(`WebUI (${webui.name}): http://${remoteIpAddress}:${rpcPort}${webui.endpointRemote} (secret auth key for remote connections)`);
             }
         };
-        if (!plebbitOptionsFromFlag?.ipfsHttpClientsOptions)
+        const isRpcPortTaken = await tcp_port_used_1.default.check(Number(plebbitRpcUrl.port), plebbitRpcUrl.hostname);
+        if (!plebbitOptionsFromFlag?.ipfsHttpClientsOptions && !isRpcPortTaken && !usingDifferentProcessRpc)
             await keepIpfsUp();
         await createOrConnectRpc();
         setInterval(async () => {
-            if (!plebbitOptionsFromFlag?.ipfsHttpClientsOptions)
+            const isRpcPortTaken = await tcp_port_used_1.default.check(Number(plebbitRpcUrl.port), plebbitRpcUrl.hostname);
+            if (!plebbitOptionsFromFlag?.ipfsHttpClientsOptions && !isRpcPortTaken && !usingDifferentProcessRpc)
+                await keepIpfsUp();
+            else if (plebbitOptionsFromFlag?.ipfsHttpClientsOptions && !usingDifferentProcessRpc)
                 await keepIpfsUp();
             await createOrConnectRpc();
         }, 5000);
