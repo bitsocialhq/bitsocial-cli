@@ -6,6 +6,6 @@ export default {
     PLEBBIT_RPC_URL: new URL("ws://localhost:9138"),
     IPFS_API_URL: new URL("http://127.0.0.1:50019/api/v0"),
     IPFS_GATEWAY_URL: new URL("http://127.0.0.1:6473"),
-    HTTP_TRACKERS: ["https://peers.pleb.bot", "https://routing.lol"],
+    HTTP_TRACKERS: ["https://peers.pleb.bot", "https://routing.lol", "https://peers.forumindex.com", "https://peers.plebpubsub.xyz"],
     PLEBBIT_LOG_PATH: envPaths("plebbit", { suffix: "" }).log
 };
