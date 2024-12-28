@@ -12,7 +12,15 @@ import decompress from "decompress";
     if (githubToken) console.log("github token length", githubToken.length);
     const dstOfWebui = path.join(process.cwd(), "dist", "webuis");
     console.log("Destination of web uis will be", dstOfWebui);
-    await fs.mkdir(dstOfWebui);
+    try {
+        await fs.mkdir(dstOfWebui);
+    } catch (e) {
+        const error = <any>e;
+        if (error["code"] === "EEXIST") {
+            console.log("Web UIs directory already exists, we're gonna assume they're already downloaded and abort");
+            return;
+        } else throw error;
+    }
 
     for (const githubRepo of webuiGithubRepos) {
         const headers = githubToken ? { authorization: `Bearer ${githubToken}` } : undefined;
