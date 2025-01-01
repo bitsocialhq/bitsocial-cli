@@ -48,6 +48,7 @@ import decompress from "decompress";
         writer.close();
         console.log("Downloaded", htmlZipAsset.name, "webui successfully. Attempting to unzip");
 
+        await decompress(zipfilePath, dstOfWebui);
         console.log("Unzipped", zipfilePath);
         await fs.rm(zipfilePath);
         console.log(`Downloaded`, githubRepo, "successfully");
