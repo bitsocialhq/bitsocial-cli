@@ -6,7 +6,7 @@ import { getPlebbitLogger } from "../../../util.js";
 export default class List extends BaseCommand {
     static override description = "List your subplebbits";
 
-    static override examples = [];
+    static override examples = ["plebbit subplebbit list -q", "plebbit subplebbit list"];
 
     static override flags = {
         quiet: Flags.boolean({ char: "q", summary: "Only display subplebbit addresses" }),
