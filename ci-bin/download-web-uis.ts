@@ -52,5 +52,10 @@ import decompress from "decompress";
         console.log("Unzipped", zipfilePath);
         await fs.rm(zipfilePath);
         console.log(`Downloaded`, githubRepo, "successfully");
+
+        // We're renaming index.html here because we don't somebody to go to unmodified index.html
+        // they will get an error, but an error is preferable to going to the wrong html
+        const backupIndexHtml = path.join(dstOfWebui, "index_backup_no_rpc.html");
+        await fs.rename(path.join(dstOfWebui, "index.html"), backupIndexHtml);
     }
 })();
