@@ -21,13 +21,13 @@ export function getLanIpV4Address(): string | undefined {
     return undefined;
 }
 
-export async function loadIpfsConfigFile(plebbitDataPath: string): Promise<any | undefined> {
-    const ipfsFilePath = path.join(plebbitDataPath, ".ipfs-plebbit-cli", "config");
+export async function loadKuboConfigFile(plebbitDataPath: string): Promise<any | undefined> {
+    const kuboConfigPath = path.join(plebbitDataPath, ".ipfs-plebbit-cli", "config");
 
-    if (!fs.existsSync(ipfsFilePath)) return undefined;
+    if (!fs.existsSync(kuboConfigPath)) return undefined;
 
-    const ipfsConfig = JSON.parse((await fsPromises.readFile(ipfsFilePath)).toString());
-    return ipfsConfig;
+    const kuboConfig = JSON.parse((await fsPromises.readFile(kuboConfigPath)).toString());
+    return kuboConfig;
 }
 
 async function parseMultiAddr(multiAddrString: string) {
@@ -35,8 +35,8 @@ async function parseMultiAddr(multiAddrString: string) {
     return module.multiaddr(multiAddrString);
 }
 
-export async function parseMultiAddrIpfsApiToUrl(ipfsApimultiAddrString: string) {
-    const multiAddrObj = await parseMultiAddr(ipfsApimultiAddrString);
+export async function parseMultiAddrKuboRpcToUrl(kuboMultiAddrString: string) {
+    const multiAddrObj = await parseMultiAddr(kuboMultiAddrString);
     return new URL(`http://${multiAddrObj.nodeAddress().address}:${multiAddrObj.nodeAddress().port}/api/v0`);
 }
 

@@ -8,7 +8,7 @@ import assert from "assert";
 import { path as ipfsExePathFunc } from "kubo";
 import { getPlebbitLogger } from "../util";
 
-async function getIpfsExePath(): Promise<string> {
+async function getKuboExePath(): Promise<string> {
     return ipfsExePathFunc();
 }
 
@@ -40,25 +40,25 @@ function _spawnAsync(log: any, ...args: any[]) {
         });
     });
 }
-export async function startIpfsNode(apiUrl: URL, gatewayUrl: URL, dataPath: string): Promise<ChildProcessWithoutNullStreams> {
+export async function startKuboNode(apiUrl: URL, gatewayUrl: URL, dataPath: string): Promise<ChildProcessWithoutNullStreams> {
     return new Promise(async (resolve, reject) => {
-        const log = (await getPlebbitLogger())("plebbit-cli:ipfs:startIpfsNode");
+        const log = (await getPlebbitLogger())("plebbit-cli:ipfs:startKuboNode");
         const ipfsDataPath = process.env["IPFS_PATH"] || path.join(dataPath, ".ipfs-plebbit-cli");
         await fs.promises.mkdir(ipfsDataPath, { recursive: true });
 
-        const ipfsExePath = await getIpfsExePath();
-        log(`IpfsDataPath (${ipfsDataPath}), ipfsExePath (${ipfsExePath})`, "ipfs config file", path.join(ipfsDataPath, "config"));
+        const kuboExePath = await getKuboExePath();
+        log(`IpfsDataPath (${ipfsDataPath}), kuboExePath (${kuboExePath})`, "kubo ipfs config file", path.join(ipfsDataPath, "config"));
 
         const env = { IPFS_PATH: ipfsDataPath, DEBUG_COLORS: "1" };
 
         try {
-            await _spawnAsync(log, ipfsExePath, ["init"], { env, hideWindows: true });
+            await _spawnAsync(log, kuboExePath, ["init"], { env, hideWindows: true });
         } catch (e) {
             const error = <Error>e;
             if (!error?.message?.includes("ipfs configuration file already exists!")) throw new Error("Failed to call ipfs init" + error);
         }
 
-        await _spawnAsync(log, ipfsExePath, ["config", "profile", "apply", `server`], {
+        await _spawnAsync(log, kuboExePath, ["config", "profile", "apply", `server`], {
             env,
             hideWindows: true
         });
@@ -72,17 +72,9 @@ export async function startIpfsNode(apiUrl: URL, gatewayUrl: URL, dataPath: stri
             Addresses: {
                 ...ipfsConfig["Addresses"],
                 Gateway: `/ip4/${gatewayUrl.hostname}/tcp/${gatewayUrl.port}`,
-                API: `/ip4/${apiUrl.hostname}/tcp/${apiUrl.port}`,
-                Swarm: remeda
-                    .unique([
-                        ...ipfsConfig["Addresses"]["Swarm"],
-                        "/ip4/0.0.0.0/tcp/4002/tls/sni/*.libp2p.direct/ws",
-                        "/ip6/::/tcp/4002/tls/sni/*.libp2p.direct/ws"
-                    ])
-                    .sort()
+                API: `/ip4/${apiUrl.hostname}/tcp/${apiUrl.port}`
             },
             AutoTLS: {
-                ...ipfsConfig["AutoTLS"],
                 Enabled: true
             }
         };
@@ -91,24 +83,24 @@ export async function startIpfsNode(apiUrl: URL, gatewayUrl: URL, dataPath: stri
 
         const daemonArgs = ["--enable-namesys-pubsub", "--migrate"];
 
-        const ipfsProcess: ChildProcessWithoutNullStreams = spawn(ipfsExePath, ["daemon", ...daemonArgs], { env, cwd: process.cwd() });
-        log.trace(`ipfs daemon process started with pid ${ipfsProcess.pid}`);
+        const kuboProcess: ChildProcessWithoutNullStreams = spawn(kuboExePath, ["daemon", ...daemonArgs], { env, cwd: process.cwd() });
+        log.trace(`Kubo ipfs daemon process started with pid ${kuboProcess.pid}`);
         let lastError: string;
-        ipfsProcess.stderr.on("data", (data) => {
+        kuboProcess.stderr.on("data", (data) => {
             lastError = data.toString();
             log.error(data.toString());
         });
-        ipfsProcess.stdin.on("data", (data) => log.trace(data.toString()));
-        ipfsProcess.stdout.on("data", (data) => {
+        kuboProcess.stdin.on("data", (data) => log.trace(data.toString()));
+        kuboProcess.stdout.on("data", (data) => {
             log.trace(data.toString());
             if (data.toString().match("Daemon is ready")) {
-                assert(typeof ipfsProcess.pid === "number", `ipfsProcess.pid (${ipfsProcess.pid}) is not a valid pid`);
-                resolve(ipfsProcess);
+                assert(typeof kuboProcess.pid === "number", `kuboProcess.pid (${kuboProcess.pid}) is not a valid pid`);
+                resolve(kuboProcess);
             }
         });
-        ipfsProcess.on("error", (data) => log.error(data.toString()));
-        ipfsProcess.on("exit", () => {
-            console.error(`ipfs process with pid ${ipfsProcess.pid} exited`);
+        kuboProcess.on("error", (data) => log.error(data.toString()));
+        kuboProcess.on("exit", () => {
+            console.error(`kubo ipfs process with pid ${kuboProcess.pid} exited`);
             reject(Error(lastError));
         });
     });
