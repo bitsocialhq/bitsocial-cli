@@ -75,6 +75,7 @@ export async function startKuboNode(apiUrl: URL, gatewayUrl: URL, dataPath: stri
                 API: `/ip4/${apiUrl.hostname}/tcp/${apiUrl.port}`
             },
             AutoTLS: {
+                ...ipfsConfig["AutoTLS"],
                 Enabled: true
             }
         };
