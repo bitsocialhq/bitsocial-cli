@@ -43,7 +43,7 @@ function _spawnAsync(log: any, ...args: any[]) {
 export async function startKuboNode(apiUrl: URL, gatewayUrl: URL, dataPath: string): Promise<ChildProcessWithoutNullStreams> {
     return new Promise(async (resolve, reject) => {
         const log = (await getPlebbitLogger())("plebbit-cli:ipfs:startKuboNode");
-        const ipfsDataPath = process.env["IPFS_PATH"] || path.join(dataPath, ".ipfs-plebbit-cli");
+        const ipfsDataPath = process.env["IPFS_PATH"] || path.join(dataPath, ".plebbit-cli.ipfs");
         await fs.promises.mkdir(ipfsDataPath, { recursive: true });
 
         const kuboExePath = await getKuboExePath();
