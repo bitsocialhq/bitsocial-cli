@@ -6,7 +6,7 @@ const os_1 = require("os");
 const util_js_1 = require("../../../util.js");
 class List extends base_command_js_1.BaseCommand {
     static description = "List your subplebbits";
-    static examples = [];
+    static examples = ["plebbit subplebbit list -q", "plebbit subplebbit list"];
     static flags = {
         quiet: core_1.Flags.boolean({ char: "q", summary: "Only display subplebbit addresses" }),
         ...core_1.ux.table.flags()

@@ -206,7 +206,10 @@
       "aliases": [],
       "args": {},
       "description": "List your subplebbits",
-      "examples": [],
+      "examples": [
+        "plebbit subplebbit list -q",
+        "plebbit subplebbit list"
+      ],
       "flags": {
         "plebbitRpcUrl": {
           "name": "plebbitRpcUrl",
@@ -404,5 +407,5 @@
       ]
     }
   },
-  "version": "0.15.14"
+  "version": "0.16.0"
 }

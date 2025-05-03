@@ -8,10 +8,10 @@ const util_1 = require("../util");
 const crypto_1 = require("crypto");
 const express_1 = tslib_1.__importDefault(require("express"));
 async function _generateModifiedIndexHtmlWithRpcSettings(webuiPath, webuiName, ipfsGatewayPort) {
-    const indexHtmlString = (await promises_1.default.readFile(path_1.default.join(webuiPath, "index.html"))).toString();
+    const indexHtmlString = (await promises_1.default.readFile(path_1.default.join(webuiPath, "index_backup_no_rpc.html"))).toString();
     const defaultRpcOptionString = `[window.location.origin.replace("https://", "wss://").replace("http://", "ws://") + window.location.pathname.split('/' + '${webuiName}')[0]]`;
     // Ipfs media only locally because ipfs gateway doesn't allow remote connections
-    const defaultIpfsMedia = `if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")window.defaultMediaIpfsGatewayUrl = 'http://' + window.location.hostname + ':' + ${ipfsGatewayPort}`;
+    const defaultIpfsMedia = `if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.hostname === "0.0.0.0")window.defaultMediaIpfsGatewayUrl = 'http://' + window.location.hostname + ':' + ${ipfsGatewayPort}`;
     const defaultOptionsString = `<script>window.defaultPlebbitOptions = {plebbitRpcClientsOptions: ${defaultRpcOptionString}};${defaultIpfsMedia};console.log(window.defaultPlebbitOptions, window.defaultMediaIpfsGatewayUrl)</script>`;
     const modifiedIndexHtmlContent = "<!DOCTYPE html>" + defaultOptionsString + indexHtmlString.replace("<!DOCTYPE html>", "");
     return modifiedIndexHtmlContent;

@@ -1,5 +1,21 @@
 
 
+# [0.16.0](https://github.com/plebbit/plebbit-cli/compare/v0.15.14...v0.16.0) (2025-01-01)
+
+
+### Bug Fixes
+
+* **webui:** fix bug with how index.html was changed ([86f0d81](https://github.com/plebbit/plebbit-cli/commit/86f0d81555d4b7380d767332daeff01dc46b86c6))
+* **webui:** fix bug with how index.html was changed ([784a8aa](https://github.com/plebbit/plebbit-cli/commit/784a8aade3184a7ada7ebedc0c0778adb1037d86))
+* **webui:** forgot to decompress properly ([aa26b8e](https://github.com/plebbit/plebbit-cli/commit/aa26b8e0789235234ec3c6ff0790a723df5bc6cb))
+* **webui:** handle local 0.0.0.0 address ([90812f9](https://github.com/plebbit/plebbit-cli/commit/90812f96f9ce85ddd2a06c6d68eeba7f8535fd01))
+* **webui:** make sure users don't go to the wrong index.html ([94b9c12](https://github.com/plebbit/plebbit-cli/commit/94b9c12274920c99b0bfc3e6ce81b477dd9565d0))
+
+
+### Features
+
+* **webui:** add plebchan to plebbit-cli hosted frontends ([d4ed5dd](https://github.com/plebbit/plebbit-cli/commit/d4ed5ddb35695c527cc7cf12c4d06a8a4a1f3c60))
+
 ## [0.15.14](https://github.com/plebbit/plebbit-cli/compare/v0.15.13...v0.15.14) (2024-12-28)
 
 
