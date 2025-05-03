@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getPlebbitLogger = getPlebbitLogger;
 exports.getLanIpV4Address = getLanIpV4Address;
-exports.loadIpfsConfigFile = loadIpfsConfigFile;
-exports.parseMultiAddrIpfsApiToUrl = parseMultiAddrIpfsApiToUrl;
+exports.loadKuboConfigFile = loadKuboConfigFile;
+exports.parseMultiAddrKuboRpcToUrl = parseMultiAddrKuboRpcToUrl;
 exports.parseMultiAddrIpfsGatewayToUrl = parseMultiAddrIpfsGatewayToUrl;
 const tslib_1 = require("tslib");
 const os_1 = tslib_1.__importDefault(require("os"));
@@ -27,19 +27,19 @@ function getLanIpV4Address() {
     }
     return undefined;
 }
-async function loadIpfsConfigFile(plebbitDataPath) {
-    const ipfsFilePath = path_1.default.join(plebbitDataPath, ".ipfs-plebbit-cli", "config");
-    if (!fs_1.default.existsSync(ipfsFilePath))
+async function loadKuboConfigFile(plebbitDataPath) {
+    const kuboConfigPath = path_1.default.join(plebbitDataPath, ".ipfs-plebbit-cli", "config");
+    if (!fs_1.default.existsSync(kuboConfigPath))
         return undefined;
-    const ipfsConfig = JSON.parse((await fsPromises.readFile(ipfsFilePath)).toString());
-    return ipfsConfig;
+    const kuboConfig = JSON.parse((await fsPromises.readFile(kuboConfigPath)).toString());
+    return kuboConfig;
 }
 async function parseMultiAddr(multiAddrString) {
     const module = await import("@multiformats/multiaddr");
     return module.multiaddr(multiAddrString);
 }
-async function parseMultiAddrIpfsApiToUrl(ipfsApimultiAddrString) {
-    const multiAddrObj = await parseMultiAddr(ipfsApimultiAddrString);
+async function parseMultiAddrKuboRpcToUrl(kuboMultiAddrString) {
+    const multiAddrObj = await parseMultiAddr(kuboMultiAddrString);
     return new URL(`http://${multiAddrObj.nodeAddress().address}:${multiAddrObj.nodeAddress().port}/api/v0`);
 }
 async function parseMultiAddrIpfsGatewayToUrl(ipfsGatewaymultiAddrString) {
