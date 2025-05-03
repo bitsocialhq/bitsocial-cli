@@ -9,7 +9,7 @@
         "plebbit daemon --plebbitRpcUrl ws://localhost:53812",
         "plebbit daemon --plebbitOptions.dataPath /tmp/plebbit-datapath/",
         "plebbit daemon --plebbitOptions.chainProviders.eth[0].url https://ethrpc.com",
-        "plebbit daemon --plebbitOptions.ipfsHttpClientsOptions[0] https://remoteipfsnode.com"
+        "plebbit daemon --plebbitOptions.kuboRpcClientsOptions[0] https://remoteipfsnode.com"
       ],
       "flags": {
         "plebbitRpcUrl": {
@@ -407,5 +407,5 @@
       ]
     }
   },
-  "version": "0.16.0"
+  "version": "0.16.1"
 }

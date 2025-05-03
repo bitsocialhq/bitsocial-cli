@@ -1,5 +1,13 @@
 
 
+## [0.16.1](https://github.com/plebbit/plebbit-cli/compare/v0.16.0...v0.16.1) (2025-05-03)
+
+
+### Bug Fixes
+
+* **kubo:** make sure to include other config of AutoTLS ([3cd878b](https://github.com/plebbit/plebbit-cli/commit/3cd878b5afee46e10e231da62cfb76cf3ebc6014))
+* **plebbit-js:** fix import of plebbit-js RPC server ([945db86](https://github.com/plebbit/plebbit-cli/commit/945db86cfe7dcda7723292eaa08f70417b837a6f))
+
 # [0.16.0](https://github.com/plebbit/plebbit-cli/compare/v0.15.14...v0.16.0) (2025-01-01)
 
 
