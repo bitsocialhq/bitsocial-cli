@@ -59,8 +59,14 @@ export default class Daemon extends Command {
     private _setupLogger(Logger: any) {
         const envDebug: string | undefined = process.env["DEBUG"];
         const debugNamespace = envDebug === "0" || envDebug === "" ? undefined : envDebug || "plebbit*, -plebbit*trace";
+
+        const debugDepth = process.env["DEBUG_DEPTH"] ? parseInt(process.env["DEBUG_DEPTH"]) : 10;
+        Logger.inspectOpts = Logger.inspectOpts || {};
+        Logger.inspectOpts.depth = debugDepth;
+
         if (debugNamespace) {
             console.log("Debug logs is on with namespace", `"${debugNamespace}"`);
+            console.log("Debug depth is set to", debugDepth);
             Logger.enable(debugNamespace);
         } else {
             console.log("Debug logs are disabled");
