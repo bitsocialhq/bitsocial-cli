@@ -68,6 +68,16 @@ describe("plebbit daemon (kubo daemon is started by plebbit-cli)", async () => {
     let daemonProcess: ChildProcess;
 
     before(async () => {
+        // check if kubo node is down by default
+        try {
+            await fetch(`${defaults.KUBO_RPC_URL}/bitswap/stat`, { method: "POST" });
+            expect.fail("Kubo node should be down by default");
+        } catch (e) {
+            const error = <Error>e;
+            //@ts-expect-error
+            expect(error.cause?.code).to.equal("ECONNREFUSED", "Kubo node should be down by default");
+        }
+
         daemonProcess = await startPlebbitDaemon(["--plebbitOptions.dataPath", randomDirectory()]);
         expect(daemonProcess.pid).to.be.a("number");
         expect(daemonProcess.killed).to.be.false;
@@ -75,6 +85,18 @@ describe("plebbit daemon (kubo daemon is started by plebbit-cli)", async () => {
 
     after(async () => {
         daemonProcess.kill();
+        // Ensure IPFS node is properly shut down
+        try {
+            const shutdownRes = await fetch(`${defaults.KUBO_RPC_URL}/shutdown`, {
+                method: "POST"
+            });
+            console.log("IPFS node shutdown response:", shutdownRes.status);
+        } catch (error) {
+            console.error("Failed to shutdown IPFS node:", error);
+        }
+
+        // Wait a moment to ensure shutdown completes
+        await new Promise((resolve) => setTimeout(resolve, 1000));
     });
 
     it(`Plebbit RPC server is started with default args`, async () => {
@@ -117,10 +139,12 @@ describe("plebbit daemon (kubo daemon is started by plebbit-cli)", async () => {
     it(`kubo node is killed after killing plebbit daemon`, async () => {
         expect(daemonProcess.kill()).to.be.true;
 
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+
         // Test whether rpc server is reachable, it should not be reachable
         const rpcClient = new WebSocket(rpcServerEndPoint);
         rpcClient.onerror = function (errorEvent) {
-            console.log("WebSocket Error " + errorEvent);
+            console.log("WebSocket Error ", errorEvent);
         };
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
