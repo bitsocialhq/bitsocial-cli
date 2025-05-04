@@ -3,8 +3,6 @@ import fs from "fs/promises";
 import { getPlebbitLogger } from "../util";
 import { randomBytes } from "crypto";
 import express from "express";
-//@ts-expect-error
-import type { InputPlebbitOptions } from "@plebbit/plebbit-js/dist/node/types";
 
 async function _generateModifiedIndexHtmlWithRpcSettings(webuiPath: string, webuiName: string, ipfsGatewayPort: number) {
     const indexHtmlString = (await fs.readFile(path.join(webuiPath, "index_backup_no_rpc.html"))).toString();
@@ -32,7 +30,7 @@ async function _generateRpcAuthKeyIfNotExisting(plebbitDataPath: string) {
 }
 
 // The daemon server will host both RPC and webui on the same port
-export async function startDaemonServer(rpcUrl: URL, ipfsGatewayUrl: URL, plebbitOptions: InputPlebbitOptions) {
+export async function startDaemonServer(rpcUrl: URL, ipfsGatewayUrl: URL, plebbitOptions: any) {
     // Start plebbit-js RPC
     const log = (await getPlebbitLogger())("plebbit-cli:daemon:startDaemonServer");
     const webuiExpressApp = express();
@@ -114,18 +112,10 @@ export async function startDaemonServer(rpcUrl: URL, ipfsGatewayUrl: URL, plebbi
         webuis.push({ name: webuiName, endpointLocal, endpointRemote });
     }
 
-    process.on("exit", async () => {
+    const cleanupDaemonServer = async () => {
         await rpcServer.destroy();
         httpServer.close();
-    });
-    const handlRpcExit = async (signal: NodeJS.Signals) => {
-        log(`Detecting exit signal ${signal}, shutting down rpc server and webui`);
-        await rpcServer.destroy();
-        httpServer.close();
-        process.exit();
     };
 
-    ["SIGINT", "SIGTERM", "SIGHUP", "beforeExit"].forEach((exitSignal) => process.on(exitSignal, handlRpcExit));
-
-    return { rpcAuthKey, listedSub: rpcServer.plebbit.subplebbits, webuis };
+    return { rpcAuthKey, listedSub: rpcServer.plebbit.subplebbits, webuis, destroy: cleanupDaemonServer };
 }
