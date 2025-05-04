@@ -37,7 +37,7 @@ async function startDaemonServer(rpcUrl, ipfsGatewayUrl, plebbitOptions) {
     const httpServer = webuiExpressApp.listen(Number(rpcUrl.port));
     log("HTTP server is running on", "0.0.0.0" + ":" + rpcUrl.port);
     const rpcAuthKey = await _generateRpcAuthKeyIfNotExisting(plebbitOptions.dataPath);
-    const PlebbitWsServer = await import("@plebbit/plebbit-js/dist/node/rpc/src/index.js");
+    const PlebbitWsServer = await import("@plebbit/plebbit-js/rpc");
     // Will add ability to edit later, but it's hard coded for now
     log("Will be passing plebbit options to RPC server", plebbitOptions);
     const rpcServer = await PlebbitWsServer.default.PlebbitWsServer({

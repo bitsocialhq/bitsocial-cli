@@ -40,13 +40,17 @@ class Daemon extends core_1.Command {
         "plebbit daemon --plebbitRpcUrl ws://localhost:53812",
         "plebbit daemon --plebbitOptions.dataPath /tmp/plebbit-datapath/",
         "plebbit daemon --plebbitOptions.chainProviders.eth[0].url https://ethrpc.com",
-        "plebbit daemon --plebbitOptions.ipfsHttpClientsOptions[0] https://remoteipfsnode.com"
+        "plebbit daemon --plebbitOptions.kuboRpcClientsOptions[0] https://remoteipfsnode.com"
     ];
     _setupLogger(Logger) {
         const envDebug = process.env["DEBUG"];
         const debugNamespace = envDebug === "0" || envDebug === "" ? undefined : envDebug || "plebbit*, -plebbit*trace";
+        const debugDepth = process.env["DEBUG_DEPTH"] ? parseInt(process.env["DEBUG_DEPTH"]) : 10;
+        Logger.inspectOpts = Logger.inspectOpts || {};
+        Logger.inspectOpts.depth = debugDepth;
         if (debugNamespace) {
             console.log("Debug logs is on with namespace", `"${debugNamespace}"`);
+            console.log("Debug depth is set to", debugDepth);
             Logger.enable(debugNamespace);
         }
         else {
@@ -118,49 +122,49 @@ class Daemon extends core_1.Command {
         if (plebbitOptionsFromFlag?.plebbitRpcClientsOptions && plebbitRpcUrl.toString() !== defaults_js_1.default.PLEBBIT_RPC_URL.toString()) {
             this.error("Can't provide plebbitOptions.plebbitRpcClientsOptions and --plebbitRpcUrl simuatelounsly. You have to choose between connecting to an RPC or starting up a new RPC");
         }
-        if (plebbitOptionsFromFlag?.ipfsHttpClientsOptions && plebbitOptionsFromFlag.ipfsHttpClientsOptions.length !== 1)
-            this.error("Can't provide plebbitOptions.ipfsHttpClientOptions as an array with more than 1 element, or as a non array");
+        if (plebbitOptionsFromFlag?.kuboRpcClientsOptions && plebbitOptionsFromFlag.kuboRpcClientsOptions.length !== 1)
+            this.error("Can't provide plebbitOptions.kuboRpcClientsOptions as an array with more than 1 element, or as a non array");
         if (plebbitOptionsFromFlag?.ipfsGatewayUrls && plebbitOptionsFromFlag.ipfsGatewayUrls.length !== 1)
             this.error("Can't provide plebbitOptions.ipfsGatewayUrls as an array with more than 1 element, or as a non array");
-        const ipfsConfig = await (0, util_js_1.loadIpfsConfigFile)(plebbitOptionsFromFlag?.dataPath || defaultPlebbitOptions.dataPath);
-        const ipfsApiEndpoint = plebbitOptionsFromFlag?.ipfsHttpClientsOptions
-            ? new URL(plebbitOptionsFromFlag.ipfsHttpClientsOptions[0].toString())
+        const ipfsConfig = await (0, util_js_1.loadKuboConfigFile)(plebbitOptionsFromFlag?.dataPath || defaultPlebbitOptions.dataPath);
+        const kuboRpcEndpoint = plebbitOptionsFromFlag?.kuboRpcClientsOptions
+            ? new URL(plebbitOptionsFromFlag.kuboRpcClientsOptions[0].toString())
             : ipfsConfig?.["Addresses"]?.["API"]
-                ? await (0, util_js_1.parseMultiAddrIpfsApiToUrl)(ipfsConfig?.["Addresses"]?.["API"])
-                : defaults_js_1.default.IPFS_API_URL;
+                ? await (0, util_js_1.parseMultiAddrKuboRpcToUrl)(ipfsConfig?.["Addresses"]?.["API"])
+                : defaults_js_1.default.KUBO_RPC_URL;
         const ipfsGatewayEndpoint = plebbitOptionsFromFlag?.ipfsGatewayUrls
             ? new URL(plebbitOptionsFromFlag.ipfsGatewayUrls[0])
             : ipfsConfig?.["Addresses"]?.["Gateway"]
                 ? await (0, util_js_1.parseMultiAddrIpfsGatewayToUrl)(ipfsConfig?.["Addresses"]?.["Gateway"])
                 : defaults_js_1.default.IPFS_GATEWAY_URL;
-        defaultPlebbitOptions.ipfsHttpClientsOptions = [ipfsApiEndpoint.toString()];
+        defaultPlebbitOptions.kuboRpcClientsOptions = [kuboRpcEndpoint.toString()];
         const mergedPlebbitOptions = { ...defaultPlebbitOptions, ...plebbitOptionsFromFlag };
         log("Merged plebbit options that will be used for this node", mergedPlebbitOptions);
         let mainProcessExited = false;
-        // Ipfs Node may fail randomly, we need to set a listener so when it exits because of an error we restart it
-        let ipfsProcess;
-        const keepIpfsUp = async () => {
-            const ipfsApiPort = Number(ipfsApiEndpoint.port);
-            if (ipfsProcess || usingDifferentProcessRpc)
+        // Kubo Node may fail randomly, we need to set a listener so when it exits because of an error we restart it
+        let kuboProcess;
+        const keepKuboUp = async () => {
+            const kuboApiPort = Number(kuboRpcEndpoint.port);
+            if (kuboProcess || usingDifferentProcessRpc)
                 return; // already started, no need to intervene
-            const isIpfsApiPortTaken = await tcp_port_used_1.default.check(ipfsApiPort, ipfsApiEndpoint.hostname);
-            if (isIpfsApiPortTaken) {
-                log.trace(`Ipfs API already running on port (${ipfsApiPort}) by another program. Plebbit-cli will use the running ipfs daemon instead of starting a new one`);
+            const isKuboApiPortTaken = await tcp_port_used_1.default.check(kuboApiPort, kuboRpcEndpoint.hostname);
+            if (isKuboApiPortTaken) {
+                log.trace(`Kubo API already running on port (${kuboApiPort}) by another program. Plebbit-cli will use the running ipfs daemon instead of starting a new one`);
                 return;
             }
-            ipfsProcess = await (0, startIpfs_js_1.startIpfsNode)(ipfsApiEndpoint, ipfsGatewayEndpoint, mergedPlebbitOptions.dataPath);
-            log(`Started ipfs process with pid (${ipfsProcess.pid})`);
-            console.log(`IPFS API listening on: ${ipfsApiEndpoint}`);
-            console.log(`IPFS Gateway listening on: ${ipfsGatewayEndpoint}`);
-            ipfsProcess.on("exit", async () => {
-                // Restart IPFS process because it failed
-                log(`Ipfs node with pid (${ipfsProcess?.pid}) exited`);
+            kuboProcess = await (0, startIpfs_js_1.startKuboNode)(kuboRpcEndpoint, ipfsGatewayEndpoint, mergedPlebbitOptions.dataPath);
+            log(`Started kubo ipfs process with pid (${kuboProcess.pid})`);
+            console.log(`Kubo IPFS API listening on: ${kuboRpcEndpoint}`);
+            console.log(`Kubo IPFS Gateway listening on: ${ipfsGatewayEndpoint}`);
+            kuboProcess.on("exit", async () => {
+                // Restart Kubo process because it failed
+                log(`Kubo node with pid (${kuboProcess?.pid}) exited`);
                 if (!mainProcessExited) {
-                    ipfsProcess = undefined;
-                    await keepIpfsUp();
+                    kuboProcess = undefined;
+                    await keepKuboUp();
                 }
                 else
-                    ipfsProcess.removeAllListeners();
+                    kuboProcess.removeAllListeners();
             });
         };
         let startedOwnRpc = false;
@@ -174,7 +178,7 @@ class Daemon extends core_1.Command {
             if (isRpcPortTaken) {
                 log(`Plebbit RPC is already running (${plebbitRpcUrl}) by another program. Plebbit-cli will use the running RPC server, and if shuts down, plebbit-cli will start a new RPC instance`);
                 console.log("Using the already started RPC server at:", plebbitRpcUrl);
-                console.log("plebbit-cli daemon will monitor the plebbit RPC and ipfs API to make sure they're always up");
+                console.log("plebbit-cli daemon will monitor the plebbit RPC and kubo ipfs API to make sure they're always up");
                 const Plebbit = await import("@plebbit/plebbit-js");
                 const plebbit = await Plebbit.default({ plebbitRpcClientsOptions: [plebbitRpcUrl.toString()] });
                 await new Promise((resolve) => plebbit.once("subplebbitschange", resolve));
@@ -199,21 +203,21 @@ class Daemon extends core_1.Command {
             }
         };
         const isRpcPortTaken = await tcp_port_used_1.default.check(Number(plebbitRpcUrl.port), plebbitRpcUrl.hostname);
-        if (!plebbitOptionsFromFlag?.ipfsHttpClientsOptions && !isRpcPortTaken && !usingDifferentProcessRpc)
-            await keepIpfsUp();
+        if (!plebbitOptionsFromFlag?.kuboRpcClientsOptions && !isRpcPortTaken && !usingDifferentProcessRpc)
+            await keepKuboUp();
         await createOrConnectRpc();
         setInterval(async () => {
             const isRpcPortTaken = await tcp_port_used_1.default.check(Number(plebbitRpcUrl.port), plebbitRpcUrl.hostname);
-            if (!plebbitOptionsFromFlag?.ipfsHttpClientsOptions && !isRpcPortTaken && !usingDifferentProcessRpc)
-                await keepIpfsUp();
-            else if (plebbitOptionsFromFlag?.ipfsHttpClientsOptions && !usingDifferentProcessRpc)
-                await keepIpfsUp();
+            if (!plebbitOptionsFromFlag?.kuboRpcClientsOptions && !isRpcPortTaken && !usingDifferentProcessRpc)
+                await keepKuboUp();
+            else if (plebbitOptionsFromFlag?.kuboRpcClientsOptions && !usingDifferentProcessRpc)
+                await keepKuboUp();
             await createOrConnectRpc();
         }, 5000);
         process.on("exit", () => {
             mainProcessExited = true;
-            if (typeof ipfsProcess?.pid === "number" && !ipfsProcess.killed)
-                process.kill(ipfsProcess.pid);
+            if (typeof kuboProcess?.pid === "number" && !kuboProcess.killed)
+                process.kill(kuboProcess.pid);
         });
     }
 }
