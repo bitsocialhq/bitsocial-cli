@@ -12,6 +12,18 @@ async function getKuboExePath(): Promise<string> {
     return ipfsExePathFunc();
 }
 
+async function getKuboVersion(): Promise<string> {
+    try {
+        const packageJsonPath = require.resolve("kubo/package.json");
+        const packageJsonContent = await fsPromises.readFile(packageJsonPath, "utf-8");
+        const packageJson = JSON.parse(packageJsonContent);
+        return packageJson.version;
+    } catch (error) {
+        console.error("Failed to read kubo version:", error);
+        return "unknown";
+    }
+}
+
 // use this custom function instead of spawnSync for better logging
 // also spawnSync might have been causing crash on start on windows
 
@@ -47,7 +59,10 @@ export async function startKuboNode(apiUrl: URL, gatewayUrl: URL, dataPath: stri
         await fs.promises.mkdir(ipfsDataPath, { recursive: true });
 
         const kuboExePath = await getKuboExePath();
+        const kuboVersion = await getKuboVersion();
+        log(`Using Kubo version: ${kuboVersion}`);
         log(`IpfsDataPath (${ipfsDataPath}), kuboExePath (${kuboExePath})`, "kubo ipfs config file", path.join(ipfsDataPath, "config"));
+        log("If you would like to change kubo config, please edit the config file at", path.join(ipfsDataPath, "config"));
 
         const env = { IPFS_PATH: ipfsDataPath, DEBUG_COLORS: "1" };
 
@@ -101,7 +116,7 @@ export async function startKuboNode(apiUrl: URL, gatewayUrl: URL, dataPath: stri
         });
         kuboProcess.on("error", (data) => log.error(data.toString()));
         kuboProcess.on("exit", () => {
-            console.error(`kubo ipfs process with pid ${kuboProcess.pid} exited`);
+            log.error(`kubo ipfs process with pid ${kuboProcess.pid} exited`);
             reject(Error(lastError));
         });
     });
