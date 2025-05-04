@@ -21,7 +21,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: yarn
       - name: Get latest release tag
         id: previoustag
@@ -62,7 +62,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: yarn
       - name: Get latest release tag
         id: previoustag
@@ -100,7 +100,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: yarn
       - name: Get latest release tag
         id: previoustag
@@ -154,7 +154,7 @@ jobs:
             commands: |
               sudo apt-get update
               sudo apt-get install -y ca-certificates curl gnupg gcc g++ make git build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev libfontconfig1 fontconfig libfontconfig1-dev libfontconfig
-              curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+              curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
               sudo apt install -y nodejs
               npm install --global yarn
               yarn install --frozen-lockfile
