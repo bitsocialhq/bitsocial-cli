@@ -259,6 +259,7 @@ export default class Daemon extends Command {
             await createOrConnectRpc();
         }, 5000);
 
+        let kuboProcessDestroyed = false;
         ["SIGINT", "SIGTERM", "SIGHUP", "beforeExit"].forEach((exitSignal) =>
             process.on(exitSignal, async () => {
                 log("Received signal to exit, shutting down both kubo and plebbit rpc");
@@ -271,10 +272,11 @@ export default class Daemon extends Command {
                     } catch (e) {
                         log.error("Error shutting down daemon server", e);
                     }
-                if (kuboProcess?.pid && !kuboProcess.killed) {
+                if (kuboProcess?.pid && !kuboProcessDestroyed) {
                     log("Attempting to kill kubo process with pid", kuboProcess.pid);
                     process.kill(kuboProcess.pid);
                     log("Kubo process killed with pid", kuboProcess.pid);
+                    kuboProcessDestroyed = true;
                 }
                 process.exit(0);
             })

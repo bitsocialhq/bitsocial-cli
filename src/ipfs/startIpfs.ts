@@ -100,7 +100,7 @@ export async function startKuboNode(apiUrl: URL, gatewayUrl: URL, dataPath: stri
         const daemonArgs = ["--enable-namesys-pubsub", "--migrate"];
 
         const kuboProcess: ChildProcessWithoutNullStreams = spawn(kuboExePath, ["daemon", ...daemonArgs], { env, cwd: process.cwd() });
-        log.trace(`Kubo ipfs daemon process started with pid ${kuboProcess.pid}`);
+        log.trace(`Kubo ipfs daemon process started with pid ${kuboProcess.pid} and args`, daemonArgs);
         let lastError: string;
         kuboProcess.stderr.on("data", (data) => {
             lastError = data.toString();
