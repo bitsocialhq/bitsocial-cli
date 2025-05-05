@@ -1,5 +1,4 @@
-import type { InputPlebbitOptions } from "@plebbit/plebbit-js/dist/node/types";
-export declare function startDaemonServer(rpcUrl: URL, ipfsGatewayUrl: URL, plebbitOptions: InputPlebbitOptions): Promise<{
+export declare function startDaemonServer(rpcUrl: URL, ipfsGatewayUrl: URL, plebbitOptions: any): Promise<{
     rpcAuthKey: string;
     listedSub: string[];
     webuis: {
@@ -7,4 +6,5 @@ export declare function startDaemonServer(rpcUrl: URL, ipfsGatewayUrl: URL, pleb
         endpointLocal: string;
         endpointRemote: string;
     }[];
+    destroy: () => Promise<void>;
 }>;

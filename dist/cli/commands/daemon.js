@@ -169,6 +169,7 @@ class Daemon extends core_1.Command {
         };
         let startedOwnRpc = false;
         let usingDifferentProcessRpc = false;
+        let daemonServer;
         const createOrConnectRpc = async () => {
             if (startedOwnRpc)
                 return;
@@ -182,12 +183,12 @@ class Daemon extends core_1.Command {
                 const Plebbit = await import("@plebbit/plebbit-js");
                 const plebbit = await Plebbit.default({ plebbitRpcClientsOptions: [plebbitRpcUrl.toString()] });
                 await new Promise((resolve) => plebbit.once("subplebbitschange", resolve));
-                plebbit.on("error", () => { });
+                plebbit.on("error", (error) => console.error("Error from plebbit instance", error));
                 console.log(`Subplebbits in data path: `, plebbit.subplebbits);
                 usingDifferentProcessRpc = true;
                 return;
             }
-            const daemonServer = await (0, daemon_server_js_1.startDaemonServer)(plebbitRpcUrl, ipfsGatewayEndpoint, mergedPlebbitOptions);
+            daemonServer = await (0, daemon_server_js_1.startDaemonServer)(plebbitRpcUrl, ipfsGatewayEndpoint, mergedPlebbitOptions);
             usingDifferentProcessRpc = false;
             startedOwnRpc = true;
             console.log(`plebbit rpc: listening on ${plebbitRpcUrl} (local connections only)`);
@@ -206,7 +207,7 @@ class Daemon extends core_1.Command {
         if (!plebbitOptionsFromFlag?.kuboRpcClientsOptions && !isRpcPortTaken && !usingDifferentProcessRpc)
             await keepKuboUp();
         await createOrConnectRpc();
-        setInterval(async () => {
+        const keepKuboUpInterval = setInterval(async () => {
             const isRpcPortTaken = await tcp_port_used_1.default.check(Number(plebbitRpcUrl.port), plebbitRpcUrl.hostname);
             if (!plebbitOptionsFromFlag?.kuboRpcClientsOptions && !isRpcPortTaken && !usingDifferentProcessRpc)
                 await keepKuboUp();
@@ -214,11 +215,25 @@ class Daemon extends core_1.Command {
                 await keepKuboUp();
             await createOrConnectRpc();
         }, 5000);
-        process.on("exit", () => {
+        ["SIGINT", "SIGTERM", "SIGHUP", "beforeExit"].forEach((exitSignal) => process.on(exitSignal, async () => {
+            log("Received signal to exit, shutting down both kubo and plebbit rpc");
+            clearInterval(keepKuboUpInterval);
             mainProcessExited = true;
-            if (typeof kuboProcess?.pid === "number" && !kuboProcess.killed)
+            if (daemonServer)
+                try {
+                    await daemonServer.destroy();
+                    log("Daemon server shut down");
+                }
+                catch (e) {
+                    log.error("Error shutting down daemon server", e);
+                }
+            if (kuboProcess?.pid && !kuboProcess.killed) {
+                log("Attempting to kill kubo process with pid", kuboProcess.pid);
                 process.kill(kuboProcess.pid);
-        });
+                log("Kubo process killed with pid", kuboProcess.pid);
+            }
+            process.exit(0);
+        }));
     }
 }
 exports.default = Daemon;

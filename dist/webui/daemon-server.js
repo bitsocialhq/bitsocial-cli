@@ -82,16 +82,9 @@ async function startDaemonServer(rpcUrl, ipfsGatewayUrl, plebbitOptions) {
         });
         webuis.push({ name: webuiName, endpointLocal, endpointRemote });
     }
-    process.on("exit", async () => {
+    const cleanupDaemonServer = async () => {
         await rpcServer.destroy();
         httpServer.close();
-    });
-    const handlRpcExit = async (signal) => {
-        log(`Detecting exit signal ${signal}, shutting down rpc server and webui`);
-        await rpcServer.destroy();
-        httpServer.close();
-        process.exit();
     };
-    ["SIGINT", "SIGTERM", "SIGHUP", "beforeExit"].forEach((exitSignal) => process.on(exitSignal, handlRpcExit));
-    return { rpcAuthKey, listedSub: rpcServer.plebbit.subplebbits, webuis };
+    return { rpcAuthKey, listedSub: rpcServer.plebbit.subplebbits, webuis, destroy: cleanupDaemonServer };
 }
