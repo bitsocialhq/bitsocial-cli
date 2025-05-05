@@ -215,6 +215,7 @@ class Daemon extends core_1.Command {
                 await keepKuboUp();
             await createOrConnectRpc();
         }, 5000);
+        let kuboProcessDestroyed = false;
         ["SIGINT", "SIGTERM", "SIGHUP", "beforeExit"].forEach((exitSignal) => process.on(exitSignal, async () => {
             log("Received signal to exit, shutting down both kubo and plebbit rpc");
             clearInterval(keepKuboUpInterval);
@@ -227,10 +228,11 @@ class Daemon extends core_1.Command {
                 catch (e) {
                     log.error("Error shutting down daemon server", e);
                 }
-            if (kuboProcess?.pid && !kuboProcess.killed) {
+            if (kuboProcess?.pid && !kuboProcessDestroyed) {
                 log("Attempting to kill kubo process with pid", kuboProcess.pid);
                 process.kill(kuboProcess.pid);
                 log("Kubo process killed with pid", kuboProcess.pid);
+                kuboProcessDestroyed = true;
             }
             process.exit(0);
         }));

@@ -82,9 +82,13 @@ async function startDaemonServer(rpcUrl, ipfsGatewayUrl, plebbitOptions) {
         });
         webuis.push({ name: webuiName, endpointLocal, endpointRemote });
     }
+    let daemonServerDestroyed = false;
     const cleanupDaemonServer = async () => {
+        if (daemonServerDestroyed)
+            return;
         await rpcServer.destroy();
         httpServer.close();
+        daemonServerDestroyed = true;
     };
     return { rpcAuthKey, listedSub: rpcServer.plebbit.subplebbits, webuis, destroy: cleanupDaemonServer };
 }
