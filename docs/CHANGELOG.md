@@ -1,5 +1,12 @@
 
 
+## [0.16.4](https://github.com/plebbit/plebbit-cli/compare/v0.16.3...v0.16.4) (2025-05-05)
+
+
+### Bug Fixes
+
+* **daemon:** make sure not to destroy plebbit or kubo multiple times ([958904d](https://github.com/plebbit/plebbit-cli/commit/958904da554e6dee157c63322c80b6ffa11fe785))
+
 ## [0.16.3](https://github.com/plebbit/plebbit-cli/compare/v0.16.2...v0.16.3) (2025-05-04)
 
 
