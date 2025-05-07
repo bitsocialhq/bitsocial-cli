@@ -12,6 +12,7 @@ export abstract class BaseCommand extends Command {
     protected async _connectToPlebbitRpc(plebbitRpcUrl: string) {
         const Plebbit = await import("@plebbit/plebbit-js");
         const plebbit = await Plebbit.default({ plebbitRpcClientsOptions: [plebbitRpcUrl] });
+        plebbit.on("error", (err) => console.error("Error from plebbit instance", err));
         await new Promise((resolve) => plebbit.once("subplebbitschange", resolve));
         return plebbit;
     }
