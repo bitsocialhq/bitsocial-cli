@@ -1,5 +1,14 @@
 
 
+## [0.16.5](https://github.com/plebbit/plebbit-cli/compare/v0.16.4...v0.16.5) (2025-05-07)
+
+
+### Bug Fixes
+
+* **cli:** make sure subplebbit commands print proper plebbit errors ([b82b1f4](https://github.com/plebbit/plebbit-cli/commit/b82b1f43d968eca15cdcac6952c598bc0d40035b))
+* **daemon:** make sure kubo node is killed at the end ([98e1aa1](https://github.com/plebbit/plebbit-cli/commit/98e1aa190eb3d441d74c400f7c19990046752992))
+* **rpc:** make sure to handle errors bubbled up to Plebbit instance ([e46c027](https://github.com/plebbit/plebbit-cli/commit/e46c027577d8facd4805ca1c559099768dcf4f32))
+
 ## [0.16.4](https://github.com/plebbit/plebbit-cli/compare/v0.16.3...v0.16.4) (2025-05-05)
 
 
