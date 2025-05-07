@@ -63,14 +63,21 @@ export default class Edit extends BaseCommand {
         const localSubs = plebbit.subplebbits;
         if (!localSubs.includes(args.address)) this.error("Can't edit a remote subplebbit, make sure you're editing a local sub");
 
-        const sub = await plebbit.createSubplebbit({ address: args.address });
+        try {
+            const sub = await plebbit.createSubplebbit({ address: args.address });
 
-        const mergedSubState = remeda.pick(sub, remeda.keys.strict(editOptions));
-        lodash.merge(mergedSubState, editOptions);
-        log("Internal sub state after merge:", mergedSubState);
-        await sub.edit(mergedSubState);
-
-        this.log(sub.address);
+            const mergedSubState = remeda.pick(sub, remeda.keys.strict(editOptions));
+            lodash.merge(mergedSubState, editOptions);
+            log("Internal sub state after merge:", mergedSubState);
+            await sub.edit(mergedSubState);
+            this.log(sub.address);
+        } catch (e) {
+            //@ts-expect-error
+            e.details = { ...e.details, editOptions, address: args.address };
+            console.error(e);
+            await plebbit.destroy();
+            this.exit(1);
+        }
         await plebbit.destroy();
     }
 }
