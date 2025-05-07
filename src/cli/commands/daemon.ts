@@ -196,8 +196,8 @@ export default class Daemon extends Command {
             console.log(`Kubo IPFS Gateway listening on: ${ipfsGatewayEndpoint}`);
             kuboProcess.on("exit", async () => {
                 // Restart Kubo process because it failed
-                log(`Kubo node with pid (${kuboProcess?.pid}) exited`);
                 if (!mainProcessExited) {
+                    log(`Kubo node with pid (${kuboProcess?.pid}) exited. Will attempt to restart it`);
                     kuboProcess = undefined;
                     await keepKuboUp();
                 } else kuboProcess!.removeAllListeners();
@@ -208,6 +208,7 @@ export default class Daemon extends Command {
         let usingDifferentProcessRpc = false;
         let daemonServer: Awaited<ReturnType<typeof startDaemonServer>> | undefined;
         const createOrConnectRpc = async () => {
+            if (mainProcessExited) return;
             if (startedOwnRpc) return;
             const isRpcPortTaken = await tcpPortUsed.check(Number(plebbitRpcUrl.port), plebbitRpcUrl.hostname);
             if (isRpcPortTaken && usingDifferentProcessRpc) return;
@@ -253,17 +254,21 @@ export default class Daemon extends Command {
         await createOrConnectRpc();
 
         const keepKuboUpInterval = setInterval(async () => {
+            if (mainProcessExited) return;
             const isRpcPortTaken = await tcpPortUsed.check(Number(plebbitRpcUrl.port), plebbitRpcUrl.hostname);
             if (!plebbitOptionsFromFlag?.kuboRpcClientsOptions && !isRpcPortTaken && !usingDifferentProcessRpc) await keepKuboUp();
             else if (plebbitOptionsFromFlag?.kuboRpcClientsOptions && !usingDifferentProcessRpc) await keepKuboUp();
             await createOrConnectRpc();
         }, 5000);
 
-        let kuboProcessDestroyed = false;
-        ["SIGINT", "SIGTERM", "SIGHUP", "beforeExit"].forEach((exitSignal) =>
-            process.on(exitSignal, async () => {
-                log("Received signal to exit, shutting down both kubo and plebbit rpc");
+        const { asyncExitHook } = await import("exit-hook");
+
+        asyncExitHook(
+            async () => {
                 clearInterval(keepKuboUpInterval);
+                if (mainProcessExited) return; // we already exited
+                log("Received signal to exit, shutting down both kubo and plebbit rpc. Please wait, it may take a few seconds");
+
                 mainProcessExited = true;
                 if (daemonServer)
                     try {
@@ -272,14 +277,18 @@ export default class Daemon extends Command {
                     } catch (e) {
                         log.error("Error shutting down daemon server", e);
                     }
-                if (kuboProcess?.pid && !kuboProcessDestroyed) {
+                if (kuboProcess?.pid && !kuboProcess.killed) {
                     log("Attempting to kill kubo process with pid", kuboProcess.pid);
-                    process.kill(kuboProcess.pid);
-                    log("Kubo process killed with pid", kuboProcess.pid);
-                    kuboProcessDestroyed = true;
+                    try {
+                        process.kill(kuboProcess.pid, "SIGINT");
+                        log("Kubo process killed with pid", kuboProcess.pid);
+                    } catch (e) {
+                        if (e instanceof Error && "code" in e && e.code === "ESRCH") log("Kubo process already killed");
+                        else log.error("Error killing kubo process", e);
+                    }
                 }
-                process.exit(0);
-            })
+            },
+            { wait: 120000 } // could take two minutes to shut down
         );
     }
 }
