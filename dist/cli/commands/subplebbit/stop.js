@@ -27,9 +27,18 @@ class Stop extends base_command_js_1.BaseCommand {
             this.error(`Failed to parse addresses correctly (${addresses})`);
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcUrl.toString());
         for (const address of addresses) {
-            const sub = await plebbit.createSubplebbit({ address });
-            await sub.stop(); // should stop the original subplebbit instance from running
-            this.log(address);
+            try {
+                const sub = await plebbit.createSubplebbit({ address });
+                await sub.stop(); // should stop the original subplebbit instance from running
+                this.log(address);
+            }
+            catch (e) {
+                //@ts-expect-error
+                e.details = { ...e.details, address };
+                console.error(e);
+                await plebbit.destroy();
+                this.exit(1);
+            }
         }
         await plebbit.destroy();
     }

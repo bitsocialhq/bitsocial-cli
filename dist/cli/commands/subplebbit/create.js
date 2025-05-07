@@ -29,11 +29,32 @@ class Create extends base_command_js_1.BaseCommand {
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcUrl.toString());
         const createOptions = dataobject_parser_1.default.transpose(lodash_1.default.omit(flags, ["plebbitRpcUrl", "privateKeyPath"]))["_data"];
         if (flags.privateKeyPath)
-            createOptions.signer = { privateKey: (await fs_1.default.promises.readFile(flags.privateKeyPath)).toString(), type: "ed25519" };
-        const createdSub = await plebbit.createSubplebbit(createOptions);
-        await createdSub.start();
+            try {
+                createOptions.signer = { privateKey: (await fs_1.default.promises.readFile(flags.privateKeyPath)).toString(), type: "ed25519" };
+            }
+            catch (e) {
+                const error = new Error("Failed to load private key from path: " + flags.privateKeyPath);
+                //@ts-expect-error
+                error.details = { privateKeyPath: flags.privateKeyPath, error: e };
+                //@ts-expect-error
+                error.stack = e.stack;
+                console.error(error);
+                await plebbit.destroy();
+                this.exit(1);
+            }
+        try {
+            const createdSub = await plebbit.createSubplebbit(createOptions);
+            await createdSub.start();
+            this.log(createdSub.address);
+        }
+        catch (e) {
+            //@ts-expect-error
+            e.details = { ...e.details, createOptions };
+            console.error(e);
+            await plebbit.destroy();
+            this.exit(1);
+        }
         await plebbit.destroy();
-        this.log(createdSub.address);
     }
 }
 exports.default = Create;

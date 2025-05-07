@@ -25,9 +25,18 @@ class Start extends base_command_js_1.BaseCommand {
         log(`flags: `, flags);
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcUrl.toString());
         for (const address of addresses) {
-            const sub = await plebbit.createSubplebbit({ address });
-            await sub.start();
-            this.log(address);
+            try {
+                const sub = await plebbit.createSubplebbit({ address });
+                await sub.start();
+                this.log(address);
+            }
+            catch (e) {
+                //@ts-expect-error
+                e.details = { ...e.details, address };
+                console.error(e);
+                await plebbit.destroy();
+                this.exit(1);
+            }
         }
         await plebbit.destroy();
     }
