@@ -1,5 +1,12 @@
 
 
+## [0.16.10](https://github.com/plebbit/plebbit-cli/compare/v0.16.9...v0.16.10) (2025-06-13)
+
+
+### Bug Fixes
+
+* **cli:** fix bug with not reading args properly in create ([ff81c47](https://github.com/plebbit/plebbit-cli/commit/ff81c470f3cae1fafea0c435c75dfe9605706524))
+
 ## [0.16.9](https://github.com/plebbit/plebbit-cli/compare/v0.16.8...v0.16.9) (2025-05-24)
 
 ## [0.16.8](https://github.com/plebbit/plebbit-cli/compare/v0.16.7...v0.16.8) (2025-05-21)
