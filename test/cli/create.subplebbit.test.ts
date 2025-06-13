@@ -34,7 +34,22 @@ describe("plebbit subplebbit create", () => {
         //@ts-expect-error
         sandbox.replace(BaseCommand.prototype, "_connectToPlebbitRpc", plebbitInstanceFake);
     });
+
+    afterEach(() => {
+        plebbitCreateStub.resetHistory();
+    });
+
     after(() => sandbox.restore());
+
+    test.stdout()
+        .command(["subplebbit create", "--description", "testDescription"])
+        .it(`Parse create options correctly`, (ctx) => {
+            expect(plebbitCreateStub.calledOnce).to.be.true;
+            const parsedArgs = <CreateSubplebbitOptions>plebbitCreateStub.args[0][0];
+            // PrivateKeyPath will be processed to signer
+            expect(parsedArgs.description).to.equal("testDescription");
+            startFake.resetHistory();
+        });
 
     test.stdout()
         .command([
@@ -61,6 +76,7 @@ describe("plebbit subplebbit create", () => {
         .it(`Parse create options correctly`, (ctx) => {
             expect(plebbitCreateStub.calledOnce).to.be.true;
             const parsedArgs = <CreateSubplebbitOptions>plebbitCreateStub.args[0][0];
+            console.log(parsedArgs);
             // PrivateKeyPath will be processed to signer
             expect(parsedArgs.title).to.equal(cliCreateOptions.title);
             expect(parsedArgs.description).to.equal(cliCreateOptions.description);
