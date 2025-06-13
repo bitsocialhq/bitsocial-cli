@@ -16,7 +16,7 @@ const parseCommandInputToProperType = (input) => {
         return input;
 };
 const parseFlags = (argv) => {
-    const args = argv.slice(1);
+    const args = argv;
     return args.reduce((accumulator, currentArg, index) => {
         // Skip if not a flag
         if (!currentArg.startsWith("--")) {
