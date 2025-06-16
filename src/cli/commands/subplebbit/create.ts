@@ -1,10 +1,10 @@
 import { Flags } from "@oclif/core";
-import lodash from "lodash";
 //@ts-ignore
 import DataObjectParser from "dataobject-parser";
 import fs from "fs";
 import { BaseCommand } from "../../base-command.js";
 import { getPlebbitLogger } from "../../../util.js";
+import * as remeda from "remeda";
 
 export default class Create extends BaseCommand {
     static override description =
@@ -31,19 +31,20 @@ export default class Create extends BaseCommand {
         const log = (await getPlebbitLogger())("plebbit-cli:commands:subplebbit:create");
         log(`flags: `, flags);
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcUrl.toString());
-        const createOptions: any = DataObjectParser.transpose(lodash.omit(flags, ["plebbitRpcUrl", "privateKeyPath"]))["_data"];
+        const createOptions: NonNullable<Parameters<(typeof plebbit)["createSubplebbit"]>[0]> = DataObjectParser.transpose(
+            remeda.omit(flags, ["plebbitRpcUrl", "privateKeyPath"])
+        )["_data"];
         if (flags.privateKeyPath)
             try {
+                //@ts-expect-error
                 createOptions.signer = { privateKey: (await fs.promises.readFile(flags.privateKeyPath)).toString(), type: "ed25519" };
             } catch (e) {
-                const error = new Error("Failed to load private key from path: " + flags.privateKeyPath);
+                const error = e as Error;
                 //@ts-expect-error
-                error.details = { privateKeyPath: flags.privateKeyPath, error: e };
-                //@ts-expect-error
-                error.stack = e.stack;
-                console.error(error);
+                error.details = { ...error.details, privateKeyPath: flags.privateKeyPath };
+
                 await plebbit.destroy();
-                this.exit(1);
+                this.error(error);
             }
 
         try {
@@ -51,11 +52,11 @@ export default class Create extends BaseCommand {
             await createdSub.start();
             this.log(createdSub.address);
         } catch (e) {
+            const error = e as Error;
             //@ts-expect-error
-            e.details = { ...e.details, createOptions };
-            console.error(e);
+            error.details = { ...error.details, createOptions };
             await plebbit.destroy();
-            this.exit(1);
+            this.error(error);
         }
         await plebbit.destroy();
     }

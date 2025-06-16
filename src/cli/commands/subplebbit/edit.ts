@@ -1,12 +1,9 @@
 //@ts-expect-error
-import type { SubplebbitEditOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
-//@ts-expect-error
 import DataObjectParser from "dataobject-parser";
 import { Args } from "@oclif/core";
 import { BaseCommand } from "../../base-command.js";
-import { getPlebbitLogger } from "../../../util.js";
+import { getPlebbitLogger, mergeDeep } from "../../../util.js";
 import * as remeda from "remeda";
-import lodash from "lodash";
 
 export default class Edit extends BaseCommand {
     static override description =
@@ -57,9 +54,11 @@ export default class Edit extends BaseCommand {
 
         const log = (await getPlebbitLogger())("plebbit-cli:commands:subplebbit:edit");
         log(`flags: `, flags);
-        const editOptions: SubplebbitEditOptions = DataObjectParser.transpose(remeda.omit(flags, ["plebbitRpcUrl"]))["_data"];
-        log("Edit options parsed:", editOptions);
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcUrl.toString());
+
+        const editOptions = DataObjectParser.transpose(remeda.omit(flags, ["plebbitRpcUrl"]))["_data"];
+        log("Edit options parsed:", editOptions);
+
         const localSubs = plebbit.subplebbits;
         if (!localSubs.includes(args.address)) this.error("Can't edit a remote subplebbit, make sure you're editing a local sub");
 
@@ -67,9 +66,9 @@ export default class Edit extends BaseCommand {
             const sub = await plebbit.createSubplebbit({ address: args.address });
 
             const mergedSubState = remeda.pick(sub, remeda.keys.strict(editOptions));
-            lodash.merge(mergedSubState, editOptions);
-            log("Internal sub state after merge:", mergedSubState);
-            await sub.edit(mergedSubState);
+            const finalMergedState = mergeDeep(mergedSubState, editOptions);
+            log("Internal sub state after merge:", finalMergedState);
+            await sub.edit(finalMergedState);
             this.log(sub.address);
         } catch (e) {
             //@ts-expect-error
