@@ -7,7 +7,6 @@ const core_1 = require("@oclif/core");
 const base_command_js_1 = require("../../base-command.js");
 const util_js_1 = require("../../../util.js");
 const remeda = tslib_1.__importStar(require("remeda"));
-const lodash_1 = tslib_1.__importDefault(require("lodash"));
 class Edit extends base_command_js_1.BaseCommand {
     static description = "Edit a subplebbit properties. For a list of properties, visit https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions";
     static args = {
@@ -51,18 +50,18 @@ class Edit extends base_command_js_1.BaseCommand {
         const { flags, args } = await this.parse(Edit);
         const log = (await (0, util_js_1.getPlebbitLogger)())("plebbit-cli:commands:subplebbit:edit");
         log(`flags: `, flags);
+        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcUrl.toString());
         const editOptions = dataobject_parser_1.default.transpose(remeda.omit(flags, ["plebbitRpcUrl"]))["_data"];
         log("Edit options parsed:", editOptions);
-        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcUrl.toString());
         const localSubs = plebbit.subplebbits;
         if (!localSubs.includes(args.address))
             this.error("Can't edit a remote subplebbit, make sure you're editing a local sub");
         try {
             const sub = await plebbit.createSubplebbit({ address: args.address });
             const mergedSubState = remeda.pick(sub, remeda.keys.strict(editOptions));
-            lodash_1.default.merge(mergedSubState, editOptions);
-            log("Internal sub state after merge:", mergedSubState);
-            await sub.edit(mergedSubState);
+            const finalMergedState = (0, util_js_1.mergeDeep)(mergedSubState, editOptions);
+            log("Internal sub state after merge:", finalMergedState);
+            await sub.edit(finalMergedState);
             this.log(sub.address);
         }
         catch (e) {
