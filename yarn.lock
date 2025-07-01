@@ -3068,9 +3068,9 @@
   resolved "https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
   integrity sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==
 
-"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#a8754456fd2cd061a2b050d73beee588483d6714":
+"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#6612569127ae5c62906b2e66a96c8735a207af0a":
   version "0.0.7"
-  resolved "https://github.com/plebbit/plebbit-js#a8754456fd2cd061a2b050d73beee588483d6714"
+  resolved "https://github.com/plebbit/plebbit-js#6612569127ae5c62906b2e66a96c8735a207af0a"
   dependencies:
     "@bonfida/spl-name-service" "3.0.10"
     "@chainsafe/libp2p-gossipsub" "14.1.1"
