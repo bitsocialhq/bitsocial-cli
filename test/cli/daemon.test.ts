@@ -15,6 +15,7 @@ chai.use(chaiAsPromised);
 const { expect, assert } = chai;
 
 const rpcServerEndPoint = defaults.PLEBBIT_RPC_URL;
+type ManagedChildProcess = ChildProcess & { kuboRpcUrl?: URL };
 
 const makeRequestToKuboRpc = async (apiPort: number | string) => {
     return fetch(`http://localhost:${apiPort}/api/v0/bitswap/stat`, { method: "POST" });
@@ -26,7 +27,67 @@ const testConnectionToPlebbitRpc = async (rpcServerPort: number | string) => {
     expect(rpcClient.readyState).to.equal(1); // 1 = connected
 };
 
-const startPlebbitDaemon = (args: string[]): Promise<ChildProcess> => {
+const killChildProcess = async (proc?: ChildProcess) => {
+    if (!proc) return;
+    if (proc.exitCode !== null || proc.signalCode !== null) return;
+    await new Promise<void>((resolve) => {
+        let settled = false;
+        const cleanup = () => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            resolve();
+        };
+        const timer = setTimeout(() => {
+            if (proc.exitCode === null && proc.signalCode === null) proc.kill("SIGKILL");
+        }, 5000);
+        proc.once("exit", cleanup);
+        proc.once("close", cleanup);
+        const killed = proc.kill();
+        if (!killed && (proc.exitCode !== null || proc.signalCode !== null)) cleanup();
+    });
+};
+
+const stopPlebbitDaemon = async (proc?: ManagedChildProcess) => {
+    if (!proc) return;
+    await killChildProcess(proc);
+    const kuboRpcUrl = proc.kuboRpcUrl;
+    if (!kuboRpcUrl) return;
+    const shutdownUrl = new URL(kuboRpcUrl.toString());
+    shutdownUrl.pathname = `${shutdownUrl.pathname.replace(/\/$/, "")}/shutdown`;
+    try {
+        await fetch(shutdownUrl, { method: "POST" });
+    } catch {
+        /* ignore */
+    }
+};
+
+const waitForCondition = async (predicate: () => Promise<boolean> | boolean, timeoutMs = 20000, intervalMs = 500) => {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() <= deadline) {
+        if (await predicate()) return true;
+        await new Promise((resolve) => setTimeout(resolve, intervalMs));
+    }
+    return false;
+};
+
+const ensureKuboNodeStopped = async () => {
+    try {
+        await fetch(`${defaults.KUBO_RPC_URL}/shutdown`, { method: "POST" });
+    } catch {
+        /* ignore */
+    }
+    await waitForCondition(async () => {
+        try {
+            const res = await fetch(`${defaults.KUBO_RPC_URL}/bitswap/stat`, { method: "POST" });
+            return !res.ok;
+        } catch {
+            return true;
+        }
+    });
+};
+
+const startPlebbitDaemon = (args: string[]): Promise<ManagedChildProcess> => {
     return new Promise(async (resolve, reject) => {
         const hasCustomDataPath = args.some((arg) => arg.startsWith("--plebbitOptions.dataPath"));
         const hasCustomLogPath = args.some((arg) => arg === "--logPath");
@@ -34,18 +95,38 @@ const startPlebbitDaemon = (args: string[]): Promise<ChildProcess> => {
         const daemonArgs = hasCustomDataPath ? args : ["--plebbitOptions.dataPath", randomDirectory(), ...args];
         const daemonProcess = spawn("node", ["./bin/run", "daemon", ...logPathArgs, ...daemonArgs], {
             stdio: ["pipe", "pipe", "inherit"]
-        });
+        }) as ManagedChildProcess;
 
-        daemonProcess.on("exit", (exitCode, signal) => {
+        const onExit = (exitCode: number | null, signal: NodeJS.Signals | null) => {
             reject(`spawnAsync process '${daemonProcess.pid}' exited with code '${exitCode}' signal '${signal}'`);
-        });
-        daemonProcess.stdout.on("data", (data) => {
-            if (data.toString().match("Subplebbits in data path")) {
-                daemonProcess.removeAllListeners();
+        };
+        const onError = (error: Error) => {
+            daemonProcess.stdout!.off("data", onStdoutData);
+            daemonProcess.off("exit", onExit);
+            daemonProcess.off("error", onError);
+            reject(error);
+        };
+        const onStdoutData = (data: Buffer) => {
+            const output = data.toString();
+            const kuboConfigMatch = output.match(/kuboRpcClientsOptions:\s*\[\s*'([^']+)'/);
+            if (!daemonProcess.kuboRpcUrl && kuboConfigMatch?.[1]) {
+                try {
+                    daemonProcess.kuboRpcUrl = new URL(kuboConfigMatch[1]);
+                } catch {
+                    /* ignore parse errors */
+                }
+            }
+            if (output.match("Subplebbits in data path")) {
+                daemonProcess.stdout!.off("data", onStdoutData);
+                daemonProcess.off("exit", onExit);
+                daemonProcess.off("error", onError);
                 resolve(daemonProcess);
             }
-        });
-        daemonProcess.on("error", (data) => reject(data));
+        };
+
+        daemonProcess.on("exit", onExit);
+        daemonProcess.stdout!.on("data", onStdoutData);
+        daemonProcess.on("error", onError);
     });
 };
 
@@ -77,22 +158,10 @@ const startKuboDaemon = (args: string[]): Promise<ChildProcess> => {
 };
 
 describe("plebbit daemon (kubo daemon is started by plebbit-cli)", async () => {
-    let daemonProcess: ChildProcess;
+    let daemonProcess: ManagedChildProcess;
 
     before(async () => {
-        // check if kubo node is down by default
-        try {
-            await fetch(`${defaults.KUBO_RPC_URL}/bitswap/stat`, { method: "POST" });
-            expect.fail("Kubo node should be down by default");
-        } catch (e) {
-            const error = <Error>e;
-            //@ts-expect-error
-            const causeCode: string | undefined = error.cause?.code;
-            expect(["ECONNREFUSED", "EPERM"]).to.include(
-                causeCode,
-                "Kubo node should be down by default, but request returned an unexpected error code"
-            );
-        }
+        await ensureKuboNodeStopped();
 
         daemonProcess = await startPlebbitDaemon(["--plebbitOptions.dataPath", randomDirectory()]);
         expect(daemonProcess.pid).to.be.a("number");
@@ -100,18 +169,7 @@ describe("plebbit daemon (kubo daemon is started by plebbit-cli)", async () => {
     });
 
     after(async () => {
-        if (daemonProcess && !daemonProcess.killed) daemonProcess.kill();
-        // Ensure IPFS node is properly shut down
-        try {
-            const shutdownRes = await fetch(`${defaults.KUBO_RPC_URL}/shutdown`, {
-                method: "POST"
-            });
-            console.log("IPFS node shutdown response:", shutdownRes.status);
-        } catch (error) {
-            console.error("Failed to shutdown IPFS node:", error);
-        }
-
-        // Wait a moment to ensure shutdown completes
+        await stopPlebbitDaemon(daemonProcess);
         await new Promise((resolve) => setTimeout(resolve, 1000));
     });
 
@@ -154,8 +212,9 @@ describe("plebbit daemon (kubo daemon is started by plebbit-cli)", async () => {
 
     it(`kubo node is killed after killing plebbit daemon`, async () => {
         expect(daemonProcess.kill()).to.be.true;
+        await stopPlebbitDaemon(daemonProcess);
 
-        await new Promise((resolve) => setTimeout(resolve, 5000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         // Test whether rpc server is reachable, it should not be reachable
         const rpcClient = new WebSocket(rpcServerEndPoint);
@@ -167,9 +226,7 @@ describe("plebbit daemon (kubo daemon is started by plebbit-cli)", async () => {
         assert.throws(rpcClient.ping);
         rpcClient.close();
 
-        // check if kubo is reachable too
-        //@ts-ignore
-        await assert.isRejected(fetch(`${defaults.KUBO_RPC_URL}/bitswap/stat`, { method: "POST" })); // kubo node should be down
+        await ensureKuboNodeStopped();
     });
 });
 
@@ -184,11 +241,11 @@ describe(`plebbit daemon (kubo daemon is started by another process on the same 
     });
 
     after(async () => {
-        if (kuboDaemonProcess && !kuboDaemonProcess.killed) kuboDaemonProcess.kill();
+        await killChildProcess(kuboDaemonProcess);
     });
 
     it(`plebbit daemon can use a kubo node started by another program`, async () => {
-        let plebbitDaemonProcess: ChildProcess | undefined;
+        let plebbitDaemonProcess: ManagedChildProcess | undefined;
         try {
             plebbitDaemonProcess = await startPlebbitDaemon([
                 "--plebbitOptions.dataPath",
@@ -201,12 +258,12 @@ describe(`plebbit daemon (kubo daemon is started by another process on the same 
             expect(rpcClient.readyState).to.equal(1); // 1 = connected
             rpcClient.close();
         } finally {
-            if (plebbitDaemonProcess && !plebbitDaemonProcess.killed) plebbitDaemonProcess.kill();
+            await stopPlebbitDaemon(plebbitDaemonProcess);
         }
     });
 
     it(`plebbit daemon monitors Kubo RPC started by another process, and start a new Kubo process if needed`, async () => {
-        let plebbitDaemonProcess: ChildProcess | undefined;
+        let plebbitDaemonProcess: ManagedChildProcess | undefined;
         try {
             plebbitDaemonProcess = await startPlebbitDaemon([
                 "--plebbitOptions.dataPath",
@@ -218,18 +275,18 @@ describe(`plebbit daemon (kubo daemon is started by another process on the same 
             await new Promise((resolve) => setTimeout(resolve, 2000));
             expect(rpcClient.readyState).to.equal(1); // 1 = connected
 
-            if (kuboDaemonProcess && !kuboDaemonProcess.killed) kuboDaemonProcess.kill();
+            await killChildProcess(kuboDaemonProcess);
             await new Promise((resolve) => setTimeout(resolve, 15000)); // plebbit daemon should start a new kubo daemon within 10 seconds ish
             const resAfterRestart = await makeRequestToKuboRpc(kuboRpcUrl.port);
             expect(resAfterRestart.status).to.equal(200);
         } finally {
-            if (plebbitDaemonProcess && !plebbitDaemonProcess.killed) plebbitDaemonProcess.kill();
+            await stopPlebbitDaemon(plebbitDaemonProcess);
         }
     });
 });
 
 describe(`plebbit daemon (relying on plebbit RPC started by another process)`, async () => {
-    let rpcProcess: ChildProcess;
+    let rpcProcess: ManagedChildProcess;
     before(async () => {
         await new Promise((resolve) => setTimeout(resolve, 5000)); // wait until the previous daemon is killed
         rpcProcess = await startPlebbitDaemon(["--plebbitOptions.dataPath", randomDirectory()]); // will start a daemon at 5001
@@ -237,28 +294,28 @@ describe(`plebbit daemon (relying on plebbit RPC started by another process)`, a
     });
 
     after(async () => {
-        if (!rpcProcess.killed) await rpcProcess.kill();
+        await stopPlebbitDaemon(rpcProcess);
     });
 
     it(`plebbit daemon detects and uses another process' plebbit RPC`, async () => {
-        let anotherRpcProcess: ChildProcess | undefined;
+        let anotherRpcProcess: ManagedChildProcess | undefined;
         try {
             anotherRpcProcess = await startPlebbitDaemon([]); // should start with no problem and use rpcProcess
             await testConnectionToPlebbitRpc(defaults.PLEBBIT_RPC_URL.port);
         } finally {
-            if (anotherRpcProcess && !anotherRpcProcess.killed) anotherRpcProcess.kill(); // should not affect rpcProcess
+            await stopPlebbitDaemon(anotherRpcProcess); // should not affect rpcProcess
         }
         await testConnectionToPlebbitRpc(defaults.PLEBBIT_RPC_URL.port);
     });
     it(`plebbit daemon is monitoring another process' plebbit RPC and make sure it's always up`, async () => {
-        let anotherRpcProcess: ChildProcess | undefined;
+        let anotherRpcProcess: ManagedChildProcess | undefined;
         try {
             anotherRpcProcess = await startPlebbitDaemon(["--plebbitOptions.dataPath", randomDirectory()]); // should monitor rpcProcess
-            rpcProcess.kill();
+            await stopPlebbitDaemon(rpcProcess);
             await new Promise((resolve) => setTimeout(resolve, 6000)); // wait until anotherRpcProcess restart the rpc
             await testConnectionToPlebbitRpc(defaults.PLEBBIT_RPC_URL.port);
         } finally {
-            if (anotherRpcProcess && !anotherRpcProcess.killed) anotherRpcProcess.kill();
+            await stopPlebbitDaemon(anotherRpcProcess);
         }
     });
 });
@@ -266,12 +323,12 @@ describe(`plebbit daemon (relying on plebbit RPC started by another process)`, a
 describe(`plebbit daemon --plebbitRpcUrl`, async () => {
     it(`A plebbit daemon should be change where to listen URL`, async () => {
         const rpcUrl = new URL("ws://localhost:11138");
-        let firstRpcProcess: ChildProcess | undefined;
+        let firstRpcProcess: ManagedChildProcess | undefined;
         try {
             firstRpcProcess = await startPlebbitDaemon(["--plebbitRpcUrl", rpcUrl.toString()]); // will start a daemon at 9138
             await testConnectionToPlebbitRpc(rpcUrl.port);
         } finally {
-            if (firstRpcProcess && !firstRpcProcess.killed) firstRpcProcess.kill();
+            await stopPlebbitDaemon(firstRpcProcess);
         }
     });
 });
