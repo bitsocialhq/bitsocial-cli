@@ -1,5 +1,12 @@
 
 
+# [0.17.0](https://github.com/plebbit/plebbit-cli/compare/v0.16.17...v0.17.0) (2025-10-17)
+
+
+### Features
+
+* **ipfs:** only merge our default ipfs config when it's a new repo. Also disable redirecting ([586c7c0](https://github.com/plebbit/plebbit-cli/commit/586c7c02103e24038134f9bd27be545a06366295))
+
 ## [0.16.17](https://github.com/plebbit/plebbit-cli/compare/v0.16.16...v0.16.17) (2025-10-15)
 
 ## [0.16.16](https://github.com/plebbit/plebbit-cli/compare/v0.16.15...v0.16.16) (2025-08-28)
