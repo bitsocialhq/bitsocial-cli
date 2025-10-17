@@ -1,10 +1,10 @@
 import { spawn, ChildProcessWithoutNullStreams } from "child_process";
 import path from "path";
-import envPaths from "env-paths";
 import fs from "fs";
 import * as fsPromises from "fs/promises";
 import * as remeda from "remeda";
 import assert from "assert";
+import tcpPortUsed from "tcp-port-used";
 import { path as ipfsExePathFunc } from "kubo";
 import { getPlebbitLogger } from "../util";
 
@@ -32,24 +32,33 @@ export async function mergeCliDefaultsIntoIpfsConfig(log: any, ipfsConfigPath: s
 
     for (const [hostname, gatewayConfig] of Object.entries(existingPublicGatewaysConfig)) {
         if (typeof gatewayConfig === "object" && gatewayConfig !== null) {
-            gatewayPublicGateways[hostname] = { ...gatewayConfig };
+            gatewayPublicGateways[hostname] = { ...gatewayConfig, UseSubdomains: false };
+        } else {
+            gatewayPublicGateways[hostname] = { UseSubdomains: false };
         }
     }
 
-    const defaultPublicGatewayConfig = {
-        InlineDNSLink: false,
-        UseSubdomains: false
-    };
     const canonicalGatewayHostname = gatewayUrl.hostname.includes(":") ? `[${gatewayUrl.hostname}]` : gatewayUrl.hostname;
     const hostnamesForDefaults = new Set<string>([canonicalGatewayHostname, "localhost", "127.0.0.1", "[::1]"]);
 
     for (const hostname of hostnamesForDefaults) {
         if (!hostname) continue;
         const existingConfig = gatewayPublicGateways[hostname];
+        const normalizedExistingConfig =
+            typeof existingConfig === "object" && existingConfig !== null ? { ...existingConfig } : {};
+        const paths =
+            Array.isArray(normalizedExistingConfig.Paths) && normalizedExistingConfig.Paths.length > 0
+                ? normalizedExistingConfig.Paths
+                : ["/ipfs/", "/ipns/"];
+
         gatewayPublicGateways[hostname] = {
-            ...(typeof existingConfig === "object" && existingConfig !== null ? existingConfig : {}),
-            ...defaultPublicGatewayConfig,
-            Paths: ["/ipfs/", "/ipns/"]
+            ...normalizedExistingConfig,
+            InlineDNSLink:
+                normalizedExistingConfig.InlineDNSLink !== undefined
+                    ? normalizedExistingConfig.InlineDNSLink
+                    : false,
+            UseSubdomains: false,
+            Paths: paths
         };
     }
 
@@ -102,11 +111,109 @@ function _spawnAsync(log: any, ...args: any[]) {
         });
     });
 }
+
+type MultiaddrModule = {
+    multiaddr: (multiAddr: string) => {
+        nodeAddress(): { address: string; port: number };
+        protoNames(): string[];
+    };
+};
+
+let cachedMultiaddrFactory: MultiaddrModule["multiaddr"] | undefined;
+
+async function getMultiaddrFactory(): Promise<MultiaddrModule["multiaddr"]> {
+    if (!cachedMultiaddrFactory) {
+        const module = (await import("@multiformats/multiaddr")) as MultiaddrModule;
+        cachedMultiaddrFactory = module.multiaddr;
+    }
+    return cachedMultiaddrFactory;
+}
+
+async function parseTcpMultiaddr(multiAddrString: string): Promise<{ host: string; port: number } | undefined> {
+    if (!multiAddrString) return undefined;
+    try {
+        const factory = await getMultiaddrFactory();
+        const address = factory(multiAddrString);
+        if (!address.protoNames().includes("tcp")) return undefined;
+        const nodeAddress = address.nodeAddress();
+        const host = nodeAddress.address;
+        const port = nodeAddress.port;
+        if (!host || typeof port !== "number" || port <= 0) return undefined;
+        return { host, port };
+    } catch {
+        return undefined;
+    }
+}
+
+async function ensureIpfsPortsAreAvailable(log: any, configPath: string, apiUrl: URL, gatewayUrl: URL) {
+    let configRaw: string;
+    try {
+        configRaw = await fsPromises.readFile(configPath, "utf-8");
+    } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        throw new Error(`Unable to read IPFS config at ${configPath} to validate ports: ${message}`);
+    }
+
+    let config: any;
+    try {
+        config = JSON.parse(configRaw);
+    } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        throw new Error(`Unable to parse IPFS config at ${configPath} to validate ports: ${message}`);
+    }
+
+    const addresses = config?.Addresses ?? {};
+    const checks = new Map<string, { label: string; host: string; port: number; source: string }>();
+
+    const addCheck = (label: string, host: string, port: number, source: string) => {
+        if (!host || typeof host !== "string") return;
+        if (!Number.isFinite(port) || port <= 0) return;
+        const key = `${label}|${host}:${port}`;
+        if (!checks.has(key)) checks.set(key, { label, host, port, source });
+    };
+
+    const apiMultiAddr = typeof addresses.API === "string" ? await parseTcpMultiaddr(addresses.API) : undefined;
+    if (apiMultiAddr) addCheck("IPFS API", apiMultiAddr.host, apiMultiAddr.port, addresses.API);
+    else if (apiUrl?.hostname) {
+        const fallbackPort = Number(apiUrl.port || (apiUrl.protocol === "https:" ? 443 : 80));
+        if (Number.isFinite(fallbackPort) && fallbackPort > 0) addCheck("IPFS API", apiUrl.hostname, fallbackPort, apiUrl.toString());
+    }
+
+    const gatewayMultiAddr = typeof addresses.Gateway === "string" ? await parseTcpMultiaddr(addresses.Gateway) : undefined;
+    if (gatewayMultiAddr) addCheck("IPFS Gateway", gatewayMultiAddr.host, gatewayMultiAddr.port, addresses.Gateway);
+    else if (gatewayUrl?.hostname) {
+        const fallbackPort = Number(gatewayUrl.port || (gatewayUrl.protocol === "https:" ? 443 : 80));
+        if (Number.isFinite(fallbackPort) && fallbackPort > 0)
+            addCheck("IPFS Gateway", gatewayUrl.hostname, fallbackPort, gatewayUrl.toString());
+    }
+
+    const swarmAddresses: string[] = Array.isArray(addresses.Swarm)
+        ? addresses.Swarm.filter((addr: any): addr is string => typeof addr === "string")
+        : typeof addresses.Swarm === "string"
+        ? [addresses.Swarm]
+        : [];
+
+    for (const swarmAddr of swarmAddresses) {
+        const parsed = await parseTcpMultiaddr(swarmAddr);
+        if (parsed) addCheck("IPFS Swarm", parsed.host, parsed.port, swarmAddr);
+    }
+
+    for (const check of checks.values()) {
+        const inUse = await tcpPortUsed.check(check.port, check.host);
+        log.trace?.(`Validating ${check.label} port ${check.host}:${check.port} (source: ${check.source}) - in use: ${inUse}`);
+        if (inUse) {
+            throw new Error(
+                `Cannot start IPFS daemon because the ${check.label} port ${check.host}:${check.port} (configured as ${check.source}) is already in use.`
+            );
+        }
+    }
+}
 export async function startKuboNode(apiUrl: URL, gatewayUrl: URL, dataPath: string): Promise<ChildProcessWithoutNullStreams> {
     return new Promise(async (resolve, reject) => {
         const log = (await getPlebbitLogger())("plebbit-cli:ipfs:startKuboNode");
         const ipfsDataPath = process.env["IPFS_PATH"] || path.join(dataPath, ".plebbit-cli.ipfs");
         await fs.promises.mkdir(ipfsDataPath, { recursive: true });
+        const ipfsConfigPath = path.join(ipfsDataPath, "config");
 
         const kuboExePath = await getKuboExePath();
         const kuboVersion = await getKuboVersion();
@@ -130,7 +237,6 @@ export async function startKuboNode(apiUrl: URL, gatewayUrl: URL, dataPath: stri
                 hideWindows: true
             });
             log("Called 'ipfs config profile apply server' successfully");
-            const ipfsConfigPath = path.join(ipfsDataPath, "config");
             await mergeCliDefaultsIntoIpfsConfig(log, ipfsConfigPath, apiUrl, gatewayUrl);
         } else {
             log("IPFS config already exists; skipping config overrides to preserve user changes.");
@@ -142,6 +248,13 @@ export async function startKuboNode(apiUrl: URL, gatewayUrl: URL, dataPath: stri
         } catch (migrationError) {
             log.error("Failed to run IPFS repo migrations automatically", migrationError);
             throw migrationError;
+        }
+
+        try {
+            await ensureIpfsPortsAreAvailable(log, ipfsConfigPath, apiUrl, gatewayUrl);
+        } catch (error) {
+            reject(error instanceof Error ? error : new Error(String(error)));
+            return;
         }
 
         const daemonArgs = ["--enable-namesys-pubsub", "--migrate"];
