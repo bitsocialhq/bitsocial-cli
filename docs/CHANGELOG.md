@@ -1,5 +1,14 @@
 
 
+## [0.17.2](https://github.com/plebbit/plebbit-cli/compare/v0.17.1...v0.17.2) (2025-10-17)
+
+
+### Bug Fixes
+
+* **daemon:** handle edge cases with ipfs daemon not getting killed ([6bb878b](https://github.com/plebbit/plebbit-cli/commit/6bb878b4a2664cd5b89c185d1d186282618ae84e))
+* **ipfs:** fix default config to make gateway is working + add tests for gateway and RPC API ([c837962](https://github.com/plebbit/plebbit-cli/commit/c8379624875c76a19662374367597cfb72b299ca))
+* **ipfs:** update ipfs config to be correct ([e721603](https://github.com/plebbit/plebbit-cli/commit/e72160399f43a330848248a02a41732d57a404e3))
+
 ## [0.17.1](https://github.com/plebbit/plebbit-cli/compare/v0.17.0...v0.17.1) (2025-10-17)
 
 # [0.17.0](https://github.com/plebbit/plebbit-cli/compare/v0.16.17...v0.17.0) (2025-10-17)
