@@ -1,8 +1,7 @@
 import { expect, test } from "@oclif/test";
 //@ts-ignore
 import Sinon from "sinon";
-//@ts-expect-error
-import type { SubplebbitEditOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
+import type { SubplebbitEditOptions } from "../types/subplebbitTypes";
 import { currentSubProps } from "../fixtures/subplebbitForEditFixture";
 import { BaseCommand } from "../../dist/cli/base-command";
 
@@ -21,8 +20,7 @@ describe("plebbit subplebbit edit", () => {
             subplebbits: ["plebbit.eth"],
             destroy: () => {}
         });
-        //@ts-expect-error
-        sandbox.replace(BaseCommand.prototype, "_connectToPlebbitRpc", plebbitInstanceFake);
+        sandbox.replace(BaseCommand.prototype as any, "_connectToPlebbitRpc", plebbitInstanceFake);
     });
 
     afterEach(() => editFake.resetHistory());
@@ -123,8 +121,8 @@ describe("plebbit subplebbit edit", () => {
         async () => {
             expect(editFake.calledOnce).to.be.true;
             const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
-            //@ts-expect-error
-            expect(mergedEditOptions?.["randomBooleanField"]).to.be.true;
+            const randomBoolean = (mergedEditOptions as Record<string, unknown>)["randomBooleanField"];
+            expect(randomBoolean).to.be.true;
         }
     );
 
@@ -133,8 +131,8 @@ describe("plebbit subplebbit edit", () => {
         async () => {
             expect(editFake.calledOnce).to.be.true;
             const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
-            //@ts-expect-error
-            expect(mergedEditOptions?.["randomBooleanField"]).to.be.true;
+            const randomBoolean = (mergedEditOptions as Record<string, unknown>)["randomBooleanField"];
+            expect(randomBoolean).to.be.true;
         }
     );
 
@@ -165,8 +163,8 @@ describe("plebbit subplebbit edit", () => {
         async () => {
             expect(editFake.calledOnce).to.be.true;
             const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
-            //@ts-expect-error
-            expect(mergedEditOptions?.["randomBooleanField"]).to.be.false;
+        const randomBoolean = (mergedEditOptions as Record<string, unknown>)["randomBooleanField"];
+        expect(randomBoolean).to.be.false;
         }
     );
 
@@ -197,8 +195,8 @@ describe("plebbit subplebbit edit", () => {
         expect(editFake.calledOnce).to.be.true;
         const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
 
-        //@ts-expect-error
-        expect(mergedEditOptions?.["nullField"]).to.be.null;
+        const nullField = (mergedEditOptions as Record<string, unknown>)["nullField"];
+        expect(nullField).to.be.null;
     });
 
     test.command(["subplebbit edit", "plebbit.eth", "--settings", "null"]).it("Can set a null to a whole object", async () => {

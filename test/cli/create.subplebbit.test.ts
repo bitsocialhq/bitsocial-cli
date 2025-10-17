@@ -1,13 +1,11 @@
 import { test, expect } from "@oclif/test";
 import signers from "../fixtures/signers";
 import Sinon from "sinon";
-//@ts-expect-error
-import type { CreateSubplebbitOptions } from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
-import { CliCreateSubplebbitOptions } from "../../dist/cli/types.js";
+import type { CreateSubplebbitOptions } from "../types/subplebbitTypes";
 
 import { BaseCommand } from "../../dist/cli/base-command";
 
-const cliCreateOptions: CliCreateSubplebbitOptions = {
+const cliCreateOptions = <CreateSubplebbitOptions>{
     privateKeyPath: "test/fixtures/sub_0_private_key.pem",
     title: "testTitle",
     description: "testDescription",
@@ -76,15 +74,21 @@ describe("plebbit subplebbit create", () => {
         .it(`Parse create options correctly`, (ctx) => {
             expect(plebbitCreateStub.calledOnce).to.be.true;
             const parsedArgs = <CreateSubplebbitOptions>plebbitCreateStub.args[0][0];
-            console.log(parsedArgs);
             // PrivateKeyPath will be processed to signer
             expect(parsedArgs.title).to.equal(cliCreateOptions.title);
             expect(parsedArgs.description).to.equal(cliCreateOptions.description);
             expect(parsedArgs.suggested).to.deep.equal(cliCreateOptions.suggested);
+            if (!("signer" in parsedArgs) || !parsedArgs.signer) throw Error("signer should be defined");
 
-            expect(parsedArgs.signer).to.be.a("object");
-            expect(parsedArgs.signer!.privateKey).to.be.a("string");
-            expect(parsedArgs!.signer!.type).to.equal("ed25519");
+            const signer = parsedArgs.signer;
+            expect(typeof signer).to.equal("object");
+            expect(signer).to.not.equal(null);
+
+            if ("privateKey" in (signer as Record<string, unknown>))
+                expect((signer as { privateKey: unknown }).privateKey).to.be.a("string");
+            else expect((signer as { address: unknown }).address).to.be.a("string");
+
+            expect((signer as { type: unknown }).type).to.equal("ed25519");
         });
 
     it(`Starts subplebbit after creation`, () => {

@@ -1,7 +1,6 @@
-//@ts-expect-error
-import type { SubplebbitEditOptions, SubplebbitIpfsType } from "@plebbit/plebbit-js/dist/node/subplebbit/types";
+import type { SubplebbitEditOptions, SubplebbitInstance, SubplebbitIpfsType } from "../types/subplebbitTypes";
 
-export const currentSubProps: SubplebbitIpfsType & SubplebbitEditOptions = {
+export const currentSubProps: Partial<SubplebbitInstance> = {
     title: "original title",
     description: "original description",
     pubsubTopic: "original pubsub topic",
@@ -43,27 +42,21 @@ export const currentSubProps: SubplebbitIpfsType & SubplebbitEditOptions = {
     roles: { "rinse12.eth": { role: "admin" } },
     createdAt: 12345678,
     started: true,
-    updatedAt: 123456,
-    //@ts-expect-error
-    encryption: {},
-    //@ts-expect-error
-    signature: {}
+    updatedAt: 123456
 };
 
 //TODO add flairs here
 export const objectPropsToEdit: Required<Pick<SubplebbitEditOptions, "roles" | "features" | "suggested" | "settings">> = {
     settings: {
         challenges: [
-            //@ts-expect-error
-            undefined, // Should add a new challenge, settings.challenges[0] should be kept as is
+            undefined as any, // Should add a new challenge, settings.challenges[0] should be kept as is
             { options: { question: "What is the password", answer: "The password" } }
         ],
         fetchThumbnailUrls: true
         // fetchThumbnailUrlsProxyUrl: "http://localhost:12345" // explicitly don't modify it
     },
     roles: {
-        //@ts-expect-error
-        "rinse12.eth": null, //remove rinse from roles
+        "rinse12.eth": null as any, //remove rinse from roles
         "esteban.eth": { role: "admin" } // add esteban.eth as an addmin
     },
     features: {
