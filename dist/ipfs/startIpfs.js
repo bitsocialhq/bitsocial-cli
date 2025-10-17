@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.mergeCliDefaultsIntoIpfsConfig = mergeCliDefaultsIntoIpfsConfig;
 exports.startKuboNode = startKuboNode;
 const tslib_1 = require("tslib");
 const child_process_1 = require("child_process");
@@ -23,6 +24,43 @@ async function getKuboVersion() {
         console.error("Failed to read kubo version:", error);
         return "unknown";
     }
+}
+async function mergeCliDefaultsIntoIpfsConfig(log, ipfsConfigPath, apiUrl, gatewayUrl) {
+    const currentIpfsConfigFile = JSON.parse((await fsPromises.readFile(ipfsConfigPath)).toString());
+    const existingGatewayConfig = currentIpfsConfigFile["Gateway"] ?? {};
+    const existingPublicGatewaysConfig = existingGatewayConfig["PublicGateways"] ?? {};
+    const gatewayPublicGateways = {};
+    for (const [hostname, gatewayConfig] of Object.entries(existingPublicGatewaysConfig)) {
+        gatewayPublicGateways[hostname] = {
+            ...(typeof gatewayConfig === "object" && gatewayConfig !== null ? gatewayConfig : {}),
+            UseSubdomains: false
+        };
+    }
+    const hostnamesToDisableRedirect = new Set([gatewayUrl.hostname, "localhost", "127.0.0.1"]);
+    for (const hostname of hostnamesToDisableRedirect) {
+        gatewayPublicGateways[hostname] = {
+            ...(gatewayPublicGateways[hostname] ?? {}),
+            UseSubdomains: false
+        };
+    }
+    const mergedIpfsConfig = {
+        ...currentIpfsConfigFile,
+        Addresses: {
+            ...(currentIpfsConfigFile["Addresses"] ?? {}),
+            Gateway: `/ip4/${gatewayUrl.hostname}/tcp/${gatewayUrl.port}`,
+            API: `/ip4/${apiUrl.hostname}/tcp/${apiUrl.port}`
+        },
+        AutoTLS: {
+            ...(currentIpfsConfigFile["AutoTLS"] ?? {}),
+            Enabled: true
+        },
+        Gateway: {
+            ...existingGatewayConfig,
+            PublicGateways: gatewayPublicGateways
+        }
+    };
+    await fsPromises.writeFile(ipfsConfigPath, JSON.stringify(mergedIpfsConfig, null, 4));
+    log("Applied plebbit CLI defaults to freshly initialized IPFS config.", ipfsConfigPath);
 }
 // use this custom function instead of spawnSync for better logging
 // also spawnSync might have been causing crash on start on windows
@@ -63,34 +101,36 @@ async function startKuboNode(apiUrl, gatewayUrl, dataPath) {
         log(`IpfsDataPath (${ipfsDataPath}), kuboExePath (${kuboExePath})`, "kubo ipfs config file", path_1.default.join(ipfsDataPath, "config"));
         log("If you would like to change kubo config, please edit the config file at", path_1.default.join(ipfsDataPath, "config"));
         const env = { IPFS_PATH: ipfsDataPath, DEBUG_COLORS: "1" };
+        let configJustInitialized = false;
         try {
             await _spawnAsync(log, kuboExePath, ["init"], { env, hideWindows: true });
+            configJustInitialized = true;
         }
         catch (e) {
             const error = e;
             if (!error?.message?.includes("ipfs configuration file already exists!"))
                 throw new Error("Failed to call ipfs init" + error);
         }
-        await _spawnAsync(log, kuboExePath, ["config", "profile", "apply", `server`], {
-            env,
-            hideWindows: true
-        });
-        log("Called 'ipfs config profile apply server' successfully");
-        const ipfsConfigPath = path_1.default.join(ipfsDataPath, "config");
-        const ipfsConfig = JSON.parse((await fsPromises.readFile(ipfsConfigPath)).toString());
-        const mergedIpfsConfig = {
-            ...ipfsConfig,
-            Addresses: {
-                ...ipfsConfig["Addresses"],
-                Gateway: `/ip4/${gatewayUrl.hostname}/tcp/${gatewayUrl.port}`,
-                API: `/ip4/${apiUrl.hostname}/tcp/${apiUrl.port}`
-            },
-            AutoTLS: {
-                ...ipfsConfig["AutoTLS"],
-                Enabled: true
-            }
-        };
-        await fsPromises.writeFile(ipfsConfigPath, JSON.stringify(mergedIpfsConfig, null, 4));
+        if (configJustInitialized) {
+            await _spawnAsync(log, kuboExePath, ["config", "profile", "apply", `server`], {
+                env,
+                hideWindows: true
+            });
+            log("Called 'ipfs config profile apply server' successfully");
+            const ipfsConfigPath = path_1.default.join(ipfsDataPath, "config");
+            await mergeCliDefaultsIntoIpfsConfig(log, ipfsConfigPath, apiUrl, gatewayUrl);
+        }
+        else {
+            log("IPFS config already exists; skipping config overrides to preserve user changes.");
+        }
+        try {
+            await _spawnAsync(log, kuboExePath, ["repo", "migrate"], { env, hideWindows: true });
+            log("Ensured IPFS repository is migrated to the latest supported version.");
+        }
+        catch (migrationError) {
+            log.error("Failed to run IPFS repo migrations automatically", migrationError);
+            throw migrationError;
+        }
         const daemonArgs = ["--enable-namesys-pubsub", "--migrate"];
         const kuboProcess = (0, child_process_1.spawn)(kuboExePath, ["daemon", ...daemonArgs], {
             env,
