@@ -1,5 +1,6 @@
 // This file is to test root commands like `plebbit daemon` or `plebbit get`, whereas commands like `plebbit subplebbit start` are considered nested
 import { ChildProcess, spawn } from "child_process";
+import net from "net";
 import defaults from "../../dist/common-utils/defaults.js";
 import chai from "chai";
 import { directory as randomDirectory } from "tempy";
@@ -87,6 +88,18 @@ const ensureKuboNodeStopped = async () => {
     });
 };
 
+const occupyPort = async (port: number, host: string) => {
+    const server = net.createServer();
+    server.on("connection", (socket) => {
+        socket.destroy();
+    });
+    await new Promise<void>((resolve, reject) => {
+        server.once("error", reject);
+        server.listen(port, host, resolve);
+    });
+    return server;
+};
+
 const startPlebbitDaemon = (args: string[]): Promise<ManagedChildProcess> => {
     return new Promise(async (resolve, reject) => {
         const hasCustomDataPath = args.some((arg) => arg.startsWith("--plebbitOptions.dataPath"));
@@ -154,6 +167,55 @@ const startKuboDaemon = (args: string[]): Promise<ChildProcess> => {
             console.error(`Failed to start kubo daemon`, String(data));
             reject(data);
         });
+    });
+};
+
+const runPlebbitDaemonExpectFailure = (args: string[], timeoutMs = 20000) => {
+    return new Promise<{ exitCode: number | null; stdout: string; stderr: string }>((resolve, reject) => {
+        const hasCustomDataPath = args.some((arg) => arg.startsWith("--plebbitOptions.dataPath"));
+        const hasCustomLogPath = args.some((arg) => arg === "--logPath");
+        const logPathArgs = hasCustomLogPath ? [] : ["--logPath", randomDirectory()];
+        const daemonArgs = hasCustomDataPath ? args : ["--plebbitOptions.dataPath", randomDirectory(), ...args];
+
+        const daemonProcess = spawn("node", ["./bin/run", "daemon", ...logPathArgs, ...daemonArgs], {
+            stdio: ["ignore", "pipe", "pipe"]
+        });
+
+        let stdout = "";
+        let stderr = "";
+        const cleanup = () => {
+            daemonProcess.stdout?.removeListener("data", onStdout);
+            daemonProcess.stderr?.removeListener("data", onStderr);
+            daemonProcess.removeListener("exit", onExit);
+            daemonProcess.removeListener("error", onError);
+            clearTimeout(timer);
+        };
+
+        const onStdout = (data: Buffer) => {
+            stdout += data.toString();
+        };
+        const onStderr = (data: Buffer) => {
+            stderr += data.toString();
+        };
+        const onExit = (code: number | null) => {
+            cleanup();
+            resolve({ exitCode: code, stdout, stderr });
+        };
+        const onError = (error: Error) => {
+            cleanup();
+            reject(error);
+        };
+
+        const timer = setTimeout(() => {
+            daemonProcess.kill("SIGKILL");
+            cleanup();
+            reject(new Error("Timed out waiting for plebbit daemon to exit"));
+        }, timeoutMs);
+
+        daemonProcess.stdout?.on("data", onStdout);
+        daemonProcess.stderr?.on("data", onStderr);
+        daemonProcess.on("exit", onExit);
+        daemonProcess.on("error", onError);
     });
 };
 
@@ -227,6 +289,116 @@ describe("plebbit daemon (kubo daemon is started by plebbit-cli)", async () => {
         rpcClient.close();
 
         await ensureKuboNodeStopped();
+    });
+});
+
+describe("plebbit daemon port availability validation", () => {
+    const occupiedServers: net.Server[] = [];
+    const cleanupServers = async () => {
+        while (occupiedServers.length) {
+            const server = occupiedServers.pop();
+            if (!server) continue;
+            await new Promise<void>((resolve) => {
+                server.close(() => resolve());
+            });
+        }
+    };
+
+    afterEach(async () => {
+        await cleanupServers();
+    });
+
+    const expectFailureForOccupiedPort = async (
+        port: number,
+        host: string,
+        expectedMessageFragment: RegExp | string,
+        ctx?: Mocha.Context
+    ) => {
+        let server: net.Server;
+        try {
+            server = await occupyPort(port, host);
+        } catch (error) {
+            if (ctx && (error as NodeJS.ErrnoException)?.code === "EPERM") {
+                ctx.skip();
+                return;
+            }
+            throw error;
+        }
+        occupiedServers.push(server);
+
+        const result = await runPlebbitDaemonExpectFailure(["--plebbitOptions.dataPath", randomDirectory()]);
+        expect(result.exitCode).to.not.equal(0);
+        const combinedOutput = `${result.stdout}\n${result.stderr}`;
+        if (expectedMessageFragment instanceof RegExp) expect(combinedOutput).to.match(expectedMessageFragment);
+        else expect(combinedOutput).to.include(expectedMessageFragment);
+    };
+
+    it("fails when IPFS API port is already in use", async function () {
+        await expectFailureForOccupiedPort(Number(defaults.KUBO_RPC_URL.port), defaults.KUBO_RPC_URL.hostname, "IPFS API port", this);
+    });
+
+    it("fails when IPFS Gateway port is already in use", async function () {
+        await expectFailureForOccupiedPort(
+            Number(defaults.IPFS_GATEWAY_URL.port),
+            defaults.IPFS_GATEWAY_URL.hostname,
+            "IPFS Gateway port",
+            this
+        );
+    });
+
+    it("fails when an IPFS swarm port is already in use", async function () {
+        const swarmPort = 4001;
+        await expectFailureForOccupiedPort(swarmPort, "0.0.0.0", "IPFS Swarm port", this);
+    });
+});
+
+describe("plebbit daemon kubo restart cleanup", async () => {
+    it("stops kubo when daemon exits during a restart cycle", async () => {
+        const previousDelay = process.env["PLEBBIT_CLI_TEST_IPFS_READY_DELAY_MS"];
+        process.env["PLEBBIT_CLI_TEST_IPFS_READY_DELAY_MS"] = "5000";
+
+        let daemonProcess: ManagedChildProcess | undefined;
+        try {
+            await ensureKuboNodeStopped();
+            daemonProcess = await startPlebbitDaemon(["--plebbitOptions.dataPath", randomDirectory()]);
+            expect(daemonProcess.pid).to.be.a("number");
+
+            const shutdownRes = await fetch(`${defaults.KUBO_RPC_URL}/shutdown`, { method: "POST" });
+            expect(shutdownRes.status).to.equal(200);
+
+            const kuboRestarted = await waitForCondition(async () => {
+                try {
+                    const res = await fetch(`${defaults.KUBO_RPC_URL}/bitswap/stat`, { method: "POST" });
+                    return res.ok;
+                } catch {
+                    return false;
+                }
+            }, 20000, 500);
+            expect(kuboRestarted).to.equal(true);
+
+            const killed = daemonProcess.kill();
+            expect(killed).to.equal(true);
+
+            const daemonExited = await waitForCondition(() => {
+                return (daemonProcess?.exitCode ?? null) !== null || (daemonProcess?.signalCode ?? null) !== null;
+            }, 10000, 100);
+            expect(daemonExited).to.equal(true);
+
+            const kuboStoppedAfterKill = await waitForCondition(async () => {
+                try {
+                    const res = await fetch(`${defaults.KUBO_RPC_URL}/bitswap/stat`, { method: "POST" });
+                    return !res.ok;
+                } catch {
+                    return true;
+                }
+            }, 10000, 500);
+            expect(kuboStoppedAfterKill).to.equal(true);
+        } finally {
+            if (daemonProcess) await stopPlebbitDaemon(daemonProcess);
+            if (previousDelay === undefined) delete process.env["PLEBBIT_CLI_TEST_IPFS_READY_DELAY_MS"];
+            else process.env["PLEBBIT_CLI_TEST_IPFS_READY_DELAY_MS"] = previousDelay;
+            await ensureKuboNodeStopped();
+        }
     });
 });
 

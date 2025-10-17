@@ -208,7 +208,12 @@ async function ensureIpfsPortsAreAvailable(log: any, configPath: string, apiUrl:
         }
     }
 }
-export async function startKuboNode(apiUrl: URL, gatewayUrl: URL, dataPath: string): Promise<ChildProcessWithoutNullStreams> {
+export async function startKuboNode(
+    apiUrl: URL,
+    gatewayUrl: URL,
+    dataPath: string,
+    onSpawn?: (process: ChildProcessWithoutNullStreams) => void
+): Promise<ChildProcessWithoutNullStreams> {
     return new Promise(async (resolve, reject) => {
         const log = (await getPlebbitLogger())("plebbit-cli:ipfs:startKuboNode");
         const ipfsDataPath = process.env["IPFS_PATH"] || path.join(dataPath, ".plebbit-cli.ipfs");
@@ -264,6 +269,7 @@ export async function startKuboNode(apiUrl: URL, gatewayUrl: URL, dataPath: stri
             cwd: process.cwd(),
             detached: true
         });
+        onSpawn?.(kuboProcess);
         log.trace(`Kubo ipfs daemon process started with pid ${kuboProcess.pid} and args`, daemonArgs);
 
         let lastError: string = "Kubo process exited before Daemon was ready."; // Default error for premature exit
@@ -300,13 +306,20 @@ export async function startKuboNode(apiUrl: URL, gatewayUrl: URL, dataPath: stri
                 daemonReady = true;
                 assert(typeof kuboProcess.pid === "number", `kuboProcess.pid (${kuboProcess.pid}) is not a valid pid`);
 
-                // IMPORTANT: Remove promise-specific handlers once startup is successful
-                kuboProcess.removeListener("exit", onProcessExit);
-                kuboProcess.removeListener("error", onProcessError);
-                // Stderr listener can remain for ongoing logging if desired, or be removed too.
-                // kuboProcess.stderr.removeListener("data", onStderrData); // If you want to stop this specific stderr logging
+                const delayRaw = process.env["PLEBBIT_CLI_TEST_IPFS_READY_DELAY_MS"];
+                const readyDelay = delayRaw ? Number(delayRaw) : 0;
+                const completeResolve = () => {
+                    // IMPORTANT: Remove promise-specific handlers once startup is successful
+                    kuboProcess.removeListener("exit", onProcessExit);
+                    kuboProcess.removeListener("error", onProcessError);
+                    // Stderr listener can remain for ongoing logging if desired, or be removed too.
+                    // kuboProcess.stderr.removeListener("data", onStderrData); // If you want to stop this specific stderr logging
 
-                resolve(kuboProcess);
+                    resolve(kuboProcess);
+                };
+
+                if (Number.isFinite(readyDelay) && readyDelay > 0) setTimeout(completeResolve, readyDelay);
+                else completeResolve();
             }
         };
 
