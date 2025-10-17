@@ -29,17 +29,27 @@ export async function mergeCliDefaultsIntoIpfsConfig(log: any, ipfsConfigPath: s
     const existingGatewayConfig = currentIpfsConfigFile["Gateway"] ?? {};
     const existingPublicGatewaysConfig = existingGatewayConfig["PublicGateways"] ?? {};
     const gatewayPublicGateways: Record<string, any> = {};
+
     for (const [hostname, gatewayConfig] of Object.entries(existingPublicGatewaysConfig)) {
-        gatewayPublicGateways[hostname] = {
-            ...(typeof gatewayConfig === "object" && gatewayConfig !== null ? gatewayConfig : {}),
-            UseSubdomains: false
-        };
+        if (typeof gatewayConfig === "object" && gatewayConfig !== null) {
+            gatewayPublicGateways[hostname] = { ...gatewayConfig };
+        }
     }
-    const hostnamesToDisableRedirect = new Set<string>([gatewayUrl.hostname, "localhost", "127.0.0.1"]);
-    for (const hostname of hostnamesToDisableRedirect) {
+
+    const defaultPublicGatewayConfig = {
+        InlineDNSLink: false,
+        UseSubdomains: false
+    };
+    const canonicalGatewayHostname = gatewayUrl.hostname.includes(":") ? `[${gatewayUrl.hostname}]` : gatewayUrl.hostname;
+    const hostnamesForDefaults = new Set<string>([canonicalGatewayHostname, "localhost", "127.0.0.1", "[::1]"]);
+
+    for (const hostname of hostnamesForDefaults) {
+        if (!hostname) continue;
+        const existingConfig = gatewayPublicGateways[hostname];
         gatewayPublicGateways[hostname] = {
-            ...(gatewayPublicGateways[hostname] ?? {}),
-            UseSubdomains: false
+            ...(typeof existingConfig === "object" && existingConfig !== null ? existingConfig : {}),
+            ...defaultPublicGatewayConfig,
+            Paths: ["/ipfs/", "/ipns/"]
         };
     }
 
