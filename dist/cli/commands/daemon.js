@@ -141,31 +141,81 @@ class Daemon extends core_1.Command {
         const mergedPlebbitOptions = { ...defaultPlebbitOptions, ...plebbitOptionsFromFlag };
         log("Merged plebbit options that will be used for this node", mergedPlebbitOptions);
         let mainProcessExited = false;
+        let pendingKuboStart;
         // Kubo Node may fail randomly, we need to set a listener so when it exits because of an error we restart it
         let kuboProcess;
         const keepKuboUp = async () => {
+            if (mainProcessExited)
+                return;
             const kuboApiPort = Number(kuboRpcEndpoint.port);
-            if (kuboProcess || usingDifferentProcessRpc)
+            if (kuboProcess || pendingKuboStart || usingDifferentProcessRpc)
                 return; // already started, no need to intervene
             const isKuboApiPortTaken = await tcp_port_used_1.default.check(kuboApiPort, kuboRpcEndpoint.hostname);
             if (isKuboApiPortTaken) {
-                log.trace(`Kubo API already running on port (${kuboApiPort}) by another program. Plebbit-cli will use the running ipfs daemon instead of starting a new one`);
+                const versionUrl = new URL("version", kuboRpcEndpoint);
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), 2000);
+                let isHealthyKubo = false;
+                try {
+                    const response = await fetch(versionUrl, { method: "POST", signal: controller.signal });
+                    isHealthyKubo = response.ok;
+                }
+                catch {
+                    /* ignore */
+                }
+                finally {
+                    clearTimeout(timer);
+                }
+                if (isHealthyKubo) {
+                    log.trace(`Kubo API already running on port (${kuboApiPort}) by another program. Plebbit-cli will use the running ipfs daemon instead of starting a new one`);
+                    return;
+                }
+                throw new Error(`Cannot start IPFS daemon because the IPFS API port ${kuboRpcEndpoint.hostname}:${kuboApiPort} (configured as ${kuboRpcEndpoint.toString()}) is already in use.`);
+            }
+            const startPromise = (0, startIpfs_js_1.startKuboNode)(kuboRpcEndpoint, ipfsGatewayEndpoint, mergedPlebbitOptions.dataPath, (process) => {
+                kuboProcess = process;
+            });
+            pendingKuboStart = startPromise;
+            let startedProcess;
+            try {
+                startedProcess = await startPromise;
+            }
+            catch (error) {
+                pendingKuboStart = undefined;
+                if (!mainProcessExited)
+                    kuboProcess = undefined;
+                throw error;
+            }
+            pendingKuboStart = undefined;
+            if (mainProcessExited) {
+                if (startedProcess?.pid && !startedProcess.killed) {
+                    try {
+                        process.kill(startedProcess.pid, "SIGINT");
+                    }
+                    catch (e) {
+                        if (!(e instanceof Error && "code" in e && e.code === "ESRCH"))
+                            log.error("Error killing kubo process", e);
+                    }
+                }
                 return;
             }
-            kuboProcess = await (0, startIpfs_js_1.startKuboNode)(kuboRpcEndpoint, ipfsGatewayEndpoint, mergedPlebbitOptions.dataPath);
+            kuboProcess = startedProcess;
             log(`Started kubo ipfs process with pid (${kuboProcess.pid})`);
             console.log(`Kubo IPFS API listening on: ${kuboRpcEndpoint}`);
             console.log(`Kubo IPFS Gateway listening on: ${ipfsGatewayEndpoint}`);
-            kuboProcess.on("exit", async () => {
+            const currentProcess = startedProcess;
+            const onKuboExit = async () => {
                 // Restart Kubo process because it failed
                 if (!mainProcessExited) {
-                    log(`Kubo node with pid (${kuboProcess?.pid}) exited. Will attempt to restart it`);
+                    log(`Kubo node with pid (${currentProcess?.pid}) exited. Will attempt to restart it`);
                     kuboProcess = undefined;
                     await keepKuboUp();
                 }
-                else
-                    kuboProcess.removeAllListeners();
-            });
+                else {
+                    currentProcess.removeAllListeners();
+                }
+            };
+            currentProcess.once("exit", onKuboExit);
         };
         let startedOwnRpc = false;
         let usingDifferentProcessRpc = false;
@@ -209,19 +259,45 @@ class Daemon extends core_1.Command {
         if (!plebbitOptionsFromFlag?.kuboRpcClientsOptions && !isRpcPortTaken && !usingDifferentProcessRpc)
             await keepKuboUp();
         await createOrConnectRpc();
-        const keepKuboUpInterval = setInterval(async () => {
-            if (mainProcessExited)
-                return;
-            const isRpcPortTaken = await tcp_port_used_1.default.check(Number(plebbitRpcUrl.port), plebbitRpcUrl.hostname);
-            if (!plebbitOptionsFromFlag?.kuboRpcClientsOptions && !isRpcPortTaken && !usingDifferentProcessRpc)
-                await keepKuboUp();
-            else if (plebbitOptionsFromFlag?.kuboRpcClientsOptions && !usingDifferentProcessRpc)
-                await keepKuboUp();
-            await createOrConnectRpc();
-        }, 5000);
+        let keepKuboUpInterval;
         const { asyncExitHook } = await import("exit-hook");
+        const killKuboProcess = async () => {
+            if (pendingKuboStart) {
+                try {
+                    await pendingKuboStart;
+                }
+                catch {
+                    /* ignore */
+                }
+            }
+            if (kuboProcess?.pid && !kuboProcess.killed) {
+                log("Attempting to kill kubo process with pid", kuboProcess.pid);
+                try {
+                    process.kill(kuboProcess.pid, "SIGINT");
+                    await new Promise((resolve) => {
+                        const timeout = setTimeout(resolve, 10000);
+                        kuboProcess?.once("exit", () => {
+                            clearTimeout(timeout);
+                            resolve(undefined);
+                        });
+                    });
+                    log("Kubo process killed with pid", kuboProcess.pid);
+                }
+                catch (e) {
+                    if (e instanceof Error && "code" in e && e.code === "ESRCH")
+                        log("Kubo process already killed");
+                    else
+                        log.error("Error killing kubo process", e);
+                }
+                finally {
+                    kuboProcess?.removeAllListeners();
+                    kuboProcess = undefined;
+                }
+            }
+        };
         asyncExitHook(async () => {
-            clearInterval(keepKuboUpInterval);
+            if (keepKuboUpInterval)
+                clearInterval(keepKuboUpInterval);
             if (mainProcessExited)
                 return; // we already exited
             log("Received signal to exit, shutting down both kubo and plebbit rpc. Please wait, it may take a few seconds");
@@ -234,21 +310,19 @@ class Daemon extends core_1.Command {
                 catch (e) {
                     log.error("Error shutting down daemon server", e);
                 }
-            if (kuboProcess?.pid && !kuboProcess.killed) {
-                log("Attempting to kill kubo process with pid", kuboProcess.pid);
-                try {
-                    process.kill(kuboProcess.pid, "SIGINT");
-                    log("Kubo process killed with pid", kuboProcess.pid);
-                }
-                catch (e) {
-                    if (e instanceof Error && "code" in e && e.code === "ESRCH")
-                        log("Kubo process already killed");
-                    else
-                        log.error("Error killing kubo process", e);
-                }
-            }
+            await killKuboProcess();
         }, { wait: 120000 } // could take two minutes to shut down
         );
+        keepKuboUpInterval = setInterval(async () => {
+            if (mainProcessExited)
+                return;
+            const isRpcPortTaken = await tcp_port_used_1.default.check(Number(plebbitRpcUrl.port), plebbitRpcUrl.hostname);
+            if (!plebbitOptionsFromFlag?.kuboRpcClientsOptions && !isRpcPortTaken && !usingDifferentProcessRpc)
+                await keepKuboUp();
+            else if (plebbitOptionsFromFlag?.kuboRpcClientsOptions && !usingDifferentProcessRpc)
+                await keepKuboUp();
+            await createOrConnectRpc();
+        }, 5000);
     }
 }
 exports.default = Daemon;

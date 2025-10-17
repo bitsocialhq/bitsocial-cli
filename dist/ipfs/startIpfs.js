@@ -8,6 +8,7 @@ const path_1 = tslib_1.__importDefault(require("path"));
 const fs_1 = tslib_1.__importDefault(require("fs"));
 const fsPromises = tslib_1.__importStar(require("fs/promises"));
 const assert_1 = tslib_1.__importDefault(require("assert"));
+const tcp_port_used_1 = tslib_1.__importDefault(require("tcp-port-used"));
 const kubo_1 = require("kubo");
 const util_1 = require("../util");
 async function getKuboExePath() {
@@ -31,16 +32,30 @@ async function mergeCliDefaultsIntoIpfsConfig(log, ipfsConfigPath, apiUrl, gatew
     const existingPublicGatewaysConfig = existingGatewayConfig["PublicGateways"] ?? {};
     const gatewayPublicGateways = {};
     for (const [hostname, gatewayConfig] of Object.entries(existingPublicGatewaysConfig)) {
-        gatewayPublicGateways[hostname] = {
-            ...(typeof gatewayConfig === "object" && gatewayConfig !== null ? gatewayConfig : {}),
-            UseSubdomains: false
-        };
+        if (typeof gatewayConfig === "object" && gatewayConfig !== null) {
+            gatewayPublicGateways[hostname] = { ...gatewayConfig, UseSubdomains: false };
+        }
+        else {
+            gatewayPublicGateways[hostname] = { UseSubdomains: false };
+        }
     }
-    const hostnamesToDisableRedirect = new Set([gatewayUrl.hostname, "localhost", "127.0.0.1"]);
-    for (const hostname of hostnamesToDisableRedirect) {
+    const canonicalGatewayHostname = gatewayUrl.hostname.includes(":") ? `[${gatewayUrl.hostname}]` : gatewayUrl.hostname;
+    const hostnamesForDefaults = new Set([canonicalGatewayHostname, "localhost", "127.0.0.1", "[::1]"]);
+    for (const hostname of hostnamesForDefaults) {
+        if (!hostname)
+            continue;
+        const existingConfig = gatewayPublicGateways[hostname];
+        const normalizedExistingConfig = typeof existingConfig === "object" && existingConfig !== null ? { ...existingConfig } : {};
+        const paths = Array.isArray(normalizedExistingConfig.Paths) && normalizedExistingConfig.Paths.length > 0
+            ? normalizedExistingConfig.Paths
+            : ["/ipfs/", "/ipns/"];
         gatewayPublicGateways[hostname] = {
-            ...(gatewayPublicGateways[hostname] ?? {}),
-            UseSubdomains: false
+            ...normalizedExistingConfig,
+            InlineDNSLink: normalizedExistingConfig.InlineDNSLink !== undefined
+                ? normalizedExistingConfig.InlineDNSLink
+                : false,
+            UseSubdomains: false,
+            Paths: paths
         };
     }
     const mergedIpfsConfig = {
@@ -90,11 +105,101 @@ function _spawnAsync(log, ...args) {
         });
     });
 }
-async function startKuboNode(apiUrl, gatewayUrl, dataPath) {
+let cachedMultiaddrFactory;
+async function getMultiaddrFactory() {
+    if (!cachedMultiaddrFactory) {
+        const module = (await import("@multiformats/multiaddr"));
+        cachedMultiaddrFactory = module.multiaddr;
+    }
+    return cachedMultiaddrFactory;
+}
+async function parseTcpMultiaddr(multiAddrString) {
+    if (!multiAddrString)
+        return undefined;
+    try {
+        const factory = await getMultiaddrFactory();
+        const address = factory(multiAddrString);
+        if (!address.protoNames().includes("tcp"))
+            return undefined;
+        const nodeAddress = address.nodeAddress();
+        const host = nodeAddress.address;
+        const port = nodeAddress.port;
+        if (!host || typeof port !== "number" || port <= 0)
+            return undefined;
+        return { host, port };
+    }
+    catch {
+        return undefined;
+    }
+}
+async function ensureIpfsPortsAreAvailable(log, configPath, apiUrl, gatewayUrl) {
+    let configRaw;
+    try {
+        configRaw = await fsPromises.readFile(configPath, "utf-8");
+    }
+    catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        throw new Error(`Unable to read IPFS config at ${configPath} to validate ports: ${message}`);
+    }
+    let config;
+    try {
+        config = JSON.parse(configRaw);
+    }
+    catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        throw new Error(`Unable to parse IPFS config at ${configPath} to validate ports: ${message}`);
+    }
+    const addresses = config?.Addresses ?? {};
+    const checks = new Map();
+    const addCheck = (label, host, port, source) => {
+        if (!host || typeof host !== "string")
+            return;
+        if (!Number.isFinite(port) || port <= 0)
+            return;
+        const key = `${label}|${host}:${port}`;
+        if (!checks.has(key))
+            checks.set(key, { label, host, port, source });
+    };
+    const apiMultiAddr = typeof addresses.API === "string" ? await parseTcpMultiaddr(addresses.API) : undefined;
+    if (apiMultiAddr)
+        addCheck("IPFS API", apiMultiAddr.host, apiMultiAddr.port, addresses.API);
+    else if (apiUrl?.hostname) {
+        const fallbackPort = Number(apiUrl.port || (apiUrl.protocol === "https:" ? 443 : 80));
+        if (Number.isFinite(fallbackPort) && fallbackPort > 0)
+            addCheck("IPFS API", apiUrl.hostname, fallbackPort, apiUrl.toString());
+    }
+    const gatewayMultiAddr = typeof addresses.Gateway === "string" ? await parseTcpMultiaddr(addresses.Gateway) : undefined;
+    if (gatewayMultiAddr)
+        addCheck("IPFS Gateway", gatewayMultiAddr.host, gatewayMultiAddr.port, addresses.Gateway);
+    else if (gatewayUrl?.hostname) {
+        const fallbackPort = Number(gatewayUrl.port || (gatewayUrl.protocol === "https:" ? 443 : 80));
+        if (Number.isFinite(fallbackPort) && fallbackPort > 0)
+            addCheck("IPFS Gateway", gatewayUrl.hostname, fallbackPort, gatewayUrl.toString());
+    }
+    const swarmAddresses = Array.isArray(addresses.Swarm)
+        ? addresses.Swarm.filter((addr) => typeof addr === "string")
+        : typeof addresses.Swarm === "string"
+            ? [addresses.Swarm]
+            : [];
+    for (const swarmAddr of swarmAddresses) {
+        const parsed = await parseTcpMultiaddr(swarmAddr);
+        if (parsed)
+            addCheck("IPFS Swarm", parsed.host, parsed.port, swarmAddr);
+    }
+    for (const check of checks.values()) {
+        const inUse = await tcp_port_used_1.default.check(check.port, check.host);
+        log.trace?.(`Validating ${check.label} port ${check.host}:${check.port} (source: ${check.source}) - in use: ${inUse}`);
+        if (inUse) {
+            throw new Error(`Cannot start IPFS daemon because the ${check.label} port ${check.host}:${check.port} (configured as ${check.source}) is already in use.`);
+        }
+    }
+}
+async function startKuboNode(apiUrl, gatewayUrl, dataPath, onSpawn) {
     return new Promise(async (resolve, reject) => {
         const log = (await (0, util_1.getPlebbitLogger)())("plebbit-cli:ipfs:startKuboNode");
         const ipfsDataPath = process.env["IPFS_PATH"] || path_1.default.join(dataPath, ".plebbit-cli.ipfs");
         await fs_1.default.promises.mkdir(ipfsDataPath, { recursive: true });
+        const ipfsConfigPath = path_1.default.join(ipfsDataPath, "config");
         const kuboExePath = await getKuboExePath();
         const kuboVersion = await getKuboVersion();
         log(`Using Kubo version: ${kuboVersion}`);
@@ -117,7 +222,6 @@ async function startKuboNode(apiUrl, gatewayUrl, dataPath) {
                 hideWindows: true
             });
             log("Called 'ipfs config profile apply server' successfully");
-            const ipfsConfigPath = path_1.default.join(ipfsDataPath, "config");
             await mergeCliDefaultsIntoIpfsConfig(log, ipfsConfigPath, apiUrl, gatewayUrl);
         }
         else {
@@ -131,12 +235,20 @@ async function startKuboNode(apiUrl, gatewayUrl, dataPath) {
             log.error("Failed to run IPFS repo migrations automatically", migrationError);
             throw migrationError;
         }
+        try {
+            await ensureIpfsPortsAreAvailable(log, ipfsConfigPath, apiUrl, gatewayUrl);
+        }
+        catch (error) {
+            reject(error instanceof Error ? error : new Error(String(error)));
+            return;
+        }
         const daemonArgs = ["--enable-namesys-pubsub", "--migrate"];
         const kuboProcess = (0, child_process_1.spawn)(kuboExePath, ["daemon", ...daemonArgs], {
             env,
             cwd: process.cwd(),
             detached: true
         });
+        onSpawn?.(kuboProcess);
         log.trace(`Kubo ipfs daemon process started with pid ${kuboProcess.pid} and args`, daemonArgs);
         let lastError = "Kubo process exited before Daemon was ready."; // Default error for premature exit
         let daemonReady = false;
@@ -169,12 +281,20 @@ async function startKuboNode(apiUrl, gatewayUrl, dataPath) {
             if (output.match("Daemon is ready")) {
                 daemonReady = true;
                 (0, assert_1.default)(typeof kuboProcess.pid === "number", `kuboProcess.pid (${kuboProcess.pid}) is not a valid pid`);
-                // IMPORTANT: Remove promise-specific handlers once startup is successful
-                kuboProcess.removeListener("exit", onProcessExit);
-                kuboProcess.removeListener("error", onProcessError);
-                // Stderr listener can remain for ongoing logging if desired, or be removed too.
-                // kuboProcess.stderr.removeListener("data", onStderrData); // If you want to stop this specific stderr logging
-                resolve(kuboProcess);
+                const delayRaw = process.env["PLEBBIT_CLI_TEST_IPFS_READY_DELAY_MS"];
+                const readyDelay = delayRaw ? Number(delayRaw) : 0;
+                const completeResolve = () => {
+                    // IMPORTANT: Remove promise-specific handlers once startup is successful
+                    kuboProcess.removeListener("exit", onProcessExit);
+                    kuboProcess.removeListener("error", onProcessError);
+                    // Stderr listener can remain for ongoing logging if desired, or be removed too.
+                    // kuboProcess.stderr.removeListener("data", onStderrData); // If you want to stop this specific stderr logging
+                    resolve(kuboProcess);
+                };
+                if (Number.isFinite(readyDelay) && readyDelay > 0)
+                    setTimeout(completeResolve, readyDelay);
+                else
+                    completeResolve();
             }
         };
         const onStderrData = (data) => {
