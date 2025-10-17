@@ -113,6 +113,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Run daemon and make sure it's online
         run: yarn ci:daemon:test-before-release
+      - name: Install NSIS
+        run: choco install nsis -y
+        shell: powershell
+      - name: Add NSIS to PATH
+        run: Add-Content $env:GITHUB_PATH 'C:\Program Files (x86)\NSIS'
+        shell: powershell
       - name: Generate Windows installer
         run: yarn generate:installer:windows
         shell: bash
