@@ -13,15 +13,8 @@ async function getKuboExePath(): Promise<string> {
 }
 
 async function getKuboVersion(): Promise<string> {
-    try {
-        const packageJsonPath = "kubo/package.json";
-        const packageJsonContent = await fsPromises.readFile(packageJsonPath, "utf-8");
-        const packageJson = JSON.parse(packageJsonContent);
-        return packageJson.version;
-    } catch (error) {
-        console.error("Failed to read kubo version:", error);
-        return "unknown";
-    }
+    const kuboPackageJson = await import("kubo/package.json", { with: { type: "json" } });
+    return kuboPackageJson.default.version;
 }
 
 export async function mergeCliDefaultsIntoIpfsConfig(log: any, ipfsConfigPath: string, apiUrl: URL, gatewayUrl: URL) {
@@ -44,8 +37,7 @@ export async function mergeCliDefaultsIntoIpfsConfig(log: any, ipfsConfigPath: s
     for (const hostname of hostnamesForDefaults) {
         if (!hostname) continue;
         const existingConfig = gatewayPublicGateways[hostname];
-        const normalizedExistingConfig =
-            typeof existingConfig === "object" && existingConfig !== null ? { ...existingConfig } : {};
+        const normalizedExistingConfig = typeof existingConfig === "object" && existingConfig !== null ? { ...existingConfig } : {};
         const paths =
             Array.isArray(normalizedExistingConfig.Paths) && normalizedExistingConfig.Paths.length > 0
                 ? normalizedExistingConfig.Paths
@@ -53,10 +45,7 @@ export async function mergeCliDefaultsIntoIpfsConfig(log: any, ipfsConfigPath: s
 
         gatewayPublicGateways[hostname] = {
             ...normalizedExistingConfig,
-            InlineDNSLink:
-                normalizedExistingConfig.InlineDNSLink !== undefined
-                    ? normalizedExistingConfig.InlineDNSLink
-                    : false,
+            InlineDNSLink: normalizedExistingConfig.InlineDNSLink !== undefined ? normalizedExistingConfig.InlineDNSLink : false,
             UseSubdomains: false,
             Paths: paths
         };
@@ -136,9 +125,7 @@ async function parseTcpMultiaddr(multiAddrString: string): Promise<{ host: strin
         const address = factory(multiAddrString);
         const components = address.getComponents();
         const tcpComponent = components.find((component) => component.name === "tcp");
-        const hostComponent = components.find((component) =>
-            ["ip4", "ip6", "dns", "dns4", "dns6", "dnsaddr"].includes(component.name)
-        );
+        const hostComponent = components.find((component) => ["ip4", "ip6", "dns", "dns4", "dns6", "dnsaddr"].includes(component.name));
         const host = hostComponent?.value;
         const portValue = tcpComponent?.value ? Number(tcpComponent.value) : undefined;
         if (!host || !portValue || !Number.isFinite(portValue) || portValue <= 0) return undefined;
