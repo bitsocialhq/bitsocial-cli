@@ -2,3 +2,4 @@
 - Make sure to use the right node version, run "nvm use"
 - you need to make sure building passes when you make a change, run "yarn build && yarn build:test"
 - We use yarn in this repo, not npm
+- do not run "yarn install" until you run "nvm use" first and make sure we're on the right node version
