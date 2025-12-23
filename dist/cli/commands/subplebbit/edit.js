@@ -1,16 +1,13 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
 //@ts-expect-error
-const dataobject_parser_1 = tslib_1.__importDefault(require("dataobject-parser"));
-const core_1 = require("@oclif/core");
-const base_command_js_1 = require("../../base-command.js");
-const util_js_1 = require("../../../util.js");
-const remeda = tslib_1.__importStar(require("remeda"));
-class Edit extends base_command_js_1.BaseCommand {
+import DataObjectParser from "dataobject-parser";
+import { Args } from "@oclif/core";
+import { BaseCommand } from "../../base-command.js";
+import { getPlebbitLogger, mergeDeep } from "../../../util.js";
+import * as remeda from "remeda";
+export default class Edit extends BaseCommand {
     static description = "Edit a subplebbit properties. For a list of properties, visit https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions";
     static args = {
-        address: core_1.Args.string({
+        address: Args.string({
             name: "address",
             required: true,
             description: "Address of the subplebbit address to edit"
@@ -48,10 +45,10 @@ class Edit extends base_command_js_1.BaseCommand {
     ];
     async run() {
         const { flags, args } = await this.parse(Edit);
-        const log = (await (0, util_js_1.getPlebbitLogger)())("plebbit-cli:commands:subplebbit:edit");
+        const log = (await getPlebbitLogger())("plebbit-cli:commands:subplebbit:edit");
         log(`flags: `, flags);
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcUrl.toString());
-        const editOptions = dataobject_parser_1.default.transpose(remeda.omit(flags, ["plebbitRpcUrl"]))["_data"];
+        const editOptions = DataObjectParser.transpose(remeda.omit(flags, ["plebbitRpcUrl"]))["_data"];
         log("Edit options parsed:", editOptions);
         const localSubs = plebbit.subplebbits;
         if (!localSubs.includes(args.address))
@@ -59,7 +56,7 @@ class Edit extends base_command_js_1.BaseCommand {
         try {
             const sub = await plebbit.createSubplebbit({ address: args.address });
             const mergedSubState = remeda.pick(sub, remeda.keys.strict(editOptions));
-            const finalMergedState = (0, util_js_1.mergeDeep)(mergedSubState, editOptions);
+            const finalMergedState = mergeDeep(mergedSubState, editOptions);
             log("Internal sub state after merge:", finalMergedState);
             await sub.edit(finalMergedState);
             this.log(sub.address);
@@ -74,4 +71,3 @@ class Edit extends base_command_js_1.BaseCommand {
         await plebbit.destroy();
     }
 }
-exports.default = Edit;

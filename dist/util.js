@@ -1,22 +1,13 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPlebbitLogger = getPlebbitLogger;
-exports.getLanIpV4Address = getLanIpV4Address;
-exports.loadKuboConfigFile = loadKuboConfigFile;
-exports.parseMultiAddrKuboRpcToUrl = parseMultiAddrKuboRpcToUrl;
-exports.parseMultiAddrIpfsGatewayToUrl = parseMultiAddrIpfsGatewayToUrl;
-exports.mergeDeep = mergeDeep;
-const tslib_1 = require("tslib");
-const os_1 = tslib_1.__importDefault(require("os"));
-const path_1 = tslib_1.__importDefault(require("path"));
-const fs_1 = tslib_1.__importDefault(require("fs"));
-const fsPromises = tslib_1.__importStar(require("fs/promises"));
-async function getPlebbitLogger() {
+import os from "os";
+import path from "path";
+import fs from "fs";
+import * as fsPromises from "fs/promises";
+export async function getPlebbitLogger() {
     const Logger = await import("@plebbit/plebbit-logger");
     return Logger.default;
 }
-function getLanIpV4Address() {
-    const allInterfaces = os_1.default.networkInterfaces();
+export function getLanIpV4Address() {
+    const allInterfaces = os.networkInterfaces();
     for (const k in allInterfaces) {
         const specificInterfaceInfos = allInterfaces[k];
         if (!specificInterfaceInfos)
@@ -28,9 +19,9 @@ function getLanIpV4Address() {
     }
     return undefined;
 }
-async function loadKuboConfigFile(plebbitDataPath) {
-    const kuboConfigPath = path_1.default.join(plebbitDataPath, ".ipfs-plebbit-cli", "config");
-    if (!fs_1.default.existsSync(kuboConfigPath))
+export async function loadKuboConfigFile(plebbitDataPath) {
+    const kuboConfigPath = path.join(plebbitDataPath, ".ipfs-plebbit-cli", "config");
+    if (!fs.existsSync(kuboConfigPath))
         return undefined;
     const kuboConfig = JSON.parse((await fsPromises.readFile(kuboConfigPath)).toString());
     return kuboConfig;
@@ -39,19 +30,35 @@ async function parseMultiAddr(multiAddrString) {
     const module = await import("@multiformats/multiaddr");
     return module.multiaddr(multiAddrString);
 }
-async function parseMultiAddrKuboRpcToUrl(kuboMultiAddrString) {
-    const multiAddrObj = await parseMultiAddr(kuboMultiAddrString);
-    return new URL(`http://${multiAddrObj.nodeAddress().address}:${multiAddrObj.nodeAddress().port}/api/v0`);
+function multiAddrToHostPort(multiAddrObj) {
+    const components = multiAddrObj.getComponents();
+    const hostComponent = components.find((component) => ["ip4", "ip6", "dns", "dns4", "dns6", "dnsaddr"].includes(component.name));
+    const tcpComponent = components.find((component) => component.name === "tcp");
+    const host = hostComponent?.value;
+    const port = tcpComponent?.value ? Number(tcpComponent.value) : undefined;
+    if (!host || !port || !Number.isFinite(port) || port <= 0)
+        return undefined;
+    return { host, port };
 }
-async function parseMultiAddrIpfsGatewayToUrl(ipfsGatewaymultiAddrString) {
+export async function parseMultiAddrKuboRpcToUrl(kuboMultiAddrString) {
+    const multiAddrObj = await parseMultiAddr(kuboMultiAddrString);
+    const parsed = multiAddrToHostPort(multiAddrObj);
+    if (!parsed)
+        throw new Error(`Unable to parse kubo RPC multiaddr: ${kuboMultiAddrString}`);
+    return new URL(`http://${parsed.host}:${parsed.port}/api/v0`);
+}
+export async function parseMultiAddrIpfsGatewayToUrl(ipfsGatewaymultiAddrString) {
     const multiAddrObj = await parseMultiAddr(ipfsGatewaymultiAddrString);
-    return new URL(`http://${multiAddrObj.nodeAddress().address}:${multiAddrObj.nodeAddress().port}`);
+    const parsed = multiAddrToHostPort(multiAddrObj);
+    if (!parsed)
+        throw new Error(`Unable to parse IPFS gateway multiaddr: ${ipfsGatewaymultiAddrString}`);
+    return new URL(`http://${parsed.host}:${parsed.port}`);
 }
 /**
  * Custom merge function that implements CLI-specific merge behavior.
  * This matches the expected behavior from the test suite.
  */
-function mergeDeep(target, source) {
+export function mergeDeep(target, source) {
     function isObject(item) {
         return item && typeof item === "object" && !Array.isArray(item);
     }

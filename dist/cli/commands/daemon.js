@@ -1,38 +1,35 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
-const core_1 = require("@oclif/core");
-const defaults_js_1 = tslib_1.__importDefault(require("../../common-utils/defaults.js"));
-const startIpfs_js_1 = require("../../ipfs/startIpfs.js");
-const path_1 = tslib_1.__importDefault(require("path"));
-const tcp_port_used_1 = tslib_1.__importDefault(require("tcp-port-used"));
-const util_js_1 = require("../../util.js");
-const daemon_server_js_1 = require("../../webui/daemon-server.js");
-const fs_1 = tslib_1.__importDefault(require("fs"));
-const promises_1 = tslib_1.__importDefault(require("fs/promises"));
-const node_os_1 = require("node:os");
+import { Flags, Command } from "@oclif/core";
+import defaults from "../../common-utils/defaults.js";
+import { startKuboNode } from "../../ipfs/startIpfs.js";
+import path from "path";
+import tcpPortUsed from "tcp-port-used";
+import { getLanIpV4Address, getPlebbitLogger, loadKuboConfigFile, parseMultiAddrKuboRpcToUrl, parseMultiAddrIpfsGatewayToUrl } from "../../util.js";
+import { startDaemonServer } from "../../webui/daemon-server.js";
+import fs from "fs";
+import fsPromise from "fs/promises";
+import { EOL } from "node:os";
 //@ts-expect-error
-const dataobject_parser_1 = tslib_1.__importDefault(require("dataobject-parser"));
-const remeda = tslib_1.__importStar(require("remeda"));
+import DataObjectParser from "dataobject-parser";
+import * as remeda from "remeda";
 const defaultPlebbitOptions = {
-    dataPath: defaults_js_1.default.PLEBBIT_DATA_PATH,
-    httpRoutersOptions: defaults_js_1.default.HTTP_TRACKERS
+    dataPath: defaults.PLEBBIT_DATA_PATH,
+    httpRoutersOptions: defaults.HTTP_TRACKERS
 };
-class Daemon extends core_1.Command {
+export default class Daemon extends Command {
     static description = `Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any machine. Within the web ui users are able to browse, create and manage their subs fully P2P.
     Options can be passed to the RPC's instance through flag --plebbitOptions.optionName. For a list of plebbit options (https://github.com/plebbit/plebbit-js?tab=readme-ov-file#plebbitoptions)
     If you need to modify ipfs config, you should head to {plebbit-data-path}/.ipfs-plebbit-cli/config and modify the config file
     `;
     static flags = {
-        plebbitRpcUrl: core_1.Flags.url({
+        plebbitRpcUrl: Flags.url({
             description: "Specify Plebbit RPC URL to listen on",
             required: true,
-            default: defaults_js_1.default.PLEBBIT_RPC_URL
+            default: defaults.PLEBBIT_RPC_URL
         }),
-        logPath: core_1.Flags.directory({
+        logPath: Flags.directory({
             description: "Specify a directory which will be used to store logs",
             required: true,
-            default: defaults_js_1.default.PLEBBIT_LOG_PATH
+            default: defaults.PLEBBIT_LOG_PATH
         })
     };
     static examples = [
@@ -60,26 +57,26 @@ class Daemon extends core_1.Command {
     }
     async _getNewLogfileByEvacuatingOldLogsIfNeeded(logPath) {
         try {
-            await promises_1.default.mkdir(logPath, { recursive: true });
+            await fsPromise.mkdir(logPath, { recursive: true });
         }
         catch (e) {
             //@ts-expect-error
             if (e.code !== "EEXIST")
                 throw e;
         }
-        const logFiles = (await promises_1.default.readdir(logPath, { withFileTypes: true })).filter((file) => file.name.startsWith("plebbit_cli_daemon"));
+        const logFiles = (await fsPromise.readdir(logPath, { withFileTypes: true })).filter((file) => file.name.startsWith("plebbit_cli_daemon"));
         const logfilesCapacity = 5; // we only store 5 log files
         if (logFiles.length >= logfilesCapacity) {
             // we need to pick the oldest log to delete
             const logFileToDelete = logFiles.map((logFile) => logFile.name).sort()[0]; // TODO need to test this, not sure if it works
             console.log(`Will remove log (${logFileToDelete}) because we reached capacity (${logfilesCapacity})`);
-            await promises_1.default.rm(path_1.default.join(logPath, logFileToDelete));
+            await fsPromise.rm(path.join(logPath, logFileToDelete));
         }
-        return path_1.default.join(logPath, `plebbit_cli_daemon_${new Date().toISOString().replace(/:/g, "-")}.log`);
+        return path.join(logPath, `plebbit_cli_daemon_${new Date().toISOString().replace(/:/g, "-")}.log`);
     }
     async _pipeDebugLogsToLogFile(logPath) {
         const logFilePath = await this._getNewLogfileByEvacuatingOldLogsIfNeeded(logPath);
-        const logFile = fs_1.default.createWriteStream(logFilePath, { flags: "a" });
+        const logFile = fs.createWriteStream(logFilePath, { flags: "a" });
         const stdoutWrite = process.stdout.write.bind(process.stdout);
         const stderrWrite = process.stderr.write.bind(process.stderr);
         const removeColor = (data) => {
@@ -91,14 +88,14 @@ class Daemon extends core_1.Command {
             //@ts-expect-error
             const res = stdoutWrite(...args);
             if (!isLogFileOverLimit())
-                logFile.write(removeColor(args[0]) + node_os_1.EOL);
+                logFile.write(removeColor(args[0]) + EOL);
             return res;
         };
         process.stderr.write = (...args) => {
             //@ts-expect-error
             const res = stderrWrite(...args);
             if (!isLogFileOverLimit())
-                logFile.write(removeColor(args[0]).trimStart() + node_os_1.EOL);
+                logFile.write(removeColor(args[0]).trimStart() + EOL);
             return res;
         };
         console.log("Will store stderr + stdout log to", logFilePath);
@@ -109,7 +106,7 @@ class Daemon extends core_1.Command {
     }
     async run() {
         const { flags } = await this.parse(Daemon);
-        const Logger = await (0, util_js_1.getPlebbitLogger)();
+        const Logger = await getPlebbitLogger();
         this._setupLogger(Logger);
         await this._pipeDebugLogsToLogFile(flags.logPath);
         const log = Logger("plebbit-cli:daemon");
@@ -117,26 +114,26 @@ class Daemon extends core_1.Command {
         const plebbitRpcUrl = new URL(flags.plebbitRpcUrl);
         const plebbitOptionsFlagNames = Object.keys(flags).filter((flag) => flag.startsWith("plebbitOptions"));
         const plebbitOptionsFromFlag = plebbitOptionsFlagNames.length > 0
-            ? dataobject_parser_1.default.transpose(remeda.pick(flags, plebbitOptionsFlagNames))["_data"]?.["plebbitOptions"]
+            ? DataObjectParser.transpose(remeda.pick(flags, plebbitOptionsFlagNames))["_data"]?.["plebbitOptions"]
             : undefined;
-        if (plebbitOptionsFromFlag?.plebbitRpcClientsOptions && plebbitRpcUrl.toString() !== defaults_js_1.default.PLEBBIT_RPC_URL.toString()) {
+        if (plebbitOptionsFromFlag?.plebbitRpcClientsOptions && plebbitRpcUrl.toString() !== defaults.PLEBBIT_RPC_URL.toString()) {
             this.error("Can't provide plebbitOptions.plebbitRpcClientsOptions and --plebbitRpcUrl simuatelounsly. You have to choose between connecting to an RPC or starting up a new RPC");
         }
         if (plebbitOptionsFromFlag?.kuboRpcClientsOptions && plebbitOptionsFromFlag.kuboRpcClientsOptions.length !== 1)
             this.error("Can't provide plebbitOptions.kuboRpcClientsOptions as an array with more than 1 element, or as a non array");
         if (plebbitOptionsFromFlag?.ipfsGatewayUrls && plebbitOptionsFromFlag.ipfsGatewayUrls.length !== 1)
             this.error("Can't provide plebbitOptions.ipfsGatewayUrls as an array with more than 1 element, or as a non array");
-        const ipfsConfig = await (0, util_js_1.loadKuboConfigFile)(plebbitOptionsFromFlag?.dataPath || defaultPlebbitOptions.dataPath);
+        const ipfsConfig = await loadKuboConfigFile(plebbitOptionsFromFlag?.dataPath || defaultPlebbitOptions.dataPath);
         const kuboRpcEndpoint = plebbitOptionsFromFlag?.kuboRpcClientsOptions
             ? new URL(plebbitOptionsFromFlag.kuboRpcClientsOptions[0].toString())
             : ipfsConfig?.["Addresses"]?.["API"]
-                ? await (0, util_js_1.parseMultiAddrKuboRpcToUrl)(ipfsConfig?.["Addresses"]?.["API"])
-                : defaults_js_1.default.KUBO_RPC_URL;
+                ? await parseMultiAddrKuboRpcToUrl(ipfsConfig?.["Addresses"]?.["API"])
+                : defaults.KUBO_RPC_URL;
         const ipfsGatewayEndpoint = plebbitOptionsFromFlag?.ipfsGatewayUrls
             ? new URL(plebbitOptionsFromFlag.ipfsGatewayUrls[0])
             : ipfsConfig?.["Addresses"]?.["Gateway"]
-                ? await (0, util_js_1.parseMultiAddrIpfsGatewayToUrl)(ipfsConfig?.["Addresses"]?.["Gateway"])
-                : defaults_js_1.default.IPFS_GATEWAY_URL;
+                ? await parseMultiAddrIpfsGatewayToUrl(ipfsConfig?.["Addresses"]?.["Gateway"])
+                : defaults.IPFS_GATEWAY_URL;
         defaultPlebbitOptions.kuboRpcClientsOptions = [kuboRpcEndpoint.toString()];
         const mergedPlebbitOptions = { ...defaultPlebbitOptions, ...plebbitOptionsFromFlag };
         log("Merged plebbit options that will be used for this node", mergedPlebbitOptions);
@@ -150,7 +147,7 @@ class Daemon extends core_1.Command {
             const kuboApiPort = Number(kuboRpcEndpoint.port);
             if (kuboProcess || pendingKuboStart || usingDifferentProcessRpc)
                 return; // already started, no need to intervene
-            const isKuboApiPortTaken = await tcp_port_used_1.default.check(kuboApiPort, kuboRpcEndpoint.hostname);
+            const isKuboApiPortTaken = await tcpPortUsed.check(kuboApiPort, kuboRpcEndpoint.hostname);
             if (isKuboApiPortTaken) {
                 const versionUrl = new URL("version", kuboRpcEndpoint);
                 const controller = new AbortController();
@@ -172,7 +169,7 @@ class Daemon extends core_1.Command {
                 }
                 throw new Error(`Cannot start IPFS daemon because the IPFS API port ${kuboRpcEndpoint.hostname}:${kuboApiPort} (configured as ${kuboRpcEndpoint.toString()}) is already in use.`);
             }
-            const startPromise = (0, startIpfs_js_1.startKuboNode)(kuboRpcEndpoint, ipfsGatewayEndpoint, mergedPlebbitOptions.dataPath, (process) => {
+            const startPromise = startKuboNode(kuboRpcEndpoint, ipfsGatewayEndpoint, mergedPlebbitOptions.dataPath, (process) => {
                 kuboProcess = process;
             });
             pendingKuboStart = startPromise;
@@ -225,7 +222,7 @@ class Daemon extends core_1.Command {
                 return;
             if (startedOwnRpc)
                 return;
-            const isRpcPortTaken = await tcp_port_used_1.default.check(Number(plebbitRpcUrl.port), plebbitRpcUrl.hostname);
+            const isRpcPortTaken = await tcpPortUsed.check(Number(plebbitRpcUrl.port), plebbitRpcUrl.hostname);
             if (isRpcPortTaken && usingDifferentProcessRpc)
                 return;
             if (isRpcPortTaken) {
@@ -240,22 +237,22 @@ class Daemon extends core_1.Command {
                 usingDifferentProcessRpc = true;
                 return;
             }
-            daemonServer = await (0, daemon_server_js_1.startDaemonServer)(plebbitRpcUrl, ipfsGatewayEndpoint, mergedPlebbitOptions);
+            daemonServer = await startDaemonServer(plebbitRpcUrl, ipfsGatewayEndpoint, mergedPlebbitOptions);
             usingDifferentProcessRpc = false;
             startedOwnRpc = true;
             console.log(`plebbit rpc: listening on ${plebbitRpcUrl} (local connections only)`);
             console.log(`plebbit rpc: listening on ${plebbitRpcUrl}/${daemonServer.rpcAuthKey} (secret auth key for remote connections)`);
-            console.log(`Plebbit data path: ${path_1.default.resolve(mergedPlebbitOptions.dataPath)}`);
+            console.log(`Plebbit data path: ${path.resolve(mergedPlebbitOptions.dataPath)}`);
             console.log(`Subplebbits in data path: `, daemonServer.listedSub);
             const localIpAddress = "localhost";
-            const remoteIpAddress = (0, util_js_1.getLanIpV4Address)() || localIpAddress;
+            const remoteIpAddress = getLanIpV4Address() || localIpAddress;
             const rpcPort = plebbitRpcUrl.port;
             for (const webui of daemonServer.webuis) {
                 console.log(`WebUI (${webui.name}): http://${localIpAddress}:${rpcPort}${webui.endpointLocal} (local connections only)`);
                 console.log(`WebUI (${webui.name}): http://${remoteIpAddress}:${rpcPort}${webui.endpointRemote} (secret auth key for remote connections)`);
             }
         };
-        const isRpcPortTaken = await tcp_port_used_1.default.check(Number(plebbitRpcUrl.port), plebbitRpcUrl.hostname);
+        const isRpcPortTaken = await tcpPortUsed.check(Number(plebbitRpcUrl.port), plebbitRpcUrl.hostname);
         if (!plebbitOptionsFromFlag?.kuboRpcClientsOptions && !isRpcPortTaken && !usingDifferentProcessRpc)
             await keepKuboUp();
         await createOrConnectRpc();
@@ -316,7 +313,7 @@ class Daemon extends core_1.Command {
         keepKuboUpInterval = setInterval(async () => {
             if (mainProcessExited)
                 return;
-            const isRpcPortTaken = await tcp_port_used_1.default.check(Number(plebbitRpcUrl.port), plebbitRpcUrl.hostname);
+            const isRpcPortTaken = await tcpPortUsed.check(Number(plebbitRpcUrl.port), plebbitRpcUrl.hostname);
             if (!plebbitOptionsFromFlag?.kuboRpcClientsOptions && !isRpcPortTaken && !usingDifferentProcessRpc)
                 await keepKuboUp();
             else if (plebbitOptionsFromFlag?.kuboRpcClientsOptions && !usingDifferentProcessRpc)
@@ -325,4 +322,3 @@ class Daemon extends core_1.Command {
         }, 5000);
     }
 }
-exports.default = Daemon;

@@ -1,32 +1,19 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.mergeCliDefaultsIntoIpfsConfig = mergeCliDefaultsIntoIpfsConfig;
-exports.startKuboNode = startKuboNode;
-const tslib_1 = require("tslib");
-const child_process_1 = require("child_process");
-const path_1 = tslib_1.__importDefault(require("path"));
-const fs_1 = tslib_1.__importDefault(require("fs"));
-const fsPromises = tslib_1.__importStar(require("fs/promises"));
-const assert_1 = tslib_1.__importDefault(require("assert"));
-const tcp_port_used_1 = tslib_1.__importDefault(require("tcp-port-used"));
-const kubo_1 = require("kubo");
-const util_1 = require("../util");
+import { spawn } from "child_process";
+import path from "path";
+import fs from "fs";
+import * as fsPromises from "fs/promises";
+import assert from "assert";
+import tcpPortUsed from "tcp-port-used";
+import { path as ipfsExePathFunc } from "kubo";
+import { getPlebbitLogger } from "../util.js";
 async function getKuboExePath() {
-    return (0, kubo_1.path)();
+    return ipfsExePathFunc();
 }
 async function getKuboVersion() {
-    try {
-        const packageJsonPath = require.resolve("kubo/package.json");
-        const packageJsonContent = await fsPromises.readFile(packageJsonPath, "utf-8");
-        const packageJson = JSON.parse(packageJsonContent);
-        return packageJson.version;
-    }
-    catch (error) {
-        console.error("Failed to read kubo version:", error);
-        return "unknown";
-    }
+    const kuboPackageJson = await import("kubo/package.json", { with: { type: "json" } });
+    return kuboPackageJson.default.version;
 }
-async function mergeCliDefaultsIntoIpfsConfig(log, ipfsConfigPath, apiUrl, gatewayUrl) {
+export async function mergeCliDefaultsIntoIpfsConfig(log, ipfsConfigPath, apiUrl, gatewayUrl) {
     const currentIpfsConfigFile = JSON.parse((await fsPromises.readFile(ipfsConfigPath)).toString());
     const existingGatewayConfig = currentIpfsConfigFile["Gateway"] ?? {};
     const existingPublicGatewaysConfig = existingGatewayConfig["PublicGateways"] ?? {};
@@ -51,9 +38,7 @@ async function mergeCliDefaultsIntoIpfsConfig(log, ipfsConfigPath, apiUrl, gatew
             : ["/ipfs/", "/ipns/"];
         gatewayPublicGateways[hostname] = {
             ...normalizedExistingConfig,
-            InlineDNSLink: normalizedExistingConfig.InlineDNSLink !== undefined
-                ? normalizedExistingConfig.InlineDNSLink
-                : false,
+            InlineDNSLink: normalizedExistingConfig.InlineDNSLink !== undefined ? normalizedExistingConfig.InlineDNSLink : false,
             UseSubdomains: false,
             Paths: paths
         };
@@ -82,7 +67,7 @@ async function mergeCliDefaultsIntoIpfsConfig(log, ipfsConfigPath, apiUrl, gatew
 function _spawnAsync(log, ...args) {
     return new Promise((resolve, reject) => {
         //@ts-ignore
-        const spawedProcess = (0, child_process_1.spawn)(...args);
+        const spawedProcess = spawn(...args);
         let errorMessage = "";
         spawedProcess.on("exit", (exitCode, signal) => {
             if (exitCode === 0)
@@ -119,14 +104,14 @@ async function parseTcpMultiaddr(multiAddrString) {
     try {
         const factory = await getMultiaddrFactory();
         const address = factory(multiAddrString);
-        if (!address.protoNames().includes("tcp"))
+        const components = address.getComponents();
+        const tcpComponent = components.find((component) => component.name === "tcp");
+        const hostComponent = components.find((component) => ["ip4", "ip6", "dns", "dns4", "dns6", "dnsaddr"].includes(component.name));
+        const host = hostComponent?.value;
+        const portValue = tcpComponent?.value ? Number(tcpComponent.value) : undefined;
+        if (!host || !portValue || !Number.isFinite(portValue) || portValue <= 0)
             return undefined;
-        const nodeAddress = address.nodeAddress();
-        const host = nodeAddress.address;
-        const port = nodeAddress.port;
-        if (!host || typeof port !== "number" || port <= 0)
-            return undefined;
-        return { host, port };
+        return { host, port: portValue };
     }
     catch {
         return undefined;
@@ -187,24 +172,24 @@ async function ensureIpfsPortsAreAvailable(log, configPath, apiUrl, gatewayUrl) 
             addCheck("IPFS Swarm", parsed.host, parsed.port, swarmAddr);
     }
     for (const check of checks.values()) {
-        const inUse = await tcp_port_used_1.default.check(check.port, check.host);
+        const inUse = await tcpPortUsed.check(check.port, check.host);
         log.trace?.(`Validating ${check.label} port ${check.host}:${check.port} (source: ${check.source}) - in use: ${inUse}`);
         if (inUse) {
             throw new Error(`Cannot start IPFS daemon because the ${check.label} port ${check.host}:${check.port} (configured as ${check.source}) is already in use.`);
         }
     }
 }
-async function startKuboNode(apiUrl, gatewayUrl, dataPath, onSpawn) {
+export async function startKuboNode(apiUrl, gatewayUrl, dataPath, onSpawn) {
     return new Promise(async (resolve, reject) => {
-        const log = (await (0, util_1.getPlebbitLogger)())("plebbit-cli:ipfs:startKuboNode");
-        const ipfsDataPath = process.env["IPFS_PATH"] || path_1.default.join(dataPath, ".plebbit-cli.ipfs");
-        await fs_1.default.promises.mkdir(ipfsDataPath, { recursive: true });
-        const ipfsConfigPath = path_1.default.join(ipfsDataPath, "config");
+        const log = (await getPlebbitLogger())("plebbit-cli:ipfs:startKuboNode");
+        const ipfsDataPath = process.env["IPFS_PATH"] || path.join(dataPath, ".plebbit-cli.ipfs");
+        await fs.promises.mkdir(ipfsDataPath, { recursive: true });
+        const ipfsConfigPath = path.join(ipfsDataPath, "config");
         const kuboExePath = await getKuboExePath();
         const kuboVersion = await getKuboVersion();
         log(`Using Kubo version: ${kuboVersion}`);
-        log(`IpfsDataPath (${ipfsDataPath}), kuboExePath (${kuboExePath})`, "kubo ipfs config file", path_1.default.join(ipfsDataPath, "config"));
-        log("If you would like to change kubo config, please edit the config file at", path_1.default.join(ipfsDataPath, "config"));
+        log(`IpfsDataPath (${ipfsDataPath}), kuboExePath (${kuboExePath})`, "kubo ipfs config file", path.join(ipfsDataPath, "config"));
+        log("If you would like to change kubo config, please edit the config file at", path.join(ipfsDataPath, "config"));
         const env = { IPFS_PATH: ipfsDataPath, DEBUG_COLORS: "1" };
         let configJustInitialized = false;
         try {
@@ -243,7 +228,7 @@ async function startKuboNode(apiUrl, gatewayUrl, dataPath, onSpawn) {
             return;
         }
         const daemonArgs = ["--enable-namesys-pubsub", "--migrate"];
-        const kuboProcess = (0, child_process_1.spawn)(kuboExePath, ["daemon", ...daemonArgs], {
+        const kuboProcess = spawn(kuboExePath, ["daemon", ...daemonArgs], {
             env,
             cwd: process.cwd(),
             detached: true
@@ -280,7 +265,7 @@ async function startKuboNode(apiUrl, gatewayUrl, dataPath, onSpawn) {
             log.trace(output);
             if (output.match("Daemon is ready")) {
                 daemonReady = true;
-                (0, assert_1.default)(typeof kuboProcess.pid === "number", `kuboProcess.pid (${kuboProcess.pid}) is not a valid pid`);
+                assert(typeof kuboProcess.pid === "number", `kuboProcess.pid (${kuboProcess.pid}) is not a valid pid`);
                 const delayRaw = process.env["PLEBBIT_CLI_TEST_IPFS_READY_DELAY_MS"];
                 const readyDelay = delayRaw ? Number(delayRaw) : 0;
                 const completeResolve = () => {
