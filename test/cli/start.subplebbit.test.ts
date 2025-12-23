@@ -1,7 +1,7 @@
 import { runCommand } from "@oclif/test";
 import { expect } from "chai";
 import Sinon from "sinon";
-import { BaseCommand } from "../../dist/cli/base-command";
+import { BaseCommand } from "../../dist/cli/base-command.js";
 
 describe("plebbit subplebbit start", () => {
     const addresses = ["plebbit.eth", "plebbit2.eth"];
@@ -24,7 +24,7 @@ describe("plebbit subplebbit start", () => {
     after(() => sandbox.restore());
 
     it(`Parses and submits addresses correctly`, async () => {
-        const result = await runCommand(["subplebbit", "start", ...addresses]);
+        const result = await runCommand(["subplebbit", "start", ...addresses], process.cwd());
         // Validate calls to start here
         expect(startFake.callCount).to.equal(addresses.length);
 

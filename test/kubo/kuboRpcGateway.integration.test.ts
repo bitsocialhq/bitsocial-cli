@@ -8,7 +8,7 @@ import { path as resolveKuboBinary } from "kubo";
 import { directory as tempDirectory } from "tempy";
 import { setTimeout as delay } from "timers/promises";
 import { promisify } from "util";
-import { startKuboNode } from "../../src/ipfs/startIpfs";
+import { startKuboNode } from "../../src/ipfs/startIpfs.js";
 
 const execFileAsync = promisify(execFile);
 

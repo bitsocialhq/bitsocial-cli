@@ -7,7 +7,7 @@
     "repository": "git@github.com:plebbit/plebbit-cli.git",
     "author": "Esteban Abaroa, Rinse",
     "license": "GPL-2.0-only",
-    "type": "commonjs",
+    "type": "module",
     "private": true,
     "exports": null,
     "scripts": {
@@ -26,9 +26,9 @@
         "generate:executable:tarballs:windows": "oclif pack tarballs --no-xz --targets win32-x64,win32-x86",
         "generate:executable:tarballs:linux:x64": "oclif pack tarballs --no-xz --targets linux-x64",
         "generate:installer:windows": "yarn oclif pack win --targets win32-x64",
-        "ci:rename-tarballs": "yarn ts-node ci-bin/rename-tarballs-installers.ts",
-        "ci:download-web-uis": "yarn ts-node ci-bin/download-web-uis.ts",
-        "ci:daemon:test-before-release": "yarn ts-node ci-bin/run-daemon-before-release.ts"
+        "ci:rename-tarballs": "node --loader ts-node/esm ci-bin/rename-tarballs-installers.ts",
+        "ci:download-web-uis": "node --loader ts-node/esm ci-bin/download-web-uis.ts",
+        "ci:daemon:test-before-release": "node --loader ts-node/esm ci-bin/run-daemon-before-release.ts"
     },
     "files": [
         "/bin",
@@ -67,6 +67,10 @@
         "commitizen": {
             "path": "cz-conventional-changelog"
         }
+    },
+    "ts-node": {
+        "esm": true,
+        "experimentalSpecifierResolution": "node"
     },
     "engines": {
         "node": ">=22.0.0"

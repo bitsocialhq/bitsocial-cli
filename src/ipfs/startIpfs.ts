@@ -6,7 +6,7 @@ import * as remeda from "remeda";
 import assert from "assert";
 import tcpPortUsed from "tcp-port-used";
 import { path as ipfsExePathFunc } from "kubo";
-import { getPlebbitLogger } from "../util";
+import { getPlebbitLogger } from "../util.js";
 
 async function getKuboExePath(): Promise<string> {
     return ipfsExePathFunc();
@@ -14,7 +14,7 @@ async function getKuboExePath(): Promise<string> {
 
 async function getKuboVersion(): Promise<string> {
     try {
-        const packageJsonPath = require.resolve("kubo/package.json");
+        const packageJsonPath = "kubo/package.json";
         const packageJsonContent = await fsPromises.readFile(packageJsonPath, "utf-8");
         const packageJson = JSON.parse(packageJsonContent);
         return packageJson.version;

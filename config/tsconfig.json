@@ -21,9 +21,10 @@
         "resolveJsonModule": true,
         "esModuleInterop": true,
         "importHelpers": true,
-        "moduleResolution": "Node16",
-        "module": "Node16",
-        "skipLibCheck": true
+        "moduleResolution": "NodeNext",
+        "module": "NodeNext",
+        "skipLibCheck": true,
+        "moduleDetection": "force",
     },
     "include": ["../src/**/*"],
     "exclude": ["../node_modules"],

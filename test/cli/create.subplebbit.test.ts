@@ -1,12 +1,12 @@
 import { runCommand } from "@oclif/test";
 import { expect } from "chai";
-import signers from "../fixtures/signers";
+import signers from "../fixtures/signers.js";
 import Sinon from "sinon";
-import type { CreateSubplebbitOptions } from "../types/subplebbitTypes";
+import type { CreateSubplebbitOptions } from "../types/subplebbitTypes.js";
 
-import { BaseCommand } from "../../dist/cli/base-command";
+import { BaseCommand } from "../../dist/cli/base-command.js";
 
-const cliCreateOptions = <CreateSubplebbitOptions>{
+const cliCreateOptions = {
     privateKeyPath: "test/fixtures/sub_0_private_key.pem",
     title: "testTitle",
     description: "testDescription",
@@ -25,7 +25,7 @@ describe("plebbit subplebbit create", () => {
 
     const startFake = sandbox.fake();
     const plebbitCreateStub = sandbox.fake.resolves({ address: signers[0]!.address, start: startFake, started: false });
-    const runCreateCommand = (args: string) => runCommand(args, undefined, { stripAnsi: true });
+    const runCreateCommand = (args: string) => runCommand(args, process.cwd(), { stripAnsi: true });
     before(async () => {
         const plebbitInstanceFake = sandbox.fake.resolves({
             createSubplebbit: plebbitCreateStub,

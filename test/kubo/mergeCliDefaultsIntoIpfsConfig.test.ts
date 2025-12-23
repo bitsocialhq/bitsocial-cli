@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { file as tempFile } from "tempy";
 import * as fs from "fs/promises";
 import path from "path";
-import { mergeCliDefaultsIntoIpfsConfig } from "../../src/ipfs/startIpfs";
+import { mergeCliDefaultsIntoIpfsConfig } from "../../src/ipfs/startIpfs.js";
 
 const noopLog = () => {
     /* no-op for tests */

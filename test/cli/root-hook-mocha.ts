@@ -1,4 +1,4 @@
-exports.mochaHooks = {
+export const mochaHooks = {
     beforeAll: async () => {},
     beforeEach: () => {},
     afterAll: () => {},

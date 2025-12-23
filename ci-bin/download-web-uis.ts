@@ -15,7 +15,7 @@ import decompress from "decompress";
     try {
         await fs.mkdir(dstOfWebui);
     } catch (e) {
-        const error = <any>e;
+        const error = e as any;
         if (error["code"] === "EEXIST") {
             console.log("Web UIs directory already exists, we're gonna assume they're already downloaded and abort");
             return;
@@ -31,7 +31,7 @@ import decompress from "decompress";
             throw Error(
                 `Failed to fetch the release of ${githubRepo}, status code ${latestSeeditReleaseReq.status}, status text ${latestSeeditReleaseReq.statusText}`
             );
-        const latestRelease = <any>await latestSeeditReleaseReq.json();
+        const latestRelease = await latestSeeditReleaseReq.json() as any;
         const htmlZipAsset = latestRelease.assets.find((asset: any) => asset.name.includes("html"));
         const htmlZipRequest = await fetch(htmlZipAsset["browser_download_url"], { headers });
         if (!htmlZipRequest.body)
@@ -44,7 +44,7 @@ import decompress from "decompress";
 
         const zipfilePath = path.join(dstOfWebui, htmlZipAsset.name);
         const writer = createWriteStream(zipfilePath);
-        await streamFinished(Readable.fromWeb(<any>htmlZipRequest.body).pipe(writer));
+        await streamFinished(Readable.fromWeb(htmlZipRequest.body as any).pipe(writer));
         writer.close();
         console.log("Downloaded", htmlZipAsset.name, "webui successfully. Attempting to unzip");
 

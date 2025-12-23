@@ -1,4 +1,4 @@
-import type { SubplebbitEditOptions, SubplebbitInstance, SubplebbitIpfsType } from "../types/subplebbitTypes";
+import type { SubplebbitEditOptions, SubplebbitInstance, SubplebbitIpfsType } from "../types/subplebbitTypes.js";
 
 export const currentSubProps: Partial<SubplebbitInstance> = {
     title: "original title",

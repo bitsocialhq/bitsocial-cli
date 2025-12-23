@@ -24,7 +24,7 @@ export default class List extends BaseCommand {
             this.log(subs.join(EOL));
         } else {
             const subsWithStarted = await Promise.all(
-                subs.map(async (subAddress) => {
+                subs.map(async (subAddress: string) => {
                     const subInstance = await plebbit.createSubplebbit({ address: subAddress });
                     return { address: subInstance.address, started: subInstance.started };
                 })

@@ -2,16 +2,16 @@ import { runCommand } from "@oclif/test";
 import { expect } from "chai";
 //@ts-ignore
 import Sinon from "sinon";
-import type { SubplebbitEditOptions } from "../types/subplebbitTypes";
-import { currentSubProps } from "../fixtures/subplebbitForEditFixture";
-import { BaseCommand } from "../../dist/cli/base-command";
+import type { SubplebbitEditOptions } from "../types/subplebbitTypes.js";
+import { currentSubProps } from "../fixtures/subplebbitForEditFixture.js";
+import { BaseCommand } from "../../dist/cli/base-command.js";
 
 describe("plebbit subplebbit edit", () => {
     const sandbox = Sinon.createSandbox();
 
     const editFake = sandbox.fake();
 
-    const runEditCommand = (args: string) => runCommand(args, undefined, { stripAnsi: true });
+    const runEditCommand = (args: string) => runCommand(args, process.cwd(), { stripAnsi: true });
 
     before(() => {
         const plebbitInstanceFake = sandbox.fake.resolves({

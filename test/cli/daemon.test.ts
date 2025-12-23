@@ -2,7 +2,7 @@
 import { ChildProcess, spawn } from "child_process";
 import net from "net";
 import defaults from "../../dist/common-utils/defaults.js";
-import chai from "chai";
+import { expect, use } from "chai";
 import { directory as randomDirectory } from "tempy";
 import WebSocket from "ws";
 import { path as kuboExePathFunc } from "kubo";
@@ -11,9 +11,9 @@ dns.setDefaultResultOrder("ipv4first"); // to be able to resolve localhost
 
 //@ts-ignore
 import chaiAsPromised from "chai-as-promised";
-chai.use(chaiAsPromised);
+use(chaiAsPromised);
 
-const { expect, assert } = chai;
+import { assert } from "chai";
 
 const rpcServerEndPoint = defaults.PLEBBIT_RPC_URL;
 type ManagedChildProcess = ChildProcess & { kuboRpcUrl?: URL };

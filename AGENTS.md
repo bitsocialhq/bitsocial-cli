@@ -1,0 +1,4 @@
+- if you want to run tests, you should use "yarn test:cli"
+- Make sure to use the right node version, run "nvm use"
+- you need to make sure building passes when you make a change, run "yarn build && yarn build:test"
+- We use yarn in this repo, not npm

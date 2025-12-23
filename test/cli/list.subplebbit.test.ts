@@ -1,7 +1,7 @@
 import { runCommand } from "@oclif/test";
 import { expect } from "chai";
 import Sinon from "sinon";
-import { BaseCommand } from "../../dist/cli/base-command";
+import { BaseCommand } from "../../dist/cli/base-command.js";
 
 describe("plebbit subplebbit list", () => {
     const sandbox = Sinon.createSandbox();
@@ -20,7 +20,7 @@ describe("plebbit subplebbit list", () => {
     after(() => sandbox.restore());
 
     it(`-q Outputs only subplebbit addresses`, async () => {
-        const result = await runCommand("subplebbit list -q");
+        const result = await runCommand("subplebbit list -q", process.cwd());
         expect(result.error).to.be.undefined;
         const trimmedOutput: string[] = result.stdout.trim().split("\n");
         expect(trimmedOutput).to.deep.equal(fakeSubplebbits);
