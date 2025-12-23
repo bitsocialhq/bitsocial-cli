@@ -195,7 +195,7 @@ EXAMPLES
   $ plebbit daemon --plebbitOptions.kuboRpcClientsOptions[0] https://remoteipfsnode.com
 ```
 
-_See code: [src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v0.17.6/src/cli/commands/daemon.ts)_
+_See code: [src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v0.17.7/src/cli/commands/daemon.ts)_
 
 ## `plebbit help [COMMAND]`
 
@@ -206,7 +206,7 @@ USAGE
   $ plebbit help [COMMAND...] [-n]
 
 ARGUMENTS
-  COMMAND...  Command to show help for.
+  [COMMAND...]  Command to show help for.
 
 FLAGS
   -n, --nested-commands  Include all nested commands in the output.
@@ -215,7 +215,7 @@ DESCRIPTION
   Display help for plebbit.
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.0.18/src/cli/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.2.36/src/cli/commands/help.ts)_
 
 ## `plebbit subplebbit create`
 
@@ -241,7 +241,7 @@ EXAMPLES
     $ plebbit subplebbit create --title 'Hello Plebs' --description 'Welcome'
 ```
 
-_See code: [src/cli/commands/subplebbit/create.ts](https://github.com/plebbit/plebbit-cli/blob/v0.17.6/src/cli/commands/subplebbit/create.ts)_
+_See code: [src/cli/commands/subplebbit/create.ts](https://github.com/plebbit/plebbit-cli/blob/v0.17.7/src/cli/commands/subplebbit/create.ts)_
 
 ## `plebbit subplebbit edit ADDRESS`
 
@@ -294,7 +294,7 @@ EXAMPLES
     subplebbit edit plebbit.eth --settings.fetchThumbnailUrls=false
 ```
 
-_See code: [src/cli/commands/subplebbit/edit.ts](https://github.com/plebbit/plebbit-cli/blob/v0.17.6/src/cli/commands/subplebbit/edit.ts)_
+_See code: [src/cli/commands/subplebbit/edit.ts](https://github.com/plebbit/plebbit-cli/blob/v0.17.7/src/cli/commands/subplebbit/edit.ts)_
 
 ## `plebbit subplebbit get ADDRESS`
 
@@ -319,7 +319,7 @@ EXAMPLES
   $ plebbit subplebbit get 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
-_See code: [src/cli/commands/subplebbit/get.ts](https://github.com/plebbit/plebbit-cli/blob/v0.17.6/src/cli/commands/subplebbit/get.ts)_
+_See code: [src/cli/commands/subplebbit/get.ts](https://github.com/plebbit/plebbit-cli/blob/v0.17.7/src/cli/commands/subplebbit/get.ts)_
 
 ## `plebbit subplebbit list`
 
@@ -327,21 +327,11 @@ List your subplebbits
 
 ```
 USAGE
-  $ plebbit subplebbit list --plebbitRpcUrl <value> [-q] [--columns <value> | -x] [--filter <value>] [--no-header |
-    [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort <value>]
+  $ plebbit subplebbit list --plebbitRpcUrl <value> [-q]
 
 FLAGS
   -q, --quiet                  Only display subplebbit addresses
-  -x, --extended               show extra columns
-      --columns=<value>        only show provided columns (comma-separated)
-      --csv                    output is csv format [alias: --output=csv]
-      --filter=<value>         filter property by partial string matching, ex: name=foo
-      --no-header              hide table header from output
-      --no-truncate            do not truncate output to fit screen
-      --output=<option>        output in a more machine friendly format
-                               <options: csv|json|yaml>
       --plebbitRpcUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC
-      --sort=<value>           property to sort by (prepend '-' for descending)
 
 DESCRIPTION
   List your subplebbits
@@ -352,7 +342,7 @@ EXAMPLES
   $ plebbit subplebbit list
 ```
 
-_See code: [src/cli/commands/subplebbit/list.ts](https://github.com/plebbit/plebbit-cli/blob/v0.17.6/src/cli/commands/subplebbit/list.ts)_
+_See code: [src/cli/commands/subplebbit/list.ts](https://github.com/plebbit/plebbit-cli/blob/v0.17.7/src/cli/commands/subplebbit/list.ts)_
 
 ## `plebbit subplebbit start ADDRESSES`
 
@@ -377,7 +367,7 @@ EXAMPLES
   $ plebbit subplebbit start 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
-_See code: [src/cli/commands/subplebbit/start.ts](https://github.com/plebbit/plebbit-cli/blob/v0.17.6/src/cli/commands/subplebbit/start.ts)_
+_See code: [src/cli/commands/subplebbit/start.ts](https://github.com/plebbit/plebbit-cli/blob/v0.17.7/src/cli/commands/subplebbit/start.ts)_
 
 ## `plebbit subplebbit stop ADDRESSES`
 
@@ -402,7 +392,7 @@ EXAMPLES
   $ plebbit subplebbit stop Qmb99crTbSUfKXamXwZBe829Vf6w5w5TktPkb6WstC9RFW
 ```
 
-_See code: [src/cli/commands/subplebbit/stop.ts](https://github.com/plebbit/plebbit-cli/blob/v0.17.6/src/cli/commands/subplebbit/stop.ts)_
+_See code: [src/cli/commands/subplebbit/stop.ts](https://github.com/plebbit/plebbit-cli/blob/v0.17.7/src/cli/commands/subplebbit/stop.ts)_
 <!-- commandsstop -->
 
 # Contribution

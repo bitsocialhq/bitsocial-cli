@@ -6,7 +6,7 @@ export default class Create extends BaseCommand {
         command: string;
     }[];
     static flags: {
-        privateKeyPath: import("@oclif/core/lib/interfaces/parser.js").OptionFlag<string | undefined, import("@oclif/core/lib/interfaces/parser.js").CustomOptions>;
+        privateKeyPath: import("@oclif/core/interfaces").OptionFlag<string | undefined, import("@oclif/core/interfaces").CustomOptions>;
     };
     run(): Promise<void>;
 }

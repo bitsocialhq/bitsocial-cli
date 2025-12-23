@@ -39,7 +39,7 @@
       "pluginType": "core",
       "strict": true,
       "enableJsonFlag": false,
-      "isESM": false,
+      "isESM": true,
       "relativePath": [
         "dist",
         "cli",
@@ -83,7 +83,7 @@
       "pluginType": "core",
       "strict": true,
       "enableJsonFlag": false,
-      "isESM": false,
+      "isESM": true,
       "relativePath": [
         "dist",
         "cli",
@@ -151,7 +151,7 @@
       "pluginType": "core",
       "strict": true,
       "enableJsonFlag": false,
-      "isESM": false,
+      "isESM": true,
       "relativePath": [
         "dist",
         "cli",
@@ -193,7 +193,7 @@
       "pluginType": "core",
       "strict": true,
       "enableJsonFlag": false,
-      "isESM": false,
+      "isESM": true,
       "relativePath": [
         "dist",
         "cli",
@@ -226,83 +226,6 @@
           "summary": "Only display subplebbit addresses",
           "allowNo": false,
           "type": "boolean"
-        },
-        "columns": {
-          "description": "only show provided columns (comma-separated)",
-          "exclusive": [
-            "extended"
-          ],
-          "name": "columns",
-          "hasDynamicHelp": false,
-          "multiple": false,
-          "type": "option"
-        },
-        "csv": {
-          "description": "output is csv format [alias: --output=csv]",
-          "exclusive": [
-            "no-truncate"
-          ],
-          "name": "csv",
-          "allowNo": false,
-          "type": "boolean"
-        },
-        "extended": {
-          "char": "x",
-          "description": "show extra columns",
-          "exclusive": [
-            "columns"
-          ],
-          "name": "extended",
-          "allowNo": false,
-          "type": "boolean"
-        },
-        "filter": {
-          "description": "filter property by partial string matching, ex: name=foo",
-          "name": "filter",
-          "hasDynamicHelp": false,
-          "multiple": false,
-          "type": "option"
-        },
-        "no-header": {
-          "description": "hide table header from output",
-          "exclusive": [
-            "csv"
-          ],
-          "name": "no-header",
-          "allowNo": false,
-          "type": "boolean"
-        },
-        "no-truncate": {
-          "description": "do not truncate output to fit screen",
-          "exclusive": [
-            "csv"
-          ],
-          "name": "no-truncate",
-          "allowNo": false,
-          "type": "boolean"
-        },
-        "output": {
-          "description": "output in a more machine friendly format",
-          "exclusive": [
-            "no-truncate",
-            "csv"
-          ],
-          "name": "output",
-          "hasDynamicHelp": false,
-          "multiple": false,
-          "options": [
-            "csv",
-            "json",
-            "yaml"
-          ],
-          "type": "option"
-        },
-        "sort": {
-          "description": "property to sort by (prepend '-' for descending)",
-          "name": "sort",
-          "hasDynamicHelp": false,
-          "multiple": false,
-          "type": "option"
         }
       },
       "hasDynamicHelp": false,
@@ -313,7 +236,7 @@
       "pluginType": "core",
       "strict": true,
       "enableJsonFlag": false,
-      "isESM": false,
+      "isESM": true,
       "relativePath": [
         "dist",
         "cli",
@@ -355,7 +278,7 @@
       "pluginType": "core",
       "strict": false,
       "enableJsonFlag": false,
-      "isESM": false,
+      "isESM": true,
       "relativePath": [
         "dist",
         "cli",
@@ -397,7 +320,7 @@
       "pluginType": "core",
       "strict": false,
       "enableJsonFlag": false,
-      "isESM": false,
+      "isESM": true,
       "relativePath": [
         "dist",
         "cli",
@@ -407,5 +330,5 @@
       ]
     }
   },
-  "version": "0.17.6"
+  "version": "0.17.7"
 }

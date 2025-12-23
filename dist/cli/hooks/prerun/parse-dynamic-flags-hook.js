@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
-const core_1 = require("@oclif/core");
-const remeda = tslib_1.__importStar(require("remeda"));
+import { Flags } from "@oclif/core";
+import * as remeda from "remeda";
 const parseCommandInputToProperType = (input) => {
     if (input === "true")
         return true;
@@ -67,9 +64,9 @@ const traverseObjectToSetAsFlagInOclif = (opts, flagsGrouped, path = "") => {
         const multipleValues = Array.isArray(flagsGrouped[flagName]) && flagsGrouped[flagName].length > 1;
         const parsedValue = flagsGrouped[flagName];
         if (typeof parsedValue === "boolean")
-            opts.Command.flags[path + flagName] = core_1.Flags.boolean({ default: true });
+            opts.Command.flags[path + flagName] = Flags.boolean({ default: true });
         else
-            opts.Command.flags[path + flagName] = core_1.Flags.string({
+            opts.Command.flags[path + flagName] = Flags.string({
                 //@ts-expect-error
                 multiple: multipleValues,
                 parse: async (input) => {
@@ -94,4 +91,4 @@ const hook = async function (opts) {
         traverseObjectToSetAsFlagInOclif(opts, flagsGrouped);
     }
 };
-exports.default = hook;
+export default hook;

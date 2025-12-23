@@ -1,13 +1,11 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const util_js_1 = require("../../../util.js");
-const base_command_js_1 = require("../../base-command.js");
-const core_1 = require("@oclif/core");
-class Stop extends base_command_js_1.BaseCommand {
+import { getPlebbitLogger } from "../../../util.js";
+import { BaseCommand } from "../../base-command.js";
+import { Args } from "@oclif/core";
+export default class Stop extends BaseCommand {
     static description = "Stop a subplebbit. The subplebbit will not publish or receive any publications until it is started again.";
     static strict = false; // To allow for variable length arguments
     static args = {
-        addresses: core_1.Args.string({
+        addresses: Args.string({
             name: "addresses",
             required: true,
             description: "Addresses of subplebbits to stop. Separated by space"
@@ -19,7 +17,7 @@ class Stop extends base_command_js_1.BaseCommand {
     ];
     async run() {
         const { argv, flags } = await this.parse(Stop);
-        const log = (await (0, util_js_1.getPlebbitLogger)())("plebbit-cli:commands:subplebbit:stop");
+        const log = (await getPlebbitLogger())("plebbit-cli:commands:subplebbit:stop");
         log(`addresses: `, argv);
         log(`flags: `, flags);
         const addresses = argv;
@@ -43,4 +41,3 @@ class Stop extends base_command_js_1.BaseCommand {
         await plebbit.destroy();
     }
 }
-exports.default = Stop;

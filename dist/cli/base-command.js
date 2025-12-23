@@ -1,15 +1,11 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.BaseCommand = void 0;
-const tslib_1 = require("tslib");
-const core_1 = require("@oclif/core");
-const defaults_js_1 = tslib_1.__importDefault(require("../common-utils/defaults.js"));
-class BaseCommand extends core_1.Command {
+import { Command, Flags } from "@oclif/core";
+import defaults from "../common-utils/defaults.js";
+export class BaseCommand extends Command {
     static baseFlags = {
-        plebbitRpcUrl: core_1.Flags.url({
+        plebbitRpcUrl: Flags.url({
             summary: "URL to Plebbit RPC",
             required: true,
-            default: defaults_js_1.default.PLEBBIT_RPC_URL
+            default: defaults.PLEBBIT_RPC_URL
         })
     };
     async _connectToPlebbitRpc(plebbitRpcUrl) {
@@ -20,4 +16,3 @@ class BaseCommand extends core_1.Command {
         return plebbit;
     }
 }
-exports.BaseCommand = BaseCommand;
