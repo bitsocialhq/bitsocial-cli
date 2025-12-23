@@ -1,5 +1,12 @@
 
 
+## [0.17.7](https://github.com/plebbit/plebbit-cli/compare/v0.17.6...v0.17.7) (2025-12-23)
+
+
+### Bug Fixes
+
+* **kubo:** adjust fetching of kubo version from package.json ([69a0689](https://github.com/plebbit/plebbit-cli/commit/69a06898128a722925ab6f1942ff65268aca782d))
+
 ## [0.17.6](https://github.com/plebbit/plebbit-cli/compare/v0.17.5...v0.17.6) (2025-12-23)
 
 ## [0.17.5](https://github.com/plebbit/plebbit-cli/compare/v0.17.4...v0.17.5) (2025-10-30)
