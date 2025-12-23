@@ -2661,7 +2661,7 @@
     lodash "^4.17.21"
     registry-auth-token "^5.1.0"
 
-"@oclif/table@^0.5.1":
+"@oclif/table@0.5.1":
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/@oclif/table/-/table-0.5.1.tgz#4219c1b4f964dab051dbdeab83fe8d859625acb2"
   integrity sha512-k/68jl8SqJEGh+SgUYS93GK+G+EIWENuQQfJgdQBP+DP7G3evGRbe9ajdSVaL5ldMOfgZ4se4mfrEkiEVIiVvQ==
