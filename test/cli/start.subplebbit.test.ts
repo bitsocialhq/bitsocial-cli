@@ -1,4 +1,5 @@
-import { expect, test } from "@oclif/test";
+import { runCommand } from "@oclif/test";
+import { expect } from "chai";
 import Sinon from "sinon";
 import { BaseCommand } from "../../dist/cli/base-command";
 
@@ -19,16 +20,17 @@ describe("plebbit subplebbit start", () => {
         sandbox.replace(BaseCommand.prototype, "_connectToPlebbitRpc", plebbitInstanceFake);
     });
 
+    afterEach(() => startFake.resetHistory());
     after(() => sandbox.restore());
-    test.stdout()
-        .command(["subplebbit start"].concat(addresses))
-        .it(`Parses and submits addresses correctly`, (ctx) => {
-            // Validate calls to start here
-            expect(startFake.callCount).to.equal(addresses.length);
 
-            // Validate outputs
-            const trimmedOutput: string[] = ctx.stdout.trim().split("\n");
-            expect(trimmedOutput).to.deep.equal(addresses);
-            expect(ctx.error).to.be.undefined;
-        });
+    it(`Parses and submits addresses correctly`, async () => {
+        const result = await runCommand(["subplebbit", "start", ...addresses]);
+        // Validate calls to start here
+        expect(startFake.callCount).to.equal(addresses.length);
+
+        // Validate outputs
+        const trimmedOutput: string[] = result.stdout.trim().split("\n");
+        expect(trimmedOutput).to.deep.equal(addresses);
+        expect(result.error).to.be.undefined;
+    });
 });

@@ -1,4 +1,5 @@
-import { test, expect } from "@oclif/test";
+import { runCommand } from "@oclif/test";
+import { expect } from "chai";
 import signers from "../fixtures/signers";
 import Sinon from "sinon";
 import type { CreateSubplebbitOptions } from "../types/subplebbitTypes";
@@ -24,6 +25,7 @@ describe("plebbit subplebbit create", () => {
 
     const startFake = sandbox.fake();
     const plebbitCreateStub = sandbox.fake.resolves({ address: signers[0]!.address, start: startFake, started: false });
+    const runCreateCommand = (args: string) => runCommand(args, undefined, { stripAnsi: true });
     before(async () => {
         const plebbitInstanceFake = sandbox.fake.resolves({
             createSubplebbit: plebbitCreateStub,
@@ -35,63 +37,42 @@ describe("plebbit subplebbit create", () => {
 
     afterEach(() => {
         plebbitCreateStub.resetHistory();
+        startFake.resetHistory();
     });
 
     after(() => sandbox.restore());
 
-    test.stdout()
-        .command(["subplebbit create", "--description", "testDescription"])
-        .it(`Parse create options correctly`, (ctx) => {
-            expect(plebbitCreateStub.calledOnce).to.be.true;
-            const parsedArgs = <CreateSubplebbitOptions>plebbitCreateStub.args[0][0];
-            // PrivateKeyPath will be processed to signer
-            expect(parsedArgs.description).to.equal("testDescription");
-            startFake.resetHistory();
-        });
+    it(`Parses minimal create options correctly`, async () => {
+        const result = await runCreateCommand("subplebbit create --description testDescription");
+        expect(result.error).to.be.undefined;
+        expect(plebbitCreateStub.calledOnce).to.be.true;
+        const parsedArgs = <CreateSubplebbitOptions>plebbitCreateStub.args[0][0];
+        // PrivateKeyPath will be processed to signer
+        expect(parsedArgs.description).to.equal("testDescription");
+        expect(startFake.calledOnce).to.be.true;
+    });
 
-    test.stdout()
-        .command([
-            "subplebbit create",
-            "--privateKeyPath",
-            "test/fixtures/sub_0_private_key.pem",
-            "--title",
-            "testTitle",
-            "--description",
-            "testDescription",
-            "--suggested.primaryColor",
-            "testPrimaryColor",
-            "--suggested.secondaryColor",
-            "testSecondaryColor",
-            "--suggested.avatarUrl",
-            "http://localhost:8080/avatar.png",
-            "--suggested.bannerUrl",
-            "http://localhost:8080/banner.png",
-            "--suggested.backgroundUrl",
-            "http://localhost:8080/background.png",
-            "--suggested.language",
-            "testLanguage"
-        ])
-        .it(`Parse create options correctly`, (ctx) => {
-            expect(plebbitCreateStub.calledOnce).to.be.true;
-            const parsedArgs = <CreateSubplebbitOptions>plebbitCreateStub.args[0][0];
-            // PrivateKeyPath will be processed to signer
-            expect(parsedArgs.title).to.equal(cliCreateOptions.title);
-            expect(parsedArgs.description).to.equal(cliCreateOptions.description);
-            expect(parsedArgs.suggested).to.deep.equal(cliCreateOptions.suggested);
-            if (!("signer" in parsedArgs) || !parsedArgs.signer) throw Error("signer should be defined");
+    it(`Parses full create options correctly`, async () => {
+        const result = await runCreateCommand(
+            'subplebbit create --privateKeyPath test/fixtures/sub_0_private_key.pem --title "testTitle" --description "testDescription" --suggested.primaryColor testPrimaryColor --suggested.secondaryColor testSecondaryColor --suggested.avatarUrl http://localhost:8080/avatar.png --suggested.bannerUrl http://localhost:8080/banner.png --suggested.backgroundUrl http://localhost:8080/background.png --suggested.language testLanguage'
+        );
+        expect(result.error).to.be.undefined;
+        expect(plebbitCreateStub.calledOnce).to.be.true;
+        const parsedArgs = <CreateSubplebbitOptions>plebbitCreateStub.args[0][0];
+        // PrivateKeyPath will be processed to signer
+        expect(parsedArgs.title).to.equal(cliCreateOptions.title);
+        expect(parsedArgs.description).to.equal(cliCreateOptions.description);
+        expect(parsedArgs.suggested).to.deep.equal(cliCreateOptions.suggested);
+        if (!("signer" in parsedArgs) || !parsedArgs.signer) throw Error("signer should be defined");
 
-            const signer = parsedArgs.signer;
-            expect(typeof signer).to.equal("object");
-            expect(signer).to.not.equal(null);
+        const signer = parsedArgs.signer;
+        expect(typeof signer).to.equal("object");
+        expect(signer).to.not.equal(null);
 
-            if ("privateKey" in (signer as Record<string, unknown>))
-                expect((signer as { privateKey: unknown }).privateKey).to.be.a("string");
-            else expect((signer as { address: unknown }).address).to.be.a("string");
+        if ("privateKey" in (signer as Record<string, unknown>)) expect((signer as { privateKey: unknown }).privateKey).to.be.a("string");
+        else expect((signer as { address: unknown }).address).to.be.a("string");
 
-            expect((signer as { type: unknown }).type).to.equal("ed25519");
-        });
-
-    it(`Starts subplebbit after creation`, () => {
+        expect((signer as { type: unknown }).type).to.equal("ed25519");
         expect(startFake.calledOnce).to.be.true;
     });
 });

@@ -1,7 +1,8 @@
-import { Flags, ux } from "@oclif/core";
+import { Flags } from "@oclif/core";
 import { BaseCommand } from "../../base-command.js";
 import { EOL } from "os";
 import { getPlebbitLogger } from "../../../util.js";
+import { printTable } from "@oclif/table";
 
 export default class List extends BaseCommand {
     static override description = "List your subplebbits";
@@ -9,8 +10,7 @@ export default class List extends BaseCommand {
     static override examples = ["plebbit subplebbit list -q", "plebbit subplebbit list"];
 
     static override flags = {
-        quiet: Flags.boolean({ char: "q", summary: "Only display subplebbit addresses" }),
-        ...ux.table.flags()
+        quiet: Flags.boolean({ char: "q", summary: "Only display subplebbit addresses" })
     };
 
     async run(): Promise<void> {
@@ -29,15 +29,7 @@ export default class List extends BaseCommand {
                     return { address: subInstance.address, started: subInstance.started };
                 })
             );
-            ux.table(
-                subsWithStarted,
-                { address: {}, started: {} },
-                {
-                    printLine: this.log.bind(this),
-                    ...flags,
-                    sort: "-started"
-                }
-            );
+            printTable({ data: subsWithStarted, sort: { started: "desc" } });
         }
         await plebbit.destroy();
     }

@@ -112,10 +112,10 @@ function _spawnAsync(log: any, ...args: any[]) {
     });
 }
 
+type MultiaddrComponent = { name: string; value?: string };
 type MultiaddrModule = {
     multiaddr: (multiAddr: string) => {
-        nodeAddress(): { address: string; port: number };
-        protoNames(): string[];
+        getComponents(): MultiaddrComponent[];
     };
 };
 
@@ -134,12 +134,15 @@ async function parseTcpMultiaddr(multiAddrString: string): Promise<{ host: strin
     try {
         const factory = await getMultiaddrFactory();
         const address = factory(multiAddrString);
-        if (!address.protoNames().includes("tcp")) return undefined;
-        const nodeAddress = address.nodeAddress();
-        const host = nodeAddress.address;
-        const port = nodeAddress.port;
-        if (!host || typeof port !== "number" || port <= 0) return undefined;
-        return { host, port };
+        const components = address.getComponents();
+        const tcpComponent = components.find((component) => component.name === "tcp");
+        const hostComponent = components.find((component) =>
+            ["ip4", "ip6", "dns", "dns4", "dns6", "dnsaddr"].includes(component.name)
+        );
+        const host = hostComponent?.value;
+        const portValue = tcpComponent?.value ? Number(tcpComponent.value) : undefined;
+        if (!host || !portValue || !Number.isFinite(portValue) || portValue <= 0) return undefined;
+        return { host, port: portValue };
     } catch {
         return undefined;
     }

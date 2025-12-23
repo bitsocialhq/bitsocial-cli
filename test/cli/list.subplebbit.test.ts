@@ -1,4 +1,5 @@
-import { expect, test } from "@oclif/test";
+import { runCommand } from "@oclif/test";
+import { expect } from "chai";
 import Sinon from "sinon";
 import { BaseCommand } from "../../dist/cli/base-command";
 
@@ -15,12 +16,13 @@ describe("plebbit subplebbit list", () => {
         sandbox.replace(BaseCommand.prototype, "_connectToPlebbitRpc", plebbitInstanceFake);
     });
 
+    afterEach(() => sandbox.resetHistory());
     after(() => sandbox.restore());
 
-    test.stdout()
-        .command(["subplebbit list", "-q"])
-        .it(`-q Outputs only subplebbit addresses`, (ctx) => {
-            const trimmedOutput: string[] = ctx.stdout.trim().split("\n");
-            expect(trimmedOutput).to.deep.equal(fakeSubplebbits);
-        });
+    it(`-q Outputs only subplebbit addresses`, async () => {
+        const result = await runCommand("subplebbit list -q");
+        expect(result.error).to.be.undefined;
+        const trimmedOutput: string[] = result.stdout.trim().split("\n");
+        expect(trimmedOutput).to.deep.equal(fakeSubplebbits);
+    });
 });

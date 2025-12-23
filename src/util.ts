@@ -35,14 +35,28 @@ async function parseMultiAddr(multiAddrString: string) {
     return module.multiaddr(multiAddrString);
 }
 
+function multiAddrToHostPort(multiAddrObj: { getComponents: () => { name: string; value?: string }[] }) {
+    const components = multiAddrObj.getComponents();
+    const hostComponent = components.find((component) => ["ip4", "ip6", "dns", "dns4", "dns6", "dnsaddr"].includes(component.name));
+    const tcpComponent = components.find((component) => component.name === "tcp");
+    const host = hostComponent?.value;
+    const port = tcpComponent?.value ? Number(tcpComponent.value) : undefined;
+    if (!host || !port || !Number.isFinite(port) || port <= 0) return undefined;
+    return { host, port };
+}
+
 export async function parseMultiAddrKuboRpcToUrl(kuboMultiAddrString: string) {
     const multiAddrObj = await parseMultiAddr(kuboMultiAddrString);
-    return new URL(`http://${multiAddrObj.nodeAddress().address}:${multiAddrObj.nodeAddress().port}/api/v0`);
+    const parsed = multiAddrToHostPort(multiAddrObj);
+    if (!parsed) throw new Error(`Unable to parse kubo RPC multiaddr: ${kuboMultiAddrString}`);
+    return new URL(`http://${parsed.host}:${parsed.port}/api/v0`);
 }
 
 export async function parseMultiAddrIpfsGatewayToUrl(ipfsGatewaymultiAddrString: string) {
     const multiAddrObj = await parseMultiAddr(ipfsGatewaymultiAddrString);
-    return new URL(`http://${multiAddrObj.nodeAddress().address}:${multiAddrObj.nodeAddress().port}`);
+    const parsed = multiAddrToHostPort(multiAddrObj);
+    if (!parsed) throw new Error(`Unable to parse IPFS gateway multiaddr: ${ipfsGatewaymultiAddrString}`);
+    return new URL(`http://${parsed.host}:${parsed.port}`);
 }
 
 /**
