@@ -1,5 +1,12 @@
 
 
+## [0.17.10](https://github.com/plebbit/plebbit-cli/compare/v0.17.9...v0.17.10) (2025-12-26)
+
+
+### Bug Fixes
+
+* **get:** fix bug with importing Plebbit, and another bug subplebbit get ([6c62c81](https://github.com/plebbit/plebbit-cli/commit/6c62c8155a78a0d777d4dc17cb4a979691b8bc89))
+
 ## [0.17.9](https://github.com/plebbit/plebbit-cli/compare/v0.17.8...v0.17.9) (2025-12-23)
 
 ## [0.17.8](https://github.com/plebbit/plebbit-cli/compare/v0.17.7...v0.17.8) (2025-12-23)
