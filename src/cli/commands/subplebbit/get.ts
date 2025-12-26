@@ -23,9 +23,8 @@ export default class Get extends BaseCommand {
         const { args, flags } = await this.parse(Get);
 
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcUrl.toString());
-
         try {
-            const sub = await plebbit.getSubplebbit(args.address);
+            const sub = await plebbit.getSubplebbit({ address: args.address });
             const subJson = JSON.parse(JSON.stringify(sub));
             this.logJson({ posts: subJson.posts, ...remeda.omit(subJson, ["posts"]) }); // make sure posts is printed first, because most users won't look at it
         } catch (e) {

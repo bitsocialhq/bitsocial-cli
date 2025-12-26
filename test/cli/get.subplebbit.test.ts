@@ -35,7 +35,7 @@ describe("plebbit subplebbit get", () => {
         const result = await runCommand("subplebbit get plebbit.eth", process.cwd(), { stripAnsi: true });
 
         expect(result.error).to.be.undefined;
-        expect(getSubplebbitFake.calledOnceWith("plebbit.eth")).to.be.true;
+        expect(getSubplebbitFake.calledOnceWith({ address: "plebbit.eth" })).to.be.true;
         expect(destroyFake.calledOnce).to.be.true;
 
         const output = result.stdout.trim();
