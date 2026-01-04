@@ -2941,9 +2941,9 @@
   resolved "https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
   integrity sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==
 
-"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#de933817dbd6da325b82743d54b80a3f91e03f3a":
+"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#3a70ec2b97a4fe2ed53f7746d69e9ec6a00dc324":
   version "0.0.8"
-  resolved "https://github.com/plebbit/plebbit-js#de933817dbd6da325b82743d54b80a3f91e03f3a"
+  resolved "https://github.com/plebbit/plebbit-js#3a70ec2b97a4fe2ed53f7746d69e9ec6a00dc324"
   dependencies:
     "@bonfida/spl-name-service" "3.0.10"
     "@enhances/with-resolvers" "0.0.5"
