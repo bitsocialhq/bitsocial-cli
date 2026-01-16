@@ -1,7 +1,7 @@
-import { runCommand } from "@oclif/test";
 import { describe, it, beforeAll, afterAll, afterEach, expect } from "vitest";
 import Sinon from "sinon";
-import { BaseCommand } from "../../dist/cli/base-command.js";
+import { clearPlebbitRpcConnectOverride, setPlebbitRpcConnectOverride } from "../helpers/plebbit-test-overrides.js";
+import { runCliCommand } from "../helpers/run-cli.js";
 
 describe("bitsocial community get", () => {
     const sandbox = Sinon.createSandbox();
@@ -20,8 +20,7 @@ describe("bitsocial community get", () => {
             getSubplebbit: getSubplebbitFake,
             destroy: destroyFake
         });
-        //@ts-expect-error
-        sandbox.replace(BaseCommand.prototype, "_connectToPlebbitRpc", plebbitInstanceFake);
+        setPlebbitRpcConnectOverride(plebbitInstanceFake);
     });
 
     afterEach(() => {
@@ -29,16 +28,19 @@ describe("bitsocial community get", () => {
         destroyFake.resetHistory();
     });
 
-    afterAll(() => sandbox.restore());
+    afterAll(() => {
+        clearPlebbitRpcConnectOverride();
+        sandbox.restore();
+    });
 
     it("Outputs community json and keeps posts first", async () => {
-        const result = await runCommand("community get plebbit.eth", process.cwd(), { stripAnsi: true });
+        const { result, stdout } = await runCliCommand("community get plebbit.eth");
 
         expect(result.error).toBeUndefined();
         expect(getSubplebbitFake.calledOnceWith({ address: "plebbit.eth" })).toBe(true);
         expect(destroyFake.calledOnce).toBe(true);
 
-        const output = result.stdout.trim();
+        const output = stdout.trim();
         const parsed = JSON.parse(output);
         expect(parsed).toEqual(fakeCommunity);
 

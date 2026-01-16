@@ -4,7 +4,7 @@ import { describe, it, beforeAll, afterAll, afterEach, expect } from "vitest";
 import Sinon from "sinon";
 import type { SubplebbitEditOptions } from "../types/communityTypes.js";
 import { currentSubProps } from "../fixtures/communityForEditFixture.js";
-import { BaseCommand } from "../../dist/cli/base-command.js";
+import { clearPlebbitRpcConnectOverride, setPlebbitRpcConnectOverride } from "../helpers/plebbit-test-overrides.js";
 
 describe("bitsocial community edit", () => {
     const sandbox = Sinon.createSandbox();
@@ -23,11 +23,12 @@ describe("bitsocial community edit", () => {
             subplebbits: ["plebbit.eth"],
             destroy: () => {}
         });
-        sandbox.replace(BaseCommand.prototype as any, "_connectToPlebbitRpc", plebbitInstanceFake);
+        setPlebbitRpcConnectOverride(plebbitInstanceFake);
     });
 
     afterEach(() => editFake.resetHistory());
     afterAll(() => {
+        clearPlebbitRpcConnectOverride();
         sandbox.restore();
     });
 

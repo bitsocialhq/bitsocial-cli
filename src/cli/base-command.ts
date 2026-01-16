@@ -2,6 +2,13 @@ import { Command, Flags } from "@oclif/core";
 import defaults from "../common-utils/defaults.js";
 import Plebbit from "@plebbit/plebbit-js";
 type PlebbitInstance = Awaited<ReturnType<typeof Plebbit>>;
+type PlebbitConnectOverride = (plebbitRpcUrl: string) => Promise<PlebbitInstance>;
+
+const getPlebbitConnectOverride = (): PlebbitConnectOverride | undefined => {
+    const globalWithOverride = globalThis as { __PLEBBIT_RPC_CONNECT_OVERRIDE?: PlebbitConnectOverride };
+    return globalWithOverride.__PLEBBIT_RPC_CONNECT_OVERRIDE;
+};
+
 export abstract class BaseCommand extends Command {
     static override baseFlags = {
         plebbitRpcUrl: Flags.url({
@@ -12,6 +19,10 @@ export abstract class BaseCommand extends Command {
     };
 
     protected async _connectToPlebbitRpc(plebbitRpcUrl: string): Promise<PlebbitInstance> {
+        const connectOverride = getPlebbitConnectOverride();
+        if (connectOverride) {
+            return connectOverride(plebbitRpcUrl);
+        }
         const plebbit = await Plebbit({ plebbitRpcClientsOptions: [plebbitRpcUrl] });
         plebbit.on("error", (err) => console.error("Error from plebbit instance", err));
         await new Promise((resolve) => plebbit.once("subplebbitschange", resolve));

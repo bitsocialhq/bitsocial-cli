@@ -1,7 +1,7 @@
-import { runCommand } from "@oclif/test";
 import { describe, it, beforeAll, afterAll, afterEach, expect } from "vitest";
 import Sinon from "sinon";
-import { BaseCommand } from "../../dist/cli/base-command.js";
+import { clearPlebbitRpcConnectOverride, setPlebbitRpcConnectOverride } from "../helpers/plebbit-test-overrides.js";
+import { runCliCommand } from "../helpers/run-cli.js";
 
 describe("bitsocial community list", () => {
     const sandbox = Sinon.createSandbox();
@@ -12,17 +12,19 @@ describe("bitsocial community list", () => {
             subplebbits: fakeCommunities,
             destroy: () => {}
         });
-        //@ts-expect-error
-        sandbox.replace(BaseCommand.prototype, "_connectToPlebbitRpc", plebbitInstanceFake);
+        setPlebbitRpcConnectOverride(plebbitInstanceFake);
     });
 
     afterEach(() => sandbox.resetHistory());
-    afterAll(() => sandbox.restore());
+    afterAll(() => {
+        clearPlebbitRpcConnectOverride();
+        sandbox.restore();
+    });
 
     it(`-q Outputs only community addresses`, async () => {
-        const result = await runCommand("community list -q", process.cwd());
+        const { result, stdout } = await runCliCommand("community list -q");
         expect(result.error).toBeUndefined();
-        const trimmedOutput: string[] = result.stdout.trim().split("\n");
+        const trimmedOutput: string[] = stdout.trim().split("\n");
         expect(trimmedOutput).toEqual(fakeCommunities);
     });
 });

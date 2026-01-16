@@ -3,8 +3,7 @@ import { describe, it, beforeAll, afterAll, afterEach, expect } from "vitest";
 import signers from "../fixtures/signers.js";
 import Sinon from "sinon";
 import type { CreateSubplebbitOptions } from "../types/communityTypes.js";
-
-import { BaseCommand } from "../../dist/cli/base-command.js";
+import { clearPlebbitRpcConnectOverride, setPlebbitRpcConnectOverride } from "../helpers/plebbit-test-overrides.js";
 
 const cliCreateOptions = {
     privateKeyPath: "test/fixtures/community_0_private_key.pem",
@@ -31,8 +30,7 @@ describe("bitsocial community create", () => {
             createSubplebbit: plebbitCreateStub,
             destroy: () => {}
         });
-        //@ts-expect-error
-        sandbox.replace(BaseCommand.prototype, "_connectToPlebbitRpc", plebbitInstanceFake);
+        setPlebbitRpcConnectOverride(plebbitInstanceFake);
     });
 
     afterEach(() => {
@@ -40,7 +38,10 @@ describe("bitsocial community create", () => {
         startFake.resetHistory();
     });
 
-    afterAll(() => sandbox.restore());
+    afterAll(() => {
+        clearPlebbitRpcConnectOverride();
+        sandbox.restore();
+    });
 
     it(`Parses minimal create options correctly`, async () => {
         const result = await runCreateCommand("community create --description testDescription");

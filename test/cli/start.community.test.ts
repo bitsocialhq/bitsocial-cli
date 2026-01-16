@@ -1,7 +1,7 @@
-import { runCommand } from "@oclif/test";
 import { describe, it, beforeAll, afterAll, afterEach, expect } from "vitest";
 import Sinon from "sinon";
-import { BaseCommand } from "../../dist/cli/base-command.js";
+import { clearPlebbitRpcConnectOverride, setPlebbitRpcConnectOverride } from "../helpers/plebbit-test-overrides.js";
+import { runCliCommand } from "../helpers/run-cli.js";
 
 describe("bitsocial community start", () => {
     const addresses = ["plebbit.eth", "plebbit2.eth"];
@@ -16,20 +16,22 @@ describe("bitsocial community start", () => {
             destroy: () => {}
         });
 
-        //@ts-expect-error
-        sandbox.replace(BaseCommand.prototype, "_connectToPlebbitRpc", plebbitInstanceFake);
+        setPlebbitRpcConnectOverride(plebbitInstanceFake);
     });
 
     afterEach(() => startFake.resetHistory());
-    afterAll(() => sandbox.restore());
+    afterAll(() => {
+        clearPlebbitRpcConnectOverride();
+        sandbox.restore();
+    });
 
     it(`Parses and submits addresses correctly`, async () => {
-        const result = await runCommand(["community", "start", ...addresses], process.cwd());
+        const { result, stdout } = await runCliCommand(["community", "start", ...addresses]);
         // Validate calls to start here
         expect(startFake.callCount).toBe(addresses.length);
 
         // Validate outputs
-        const trimmedOutput: string[] = result.stdout.trim().split("\n");
+        const trimmedOutput: string[] = stdout.trim().split("\n");
         expect(trimmedOutput).toEqual(addresses);
         expect(result.error).toBeUndefined();
     });
