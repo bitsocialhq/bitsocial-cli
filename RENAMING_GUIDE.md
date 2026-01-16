@@ -30,14 +30,11 @@ This document provides a comprehensive checklist for renaming the plebbit-cli co
 - [ ] **package.json oclif section**
   - Line 45: `"bin": "plebbit"` → `"bin": "bitsocial"`
   - Line 46: `"dirname": "plebbit"` → `"dirname": "bitsocial"`
-  - Lines 54-59: Update topics
+  - Lines 54-59: Update topics (remove `subplebbit:role` topic as it has no commands)
     ```json
     "topics": {
         "community": {
             "description": "Access and manage your communities"
-        },
-        "community:role": {
-            "description": "Manage the role of authors in your communities"
         }
     }
     ```
@@ -67,6 +64,11 @@ This document provides a comprehensive checklist for renaming the plebbit-cli co
 - [ ] Default data path: `.plebbit` → `.bitsocial` (handled via env-paths)
 - [ ] IPFS directory: `.ipfs-plebbit-cli` → `.ipfs-bitsocial-cli`
 - [ ] Note: Automatic migration will handle existing user directories
+
+### 2.4 Gitignore Updates
+- [ ] **.gitignore** Line 110-111:
+  - `# Plebbit data directory` → `# BitSocial data directory`
+  - `.plebbit/` → `.bitsocial/`
 
 ---
 
@@ -181,6 +183,19 @@ bitsocial community stop
 - [ ] Update description: `"Stop a subplebbit..."` → `"Stop a community..."`
 - [ ] Update logger namespace
 
+### 5.3 Hook Files
+**src/cli/hooks/prerun/parse-dynamic-flags-hook.ts:**
+- [ ] Line 91: Update command IDs in conditional check:
+  - `"subplebbit:edit"` → `"community:edit"`
+  - `"subplebbit:create"` → `"community:create"`
+
+### 5.4 Daemon Log File Naming
+**src/cli/commands/daemon.ts:**
+- [ ] Line 85: Update log file prefix check:
+  - `file.name.startsWith("plebbit_cli_daemon")` → `file.name.startsWith("bitsocial_cli_daemon")`
+- [ ] Line 95: Update log file naming:
+  - `plebbit_cli_daemon_${timestamp}.log` → `bitsocial_cli_daemon_${timestamp}.log`
+
 ---
 
 ## Phase 6: Environment Variables & Paths
@@ -198,6 +213,11 @@ bitsocial community stop
 
 ### 6.3 IPFS Configuration Path
 - [ ] `src/util.ts` Line 25: `path.join(plebbitDataPath, ".ipfs-plebbit-cli", "config")` → `path.join(bitsocialDataPath, ".ipfs-bitsocial-cli", "config")`
+
+### 6.4 IPFS Data Path Variant
+- [ ] `src/ipfs/startIpfs.ts` Line 209: Update alternative IPFS path naming:
+  - `.plebbit-cli.ipfs` → `.bitsocial-cli.ipfs`
+  - Note: This is a different naming convention than `.ipfs-plebbit-cli` used elsewhere
 
 ---
 
@@ -243,6 +263,11 @@ Replace all logger namespace strings throughout the codebase:
 ### 8.2 Run Script (bin/run)
 - [ ] Update any comments or references to "plebbit"
 
+### 8.3 Additional Bin Scripts
+- [ ] **bin/dev** - Development run script, review for any plebbit references
+- [ ] **bin/dev.cmd** - Windows development script, review for any plebbit references
+- [ ] **bin/run.cmd** - Windows run script, review for any plebbit references
+
 ---
 
 ## Phase 9: Test Files
@@ -264,6 +289,18 @@ Within each test file, update:
 
 ### 9.3 Test Configuration
 - [ ] `config/.mocharc.json` - Update any plebbit-specific test patterns if present
+- [ ] `test/cli/root-hook-mocha.ts` - Mocha root hooks file, review for any plebbit references
+
+### 9.4 Test Fixture Files
+- [ ] `test/fixtures/sub_0_private_key.pem` → `test/fixtures/community_0_private_key.pem`
+- [ ] `test/fixtures/sub_1_private_key.pem` → `test/fixtures/community_1_private_key.pem`
+- [ ] Update fixture path references in test files after renaming PEM files:
+  - `test/fixtures/sub_0_private_key.pem` → `test/fixtures/community_0_private_key.pem`
+  - `test/fixtures/sub_1_private_key.pem` → `test/fixtures/community_1_private_key.pem`
+
+### 9.5 Integration Tests (test/kubo/)
+- [ ] `test/kubo/mergeCliDefaultsIntoIpfsConfig.test.ts` - Review for plebbit references in test descriptions
+- [ ] `test/kubo/kuboRpcGateway.integration.test.ts` - Review for plebbit references in test descriptions
 
 ---
 
@@ -297,15 +334,23 @@ Within each test file, update:
 
 **ci-bin/run-daemon-before-release.ts:**
 - [ ] Update imports: `@plebbit/plebbit-js` → `@pkc/pkc-js`
-- [ ] Update logger namespaces
-- [ ] Update plebbit instance references
+- [ ] Line 13-14: Logger namespace `"plebbit-cli:ci:run-daemon-before-release:spawnPlebbitProcess"` → `"bitsocial-cli:ci:run-daemon-before-release:spawnBitsocialProcess"`
+- [ ] Line 74: Logger namespace `"plebbit-cli:ci:run-daemon-before-release"` → `"bitsocial-cli:ci:run-daemon-before-release"`
+- [ ] Lines 44, 79, 85, 88-94: Update variable names and log messages containing "plebbit"/"subplebbit"
+- [ ] Update function name `spawnPlebbitProcess` → `spawnBitsocialProcess` (if applicable)
 
 **ci-bin/download-web-uis.ts:**
 - [ ] Update any plebbit-specific URLs or references
 
 ### 11.2 GitHub Workflows (.github/workflows/)
-- [ ] `CI.yml` - Update repository references
-- [ ] `CI-alerts.yml` - Update any plebbit-specific monitoring
+**CI.yml:**
+- [ ] Line 31: Job name `test-plebbit-cli:` → `test-bitsocial-cli:`
+- [ ] Line 52: `DEBUG="plebbit*"` → `DEBUG="bitsocial*, pkc*"`
+- [ ] Update any other repository references
+
+**CI-alerts.yml:**
+- [ ] Line 16: Comment `# @plebbitjs telegram chat id is -1001792656766` - Update or remove
+- [ ] Update any other plebbit-specific monitoring references
 
 ### 11.3 Build Configuration
 - [ ] Ensure tarball generation produces `bitsocial_*.tar.gz`
@@ -387,7 +432,9 @@ async function migrateDataDirectory() {
 - [ ] Line 18: `"DEBUG": "plebbit*"` → `"DEBUG": "bitsocial*, pkc*"`
 
 ### 14.2 Settings (.vscode/settings.json)
-- [ ] Update any plebbit-specific word lists or settings
+- [ ] Lines 5-10: Update cSpell word list:
+  - Remove: `"plebbit"`, `"subplebbit"`, `"subplebbits"`
+  - Add: `"bitsocial"`, `"community"`, `"communities"`, `"pkc"`
 
 ---
 
