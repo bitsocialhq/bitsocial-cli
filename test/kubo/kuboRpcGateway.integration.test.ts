@@ -1,4 +1,4 @@
-import { expect } from "chai";
+import { describe, it, beforeAll, afterAll, expect } from "vitest";
 import { ChildProcessWithoutNullStreams, execFile } from "child_process";
 import { once } from "events";
 import * as fs from "fs/promises";
@@ -61,9 +61,7 @@ const listenOnEphemeralPort = async (
         });
     });
 
-describe("startKuboNode port validation", function () {
-    this.timeout(90_000);
-
+describe("startKuboNode port validation", { timeout: 90_000 }, () => {
     const closeServer = async (server: net.Server) =>
         await new Promise<void>((resolve) => {
             if (!server.listening) return resolve();
@@ -91,9 +89,9 @@ describe("startKuboNode port validation", function () {
             } catch (error) {
                 caughtError = error;
             }
-            expect(caughtError).to.be.instanceOf(Error);
-            expect((caughtError as Error).message).to.include("IPFS API");
-            expect((caughtError as Error).message).to.include("already in use");
+            expect(caughtError).toBeInstanceOf(Error);
+            expect((caughtError as Error).message).toContain("IPFS API");
+            expect((caughtError as Error).message).toContain("already in use");
         } finally {
             await closeServer(apiServer);
             restoreIpfsPath(previousIpfsPath);
@@ -116,9 +114,9 @@ describe("startKuboNode port validation", function () {
             } catch (error) {
                 caughtError = error;
             }
-            expect(caughtError).to.be.instanceOf(Error);
-            expect((caughtError as Error).message).to.include("IPFS Gateway");
-            expect((caughtError as Error).message).to.include("already in use");
+            expect(caughtError).toBeInstanceOf(Error);
+            expect((caughtError as Error).message).toContain("IPFS Gateway");
+            expect((caughtError as Error).message).toContain("already in use");
         } finally {
             await closeServer(gatewayServer);
             restoreIpfsPath(previousIpfsPath);
@@ -160,9 +158,9 @@ describe("startKuboNode port validation", function () {
             } catch (error) {
                 caughtError = error;
             }
-            expect(caughtError).to.be.instanceOf(Error);
-            expect((caughtError as Error).message).to.include("IPFS Swarm");
-            expect((caughtError as Error).message).to.include("already in use");
+            expect(caughtError).toBeInstanceOf(Error);
+            expect((caughtError as Error).message).toContain("IPFS Swarm");
+            expect((caughtError as Error).message).toContain("already in use");
         } finally {
             await closeServer(swarmServer);
             restoreIpfsPath(previousIpfsPath);
@@ -170,15 +168,13 @@ describe("startKuboNode port validation", function () {
     });
 });
 
-describe("kubo RPC + gateway integration", function () {
-    this.timeout(120_000);
-
+describe("kubo RPC + gateway integration", { timeout: 120_000 }, () => {
     let kuboProcess: ChildProcessWithoutNullStreams | undefined;
     let apiUrl: URL;
     let gatewayUrl: URL;
     let ipfsRepoPath: string;
 
-    before(async () => {
+    beforeAll(async () => {
         const dataPath = tempDirectory();
         ipfsRepoPath = path.join(dataPath, "ipfs-repo");
         process.env.IPFS_PATH = ipfsRepoPath;
@@ -193,7 +189,7 @@ describe("kubo RPC + gateway integration", function () {
         await waitForOkResponse(() => fetch(new URL("/api/v0/version", apiUrl), { method: "POST" }));
     });
 
-    after(async () => {
+    afterAll(async () => {
         if (kuboProcess?.pid) {
             const exitPromise = once(kuboProcess, "exit");
             try {
@@ -207,9 +203,7 @@ describe("kubo RPC + gateway integration", function () {
         delete process.env.IPFS_PATH;
     });
 
-    it("supports CLI command execution, RPC API calls, and gateway reads", async function () {
-        this.timeout(90_000);
-
+    it("supports CLI command execution, RPC API calls, and gateway reads", { timeout: 90_000 }, async () => {
         const kuboBinaryPath = await resolveKuboBinary();
         const fileDirectory = tempDirectory();
         const filePath = path.join(fileDirectory, "hello.txt");
@@ -220,14 +214,14 @@ describe("kubo RPC + gateway integration", function () {
             env: { ...process.env, IPFS_PATH: ipfsRepoPath }
         });
         const cid = stdout.trim();
-        expect(cid.length).to.be.greaterThan(0);
+        expect(cid.length).toBeGreaterThan(0);
 
         const rpcResponse = await waitForOkResponse(() => fetch(new URL(`/api/v0/cat?arg=${cid}`, apiUrl), { method: "POST" }));
         const rpcBody = await rpcResponse.text();
-        expect(rpcBody).to.equal(fileContents);
+        expect(rpcBody).toBe(fileContents);
 
         const gatewayResponse = await waitForOkResponse(() => fetch(new URL(`/ipfs/${cid}`, gatewayUrl)), 40, 500);
         const gatewayBody = await gatewayResponse.text();
-        expect(gatewayBody).to.equal(fileContents);
+        expect(gatewayBody).toBe(fileContents);
     });
 });

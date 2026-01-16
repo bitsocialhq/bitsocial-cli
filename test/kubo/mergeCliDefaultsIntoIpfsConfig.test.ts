@@ -1,4 +1,4 @@
-import { expect } from "chai";
+import { describe, it, expect } from "vitest";
 import { file as tempFile } from "tempy";
 import * as fs from "fs/promises";
 import path from "path";
@@ -28,9 +28,9 @@ describe("mergeCliDefaultsIntoIpfsConfig", () => {
         await mergeCliDefaultsIntoIpfsConfig(noopLog, configPath, new URL("http://127.0.0.1:5001"), new URL("http://127.0.0.1:8080"));
 
         const mergedConfig = JSON.parse(await fs.readFile(configPath, "utf-8"));
-        expect(mergedConfig.Addresses.API).to.equal("/ip4/127.0.0.1/tcp/5001");
-        expect(mergedConfig.Addresses.Gateway).to.equal("/ip4/127.0.0.1/tcp/8080");
-        expect(mergedConfig.AutoTLS.Enabled).to.be.true;
+        expect(mergedConfig.Addresses.API).toBe("/ip4/127.0.0.1/tcp/5001");
+        expect(mergedConfig.Addresses.Gateway).toBe("/ip4/127.0.0.1/tcp/8080");
+        expect(mergedConfig.AutoTLS.Enabled).toBe(true);
     });
 
     it("preserves user configured gateway settings while disabling subdomain redirects", async () => {
@@ -50,11 +50,11 @@ describe("mergeCliDefaultsIntoIpfsConfig", () => {
         await mergeCliDefaultsIntoIpfsConfig(noopLog, configPath, new URL("http://10.0.0.2:4001"), new URL("http://10.0.0.2:8081"));
 
         const mergedConfig = JSON.parse(await fs.readFile(configPath, "utf-8"));
-        expect(mergedConfig.Gateway.NoFetch).to.be.true;
+        expect(mergedConfig.Gateway.NoFetch).toBe(true);
 
         const exampleGateway = mergedConfig.Gateway.PublicGateways["example.com"];
-        expect(exampleGateway.Paths).to.deep.equal(["/ipfs"]);
-        expect(exampleGateway.UseSubdomains).to.be.false;
+        expect(exampleGateway.Paths).toEqual(["/ipfs"]);
+        expect(exampleGateway.UseSubdomains).toBe(false);
     });
 
     it("adds gateway entries for target hostnames and keeps existing metadata", async () => {
@@ -75,11 +75,11 @@ describe("mergeCliDefaultsIntoIpfsConfig", () => {
 
         const mergedConfig = JSON.parse(await fs.readFile(configPath, "utf-8"));
         const localhostGateway = mergedConfig.Gateway.PublicGateways["localhost"];
-        expect(localhostGateway.Paths).to.deep.equal(["/ipns"]);
-        expect(localhostGateway.InlineDNSLink).to.be.true;
-        expect(localhostGateway.UseSubdomains).to.be.false;
+        expect(localhostGateway.Paths).toEqual(["/ipns"]);
+        expect(localhostGateway.InlineDNSLink).toBe(true);
+        expect(localhostGateway.UseSubdomains).toBe(false);
 
-        expect(mergedConfig.Gateway.PublicGateways["custom.host"]).to.include({ UseSubdomains: false });
-        expect(mergedConfig.Gateway.PublicGateways["127.0.0.1"]).to.include({ UseSubdomains: false });
+        expect(mergedConfig.Gateway.PublicGateways["custom.host"]).toMatchObject({ UseSubdomains: false });
+        expect(mergedConfig.Gateway.PublicGateways["127.0.0.1"]).toMatchObject({ UseSubdomains: false });
     });
 });

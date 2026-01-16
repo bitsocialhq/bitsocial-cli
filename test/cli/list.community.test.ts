@@ -1,5 +1,5 @@
 import { runCommand } from "@oclif/test";
-import { expect } from "chai";
+import { describe, it, beforeAll, afterAll, afterEach, expect } from "vitest";
 import Sinon from "sinon";
 import { BaseCommand } from "../../dist/cli/base-command.js";
 
@@ -7,7 +7,7 @@ describe("bitsocial community list", () => {
     const sandbox = Sinon.createSandbox();
     const fakeCommunities = ["plebbit1.eth", "plebbit2.eth"];
 
-    before(() => {
+    beforeAll(() => {
         const plebbitInstanceFake = sandbox.fake.resolves({
             subplebbits: fakeCommunities,
             destroy: () => {}
@@ -17,12 +17,12 @@ describe("bitsocial community list", () => {
     });
 
     afterEach(() => sandbox.resetHistory());
-    after(() => sandbox.restore());
+    afterAll(() => sandbox.restore());
 
     it(`-q Outputs only community addresses`, async () => {
         const result = await runCommand("community list -q", process.cwd());
-        expect(result.error).to.be.undefined;
+        expect(result.error).toBeUndefined();
         const trimmedOutput: string[] = result.stdout.trim().split("\n");
-        expect(trimmedOutput).to.deep.equal(fakeCommunities);
+        expect(trimmedOutput).toEqual(fakeCommunities);
     });
 });

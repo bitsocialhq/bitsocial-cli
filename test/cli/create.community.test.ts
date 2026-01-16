@@ -1,5 +1,5 @@
 import { runCommand } from "@oclif/test";
-import { expect } from "chai";
+import { describe, it, beforeAll, afterAll, afterEach, expect } from "vitest";
 import signers from "../fixtures/signers.js";
 import Sinon from "sinon";
 import type { CreateSubplebbitOptions } from "../types/communityTypes.js";
@@ -26,7 +26,7 @@ describe("bitsocial community create", () => {
     const startFake = sandbox.fake();
     const plebbitCreateStub = sandbox.fake.resolves({ address: signers[0]!.address, start: startFake, started: false });
     const runCreateCommand = (args: string) => runCommand(args, process.cwd(), { stripAnsi: true });
-    before(async () => {
+    beforeAll(async () => {
         const plebbitInstanceFake = sandbox.fake.resolves({
             createSubplebbit: plebbitCreateStub,
             destroy: () => {}
@@ -40,39 +40,39 @@ describe("bitsocial community create", () => {
         startFake.resetHistory();
     });
 
-    after(() => sandbox.restore());
+    afterAll(() => sandbox.restore());
 
     it(`Parses minimal create options correctly`, async () => {
         const result = await runCreateCommand("community create --description testDescription");
-        expect(result.error).to.be.undefined;
-        expect(plebbitCreateStub.calledOnce).to.be.true;
+        expect(result.error).toBeUndefined();
+        expect(plebbitCreateStub.calledOnce).toBe(true);
         const parsedArgs = <CreateSubplebbitOptions>plebbitCreateStub.args[0][0];
         // PrivateKeyPath will be processed to signer
-        expect(parsedArgs.description).to.equal("testDescription");
-        expect(startFake.calledOnce).to.be.true;
+        expect(parsedArgs.description).toBe("testDescription");
+        expect(startFake.calledOnce).toBe(true);
     });
 
     it(`Parses full create options correctly`, async () => {
         const result = await runCreateCommand(
             'community create --privateKeyPath test/fixtures/community_0_private_key.pem --title "testTitle" --description "testDescription" --suggested.primaryColor testPrimaryColor --suggested.secondaryColor testSecondaryColor --suggested.avatarUrl http://localhost:8080/avatar.png --suggested.bannerUrl http://localhost:8080/banner.png --suggested.backgroundUrl http://localhost:8080/background.png --suggested.language testLanguage'
         );
-        expect(result.error).to.be.undefined;
-        expect(plebbitCreateStub.calledOnce).to.be.true;
+        expect(result.error).toBeUndefined();
+        expect(plebbitCreateStub.calledOnce).toBe(true);
         const parsedArgs = <CreateSubplebbitOptions>plebbitCreateStub.args[0][0];
         // PrivateKeyPath will be processed to signer
-        expect(parsedArgs.title).to.equal(cliCreateOptions.title);
-        expect(parsedArgs.description).to.equal(cliCreateOptions.description);
-        expect(parsedArgs.suggested).to.deep.equal(cliCreateOptions.suggested);
+        expect(parsedArgs.title).toBe(cliCreateOptions.title);
+        expect(parsedArgs.description).toBe(cliCreateOptions.description);
+        expect(parsedArgs.suggested).toEqual(cliCreateOptions.suggested);
         if (!("signer" in parsedArgs) || !parsedArgs.signer) throw Error("signer should be defined");
 
         const signer = parsedArgs.signer;
-        expect(typeof signer).to.equal("object");
-        expect(signer).to.not.equal(null);
+        expect(typeof signer).toBe("object");
+        expect(signer).not.toBeNull();
 
-        if ("privateKey" in (signer as Record<string, unknown>)) expect((signer as { privateKey: unknown }).privateKey).to.be.a("string");
-        else expect((signer as { address: unknown }).address).to.be.a("string");
+        if ("privateKey" in (signer as Record<string, unknown>)) expect(typeof (signer as { privateKey: unknown }).privateKey).toBe("string");
+        else expect(typeof (signer as { address: unknown }).address).toBe("string");
 
-        expect((signer as { type: unknown }).type).to.equal("ed25519");
-        expect(startFake.calledOnce).to.be.true;
+        expect((signer as { type: unknown }).type).toBe("ed25519");
+        expect(startFake.calledOnce).toBe(true);
     });
 });
