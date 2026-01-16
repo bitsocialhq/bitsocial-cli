@@ -1,10 +1,10 @@
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
-# bitsocial-cli: A BitSocial Node with WebSocket and Command Line Interface
+# bitsocial-cli: A Bitsocial Node with WebSocket and Command Line Interface
 
 # Table of contents
 
--   [What is BitSocial?](#what-is-bitsocial)
+-   [What is Bitsocial?](#what-is-bitsocial)
 -   [What is bitsocial-cli?](#what-is-bitsocial-cli)
 -   [Install](#install)
 -   [Usage](#usage)
@@ -12,15 +12,15 @@
 -   [Contribution](#contribution)
 -   [Feedback](#feedback)
 
-# What is BitSocial?
+# What is Bitsocial?
 
-BitSocial is p2p and decentralized social media protocol built completely with IPFS/IPNS/pubsub. It doesn't use any central server, central database, public HTTP endpoint or DNS, it is pure peer to peer (except for the web client that can't join a P2P swarm directly, web clients use interchangeable HTTP providers). It will allow community owners to retain full ownership over their community. Whitepaper [here](https://github.com/plebbit/whitepaper/discussions/2)
+Bitsocial is p2p and decentralized social media protocol built completely with IPFS/IPNS/pubsub. It doesn't use any central server, central database, public HTTP endpoint or DNS, it is pure peer to peer (except for the web client that can't join a P2P swarm directly, web clients use interchangeable HTTP providers). It will allow community owners to retain full ownership over their community. Whitepaper [here](https://github.com/plebbit/whitepaper/discussions/2)
 
 # What is bitsocial-cli?
 
 `bitsocial-cli` is an interface to the backend of PKC protocol using [plebbit-js](https://github.com/plebbit/plebbit-js). Users can run and manage their communities using it. It is written in Typescript and designed to receive commands via CLI and WebSocket.
 
--   Runs an IPFS and BitSocial node
+-   Runs an IPFS and Bitsocial node
 -   Command Line interface Interface to IPFS-Nodes
 -   WebSocket RPC to access and control your communities and publications
 
@@ -44,7 +44,7 @@ If you get `libfontconfig dependency error`, then you need to install libfontcon
 
 For Windows, You need to install [vc-redist](https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170) first. After you install `vc-redist`, download the installer of [bitsocial](https://github.com/bitsocialhq/bitsocial-cli/releases/latest/download/bitsocial_installer_win32_x64.exe) and next your way to the end
 
-## Build your BitSocial executable manually (optional)
+## Build your Bitsocial executable manually (optional)
 
 In case the installation script is not working for you or you just want to build the source code directly. First, you need to have `NodeJS 20`, `npm` and `yarn` installed
 
@@ -62,7 +62,7 @@ After running the last command you should be able to run commands directly again
 
 # Usage
 
-## The data/config directory of BitSocial
+## The data/config directory of Bitsocial
 
 This is the default directory where bitsocial-cli will keep its config, as well as data for local communities:
 
@@ -70,7 +70,7 @@ This is the default directory where bitsocial-cli will keep its config, as well 
 -   Windows: %LOCALAPPDATA%\bitsocial
 -   Linux: ~/.local/share/bitsocial
 
-## The logs directory of BitSocial
+## The logs directory of Bitsocial
 
 bitsocial-cli will keep logs in this directory, with a cap of 10M per log file.
 
@@ -88,7 +88,7 @@ IPFS API listening on: http://localhost:5001/api/v0
 IPFS Gateway listening on: http://localhost:6473
 plebbit rpc: listening on ws://localhost:9138 (local connections only)
 plebbit rpc: listening on ws://localhost:9138/MHA1tm2QWG19z0bnkRarDNWIajDobl7iN2eM2PmL (secret auth key for remote connections)
-BitSocial data path: /root/.local/share/bitsocial
+Bitsocial data path: /root/.local/share/bitsocial
 Communities in data path:  [ 'pleblore.eth' ]
 WebUI (plebones): http://localhost:9138/plebones (local connections only)
 WebUI (plebones): http://192.168.1.60:9138/MHA1tm2QWG19z0bnkRarDNWIajDobl7iN2eM2PmL/plebones (secret auth key for remote connections)
