@@ -14,11 +14,11 @@
 
 # What is BitSocial?
 
-BitSocial is serverless, admin-less, decentralized Reddit alternative built completely with IPFS/IPNS/pubsub/ENS. It doesn't use any central server, central database, public HTTP endpoint or DNS, it is pure peer to peer (except for the web client that can't join a P2P swarm directly, web clients use interchangeable HTTP providers). It will allow community owners to retain full ownership over their community. Whitepaper [here](https://github.com/plebbit/whitepaper/discussions/2)
+BitSocial is p2p and decentralized social media protocol built completely with IPFS/IPNS/pubsub. It doesn't use any central server, central database, public HTTP endpoint or DNS, it is pure peer to peer (except for the web client that can't join a P2P swarm directly, web clients use interchangeable HTTP providers). It will allow community owners to retain full ownership over their community. Whitepaper [here](https://github.com/plebbit/whitepaper/discussions/2)
 
 # What is bitsocial-cli?
 
-`bitsocial-cli` is an interface to the backend of BitSocial using [plebbit-js](https://github.com/plebbit/plebbit-js). Users can run and manage their communities using it. It is written in Typescript and designed to receive commands via CLI and WebSocket.
+`bitsocial-cli` is an interface to the backend of PKC protocol using [plebbit-js](https://github.com/plebbit/plebbit-js). Users can run and manage their communities using it. It is written in Typescript and designed to receive commands via CLI and WebSocket.
 
 -   Runs an IPFS and BitSocial node
 -   Command Line interface Interface to IPFS-Nodes
@@ -98,6 +98,7 @@ WebUI (seedit): http://192.168.1.60:9138/MHA1tm2QWG19z0bnkRarDNWIajDobl7iN2eM2Pm
 ```
 
 Once `bitsocial daemon` is running, you can create and manage your communities through the web interfaces, either seedit or plebones. If you're a power user and prefer CLI, then you can take a look at the commands below.
+
 ### Creating your first community
 
 ```sh-session
@@ -149,14 +150,15 @@ $ bitsocial community edit mysub.eth '--roles["author-address.eth"]' null
 # Commands
 
 <!-- commands -->
-* [`plebbit daemon`](#plebbit-daemon)
-* [`plebbit help [COMMAND]`](#plebbit-help-command)
-* [`plebbit subplebbit create`](#plebbit-subplebbit-create)
-* [`plebbit subplebbit edit ADDRESS`](#plebbit-subplebbit-edit-address)
-* [`plebbit subplebbit get ADDRESS`](#plebbit-subplebbit-get-address)
-* [`plebbit subplebbit list`](#plebbit-subplebbit-list)
-* [`plebbit subplebbit start ADDRESSES`](#plebbit-subplebbit-start-addresses)
-* [`plebbit subplebbit stop ADDRESSES`](#plebbit-subplebbit-stop-addresses)
+
+-   [`plebbit daemon`](#plebbit-daemon)
+-   [`plebbit help [COMMAND]`](#plebbit-help-command)
+-   [`plebbit subplebbit create`](#plebbit-subplebbit-create)
+-   [`plebbit subplebbit edit ADDRESS`](#plebbit-subplebbit-edit-address)
+-   [`plebbit subplebbit get ADDRESS`](#plebbit-subplebbit-get-address)
+-   [`plebbit subplebbit list`](#plebbit-subplebbit-list)
+-   [`plebbit subplebbit start ADDRESSES`](#plebbit-subplebbit-start-addresses)
+-   [`plebbit subplebbit stop ADDRESSES`](#plebbit-subplebbit-stop-addresses)
 
 ## `plebbit daemon`
 
@@ -391,6 +393,7 @@ EXAMPLES
 ```
 
 _See code: [src/cli/commands/subplebbit/stop.ts](https://github.com/plebbit/plebbit-cli/blob/v0.17.13/src/cli/commands/subplebbit/stop.ts)_
+
 <!-- commandsstop -->
 
 # Contribution
