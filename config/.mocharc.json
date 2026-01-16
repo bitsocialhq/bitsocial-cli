@@ -2,6 +2,5 @@
     "node-option": ["loader=ts-node/esm"],
     "timeout": 30000,
     "require": "test/cli/root-hook-mocha.ts",
-    "extension": ["ts"],
-    "spec": ["test/**/*.test.ts"]
+    "extension": ["ts"]
 }

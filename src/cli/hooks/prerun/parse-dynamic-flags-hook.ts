@@ -88,7 +88,7 @@ const traverseObjectToSetAsFlagInOclif = (opts: Parameters<Hook<"prerun">>[0], f
 
 const hook: Hook<"prerun"> = async function (opts) {
     // Need to parse flag here and add it to opts.Command._flags
-    if (opts.Command.id === "subplebbit:edit" || opts.Command.id === "subplebbit:create" || opts.Command.id === "daemon") {
+    if (opts.Command.id === "community:edit" || opts.Command.id === "community:create" || opts.Command.id === "daemon") {
         // Parse the dynamic flags and add them to opts.Command.flags so that it wouldn't throw
         if (opts.argv.length <= 1) return; // if no flags are provided, then we don't need to do anything
         for (let i = 0; i < opts.argv.length; i++) if (typeof opts.argv[i] !== "string") opts.argv[i] = String(opts.argv[i]);

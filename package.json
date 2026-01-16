@@ -1,11 +1,11 @@
 {
-    "name": "plebbit-cli",
+    "name": "bitsocial-cli",
     "version": "0.17.12",
-    "description": "Command line interface to Plebbit API",
+    "description": "Command line interface to BitSocial API",
     "types": "./dist/index.d.ts",
-    "homepage": "https://github.com/plebbit/plebbit-cli",
-    "repository": "git@github.com:plebbit/plebbit-cli.git",
-    "author": "Esteban Abaroa, Rinse",
+    "homepage": "https://github.com/bitsocialhq/bitsocial-cli",
+    "repository": "git@github.com:bitsocialhq/bitsocial-cli.git",
+    "author": "Bitsocial Labs",
     "license": "GPL-2.0-only",
     "type": "module",
     "private": true,
@@ -38,12 +38,12 @@
         "/oclif.manifest.json"
     ],
     "bin": {
-        "plebbit": "./bin/run"
+        "bitsocial": "./bin/run"
     },
     "main": "./dist/index.js",
     "oclif": {
-        "bin": "plebbit",
-        "dirname": "plebbit",
+        "bin": "bitsocial",
+        "dirname": "bitsocial",
         "commands": "./dist/cli/commands",
         "topicSeparator": " ",
         "plugins": [
@@ -51,11 +51,8 @@
             "@oclif/plugin-not-found"
         ],
         "topics": {
-            "subplebbit": {
-                "description": "Access and manage your subplebbits"
-            },
-            "subplebbit:role": {
-                "description": "Manage the role of authors in your subplebbits"
+            "community": {
+                "description": "Access and manage your communities"
             }
         },
         "hooks": {

@@ -1,4 +1,4 @@
-// This file is to test root commands like `plebbit daemon` or `plebbit get`, whereas commands like `plebbit subplebbit start` are considered nested
+// This file is to test root commands like `bitsocial daemon` or `bitsocial get`, whereas commands like `bitsocial community start` are considered nested
 import { ChildProcess, spawn } from "child_process";
 import net from "net";
 import defaults from "../../dist/common-utils/defaults.js";
@@ -129,7 +129,7 @@ const startPlebbitDaemon = (args: string[]): Promise<ManagedChildProcess> => {
                     /* ignore parse errors */
                 }
             }
-            if (output.match("Subplebbits in data path")) {
+            if (output.match("Communities in data path")) {
                 daemonProcess.stdout!.off("data", onStdoutData);
                 daemonProcess.off("exit", onExit);
                 daemonProcess.off("error", onError);
@@ -209,7 +209,7 @@ const runPlebbitDaemonExpectFailure = (args: string[], timeoutMs = 20000) => {
         const timer = setTimeout(() => {
             daemonProcess.kill("SIGKILL");
             cleanup();
-            reject(new Error("Timed out waiting for plebbit daemon to exit"));
+            reject(new Error("Timed out waiting for bitsocial daemon to exit"));
         }, timeoutMs);
 
         daemonProcess.stdout?.on("data", onStdout);
@@ -219,7 +219,7 @@ const runPlebbitDaemonExpectFailure = (args: string[], timeoutMs = 20000) => {
     });
 };
 
-describe("plebbit daemon (kubo daemon is started by plebbit-cli)", async () => {
+describe("bitsocial daemon (kubo daemon is started by bitsocial-cli)", async () => {
     let daemonProcess: ManagedChildProcess;
 
     before(async () => {
@@ -292,7 +292,7 @@ describe("plebbit daemon (kubo daemon is started by plebbit-cli)", async () => {
     });
 });
 
-describe("plebbit daemon port availability validation", () => {
+describe("bitsocial daemon port availability validation", () => {
     const occupiedServers: net.Server[] = [];
     const cleanupServers = async () => {
         while (occupiedServers.length) {
@@ -352,7 +352,7 @@ describe("plebbit daemon port availability validation", () => {
     });
 });
 
-describe("plebbit daemon kubo restart cleanup", async () => {
+describe("bitsocial daemon kubo restart cleanup", async () => {
     it("stops kubo when daemon exits during a restart cycle", async () => {
         const previousDelay = process.env["PLEBBIT_CLI_TEST_IPFS_READY_DELAY_MS"];
         process.env["PLEBBIT_CLI_TEST_IPFS_READY_DELAY_MS"] = "5000";
@@ -402,7 +402,7 @@ describe("plebbit daemon kubo restart cleanup", async () => {
     });
 });
 
-describe(`plebbit daemon (kubo daemon is started by another process on the same port that plebbit-cli is using)`, async () => {
+describe(`bitsocial daemon (kubo daemon is started by another process on the same port that bitsocial-cli is using)`, async () => {
     let kuboDaemonProcess: ChildProcess | undefined;
     const kuboRpcUrl = new URL(`http://127.0.0.1:5001/api/v0`); // we're using the default here
     before(async () => {
@@ -416,7 +416,7 @@ describe(`plebbit daemon (kubo daemon is started by another process on the same 
         await killChildProcess(kuboDaemonProcess);
     });
 
-    it(`plebbit daemon can use a kubo node started by another program`, async () => {
+    it(`bitsocial daemon can use a kubo node started by another program`, async () => {
         let plebbitDaemonProcess: ManagedChildProcess | undefined;
         try {
             plebbitDaemonProcess = await startPlebbitDaemon([
@@ -434,7 +434,7 @@ describe(`plebbit daemon (kubo daemon is started by another process on the same 
         }
     });
 
-    it(`plebbit daemon monitors Kubo RPC started by another process, and start a new Kubo process if needed`, async () => {
+    it(`bitsocial daemon monitors Kubo RPC started by another process, and start a new Kubo process if needed`, async () => {
         let plebbitDaemonProcess: ManagedChildProcess | undefined;
         try {
             plebbitDaemonProcess = await startPlebbitDaemon([
@@ -457,7 +457,7 @@ describe(`plebbit daemon (kubo daemon is started by another process on the same 
     });
 });
 
-describe(`plebbit daemon (relying on plebbit RPC started by another process)`, async () => {
+describe(`bitsocial daemon (relying on plebbit RPC started by another process)`, async () => {
     let rpcProcess: ManagedChildProcess;
     before(async () => {
         await new Promise((resolve) => setTimeout(resolve, 5000)); // wait until the previous daemon is killed
@@ -469,7 +469,7 @@ describe(`plebbit daemon (relying on plebbit RPC started by another process)`, a
         await stopPlebbitDaemon(rpcProcess);
     });
 
-    it(`plebbit daemon detects and uses another process' plebbit RPC`, async () => {
+    it(`bitsocial daemon detects and uses another process' plebbit RPC`, async () => {
         let anotherRpcProcess: ManagedChildProcess | undefined;
         try {
             anotherRpcProcess = await startPlebbitDaemon([]); // should start with no problem and use rpcProcess
@@ -479,7 +479,7 @@ describe(`plebbit daemon (relying on plebbit RPC started by another process)`, a
         }
         await testConnectionToPlebbitRpc(defaults.PLEBBIT_RPC_URL.port);
     });
-    it(`plebbit daemon is monitoring another process' plebbit RPC and make sure it's always up`, async () => {
+    it(`bitsocial daemon is monitoring another process' plebbit RPC and make sure it's always up`, async () => {
         let anotherRpcProcess: ManagedChildProcess | undefined;
         try {
             anotherRpcProcess = await startPlebbitDaemon(["--plebbitOptions.dataPath", randomDirectory()]); // should monitor rpcProcess
@@ -492,8 +492,8 @@ describe(`plebbit daemon (relying on plebbit RPC started by another process)`, a
     });
 });
 
-describe(`plebbit daemon --plebbitRpcUrl`, async () => {
-    it(`A plebbit daemon should be change where to listen URL`, async () => {
+describe(`bitsocial daemon --plebbitRpcUrl`, async () => {
+    it(`A bitsocial daemon should be change where to listen URL`, async () => {
         const rpcUrl = new URL("ws://localhost:11138");
         let firstRpcProcess: ManagedChildProcess | undefined;
         try {

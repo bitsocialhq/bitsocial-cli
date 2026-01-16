@@ -69,7 +69,7 @@ export async function mergeCliDefaultsIntoIpfsConfig(log: any, ipfsConfigPath: s
     };
 
     await fsPromises.writeFile(ipfsConfigPath, JSON.stringify(mergedIpfsConfig, null, 4));
-    log("Applied plebbit CLI defaults to freshly initialized IPFS config.", ipfsConfigPath);
+    log("Applied bitsocial CLI defaults to freshly initialized IPFS config.", ipfsConfigPath);
 }
 
 // use this custom function instead of spawnSync for better logging
@@ -205,8 +205,8 @@ export async function startKuboNode(
     onSpawn?: (process: ChildProcessWithoutNullStreams) => void
 ): Promise<ChildProcessWithoutNullStreams> {
     return new Promise(async (resolve, reject) => {
-        const log = (await getPlebbitLogger())("plebbit-cli:ipfs:startKuboNode");
-        const ipfsDataPath = process.env["IPFS_PATH"] || path.join(dataPath, ".plebbit-cli.ipfs");
+        const log = (await getPlebbitLogger())("bitsocial-cli:ipfs:startKuboNode");
+        const ipfsDataPath = process.env["IPFS_PATH"] || path.join(dataPath, ".bitsocial-cli.ipfs");
         await fs.promises.mkdir(ipfsDataPath, { recursive: true });
         const ipfsConfigPath = path.join(ipfsDataPath, "config");
 

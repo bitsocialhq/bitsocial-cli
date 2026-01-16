@@ -1,58 +1,56 @@
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
-<img src="https://raw.githubusercontent.com/plebbit/assets/master/letters-grey.svg" width="260" height="73">
-
-# plebbit-cli: A Plebbit Node with WebSocket and Command Line Interface
+# bitsocial-cli: A BitSocial Node with WebSocket and Command Line Interface
 
 # Table of contents
 
--   [What is Plebbit?](#what-is-plebbit)
--   [What is plebbit-cli?](#what-is-plebbit-cli)
+-   [What is BitSocial?](#what-is-bitsocial)
+-   [What is bitsocial-cli?](#what-is-bitsocial-cli)
 -   [Install](#install)
 -   [Usage](#usage)
 -   [Commands](#commands)
 -   [Contribution](#contribution)
 -   [Feedback](#feedback)
 
-# What is Plebbit?
+# What is BitSocial?
 
-Plebbit is serverless, admin-less, decentralized Reddit alternative built completely with IPFS/IPNS/pubsub/ENS. It doesn't use any central server, central database, public HTTP endpoint or DNS, it is pure peer to peer (except for the web client that can't join a P2P swarm directly, web clients use interchangeable HTTP providers). It will allow subplebbit (subreddit) owners to retain full ownership over their community. Whitepaper [here](https://github.com/plebbit/whitepaper/discussions/2)
+BitSocial is serverless, admin-less, decentralized Reddit alternative built completely with IPFS/IPNS/pubsub/ENS. It doesn't use any central server, central database, public HTTP endpoint or DNS, it is pure peer to peer (except for the web client that can't join a P2P swarm directly, web clients use interchangeable HTTP providers). It will allow community owners to retain full ownership over their community. Whitepaper [here](https://github.com/plebbit/whitepaper/discussions/2)
 
-# What is plebbit-cli?
+# What is bitsocial-cli?
 
-`plebbit-cli` is an interface to the backend of Plebbit using [plebbit-js](https://github.com/plebbit/plebbit-js). Users can run and manage their subplebbits using it. It is written in Typescript and designed to receive commands via CLI and WebSocket.
+`bitsocial-cli` is an interface to the backend of BitSocial using [plebbit-js](https://github.com/plebbit/plebbit-js). Users can run and manage their communities using it. It is written in Typescript and designed to receive commands via CLI and WebSocket.
 
--   Runs an IPFS and Plebbit node
+-   Runs an IPFS and BitSocial node
 -   Command Line interface Interface to IPFS-Nodes
--   WebSocket RPC to access and control your subplebbits and publications
+-   WebSocket RPC to access and control your communities and publications
 
 # Install
 
 ## For Linux/MacOS
 
 ```sh-session
-curl https://raw.githubusercontent.com/plebbit/plebbit-cli/master/bin/install.sh | sh
+curl https://raw.githubusercontent.com/bitsocialhq/bitsocial-cli/master/bin/install.sh | sh
 ```
 
-### If you want to install a specific plebbit-cli version
+### If you want to install a specific bitsocial-cli version
 
 ```sh-session
-curl https://raw.githubusercontent.com/plebbit/plebbit-cli/master/bin/install.sh | sh -s 0.14.4
+curl https://raw.githubusercontent.com/bitsocialhq/bitsocial-cli/master/bin/install.sh | sh -s 0.14.4
 ```
 
 If you get `libfontconfig dependency error`, then you need to install libfontconfig by running `sudo apt install -y libfontconfig1 fontconfig libfontconfig1-dev libfontconfig`
 
 ## For Windows
 
-For Windows, You need to install [vc-redist](https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170) first. After you install `vc-redist`, download the installer of [plebbit](https://github.com/plebbit/plebbit-cli/releases/latest/download/plebbit_installer_win32_x64.exe) and next your way to the end
+For Windows, You need to install [vc-redist](https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170) first. After you install `vc-redist`, download the installer of [bitsocial](https://github.com/bitsocialhq/bitsocial-cli/releases/latest/download/bitsocial_installer_win32_x64.exe) and next your way to the end
 
-## Build your Plebbit executable manually (optional)
+## Build your BitSocial executable manually (optional)
 
-In case the installation script is not working for you or you just want to build the source code directly. First, Yyu need to have `NodeJS 20`, `npm` and `yarn` installed
+In case the installation script is not working for you or you just want to build the source code directly. First, you need to have `NodeJS 20`, `npm` and `yarn` installed
 
 ```
-git clone https://github.com/plebbit/plebbit-cli
-cd plebbit-cli
+git clone https://github.com/bitsocialhq/bitsocial-cli
+cd bitsocial-cli
 yarn install --frozen-lockfile
 yarn build
 yarn oclif manifest
@@ -64,34 +62,34 @@ After running the last command you should be able to run commands directly again
 
 # Usage
 
-## The data/config directory of Plebbit
+## The data/config directory of BitSocial
 
-This is the default directory where plebbit-cli will keep its config, as well as data for local subplebbits:
+This is the default directory where bitsocial-cli will keep its config, as well as data for local communities:
 
--   macOS: ~/Library/Application Support/plebbit
--   Windows: %LOCALAPPDATA%\plebbit
--   Linux: ~/.local/share/plebbit
+-   macOS: ~/Library/Application Support/bitsocial
+-   Windows: %LOCALAPPDATA%\bitsocial
+-   Linux: ~/.local/share/bitsocial
 
-## The logs directory of Plebbit
+## The logs directory of BitSocial
 
-Plebbit-cli will keep logs in this directory, with a cap of 10M per log file.
+bitsocial-cli will keep logs in this directory, with a cap of 10M per log file.
 
--   macOS: ~/Library/Logs/plebbit
--   Windows: %LOCALAPPDATA%\plebbit\Log
--   Linux: ~/.local/state/plebbit
+-   macOS: ~/Library/Logs/bitsocial
+-   Windows: %LOCALAPPDATA%\bitsocial\Log
+-   Linux: ~/.local/state/bitsocial
 
 ## Running Daemon
 
-In Bash (or powershell if you're on Windows), run `plebbit daemon` to able to connect to the network. You need to have the `plebbit daemon` terminal running to be able to execute other commands.
+In Bash (or powershell if you're on Windows), run `bitsocial daemon` to able to connect to the network. You need to have the `bitsocial daemon` terminal running to be able to execute other commands.
 
 ```sh-session
-$ plebbit daemon
+$ bitsocial daemon
 IPFS API listening on: http://localhost:5001/api/v0
 IPFS Gateway listening on: http://localhost:6473
 plebbit rpc: listening on ws://localhost:9138 (local connections only)
 plebbit rpc: listening on ws://localhost:9138/MHA1tm2QWG19z0bnkRarDNWIajDobl7iN2eM2PmL (secret auth key for remote connections)
-Plebbit data path: /root/.local/share/plebbit
-Subplebbits in data path:  [ 'pleblore.eth' ]
+BitSocial data path: /root/.local/share/bitsocial
+Communities in data path:  [ 'pleblore.eth' ]
 WebUI (plebones): http://localhost:9138/plebones (local connections only)
 WebUI (plebones): http://192.168.1.60:9138/MHA1tm2QWG19z0bnkRarDNWIajDobl7iN2eM2PmL/plebones (secret auth key for remote connections)
 WebUI (seedit): http://localhost:9138/seedit (local connections only)
@@ -99,18 +97,18 @@ WebUI (seedit): http://192.168.1.60:9138/MHA1tm2QWG19z0bnkRarDNWIajDobl7iN2eM2Pm
 
 ```
 
-Once `plebbit daemon` is running, you can create and manage your subplebbits through the web interfaces, either seedit or plebones. If you're a power user and prefer CLI, then you can take a look at the commands below.
-### Creating your first sub
+Once `bitsocial daemon` is running, you can create and manage your communities through the web interfaces, either seedit or plebones. If you're a power user and prefer CLI, then you can take a look at the commands below.
+### Creating your first community
 
 ```sh-session
-$ plebbit subplebbit create --title "Hello Plebs!" --description "This is gonna be great"
+$ bitsocial community create --title "Hello Plebs!" --description "This is gonna be great"
 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
-### Listing all your subs
+### Listing all your communities
 
 ```sh-session
-$ plebbit subplebbit list
+$ bitsocial community list
 Address                                              Started
  ──────────────────────────────────────────────────── ───────
  12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu true
@@ -124,28 +122,28 @@ Address                                              Started
  videos-livestreams-podcasts.eth                      false
 ```
 
-### Adding a role moderator to your sub
+### Adding a role moderator to your community
 
 ```sh-session
-$ plebbit subplebbit edit mysub.eth '--roles["author-address.eth"].role' moderator
+$ bitsocial community edit mysub.eth '--roles["author-address.eth"].role' moderator
 ```
 
-### Adding a role owner to your sub
+### Adding a role owner to your community
 
 ```sh-session
-$ plebbit subplebbit edit mysub.eth '--roles["author-address.eth"].role' owner
+$ bitsocial community edit mysub.eth '--roles["author-address.eth"].role' owner
 ```
 
-### Adding a role admin to your sub
+### Adding a role admin to your community
 
 ```sh-session
-$ plebbit subplebbit edit mysub.eth '--roles["author-address.eth"].role' admin
+$ bitsocial community edit mysub.eth '--roles["author-address.eth"].role' admin
 ```
 
 ### Removing a role
 
 ```sh-session
-$ plebbit subplebbit edit mysub.eth '--roles["author-address.eth"]' null
+$ bitsocial community edit mysub.eth '--roles["author-address.eth"]' null
 ```
 
 # Commands
@@ -404,4 +402,4 @@ We're always happy to receive pull requests. Few things to keep in mind:
 
 # Feedback
 
-We would love your feedback on our [Telegram](https://t.me/plebbit)
+We would love your feedback on our community channels

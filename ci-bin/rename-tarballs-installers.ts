@@ -17,7 +17,7 @@ import path from "path";
         if (!tarballFilename.endsWith(".tar.gz")) continue;
         const splits = tarballFilename.split("-");
         const oldTarballPath = path.join(distDirectory, tarballFilename);
-        const newTarbellPath = `plebbit_${splits[3]}-${splits[4]}`;
+        const newTarbellPath = `bitsocial_${splits[3]}-${splits[4]}`;
         await fs.rename(oldTarballPath, newTarbellPath);
         console.log(`Renamed ${oldTarballPath} to ${newTarbellPath}`);
     }
@@ -36,7 +36,7 @@ import path from "path";
         if (!winInstallerFilename.endsWith(".exe")) continue;
         const splits = winInstallerFilename.split("-");
         const oldWinInstallerPath = path.join(windowsInstallerDir, winInstallerFilename);
-        const newWinInstallerPath = `plebbit_installer_win32_${splits[3]}`;
+        const newWinInstallerPath = `bitsocial_installer_win32_${splits[3]}`;
         await fs.rename(oldWinInstallerPath, newWinInstallerPath);
         console.log(`Renamed ${oldWinInstallerPath} to ${newWinInstallerPath}`);
     }

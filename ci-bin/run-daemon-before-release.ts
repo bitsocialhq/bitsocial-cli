@@ -1,5 +1,5 @@
-// Run plebbit daemon, make sure it's not throwing an error
-// Try to connect to plebbit RPC, if it doesn't connect, throw
+// Run bitsocial daemon, make sure it's not throwing an error
+// Try to connect to pkc RPC, if it doesn't connect, throw
 
 import { ChildProcess, spawn } from "child_process";
 
@@ -9,15 +9,15 @@ interface SpawnOptions {
     waitForPattern?: string;
 }
 
-const spawnPlebbitProcess = async (options: SpawnOptions): Promise<ChildProcess | string> => {
+const spawnBitsocialProcess = async (options: SpawnOptions): Promise<ChildProcess | string> => {
     const Logger = await import("@plebbit/plebbit-logger");
-    const log = Logger.default("plebbit-cli:ci:run-daemon-before-release:spawnPlebbitProcess");
+    const log = Logger.default("bitsocial-cli:ci:run-daemon-before-release:spawnBitsocialProcess");
 
     const { args, isDaemon = false, waitForPattern } = options;
 
     return new Promise((resolve, reject) => {
         const fullArgs = ["./bin/run", ...args];
-        console.log(`Spawning plebbit process with args: ${fullArgs.join(" ")}`);
+        console.log(`Spawning bitsocial process with args: ${fullArgs.join(" ")}`);
         const process = spawn("node", fullArgs, {
             stdio: isDaemon ? ["pipe", "pipe", "inherit"] : ["pipe", "pipe", "pipe"]
         }) as ChildProcess;
@@ -41,7 +41,7 @@ const spawnPlebbitProcess = async (options: SpawnOptions): Promise<ChildProcess 
             });
 
             process.on("error", (data) => {
-                log.error("Error from plebbit process:", data);
+                log.error("Error from bitsocial process:", data);
                 error += String(data);
             });
         } else {
@@ -71,41 +71,41 @@ const spawnPlebbitProcess = async (options: SpawnOptions): Promise<ChildProcess 
 
 (async () => {
     const Logger = await import("@plebbit/plebbit-logger");
-    const log = Logger.default("plebbit-cli:ci:run-daemon-before-release");
+    const log = Logger.default("bitsocial-cli:ci:run-daemon-before-release");
 
-    const plebDaemon = (await spawnPlebbitProcess({
+    const bitsocialDaemon = (await spawnBitsocialProcess({
         args: ["daemon"],
         isDaemon: true,
-        waitForPattern: "Subplebbits in data path"
+        waitForPattern: "Communities in data path"
     })) as ChildProcess;
 
     // Test CLI commands
     log("Testing CLI commands...");
 
-    let subplebbitAddress: string;
+    let communityAddress: string;
 
     try {
-        // Create subplebbit and capture address
-        subplebbitAddress = (await spawnPlebbitProcess({
-            args: ["subplebbit", "create", "--description", "test"]
+        // Create community and capture address
+        communityAddress = (await spawnBitsocialProcess({
+            args: ["community", "create", "--description", "test"]
         })) as string;
-        log(`Created subplebbit with address: ${subplebbitAddress}`);
+        log(`Created community with address: ${communityAddress}`);
     } catch (e) {
-        log.error("Error creating subplebbit", e);
-        await plebDaemon.kill();
+        log.error("Error creating community", e);
+        await bitsocialDaemon.kill();
         throw e;
     }
 
-    console.log("subplebbit address", subplebbitAddress);
+    console.log("community address", communityAddress);
     try {
-        // Edit the subplebbit
-        await spawnPlebbitProcess({
-            args: ["subplebbit", "edit", subplebbitAddress, "--description", "random description"]
+        // Edit the community
+        await spawnBitsocialProcess({
+            args: ["community", "edit", communityAddress, "--description", "random description"]
         });
-        log(`Successfully edited subplebbit ${subplebbitAddress}`);
+        log(`Successfully edited community ${communityAddress}`);
     } catch (e) {
-        log.error("Error editing subplebbit", e);
-        await plebDaemon.kill();
+        log.error("Error editing community", e);
+        await bitsocialDaemon.kill();
         throw e;
     }
 
@@ -115,18 +115,18 @@ const spawnPlebbitProcess = async (options: SpawnOptions): Promise<ChildProcess 
 
     plebbit.on("error", (err) => log.error("Client Plebbit has emitted an error", err));
 
-    const sub = await plebbit.createSubplebbit({ address: subplebbitAddress });
+    const sub = await plebbit.createSubplebbit({ address: communityAddress });
 
-    console.log("sub description", sub.description);
+    console.log("community description", sub.description);
     if (sub.description !== "random description") {
         await plebbit.destroy();
-        await plebDaemon.kill();
-        throw Error("subplebbit.description should be 'random description' at this point. Instead it's: " + sub.description);
+        await bitsocialDaemon.kill();
+        throw Error("community.description should be 'random description' at this point. Instead it's: " + sub.description);
     }
 
     await sub.stop();
     await plebbit.destroy();
-    await plebDaemon.kill();
+    await bitsocialDaemon.kill();
 
-    console.log("No problem with plebbit-cli on this OS and platform");
+    console.log("No problem with bitsocial-cli on this OS and platform");
 })();

@@ -16,9 +16,9 @@ const defaultPlebbitOptions = {
     httpRoutersOptions: defaults.HTTP_TRACKERS
 };
 export default class Daemon extends Command {
-    static description = `Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any machine. Within the web ui users are able to browse, create and manage their subs fully P2P.
+    static description = `Run a network-connected BitSocial node. Once the daemon is running you can create and start your communities and receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any machine. Within the web ui users are able to browse, create and manage their communities fully P2P.
     Options can be passed to the RPC's instance through flag --plebbitOptions.optionName. For a list of plebbit options (https://github.com/plebbit/plebbit-js?tab=readme-ov-file#plebbitoptions)
-    If you need to modify ipfs config, you should head to {plebbit-data-path}/.ipfs-plebbit-cli/config and modify the config file
+    If you need to modify ipfs config, you should head to {bitsocial-data-path}/.ipfs-bitsocial-cli/config and modify the config file
     `;
     static flags = {
         plebbitRpcUrl: Flags.url({
@@ -33,15 +33,15 @@ export default class Daemon extends Command {
         })
     };
     static examples = [
-        "plebbit daemon",
-        "plebbit daemon --plebbitRpcUrl ws://localhost:53812",
-        "plebbit daemon --plebbitOptions.dataPath /tmp/plebbit-datapath/",
-        "plebbit daemon --plebbitOptions.chainProviders.eth[0].url https://ethrpc.com",
-        "plebbit daemon --plebbitOptions.kuboRpcClientsOptions[0] https://remoteipfsnode.com"
+        "bitsocial daemon",
+        "bitsocial daemon --plebbitRpcUrl ws://localhost:53812",
+        "bitsocial daemon --plebbitOptions.dataPath /tmp/bitsocial-datapath/",
+        "bitsocial daemon --plebbitOptions.chainProviders.eth[0].url https://ethrpc.com",
+        "bitsocial daemon --plebbitOptions.kuboRpcClientsOptions[0] https://remoteipfsnode.com"
     ];
     _setupLogger(Logger) {
         const envDebug = process.env["DEBUG"];
-        const debugNamespace = envDebug === "0" || envDebug === "" ? undefined : envDebug || "plebbit*, -plebbit*trace";
+        const debugNamespace = envDebug === "0" || envDebug === "" ? undefined : envDebug || "bitsocial*, plebbit*, -plebbit*trace";
         const debugDepth = process.env["DEBUG_DEPTH"] ? parseInt(process.env["DEBUG_DEPTH"]) : 10;
         Logger.inspectOpts = Logger.inspectOpts || {};
         Logger.inspectOpts.depth = debugDepth;
@@ -64,7 +64,7 @@ export default class Daemon extends Command {
             if (e.code !== "EEXIST")
                 throw e;
         }
-        const logFiles = (await fsPromise.readdir(logPath, { withFileTypes: true })).filter((file) => file.name.startsWith("plebbit_cli_daemon"));
+        const logFiles = (await fsPromise.readdir(logPath, { withFileTypes: true })).filter((file) => file.name.startsWith("bitsocial_cli_daemon"));
         const logfilesCapacity = 5; // we only store 5 log files
         if (logFiles.length >= logfilesCapacity) {
             // we need to pick the oldest log to delete
@@ -72,7 +72,7 @@ export default class Daemon extends Command {
             console.log(`Will remove log (${logFileToDelete}) because we reached capacity (${logfilesCapacity})`);
             await fsPromise.rm(path.join(logPath, logFileToDelete));
         }
-        return path.join(logPath, `plebbit_cli_daemon_${new Date().toISOString().replace(/:/g, "-")}.log`);
+        return path.join(logPath, `bitsocial_cli_daemon_${new Date().toISOString().replace(/:/g, "-")}.log`);
     }
     async _pipeDebugLogsToLogFile(logPath) {
         const logFilePath = await this._getNewLogfileByEvacuatingOldLogsIfNeeded(logPath);
@@ -109,7 +109,7 @@ export default class Daemon extends Command {
         const Logger = await getPlebbitLogger();
         this._setupLogger(Logger);
         await this._pipeDebugLogsToLogFile(flags.logPath);
-        const log = Logger("plebbit-cli:daemon");
+        const log = Logger("bitsocial-cli:daemon");
         log(`flags: `, flags);
         const plebbitRpcUrl = new URL(flags.plebbitRpcUrl);
         const plebbitOptionsFlagNames = Object.keys(flags).filter((flag) => flag.startsWith("plebbitOptions"));
@@ -164,7 +164,7 @@ export default class Daemon extends Command {
                     clearTimeout(timer);
                 }
                 if (isHealthyKubo) {
-                    log.trace(`Kubo API already running on port (${kuboApiPort}) by another program. Plebbit-cli will use the running ipfs daemon instead of starting a new one`);
+                    log.trace(`Kubo API already running on port (${kuboApiPort}) by another program. bitsocial-cli will use the running ipfs daemon instead of starting a new one`);
                     return;
                 }
                 throw new Error(`Cannot start IPFS daemon because the IPFS API port ${kuboRpcEndpoint.hostname}:${kuboApiPort} (configured as ${kuboRpcEndpoint.toString()}) is already in use.`);
@@ -226,14 +226,14 @@ export default class Daemon extends Command {
             if (isRpcPortTaken && usingDifferentProcessRpc)
                 return;
             if (isRpcPortTaken) {
-                log(`Plebbit RPC is already running (${plebbitRpcUrl}) by another program. Plebbit-cli will use the running RPC server, and if shuts down, plebbit-cli will start a new RPC instance`);
+                log(`Plebbit RPC is already running (${plebbitRpcUrl}) by another program. bitsocial-cli will use the running RPC server, and if shuts down, bitsocial-cli will start a new RPC instance`);
                 console.log("Using the already started RPC server at:", plebbitRpcUrl);
-                console.log("plebbit-cli daemon will monitor the plebbit RPC and kubo ipfs API to make sure they're always up");
+                console.log("bitsocial-cli daemon will monitor the plebbit RPC and kubo ipfs API to make sure they're always up");
                 const Plebbit = await import("@plebbit/plebbit-js");
                 const plebbit = await Plebbit.default({ plebbitRpcClientsOptions: [plebbitRpcUrl.toString()] });
                 await new Promise((resolve) => plebbit.once("subplebbitschange", resolve));
                 plebbit.on("error", (error) => console.error("Error from plebbit instance", error));
-                console.log(`Subplebbits in data path: `, plebbit.subplebbits);
+                console.log(`Communities in data path: `, plebbit.subplebbits);
                 usingDifferentProcessRpc = true;
                 return;
             }
@@ -241,9 +241,9 @@ export default class Daemon extends Command {
             usingDifferentProcessRpc = false;
             startedOwnRpc = true;
             console.log(`plebbit rpc: listening on ${plebbitRpcUrl} (local connections only)`);
-            console.log(`plebbit rpc: listening on ${plebbitRpcUrl}/${daemonServer.rpcAuthKey} (secret auth key for remote connections)`);
-            console.log(`Plebbit data path: ${path.resolve(mergedPlebbitOptions.dataPath)}`);
-            console.log(`Subplebbits in data path: `, daemonServer.listedSub);
+            console.log(`plebbit rpc: listening on ${plebbitRpcUrl}${daemonServer.rpcAuthKey} (secret auth key for remote connections)`);
+            console.log(`BitSocial data path: ${path.resolve(mergedPlebbitOptions.dataPath)}`);
+            console.log(`Communities in data path: `, daemonServer.listedSub);
             const localIpAddress = "localhost";
             const remoteIpAddress = getLanIpV4Address() || localIpAddress;
             const rpcPort = plebbitRpcUrl.port;

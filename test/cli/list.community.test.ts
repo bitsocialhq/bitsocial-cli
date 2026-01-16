@@ -3,13 +3,13 @@ import { expect } from "chai";
 import Sinon from "sinon";
 import { BaseCommand } from "../../dist/cli/base-command.js";
 
-describe("plebbit subplebbit list", () => {
+describe("bitsocial community list", () => {
     const sandbox = Sinon.createSandbox();
-    const fakeSubplebbits = ["plebbit1.eth", "plebbit2.eth"];
+    const fakeCommunities = ["plebbit1.eth", "plebbit2.eth"];
 
     before(() => {
         const plebbitInstanceFake = sandbox.fake.resolves({
-            subplebbits: fakeSubplebbits,
+            subplebbits: fakeCommunities,
             destroy: () => {}
         });
         //@ts-expect-error
@@ -19,10 +19,10 @@ describe("plebbit subplebbit list", () => {
     afterEach(() => sandbox.resetHistory());
     after(() => sandbox.restore());
 
-    it(`-q Outputs only subplebbit addresses`, async () => {
-        const result = await runCommand("subplebbit list -q", process.cwd());
+    it(`-q Outputs only community addresses`, async () => {
+        const result = await runCommand("community list -q", process.cwd());
         expect(result.error).to.be.undefined;
         const trimmedOutput: string[] = result.stdout.trim().split("\n");
-        expect(trimmedOutput).to.deep.equal(fakeSubplebbits);
+        expect(trimmedOutput).to.deep.equal(fakeCommunities);
     });
 });

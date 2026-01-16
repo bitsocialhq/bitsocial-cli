@@ -20,7 +20,7 @@ export function getLanIpV4Address() {
     return undefined;
 }
 export async function loadKuboConfigFile(plebbitDataPath) {
-    const kuboConfigPath = path.join(plebbitDataPath, ".ipfs-plebbit-cli", "config");
+    const kuboConfigPath = path.join(plebbitDataPath, ".ipfs-bitsocial-cli", "config");
     if (!fs.existsSync(kuboConfigPath))
         return undefined;
     const kuboConfig = JSON.parse((await fsPromises.readFile(kuboConfigPath)).toString());

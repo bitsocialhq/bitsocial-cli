@@ -5,30 +5,30 @@ set -e
 
 case $(uname -sm) in
 	"Darwin x86_64") suffix="darwin-x64" ;;
-	"Darwin arm64") suffix="darwin-arm64" ;; 
+	"Darwin arm64") suffix="darwin-arm64" ;;
 	"Linux aarch64") suffix="linux-arm64" ;;
   "Linux x86_64") suffix="linux-x64" ;;
 	*) suffix="no-file-name" ;;
 	esac
-plebbit_compressed_file_name="plebbit_${suffix}.tar.gz"
+bitsocial_compressed_file_name="bitsocial_${suffix}.tar.gz"
 VERSION=${1:-latest}
 # Construct URI based on version
 if [ "$VERSION" = "latest" ]; then
-    plebbit_uri="https://github.com/plebbit/plebbit-cli/releases/latest/download/${plebbit_compressed_file_name}"
+    bitsocial_uri="https://github.com/bitsocialhq/bitsocial-cli/releases/latest/download/${bitsocial_compressed_file_name}"
 else
-    plebbit_uri="https://github.com/plebbit/plebbit-cli/releases/download/v${VERSION}/${plebbit_compressed_file_name}"
+    bitsocial_uri="https://github.com/bitsocialhq/bitsocial-cli/releases/download/v${VERSION}/${bitsocial_compressed_file_name}"
 fi
-echo "Downloading plebbit-cli, version: ${VERSION}"
-curl --fail --location --progress-bar --output "$plebbit_compressed_file_name" "$plebbit_uri"
-PLEBBIT_INSTALL_DIR="$HOME/.plebbit_install_files"
-rm -rf "$PLEBBIT_INSTALL_DIR"
-mkdir -p "$PLEBBIT_INSTALL_DIR"
+echo "Downloading bitsocial-cli, version: ${VERSION}"
+curl --fail --location --progress-bar --output "$bitsocial_compressed_file_name" "$bitsocial_uri"
+BITSOCIAL_INSTALL_DIR="$HOME/.bitsocial_install_files"
+rm -rf "$BITSOCIAL_INSTALL_DIR"
+mkdir -p "$BITSOCIAL_INSTALL_DIR"
 
-tar -xzf $plebbit_compressed_file_name --directory "$PLEBBIT_INSTALL_DIR"
-echo "Extracted Plebbit install files to $PLEBBIT_INSTALL_DIR"
+tar -xzf $bitsocial_compressed_file_name --directory "$BITSOCIAL_INSTALL_DIR"
+echo "Extracted BitSocial install files to $BITSOCIAL_INSTALL_DIR"
 echo "Make sure not to delete this directory"
 
-plebbit_bin_path=$(eval echo "$PLEBBIT_INSTALL_DIR/plebbit/bin/plebbit") # Make sure it's expanded
+bitsocial_bin_path=$(eval echo "$BITSOCIAL_INSTALL_DIR/bitsocial/bin/bitsocial") # Make sure it's expanded
 binpaths="$HOME/.local/bin /usr/local/bin /usr/bin"
 
 # This variable contains a nonzero length string in case the script fails
@@ -37,14 +37,14 @@ is_write_perm_missing=""
 
 for system_bin_path_dir in $binpaths; do
   # Expand the $HOME variable.
-  system_plebbit_bin_path=$(eval echo "$system_bin_path_dir/plebbit")
+  system_bitsocial_bin_path=$(eval echo "$system_bin_path_dir/bitsocial")
   mkdir -p "$system_bin_path_dir"
-  if ln -sf "$plebbit_bin_path" "$system_plebbit_bin_path" ; then
-    echo "Plebbit was installed successfully to $system_plebbit_bin_path"
-	echo "Run 'plebbit --help' to get started"
-	echo "Need help? Join our Telegram https://t.me/plebbit"
+  if ln -sf "$bitsocial_bin_path" "$system_bitsocial_bin_path" ; then
+    echo "BitSocial was installed successfully to $system_bitsocial_bin_path"
+	echo "Run 'bitsocial --help' to get started"
+	echo "Need help? Join our community"
 
-  rm "$plebbit_compressed_file_name"
+  rm "$bitsocial_compressed_file_name"
 
   exit 0
   else

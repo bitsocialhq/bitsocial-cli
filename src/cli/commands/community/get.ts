@@ -4,18 +4,18 @@ import { BaseCommand } from "../../base-command.js";
 import * as remeda from "remeda";
 
 export default class Get extends BaseCommand {
-    static override description = "Fetch a local or remote subplebbit, and print its json in the terminal";
+    static override description = "Fetch a local or remote community, and print its json in the terminal";
 
     static override examples = [
-        "plebbit subplebbit get plebmusic.eth",
-        "plebbit subplebbit get 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu"
+        "bitsocial community get plebmusic.eth",
+        "bitsocial community get 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu"
     ];
 
     static override args = {
         address: Args.string({
             name: "address",
             required: true,
-            description: "Address of the subplebbit address to fetch"
+            description: "Address of the community to fetch"
         })
     };
 

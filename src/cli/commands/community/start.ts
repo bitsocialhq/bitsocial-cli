@@ -2,39 +2,37 @@ import { getPlebbitLogger } from "../../../util.js";
 import { BaseCommand } from "../../base-command.js";
 import { Args } from "@oclif/core";
 
-export default class Stop extends BaseCommand {
-    static override description =
-        "Stop a subplebbit. The subplebbit will not publish or receive any publications until it is started again.";
+export default class Start extends BaseCommand {
+    static override description = "Start a community";
 
     static override strict = false; // To allow for variable length arguments
 
     static override args = {
         addresses: Args.string({
-            name: "addresses",
+            name: "addresses", // name of arg to show in help and reference with args[name]
             required: true,
-            description: "Addresses of subplebbits to stop. Separated by space"
+            description: "Addresses of communities to start. Separated by space"
         })
     };
 
     static override examples = [
-        "plebbit subplebbit stop plebbit.eth",
-        "plebbit subplebbit stop Qmb99crTbSUfKXamXwZBe829Vf6w5w5TktPkb6WstC9RFW"
+        "bitsocial community start plebbit.eth",
+        "bitsocial community start 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu"
     ];
 
     async run() {
-        const { argv, flags } = await this.parse(Stop);
+        const { argv, flags } = await this.parse(Start);
 
-        const log = (await getPlebbitLogger())("plebbit-cli:commands:subplebbit:stop");
-        log(`addresses: `, argv);
-        log(`flags: `, flags);
         const addresses = <string[]>argv;
-        if (!Array.isArray(addresses)) this.error(`Failed to parse addresses correctly (${addresses})`);
+        const log = (await getPlebbitLogger())("bitsocial-cli:commands:community:start");
+        log(`addresses: `, addresses);
+        log(`flags: `, flags);
 
         const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcUrl.toString());
         for (const address of addresses) {
             try {
                 const sub = await plebbit.createSubplebbit({ address });
-                await sub.stop(); // should stop the original subplebbit instance from running
+                await sub.start();
                 this.log(address);
             } catch (e) {
                 //@ts-expect-error

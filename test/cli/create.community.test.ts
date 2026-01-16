@@ -2,12 +2,12 @@ import { runCommand } from "@oclif/test";
 import { expect } from "chai";
 import signers from "../fixtures/signers.js";
 import Sinon from "sinon";
-import type { CreateSubplebbitOptions } from "../types/subplebbitTypes.js";
+import type { CreateSubplebbitOptions } from "../types/communityTypes.js";
 
 import { BaseCommand } from "../../dist/cli/base-command.js";
 
 const cliCreateOptions = {
-    privateKeyPath: "test/fixtures/sub_0_private_key.pem",
+    privateKeyPath: "test/fixtures/community_0_private_key.pem",
     title: "testTitle",
     description: "testDescription",
     suggested: {
@@ -20,7 +20,7 @@ const cliCreateOptions = {
     }
 };
 
-describe("plebbit subplebbit create", () => {
+describe("bitsocial community create", () => {
     const sandbox = Sinon.createSandbox();
 
     const startFake = sandbox.fake();
@@ -43,7 +43,7 @@ describe("plebbit subplebbit create", () => {
     after(() => sandbox.restore());
 
     it(`Parses minimal create options correctly`, async () => {
-        const result = await runCreateCommand("subplebbit create --description testDescription");
+        const result = await runCreateCommand("community create --description testDescription");
         expect(result.error).to.be.undefined;
         expect(plebbitCreateStub.calledOnce).to.be.true;
         const parsedArgs = <CreateSubplebbitOptions>plebbitCreateStub.args[0][0];
@@ -54,7 +54,7 @@ describe("plebbit subplebbit create", () => {
 
     it(`Parses full create options correctly`, async () => {
         const result = await runCreateCommand(
-            'subplebbit create --privateKeyPath test/fixtures/sub_0_private_key.pem --title "testTitle" --description "testDescription" --suggested.primaryColor testPrimaryColor --suggested.secondaryColor testSecondaryColor --suggested.avatarUrl http://localhost:8080/avatar.png --suggested.bannerUrl http://localhost:8080/banner.png --suggested.backgroundUrl http://localhost:8080/background.png --suggested.language testLanguage'
+            'community create --privateKeyPath test/fixtures/community_0_private_key.pem --title "testTitle" --description "testDescription" --suggested.primaryColor testPrimaryColor --suggested.secondaryColor testSecondaryColor --suggested.avatarUrl http://localhost:8080/avatar.png --suggested.bannerUrl http://localhost:8080/banner.png --suggested.backgroundUrl http://localhost:8080/background.png --suggested.language testLanguage'
         );
         expect(result.error).to.be.undefined;
         expect(plebbitCreateStub.calledOnce).to.be.true;

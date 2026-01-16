@@ -22,7 +22,7 @@ export function getLanIpV4Address(): string | undefined {
 }
 
 export async function loadKuboConfigFile(plebbitDataPath: string): Promise<any | undefined> {
-    const kuboConfigPath = path.join(plebbitDataPath, ".ipfs-plebbit-cli", "config");
+    const kuboConfigPath = path.join(plebbitDataPath, ".ipfs-bitsocial-cli", "config");
 
     if (!fs.existsSync(kuboConfigPath)) return undefined;
 

@@ -3,13 +3,13 @@
     "daemon": {
       "aliases": [],
       "args": {},
-      "description": "Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any machine. Within the web ui users are able to browse, create and manage their subs fully P2P.\n    Options can be passed to the RPC's instance through flag --plebbitOptions.optionName. For a list of plebbit options (https://github.com/plebbit/plebbit-js?tab=readme-ov-file#plebbitoptions)\n    If you need to modify ipfs config, you should head to {plebbit-data-path}/.ipfs-plebbit-cli/config and modify the config file\n    ",
+      "description": "Run a network-connected BitSocial node. Once the daemon is running you can create and start your communities and receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any machine. Within the web ui users are able to browse, create and manage their communities fully P2P.\n    Options can be passed to the RPC's instance through flag --plebbitOptions.optionName. For a list of plebbit options (https://github.com/plebbit/plebbit-js?tab=readme-ov-file#plebbitoptions)\n    If you need to modify ipfs config, you should head to {bitsocial-data-path}/.ipfs-bitsocial-cli/config and modify the config file\n    ",
       "examples": [
-        "plebbit daemon",
-        "plebbit daemon --plebbitRpcUrl ws://localhost:53812",
-        "plebbit daemon --plebbitOptions.dataPath /tmp/plebbit-datapath/",
-        "plebbit daemon --plebbitOptions.chainProviders.eth[0].url https://ethrpc.com",
-        "plebbit daemon --plebbitOptions.kuboRpcClientsOptions[0] https://remoteipfsnode.com"
+        "bitsocial daemon",
+        "bitsocial daemon --plebbitRpcUrl ws://localhost:53812",
+        "bitsocial daemon --plebbitOptions.dataPath /tmp/bitsocial-datapath/",
+        "bitsocial daemon --plebbitOptions.chainProviders.eth[0].url https://ethrpc.com",
+        "bitsocial daemon --plebbitOptions.kuboRpcClientsOptions[0] https://remoteipfsnode.com"
       ],
       "flags": {
         "plebbitRpcUrl": {
@@ -25,7 +25,7 @@
           "description": "Specify a directory which will be used to store logs",
           "name": "logPath",
           "required": true,
-          "default": "/home/runner/.local/state/plebbit",
+          "default": "/home/user2/.local/state/bitsocial",
           "hasDynamicHelp": false,
           "multiple": false,
           "type": "option"
@@ -34,8 +34,8 @@
       "hasDynamicHelp": false,
       "hiddenAliases": [],
       "id": "daemon",
-      "pluginAlias": "plebbit-cli",
-      "pluginName": "plebbit-cli",
+      "pluginAlias": "bitsocial-cli",
+      "pluginName": "bitsocial-cli",
       "pluginType": "core",
       "strict": true,
       "enableJsonFlag": false,
@@ -45,6 +45,288 @@
         "cli",
         "commands",
         "daemon.js"
+      ]
+    },
+    "community:create": {
+      "aliases": [],
+      "args": {},
+      "description": "Create a community with specific properties. A newly created community will be started after creation and be able to receive publications. For a list of properties, visit https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions",
+      "examples": [
+        {
+          "description": "Create a community with title 'Hello Plebs' and description 'Welcome'",
+          "command": "<%= config.bin %> <%= command.id %> --title 'Hello Plebs' --description 'Welcome'"
+        }
+      ],
+      "flags": {
+        "plebbitRpcUrl": {
+          "name": "plebbitRpcUrl",
+          "required": true,
+          "summary": "URL to Plebbit RPC",
+          "default": "ws://localhost:9138/",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        },
+        "privateKeyPath": {
+          "description": "Private key (PEM) of the community signer that will be used to determine address (if address is not a domain). If it's not provided then Plebbit will generate a private key",
+          "name": "privateKeyPath",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "hasDynamicHelp": false,
+      "hiddenAliases": [],
+      "id": "community:create",
+      "pluginAlias": "bitsocial-cli",
+      "pluginName": "bitsocial-cli",
+      "pluginType": "core",
+      "strict": true,
+      "enableJsonFlag": false,
+      "isESM": true,
+      "relativePath": [
+        "dist",
+        "cli",
+        "commands",
+        "community",
+        "create.js"
+      ]
+    },
+    "community:edit": {
+      "aliases": [],
+      "args": {
+        "address": {
+          "description": "Address of the community to edit",
+          "name": "address",
+          "required": true
+        }
+      },
+      "description": "Edit a community's properties. For a list of properties, visit https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions",
+      "examples": [
+        {
+          "description": "Change the address of the community to a new ENS address",
+          "command": "bitsocial community edit 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu --address newAddress.eth"
+        },
+        {
+          "description": "Add the author address 'esteban.eth' as an admin on the community",
+          "command": "bitsocial community edit mysub.eth '--roles[\"esteban.eth\"].role' admin"
+        },
+        {
+          "description": "Add two challenges to the community. The first challenge will be a question and answer, and the second will be an image captcha",
+          "command": "bitsocial community edit mysub.eth --settings.challenges[0].name question --settings.challenges[0].options.question \"what is the password?\" --settings.challenges[0].options.answer thepassword --settings.challenges[1].name captcha-canvas-v3"
+        },
+        {
+          "description": "Change the title and description",
+          "command": "bitsocial community edit mysub.eth --title \"This is the new title\" --description \"This is the new description\" "
+        },
+        {
+          "description": "Remove a role from a moderator/admin/owner",
+          "command": "bitsocial community edit plebbit.eth --roles['rinse12.eth'] null"
+        },
+        {
+          "description": "Enable settings.fetchThumbnailUrls to fetch the thumbnail of url submitted by authors",
+          "command": "bitsocial community edit plebbit.eth --settings.fetchThumbnailUrls"
+        },
+        {
+          "description": "disable settings.fetchThumbnailUrls",
+          "command": "bitsocial community edit plebbit.eth --settings.fetchThumbnailUrls=false"
+        }
+      ],
+      "flags": {
+        "plebbitRpcUrl": {
+          "name": "plebbitRpcUrl",
+          "required": true,
+          "summary": "URL to Plebbit RPC",
+          "default": "ws://localhost:9138/",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "hasDynamicHelp": false,
+      "hiddenAliases": [],
+      "id": "community:edit",
+      "pluginAlias": "bitsocial-cli",
+      "pluginName": "bitsocial-cli",
+      "pluginType": "core",
+      "strict": true,
+      "enableJsonFlag": false,
+      "isESM": true,
+      "relativePath": [
+        "dist",
+        "cli",
+        "commands",
+        "community",
+        "edit.js"
+      ]
+    },
+    "community:get": {
+      "aliases": [],
+      "args": {
+        "address": {
+          "description": "Address of the community to fetch",
+          "name": "address",
+          "required": true
+        }
+      },
+      "description": "Fetch a local or remote community, and print its json in the terminal",
+      "examples": [
+        "bitsocial community get plebmusic.eth",
+        "bitsocial community get 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu"
+      ],
+      "flags": {
+        "plebbitRpcUrl": {
+          "name": "plebbitRpcUrl",
+          "required": true,
+          "summary": "URL to Plebbit RPC",
+          "default": "ws://localhost:9138/",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "hasDynamicHelp": false,
+      "hiddenAliases": [],
+      "id": "community:get",
+      "pluginAlias": "bitsocial-cli",
+      "pluginName": "bitsocial-cli",
+      "pluginType": "core",
+      "strict": true,
+      "enableJsonFlag": false,
+      "isESM": true,
+      "relativePath": [
+        "dist",
+        "cli",
+        "commands",
+        "community",
+        "get.js"
+      ]
+    },
+    "community:list": {
+      "aliases": [],
+      "args": {},
+      "description": "List your communities",
+      "examples": [
+        "bitsocial community list -q",
+        "bitsocial community list"
+      ],
+      "flags": {
+        "plebbitRpcUrl": {
+          "name": "plebbitRpcUrl",
+          "required": true,
+          "summary": "URL to Plebbit RPC",
+          "default": "ws://localhost:9138/",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        },
+        "quiet": {
+          "char": "q",
+          "name": "quiet",
+          "summary": "Only display community addresses",
+          "allowNo": false,
+          "type": "boolean"
+        }
+      },
+      "hasDynamicHelp": false,
+      "hiddenAliases": [],
+      "id": "community:list",
+      "pluginAlias": "bitsocial-cli",
+      "pluginName": "bitsocial-cli",
+      "pluginType": "core",
+      "strict": true,
+      "enableJsonFlag": false,
+      "isESM": true,
+      "relativePath": [
+        "dist",
+        "cli",
+        "commands",
+        "community",
+        "list.js"
+      ]
+    },
+    "community:start": {
+      "aliases": [],
+      "args": {
+        "addresses": {
+          "description": "Addresses of communities to start. Separated by space",
+          "name": "addresses",
+          "required": true
+        }
+      },
+      "description": "Start a community",
+      "examples": [
+        "bitsocial community start plebbit.eth",
+        "bitsocial community start 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu"
+      ],
+      "flags": {
+        "plebbitRpcUrl": {
+          "name": "plebbitRpcUrl",
+          "required": true,
+          "summary": "URL to Plebbit RPC",
+          "default": "ws://localhost:9138/",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "hasDynamicHelp": false,
+      "hiddenAliases": [],
+      "id": "community:start",
+      "pluginAlias": "bitsocial-cli",
+      "pluginName": "bitsocial-cli",
+      "pluginType": "core",
+      "strict": false,
+      "enableJsonFlag": false,
+      "isESM": true,
+      "relativePath": [
+        "dist",
+        "cli",
+        "commands",
+        "community",
+        "start.js"
+      ]
+    },
+    "community:stop": {
+      "aliases": [],
+      "args": {
+        "addresses": {
+          "description": "Addresses of communities to stop. Separated by space",
+          "name": "addresses",
+          "required": true
+        }
+      },
+      "description": "Stop a community. The community will not publish or receive any publications until it is started again.",
+      "examples": [
+        "bitsocial community stop plebbit.eth",
+        "bitsocial community stop Qmb99crTbSUfKXamXwZBe829Vf6w5w5TktPkb6WstC9RFW"
+      ],
+      "flags": {
+        "plebbitRpcUrl": {
+          "name": "plebbitRpcUrl",
+          "required": true,
+          "summary": "URL to Plebbit RPC",
+          "default": "ws://localhost:9138/",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "hasDynamicHelp": false,
+      "hiddenAliases": [],
+      "id": "community:stop",
+      "pluginAlias": "bitsocial-cli",
+      "pluginName": "bitsocial-cli",
+      "pluginType": "core",
+      "strict": false,
+      "enableJsonFlag": false,
+      "isESM": true,
+      "relativePath": [
+        "dist",
+        "cli",
+        "commands",
+        "community",
+        "stop.js"
       ]
     },
     "subplebbit:create": {
@@ -78,8 +360,8 @@
       "hasDynamicHelp": false,
       "hiddenAliases": [],
       "id": "subplebbit:create",
-      "pluginAlias": "plebbit-cli",
-      "pluginName": "plebbit-cli",
+      "pluginAlias": "bitsocial-cli",
+      "pluginName": "bitsocial-cli",
       "pluginType": "core",
       "strict": true,
       "enableJsonFlag": false,
@@ -146,8 +428,8 @@
       "hasDynamicHelp": false,
       "hiddenAliases": [],
       "id": "subplebbit:edit",
-      "pluginAlias": "plebbit-cli",
-      "pluginName": "plebbit-cli",
+      "pluginAlias": "bitsocial-cli",
+      "pluginName": "bitsocial-cli",
       "pluginType": "core",
       "strict": true,
       "enableJsonFlag": false,
@@ -188,8 +470,8 @@
       "hasDynamicHelp": false,
       "hiddenAliases": [],
       "id": "subplebbit:get",
-      "pluginAlias": "plebbit-cli",
-      "pluginName": "plebbit-cli",
+      "pluginAlias": "bitsocial-cli",
+      "pluginName": "bitsocial-cli",
       "pluginType": "core",
       "strict": true,
       "enableJsonFlag": false,
@@ -231,8 +513,8 @@
       "hasDynamicHelp": false,
       "hiddenAliases": [],
       "id": "subplebbit:list",
-      "pluginAlias": "plebbit-cli",
-      "pluginName": "plebbit-cli",
+      "pluginAlias": "bitsocial-cli",
+      "pluginName": "bitsocial-cli",
       "pluginType": "core",
       "strict": true,
       "enableJsonFlag": false,
@@ -273,8 +555,8 @@
       "hasDynamicHelp": false,
       "hiddenAliases": [],
       "id": "subplebbit:start",
-      "pluginAlias": "plebbit-cli",
-      "pluginName": "plebbit-cli",
+      "pluginAlias": "bitsocial-cli",
+      "pluginName": "bitsocial-cli",
       "pluginType": "core",
       "strict": false,
       "enableJsonFlag": false,
@@ -315,8 +597,8 @@
       "hasDynamicHelp": false,
       "hiddenAliases": [],
       "id": "subplebbit:stop",
-      "pluginAlias": "plebbit-cli",
-      "pluginName": "plebbit-cli",
+      "pluginAlias": "bitsocial-cli",
+      "pluginName": "bitsocial-cli",
       "pluginType": "core",
       "strict": false,
       "enableJsonFlag": false,

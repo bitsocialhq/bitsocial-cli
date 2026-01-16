@@ -2,11 +2,11 @@ import { runCommand } from "@oclif/test";
 import { expect } from "chai";
 //@ts-ignore
 import Sinon from "sinon";
-import type { SubplebbitEditOptions } from "../types/subplebbitTypes.js";
-import { currentSubProps } from "../fixtures/subplebbitForEditFixture.js";
+import type { SubplebbitEditOptions } from "../types/communityTypes.js";
+import { currentSubProps } from "../fixtures/communityForEditFixture.js";
 import { BaseCommand } from "../../dist/cli/base-command.js";
 
-describe("plebbit subplebbit edit", () => {
+describe("bitsocial community edit", () => {
     const sandbox = Sinon.createSandbox();
 
     const editFake = sandbox.fake();
@@ -35,7 +35,7 @@ describe("plebbit subplebbit edit", () => {
 
     it(`Can pass a string value to a first level flag`, async () => {
         const result = await runEditCommand(
-            'subplebbit edit plebbit.eth --title "new Title" --address newAddress.eth --description "new Description" --pubsubTopic "new Pubsub topic"'
+            'community edit plebbit.eth --title "new Title" --address newAddress.eth --description "new Description" --pubsubTopic "new Pubsub topic"'
         );
         expect(result.error).to.be.undefined;
         expect(editFake.calledOnce).to.be.true;
@@ -47,7 +47,7 @@ describe("plebbit subplebbit edit", () => {
     });
 
     it(`Can set a string value to a nested prop`, async () => {
-        const result = await runEditCommand('subplebbit edit plebbit.eth --suggested.secondaryColor "new suggested.secondaryColor"');
+        const result = await runEditCommand('community edit plebbit.eth --suggested.secondaryColor "new suggested.secondaryColor"');
         expect(result.error).to.be.undefined;
         expect(editFake.calledOnce).to.be.true;
         const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
@@ -58,7 +58,7 @@ describe("plebbit subplebbit edit", () => {
 
     it(`Can pass flag to set specific indices in an array`, async () => {
         const result = await runEditCommand(
-            'subplebbit edit plebbit.eth --rules[2] "User input Rule 3" --rules[3] "User input Rule 4"'
+            'community edit plebbit.eth --rules[2] "User input Rule 3" --rules[3] "User input Rule 4"'
         );
         expect(result.error).to.be.undefined;
         expect(editFake.calledOnce).to.be.true;
@@ -74,7 +74,7 @@ describe("plebbit subplebbit edit", () => {
     });
 
     it("A single flag name being passed multiple times equates to an array", async () => {
-        const result = await runEditCommand('subplebbit edit plebbit.eth --rules "New Rule1 random" --rules "New Rule2 random"');
+        const result = await runEditCommand('community edit plebbit.eth --rules "New Rule1 random" --rules "New Rule2 random"');
         expect(result.error).to.be.undefined;
         expect(editFake.calledOnce).to.be.true;
         const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
@@ -89,7 +89,7 @@ describe("plebbit subplebbit edit", () => {
 
     it(`Can pass nested array elements in a nested field`, async () => {
         const result = await runEditCommand(
-            'subplebbit edit plebbit.eth --settings.challenges[1].options.question "What is the password" --settings.challenges[1].options.answer "The password"'
+            'community edit plebbit.eth --settings.challenges[1].options.question "What is the password" --settings.challenges[1].options.answer "The password"'
         );
         expect(result.error).to.be.undefined;
         expect(editFake.calledOnce).to.be.true;
@@ -110,7 +110,7 @@ describe("plebbit subplebbit edit", () => {
     // Setting boolean fields
 
     it(`Can set a boolean field to true on first level (implicit)`, async () => {
-        const result = await runEditCommand("subplebbit edit plebbit.eth --randomBooleanField");
+        const result = await runEditCommand("community edit plebbit.eth --randomBooleanField");
         expect(result.error).to.be.undefined;
         expect(editFake.calledOnce).to.be.true;
         const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
@@ -119,7 +119,7 @@ describe("plebbit subplebbit edit", () => {
     });
 
     it(`Can set a boolean field to true on first level (explicit)`, async () => {
-        const result = await runEditCommand("subplebbit edit plebbit.eth --randomBooleanField=true");
+        const result = await runEditCommand("community edit plebbit.eth --randomBooleanField=true");
         expect(result.error).to.be.undefined;
         expect(editFake.calledOnce).to.be.true;
         const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
@@ -128,7 +128,7 @@ describe("plebbit subplebbit edit", () => {
     });
 
     it("Can parse boolean=true in nested props correctly (implicit)", async () => {
-        const result = await runEditCommand("subplebbit edit plebbit.eth --settings.fetchThumbnailUrls");
+        const result = await runEditCommand("community edit plebbit.eth --settings.fetchThumbnailUrls");
         expect(result.error).to.be.undefined;
         expect(editFake.calledOnce).to.be.true;
         const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
@@ -137,7 +137,7 @@ describe("plebbit subplebbit edit", () => {
     });
 
     it("Can parse boolean=true in nested props correctly (explicit)", async () => {
-        const result = await runEditCommand("subplebbit edit plebbit.eth --settings.fetchThumbnailUrls=true");
+        const result = await runEditCommand("community edit plebbit.eth --settings.fetchThumbnailUrls=true");
         expect(result.error).to.be.undefined;
         expect(editFake.calledOnce).to.be.true;
         const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
@@ -148,7 +148,7 @@ describe("plebbit subplebbit edit", () => {
     // setting boolean = false
 
     it(`Can set a boolean field to false on first level (explicit)`, async () => {
-        const result = await runEditCommand("subplebbit edit plebbit.eth --randomBooleanField=false");
+        const result = await runEditCommand("community edit plebbit.eth --randomBooleanField=false");
         expect(result.error).to.be.undefined;
         expect(editFake.calledOnce).to.be.true;
         const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
@@ -157,7 +157,7 @@ describe("plebbit subplebbit edit", () => {
     });
 
     it("Can parse boolean=false in nested props correctly (explicit)", async () => {
-        const result = await runEditCommand("subplebbit edit plebbit.eth --settings.fetchThumbnailUrls=false");
+        const result = await runEditCommand("community edit plebbit.eth --settings.fetchThumbnailUrls=false");
         expect(result.error).to.be.undefined;
         expect(editFake.calledOnce).to.be.true;
         const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
@@ -168,7 +168,7 @@ describe("plebbit subplebbit edit", () => {
     // Setting null
 
     it(`Can set null as a value to a nested flag`, async () => {
-        const result = await runEditCommand("subplebbit edit plebbit.eth --roles['rinse12.eth'] null");
+        const result = await runEditCommand("community edit plebbit.eth --roles['rinse12.eth'] null");
         expect(result.error).to.be.undefined;
         expect(editFake.calledOnce).to.be.true;
         const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
@@ -178,7 +178,7 @@ describe("plebbit subplebbit edit", () => {
     });
 
     it(`Can set null as a value to a flag`, async () => {
-        const result = await runEditCommand("subplebbit edit plebbit.eth --nullField] null");
+        const result = await runEditCommand("community edit plebbit.eth --nullField] null");
         expect(result.error).to.be.undefined;
         expect(editFake.calledOnce).to.be.true;
         const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
@@ -188,7 +188,7 @@ describe("plebbit subplebbit edit", () => {
     });
 
     it("Can set a null to a whole object", async () => {
-        const result = await runEditCommand("subplebbit edit plebbit.eth --settings null");
+        const result = await runEditCommand("community edit plebbit.eth --settings null");
         expect(result.error).to.be.undefined;
         expect(editFake.calledOnce).to.be.true;
         const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];

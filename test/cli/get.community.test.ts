@@ -3,16 +3,16 @@ import { expect } from "chai";
 import Sinon from "sinon";
 import { BaseCommand } from "../../dist/cli/base-command.js";
 
-describe("plebbit subplebbit get", () => {
+describe("bitsocial community get", () => {
     const sandbox = Sinon.createSandbox();
-    const fakeSubplebbit = {
+    const fakeCommunity = {
         address: "plebbit.eth",
         title: "Plebbit",
         posts: [{ cid: "post1" }, { cid: "post2" }],
         updatedAt: 1234
     };
 
-    const getSubplebbitFake = sandbox.fake.resolves(fakeSubplebbit);
+    const getSubplebbitFake = sandbox.fake.resolves(fakeCommunity);
     const destroyFake = sandbox.fake();
 
     before(() => {
@@ -31,8 +31,8 @@ describe("plebbit subplebbit get", () => {
 
     after(() => sandbox.restore());
 
-    it("Outputs subplebbit json and keeps posts first", async () => {
-        const result = await runCommand("subplebbit get plebbit.eth", process.cwd(), { stripAnsi: true });
+    it("Outputs community json and keeps posts first", async () => {
+        const result = await runCommand("community get plebbit.eth", process.cwd(), { stripAnsi: true });
 
         expect(result.error).to.be.undefined;
         expect(getSubplebbitFake.calledOnceWith({ address: "plebbit.eth" })).to.be.true;
@@ -40,7 +40,7 @@ describe("plebbit subplebbit get", () => {
 
         const output = result.stdout.trim();
         const parsed = JSON.parse(output);
-        expect(parsed).to.deep.equal(fakeSubplebbit);
+        expect(parsed).to.deep.equal(fakeCommunity);
 
         const postsIndex = output.indexOf('"posts"');
         const addressIndex = output.indexOf('"address"');

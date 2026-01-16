@@ -106,7 +106,8 @@ dist/
 # TernJS port file
 .tern-port
 
-# Plebbit data directory
+# BitSocial data directory
+.bitsocial/
 .plebbit/
 # Test captchas directory
 .captcha/

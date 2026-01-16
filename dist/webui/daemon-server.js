@@ -31,7 +31,7 @@ async function _generateRpcAuthKeyIfNotExisting(plebbitDataPath) {
 // The daemon server will host both RPC and webui on the same port
 export async function startDaemonServer(rpcUrl, ipfsGatewayUrl, plebbitOptions) {
     // Start plebbit-js RPC
-    const log = (await getPlebbitLogger())("plebbit-cli:daemon:startDaemonServer");
+    const log = (await getPlebbitLogger())("bitsocial-cli:daemon:startDaemonServer");
     const webuiExpressApp = express();
     const httpServer = webuiExpressApp.listen(Number(rpcUrl.port));
     log("HTTP server is running on", "0.0.0.0" + ":" + rpcUrl.port);

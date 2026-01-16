@@ -28,7 +28,7 @@ on:
       - 'yarn.lock'
 
 jobs:
-  test-plebbit-cli:
+  test-bitsocial-cli:
     timeout-minutes: 20
     runs-on: ubuntu-latest
 
@@ -49,5 +49,5 @@ jobs:
       - run: sudo echo "255.255.255.255 cloudflare-ipfs.com" | sudo tee -a /etc/hosts
       - run: sudo echo "255.255.255.255 pubsubprovider.xyz" | sudo tee -a /etc/hosts
 
-      - run: DEBUG="plebbit*" yarn test:cli
+      - run: DEBUG="bitsocial*, plebbit*" yarn test:cli
 

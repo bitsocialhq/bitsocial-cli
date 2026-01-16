@@ -5,101 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "args": [
-                "--no-timeouts",
-                "--config",
-                "config/.mocharc.json",
-                "${workspaceFolder}/test/cli/edit.subplebbit.test.ts"
-            ],
-            "internalConsoleOptions": "openOnFirstSessionStart",
-            "console": "integratedTerminal",
-            "name": "(CLI) edit.subplebbit.test.ts",
-            "program": "${workspaceRoot}/node_modules/ts-mocha/bin/ts-mocha",
-            "request": "launch",
-            "skipFiles": ["<node_internals>/**"],
             "type": "node",
-            "env": { "DEBUG": "plebbit*" }
-        },
-        {
-            "args": [
-                "--no-timeouts",
-                "--config",
-                "config/.mocharc.json",
-                "${workspaceFolder}/test/cli/list.subplebbit.test.ts"
-            ],
-            "internalConsoleOptions": "openOnFirstSessionStart",
-            "console": "integratedTerminal",
-            "name": "(CLI) list.subplebbit.test.ts",
-            "program": "${workspaceRoot}/node_modules/ts-mocha/bin/ts-mocha",
             "request": "launch",
+            "runtimeVersion": "22",
+            "name": "Launch current TypeScript test file",
             "skipFiles": ["<node_internals>/**"],
-            "type": "node",
-            "env": { "DEBUG": "plebbit*" }
-        },
-        {
-            "args": [
-                "--no-timeouts",
-                "--config",
-                "config/.mocharc.json",
-                "${workspaceFolder}/test/cli/start.subplebbit.test.ts"
-            ],
-            "internalConsoleOptions": "openOnFirstSessionStart",
-            "console": "integratedTerminal",
-            "name": "(CLI) start.subplebbit.test.ts",
             "program": "${workspaceRoot}/node_modules/ts-mocha/bin/ts-mocha",
-            "request": "launch",
-            "skipFiles": ["<node_internals>/**"],
-            "type": "node",
-            "env": { "DEBUG": "plebbit*" }
-        },
-        {
-            "args": [
-                "--no-timeouts",
-                "--config",
-                "config/.mocharc.json",
-                "${workspaceFolder}/test/cli/stop.subplebbit.test.ts"
-            ],
-            "internalConsoleOptions": "openOnFirstSessionStart",
-            "console": "integratedTerminal",
-            "name": "(CLI) stop.subplebbit.test.ts",
-            "program": "${workspaceRoot}/node_modules/ts-mocha/bin/ts-mocha",
-            "request": "launch",
-            "skipFiles": ["<node_internals>/**"],
-            "type": "node",
-            "env": { "DEBUG": "plebbit*" }
-        },
-        {
-            "args": [
-                "--no-timeouts",
-                "--config",
-                "config/.mocharc.json",
-                "${workspaceFolder}/test/cli/create.subplebbit.test.ts"
-            ],
-            "internalConsoleOptions": "openOnFirstSessionStart",
-            "console": "integratedTerminal",
-            "name": "(CLI) create.subplebbit.test.ts",
-            "program": "${workspaceRoot}/node_modules/ts-mocha/bin/ts-mocha",
-            "request": "launch",
-            "skipFiles": ["<node_internals>/**"],
-            "type": "node",
+            "args": ["--no-timeouts", "--config", "config/.mocharc.json", "${file}"],
             "cwd": "${workspaceRoot}",
-            "env": { "DEBUG": "plebbit*" }
-        },
-        {
-            "args": [
-                "--no-timeouts",
-                "--config",
-                "config/.mocharc.json",
-                "${workspaceFolder}/test/cli/daemon.test.ts"
-            ],
-            "internalConsoleOptions": "openOnFirstSessionStart",
             "console": "integratedTerminal",
-            "name": "(CLI) daemon.test.ts",
-            "program": "${workspaceRoot}/node_modules/ts-mocha/bin/ts-mocha",
-            "request": "launch",
-            "skipFiles": ["<node_internals>/**"],
-            "type": "node",
-            "env": { "DEBUG": "plebbit*" }
+            "env": {
+                "DEBUG": "bitsocial*, plebbit*"
+            }
         }
     ]
 }
