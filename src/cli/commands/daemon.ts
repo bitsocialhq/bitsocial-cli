@@ -206,17 +206,14 @@ export default class Daemon extends Command {
                     return;
                 }
                 throw new Error(
-                    `Cannot start IPFS daemon because the IPFS API port ${kuboRpcEndpoint.hostname}:${kuboApiPort} (configured as ${kuboRpcEndpoint.toString()}) is already in use.`
+                    `Cannot start IPFS daemon because the IPFS API port ${
+                        kuboRpcEndpoint.hostname
+                    }:${kuboApiPort} (configured as ${kuboRpcEndpoint.toString()}) is already in use.`
                 );
             }
-            const startPromise = startKuboNode(
-                kuboRpcEndpoint,
-                ipfsGatewayEndpoint,
-                mergedPlebbitOptions.dataPath!,
-                (process) => {
-                    kuboProcess = process;
-                }
-            );
+            const startPromise = startKuboNode(kuboRpcEndpoint, ipfsGatewayEndpoint, mergedPlebbitOptions.dataPath!, (process) => {
+                kuboProcess = process;
+            });
             pendingKuboStart = startPromise;
             let startedProcess: ChildProcessWithoutNullStreams | undefined;
             try {
@@ -232,7 +229,8 @@ export default class Daemon extends Command {
                     try {
                         process.kill(startedProcess.pid, "SIGINT");
                     } catch (e) {
-                        if (!(e instanceof Error && "code" in e && (e as NodeJS.ErrnoException).code === "ESRCH")) log.error("Error killing kubo process", e);
+                        if (!(e instanceof Error && "code" in e && (e as NodeJS.ErrnoException).code === "ESRCH"))
+                            log.error("Error killing kubo process", e);
                     }
                 }
                 return;
@@ -283,7 +281,7 @@ export default class Daemon extends Command {
             usingDifferentProcessRpc = false;
             startedOwnRpc = true;
             console.log(`plebbit rpc: listening on ${plebbitRpcUrl} (local connections only)`);
-            console.log(`plebbit rpc: listening on ${plebbitRpcUrl}/${daemonServer.rpcAuthKey} (secret auth key for remote connections)`);
+            console.log(`plebbit rpc: listening on ${plebbitRpcUrl}${daemonServer.rpcAuthKey} (secret auth key for remote connections)`);
 
             console.log(`Plebbit data path: ${path.resolve(mergedPlebbitOptions.dataPath!)}`);
             console.log(`Subplebbits in data path: `, daemonServer.listedSub);
@@ -327,7 +325,8 @@ export default class Daemon extends Command {
                     });
                     log("Kubo process killed with pid", kuboProcess.pid);
                 } catch (e) {
-                    if (e instanceof Error && "code" in e && (e as NodeJS.ErrnoException).code === "ESRCH") log("Kubo process already killed");
+                    if (e instanceof Error && "code" in e && (e as NodeJS.ErrnoException).code === "ESRCH")
+                        log("Kubo process already killed");
                     else log.error("Error killing kubo process", e);
                 } finally {
                     kuboProcess?.removeAllListeners();
