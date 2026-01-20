@@ -3,3 +3,5 @@
 - you need to make sure building passes when you make a change, run "yarn build && yarn build:test"
 - We use yarn in this repo, not npm
 - do not run "yarn install" until you run "nvm use" first and make sure we're on the right node version
+- When you add a feature or fix a bug, add a test for it.
+- Before you commit a change make sure all tests pass
