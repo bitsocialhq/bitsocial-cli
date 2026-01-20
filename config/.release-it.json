@@ -16,6 +16,7 @@
         "@release-it/conventional-changelog": {
             "preset": {
                 "name": "conventionalcommits",
+                "preMajor": true,
                 "types": [
                     { "type": "feat", "section": "Features" },
                     { "type": "fix", "section": "Bug Fixes" },
@@ -24,8 +25,7 @@
                     { "type": "build", "section": "Build System" }
                 ]
             },
-            "infile": "docs/CHANGELOG.md",
-            "preMajor": true
+            "infile": "docs/CHANGELOG.md"
         }
     },
     "hooks": {
