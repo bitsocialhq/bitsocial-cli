@@ -150,60 +150,242 @@ $ bitsocial community edit mysub.eth '--roles["author-address.eth"]' null
 # Commands
 
 <!-- commands -->
+* [`bitsocial community create`](#bitsocial-community-create)
+* [`bitsocial community edit ADDRESS`](#bitsocial-community-edit-address)
+* [`bitsocial community get ADDRESS`](#bitsocial-community-get-address)
+* [`bitsocial community list`](#bitsocial-community-list)
+* [`bitsocial community start ADDRESSES`](#bitsocial-community-start-addresses)
+* [`bitsocial community stop ADDRESSES`](#bitsocial-community-stop-addresses)
+* [`bitsocial daemon`](#bitsocial-daemon)
+* [`bitsocial help [COMMAND]`](#bitsocial-help-command)
+* [`bitsocial subplebbit create`](#bitsocial-subplebbit-create)
+* [`bitsocial subplebbit edit ADDRESS`](#bitsocial-subplebbit-edit-address)
+* [`bitsocial subplebbit get ADDRESS`](#bitsocial-subplebbit-get-address)
+* [`bitsocial subplebbit list`](#bitsocial-subplebbit-list)
+* [`bitsocial subplebbit start ADDRESSES`](#bitsocial-subplebbit-start-addresses)
+* [`bitsocial subplebbit stop ADDRESSES`](#bitsocial-subplebbit-stop-addresses)
 
--   [`plebbit daemon`](#plebbit-daemon)
--   [`plebbit help [COMMAND]`](#plebbit-help-command)
--   [`plebbit subplebbit create`](#plebbit-subplebbit-create)
--   [`plebbit subplebbit edit ADDRESS`](#plebbit-subplebbit-edit-address)
--   [`plebbit subplebbit get ADDRESS`](#plebbit-subplebbit-get-address)
--   [`plebbit subplebbit list`](#plebbit-subplebbit-list)
--   [`plebbit subplebbit start ADDRESSES`](#plebbit-subplebbit-start-addresses)
--   [`plebbit subplebbit stop ADDRESSES`](#plebbit-subplebbit-stop-addresses)
+## `bitsocial community create`
 
-## `plebbit daemon`
-
-Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any machine. Within the web ui users are able to browse, create and manage their subs fully P2P.
+Create a community with specific properties. A newly created community will be started after creation and be able to receive publications. For a list of properties, visit https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions
 
 ```
 USAGE
-  $ plebbit daemon --plebbitRpcUrl <value> --logPath <value>
+  $ bitsocial community create --plebbitRpcUrl <value> [--privateKeyPath <value>]
 
 FLAGS
-  --logPath=<value>        (required) [default: /home/runner/.local/state/plebbit] Specify a directory which will be
+  --plebbitRpcUrl=<value>   (required) [default: ws://localhost:9138/] URL to Plebbit RPC
+  --privateKeyPath=<value>  Private key (PEM) of the community signer that will be used to determine address (if address
+                            is not a domain). If it's not provided then Plebbit will generate a private key
+
+DESCRIPTION
+  Create a community with specific properties. A newly created community will be started after creation and be able to
+  receive publications. For a list of properties, visit
+  https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions
+
+EXAMPLES
+  Create a community with title 'Hello Plebs' and description 'Welcome'
+
+    $ bitsocial community create --title 'Hello Plebs' --description 'Welcome'
+```
+
+_See code: [src/cli/commands/community/create.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v1.0.0/src/cli/commands/community/create.ts)_
+
+## `bitsocial community edit ADDRESS`
+
+Edit a community's properties. For a list of properties, visit https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions
+
+```
+USAGE
+  $ bitsocial community edit ADDRESS --plebbitRpcUrl <value>
+
+ARGUMENTS
+  ADDRESS  Address of the community to edit
+
+FLAGS
+  --plebbitRpcUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC
+
+DESCRIPTION
+  Edit a community's properties. For a list of properties, visit
+  https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions
+
+EXAMPLES
+  Change the address of the community to a new ENS address
+
+    $ bitsocial community edit 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu --address newAddress.eth
+
+  Add the author address 'esteban.eth' as an admin on the community
+
+    $ bitsocial community edit mysub.eth '--roles["esteban.eth"].role' admin
+
+  Add two challenges to the community. The first challenge will be a question and answer, and the second will be an
+  image captcha
+
+    $ bitsocial community edit mysub.eth --settings.challenges[0].name question \
+      --settings.challenges[0].options.question "what is the password?" --settings.challenges[0].options.answer \
+      thepassword --settings.challenges[1].name captcha-canvas-v3
+
+  Change the title and description
+
+    $ bitsocial community edit mysub.eth --title "This is the new title" --description "This is the new description"
+
+  Remove a role from a moderator/admin/owner
+
+    $ bitsocial community edit plebbit.eth --roles['rinse12.eth'] null
+
+  Enable settings.fetchThumbnailUrls to fetch the thumbnail of url submitted by authors
+
+    $ bitsocial community edit plebbit.eth --settings.fetchThumbnailUrls
+
+  disable settings.fetchThumbnailUrls
+
+    $ bitsocial community edit plebbit.eth --settings.fetchThumbnailUrls=false
+```
+
+_See code: [src/cli/commands/community/edit.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v1.0.0/src/cli/commands/community/edit.ts)_
+
+## `bitsocial community get ADDRESS`
+
+Fetch a local or remote community, and print its json in the terminal
+
+```
+USAGE
+  $ bitsocial community get ADDRESS --plebbitRpcUrl <value>
+
+ARGUMENTS
+  ADDRESS  Address of the community to fetch
+
+FLAGS
+  --plebbitRpcUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC
+
+DESCRIPTION
+  Fetch a local or remote community, and print its json in the terminal
+
+EXAMPLES
+  $ bitsocial community get plebmusic.eth
+
+  $ bitsocial community get 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
+```
+
+_See code: [src/cli/commands/community/get.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v1.0.0/src/cli/commands/community/get.ts)_
+
+## `bitsocial community list`
+
+List your communities
+
+```
+USAGE
+  $ bitsocial community list --plebbitRpcUrl <value> [-q]
+
+FLAGS
+  -q, --quiet                  Only display community addresses
+      --plebbitRpcUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC
+
+DESCRIPTION
+  List your communities
+
+EXAMPLES
+  $ bitsocial community list -q
+
+  $ bitsocial community list
+```
+
+_See code: [src/cli/commands/community/list.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v1.0.0/src/cli/commands/community/list.ts)_
+
+## `bitsocial community start ADDRESSES`
+
+Start a community
+
+```
+USAGE
+  $ bitsocial community start ADDRESSES... --plebbitRpcUrl <value>
+
+ARGUMENTS
+  ADDRESSES...  Addresses of communities to start. Separated by space
+
+FLAGS
+  --plebbitRpcUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC
+
+DESCRIPTION
+  Start a community
+
+EXAMPLES
+  $ bitsocial community start plebbit.eth
+
+  $ bitsocial community start 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
+```
+
+_See code: [src/cli/commands/community/start.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v1.0.0/src/cli/commands/community/start.ts)_
+
+## `bitsocial community stop ADDRESSES`
+
+Stop a community. The community will not publish or receive any publications until it is started again.
+
+```
+USAGE
+  $ bitsocial community stop ADDRESSES... --plebbitRpcUrl <value>
+
+ARGUMENTS
+  ADDRESSES...  Addresses of communities to stop. Separated by space
+
+FLAGS
+  --plebbitRpcUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC
+
+DESCRIPTION
+  Stop a community. The community will not publish or receive any publications until it is started again.
+
+EXAMPLES
+  $ bitsocial community stop plebbit.eth
+
+  $ bitsocial community stop Qmb99crTbSUfKXamXwZBe829Vf6w5w5TktPkb6WstC9RFW
+```
+
+_See code: [src/cli/commands/community/stop.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v1.0.0/src/cli/commands/community/stop.ts)_
+
+## `bitsocial daemon`
+
+Run a network-connected BitSocial node. Once the daemon is running you can create and start your communities and receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any machine. Within the web ui users are able to browse, create and manage their communities fully P2P.
+
+```
+USAGE
+  $ bitsocial daemon --plebbitRpcUrl <value> --logPath <value>
+
+FLAGS
+  --logPath=<value>        (required) [default: /home/runner/.local/state/bitsocial] Specify a directory which will be
                            used to store logs
   --plebbitRpcUrl=<value>  (required) [default: ws://localhost:9138/] Specify Plebbit RPC URL to listen on
 
 DESCRIPTION
-  Run a network-connected Plebbit node. Once the daemon is running you can create and start your subplebbits and receive
-  publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any
-  machine. Within the web ui users are able to browse, create and manage their subs fully P2P.
+  Run a network-connected BitSocial node. Once the daemon is running you can create and start your communities and
+  receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on
+  any machine. Within the web ui users are able to browse, create and manage their communities fully P2P.
   Options can be passed to the RPC's instance through flag --plebbitOptions.optionName. For a list of plebbit options
   (https://github.com/plebbit/plebbit-js?tab=readme-ov-file#plebbitoptions)
-  If you need to modify ipfs config, you should head to {plebbit-data-path}/.ipfs-plebbit-cli/config and modify the
+  If you need to modify ipfs config, you should head to {bitsocial-data-path}/.ipfs-bitsocial-cli/config and modify the
   config file
 
 
 EXAMPLES
-  $ plebbit daemon
+  $ bitsocial daemon
 
-  $ plebbit daemon --plebbitRpcUrl ws://localhost:53812
+  $ bitsocial daemon --plebbitRpcUrl ws://localhost:53812
 
-  $ plebbit daemon --plebbitOptions.dataPath /tmp/plebbit-datapath/
+  $ bitsocial daemon --plebbitOptions.dataPath /tmp/bitsocial-datapath/
 
-  $ plebbit daemon --plebbitOptions.chainProviders.eth[0].url https://ethrpc.com
+  $ bitsocial daemon --plebbitOptions.chainProviders.eth[0].url https://ethrpc.com
 
-  $ plebbit daemon --plebbitOptions.kuboRpcClientsOptions[0] https://remoteipfsnode.com
+  $ bitsocial daemon --plebbitOptions.kuboRpcClientsOptions[0] https://remoteipfsnode.com
 ```
 
-_See code: [src/cli/commands/daemon.ts](https://github.com/plebbit/plebbit-cli/blob/v0.17.13/src/cli/commands/daemon.ts)_
+_See code: [src/cli/commands/daemon.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v1.0.0/src/cli/commands/daemon.ts)_
 
-## `plebbit help [COMMAND]`
+## `bitsocial help [COMMAND]`
 
-Display help for plebbit.
+Display help for bitsocial.
 
 ```
 USAGE
-  $ plebbit help [COMMAND...] [-n]
+  $ bitsocial help [COMMAND...] [-n]
 
 ARGUMENTS
   [COMMAND...]  Command to show help for.
@@ -212,18 +394,18 @@ FLAGS
   -n, --nested-commands  Include all nested commands in the output.
 
 DESCRIPTION
-  Display help for plebbit.
+  Display help for bitsocial.
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.2.36/src/cli/commands/help.ts)_
 
-## `plebbit subplebbit create`
+## `bitsocial subplebbit create`
 
 Create a subplebbit with specific properties. A newly created sub will be started after creation and be able to receive publications. For a list of properties, visit https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions
 
 ```
 USAGE
-  $ plebbit subplebbit create --plebbitRpcUrl <value> [--privateKeyPath <value>]
+  $ bitsocial subplebbit create --plebbitRpcUrl <value> [--privateKeyPath <value>]
 
 FLAGS
   --plebbitRpcUrl=<value>   (required) [default: ws://localhost:9138/] URL to Plebbit RPC
@@ -238,18 +420,18 @@ DESCRIPTION
 EXAMPLES
   Create a subplebbit with title 'Hello Plebs' and description 'Welcome'
 
-    $ plebbit subplebbit create --title 'Hello Plebs' --description 'Welcome'
+    $ bitsocial subplebbit create --title 'Hello Plebs' --description 'Welcome'
 ```
 
-_See code: [src/cli/commands/subplebbit/create.ts](https://github.com/plebbit/plebbit-cli/blob/v0.17.13/src/cli/commands/subplebbit/create.ts)_
+_See code: [src/cli/commands/subplebbit/create.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v1.0.0/src/cli/commands/subplebbit/create.ts)_
 
-## `plebbit subplebbit edit ADDRESS`
+## `bitsocial subplebbit edit ADDRESS`
 
 Edit a subplebbit properties. For a list of properties, visit https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions
 
 ```
 USAGE
-  $ plebbit subplebbit edit ADDRESS --plebbitRpcUrl <value>
+  $ bitsocial subplebbit edit ADDRESS --plebbitRpcUrl <value>
 
 ARGUMENTS
   ADDRESS  Address of the subplebbit address to edit
@@ -264,26 +446,26 @@ DESCRIPTION
 EXAMPLES
   Change the address of the sub to a new ENS address
 
-    $ plebbit subplebbit edit 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu --address newAddress.eth
+    plebbit subplebbit edit 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu --address newAddress.eth
 
   Add the author address 'esteban.eth' as an admin on the sub
 
-    $ plebbit subplebbit edit mysub.eth '--roles["esteban.eth"].role' admin
+    plebbit subplebbit edit mysub.eth '--roles["esteban.eth"].role' admin
 
   Add two challenges to the sub. The first challenge will be a question and answer, and the second will be an image
   captcha
 
-    $ plebbit subplebbit edit mysub.eth --settings.challenges[0].name question \
+    plebbit subplebbit edit mysub.eth --settings.challenges[0].name question \
       --settings.challenges[0].options.question "what is the password?" --settings.challenges[0].options.answer \
       thepassword --settings.challenges[1].name captcha-canvas-v3
 
   Change the title and description
 
-    $ plebbit subplebbit edit mysub.eth --title "This is the new title" --description "This is the new description"
+    plebbit subplebbit edit mysub.eth --title "This is the new title" --description "This is the new description"
 
   Remove a role from a moderator/admin/owner
 
-    $ plebbit subplebbit edit plebbit.eth --roles['rinse12.eth'] null
+    plebbit subplebbit edit plebbit.eth --roles['rinse12.eth'] null
 
   Enable settings.fetchThumbnailUrls to fetch the thumbnail of url submitted by authors
 
@@ -294,15 +476,15 @@ EXAMPLES
     subplebbit edit plebbit.eth --settings.fetchThumbnailUrls=false
 ```
 
-_See code: [src/cli/commands/subplebbit/edit.ts](https://github.com/plebbit/plebbit-cli/blob/v0.17.13/src/cli/commands/subplebbit/edit.ts)_
+_See code: [src/cli/commands/subplebbit/edit.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v1.0.0/src/cli/commands/subplebbit/edit.ts)_
 
-## `plebbit subplebbit get ADDRESS`
+## `bitsocial subplebbit get ADDRESS`
 
 Fetch a local or remote subplebbit, and print its json in the terminal
 
 ```
 USAGE
-  $ plebbit subplebbit get ADDRESS --plebbitRpcUrl <value>
+  $ bitsocial subplebbit get ADDRESS --plebbitRpcUrl <value>
 
 ARGUMENTS
   ADDRESS  Address of the subplebbit address to fetch
@@ -314,20 +496,20 @@ DESCRIPTION
   Fetch a local or remote subplebbit, and print its json in the terminal
 
 EXAMPLES
-  $ plebbit subplebbit get plebmusic.eth
+  plebbit subplebbit get plebmusic.eth
 
-  $ plebbit subplebbit get 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
+  plebbit subplebbit get 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
-_See code: [src/cli/commands/subplebbit/get.ts](https://github.com/plebbit/plebbit-cli/blob/v0.17.13/src/cli/commands/subplebbit/get.ts)_
+_See code: [src/cli/commands/subplebbit/get.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v1.0.0/src/cli/commands/subplebbit/get.ts)_
 
-## `plebbit subplebbit list`
+## `bitsocial subplebbit list`
 
 List your subplebbits
 
 ```
 USAGE
-  $ plebbit subplebbit list --plebbitRpcUrl <value> [-q]
+  $ bitsocial subplebbit list --plebbitRpcUrl <value> [-q]
 
 FLAGS
   -q, --quiet                  Only display subplebbit addresses
@@ -337,20 +519,20 @@ DESCRIPTION
   List your subplebbits
 
 EXAMPLES
-  $ plebbit subplebbit list -q
+  plebbit subplebbit list -q
 
-  $ plebbit subplebbit list
+  plebbit subplebbit list
 ```
 
-_See code: [src/cli/commands/subplebbit/list.ts](https://github.com/plebbit/plebbit-cli/blob/v0.17.13/src/cli/commands/subplebbit/list.ts)_
+_See code: [src/cli/commands/subplebbit/list.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v1.0.0/src/cli/commands/subplebbit/list.ts)_
 
-## `plebbit subplebbit start ADDRESSES`
+## `bitsocial subplebbit start ADDRESSES`
 
 Start a subplebbit
 
 ```
 USAGE
-  $ plebbit subplebbit start ADDRESSES... --plebbitRpcUrl <value>
+  $ bitsocial subplebbit start ADDRESSES... --plebbitRpcUrl <value>
 
 ARGUMENTS
   ADDRESSES...  Addresses of subplebbits to start. Separated by space
@@ -362,20 +544,20 @@ DESCRIPTION
   Start a subplebbit
 
 EXAMPLES
-  $ plebbit subplebbit start plebbit.eth
+  plebbit subplebbit start plebbit.eth
 
-  $ plebbit subplebbit start 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
+  plebbit subplebbit start 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
-_See code: [src/cli/commands/subplebbit/start.ts](https://github.com/plebbit/plebbit-cli/blob/v0.17.13/src/cli/commands/subplebbit/start.ts)_
+_See code: [src/cli/commands/subplebbit/start.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v1.0.0/src/cli/commands/subplebbit/start.ts)_
 
-## `plebbit subplebbit stop ADDRESSES`
+## `bitsocial subplebbit stop ADDRESSES`
 
 Stop a subplebbit. The subplebbit will not publish or receive any publications until it is started again.
 
 ```
 USAGE
-  $ plebbit subplebbit stop ADDRESSES... --plebbitRpcUrl <value>
+  $ bitsocial subplebbit stop ADDRESSES... --plebbitRpcUrl <value>
 
 ARGUMENTS
   ADDRESSES...  Addresses of subplebbits to stop. Separated by space
@@ -387,13 +569,12 @@ DESCRIPTION
   Stop a subplebbit. The subplebbit will not publish or receive any publications until it is started again.
 
 EXAMPLES
-  $ plebbit subplebbit stop plebbit.eth
+  plebbit subplebbit stop plebbit.eth
 
-  $ plebbit subplebbit stop Qmb99crTbSUfKXamXwZBe829Vf6w5w5TktPkb6WstC9RFW
+  plebbit subplebbit stop Qmb99crTbSUfKXamXwZBe829Vf6w5w5TktPkb6WstC9RFW
 ```
 
-_See code: [src/cli/commands/subplebbit/stop.ts](https://github.com/plebbit/plebbit-cli/blob/v0.17.13/src/cli/commands/subplebbit/stop.ts)_
-
+_See code: [src/cli/commands/subplebbit/stop.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v1.0.0/src/cli/commands/subplebbit/stop.ts)_
 <!-- commandsstop -->
 
 # Contribution

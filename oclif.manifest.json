@@ -25,7 +25,7 @@
           "description": "Specify a directory which will be used to store logs",
           "name": "logPath",
           "required": true,
-          "default": "/home/user2/.local/state/bitsocial",
+          "default": "/home/runner/.local/state/bitsocial",
           "hasDynamicHelp": false,
           "multiple": false,
           "type": "option"
@@ -612,5 +612,5 @@
       ]
     }
   },
-  "version": "0.17.13"
+  "version": "1.0.0"
 }
