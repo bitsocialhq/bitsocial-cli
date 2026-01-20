@@ -15,7 +15,8 @@
     "plugins": {
         "@release-it/conventional-changelog": {
             "preset": "angular",
-            "infile": "docs/CHANGELOG.md"
+            "infile": "docs/CHANGELOG.md",
+            "preMajor": true
         }
     },
     "hooks": {
