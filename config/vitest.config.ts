@@ -6,6 +6,7 @@ export default defineConfig({
         testTimeout: 30000,
         hookTimeout: 30000,
         globals: false,
+        pool: "forks", // Each test file runs in separate process to avoid ESM singleton cache contamination
         sequence: {
             concurrent: false
         },
