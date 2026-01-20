@@ -49,5 +49,5 @@ jobs:
       - run: sudo echo "255.255.255.255 cloudflare-ipfs.com" | sudo tee -a /etc/hosts
       - run: sudo echo "255.255.255.255 pubsubprovider.xyz" | sudo tee -a /etc/hosts
 
-      - run: DEBUG="bitsocial*, plebbit*" yarn test:cli
+      - run: DEBUG="bitsocial*, plebbit*, oclif*" yarn test:cli
 
