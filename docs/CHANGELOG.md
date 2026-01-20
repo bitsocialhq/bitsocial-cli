@@ -6,6 +6,36 @@
 ### Bug Fixes
 
 * **ci:** add oclif debug logging and update dependencies ([27d3ffd](https://github.com/bitsocialhq/bitsocial-cli/commit/27d3ffde57b0170c4f777fd9d3593db59bff438f))
+* **ci:** add write permissions to release workflow and revert version to 0.18.0 ([a2e225e](https://github.com/bitsocialhq/bitsocial-cli/commit/a2e225e5ec57bc6777c2e1dc6ebd86c92768eea4))
+* **test:** add process isolation to prevent flaky CLI tests ([e68a3ab](https://github.com/bitsocialhq/bitsocial-cli/commit/e68a3ab91c98a13efa92eddcbe0445378321d83e))
+* **test:** use runCliCommand helper in edit.community.test ([93652c3](https://github.com/bitsocialhq/bitsocial-cli/commit/93652c3ac8a1ba6d1b98401b08f94618a4d8a307))
+
+
+* refactor!: rebrand plebbit-cli to bitsocial-cli ([37f034d](https://github.com/bitsocialhq/bitsocial-cli/commit/37f034db74089988aa74c00df6336b1e932643de))
+
+
+### BREAKING CHANGES
+
+* This is a complete rebrand of the CLI tool.
+
+- Rename package from plebbit-cli to bitsocial-cli
+- Rename CLI binary from 'plebbit' to 'bitsocial'
+- Rename 'subplebbit' command to 'community'
+- Update all user-facing strings, descriptions, and examples
+- Update data paths from .plebbit to .bitsocial
+- Update log file prefixes to bitsocial_cli_daemon
+- Update IPFS data directory to .bitsocial-cli.ipfs
+- Update CI/CD scripts and workflows
+- Update installation script for bitsocial branding
+- Update README documentation
+- Keep @plebbit/plebbit-js dependency unchanged (not yet rebranded)
+
+# [1.0.0](https://github.com/bitsocialhq/bitsocial-cli/compare/v0.17.13...v1.0.0) (2026-01-20)
+
+
+### Bug Fixes
+
+* **ci:** add oclif debug logging and update dependencies ([27d3ffd](https://github.com/bitsocialhq/bitsocial-cli/commit/27d3ffde57b0170c4f777fd9d3593db59bff438f))
 * **test:** add process isolation to prevent flaky CLI tests ([e68a3ab](https://github.com/bitsocialhq/bitsocial-cli/commit/e68a3ab91c98a13efa92eddcbe0445378321d83e))
 * **test:** use runCliCommand helper in edit.community.test ([93652c3](https://github.com/bitsocialhq/bitsocial-cli/commit/93652c3ac8a1ba6d1b98401b08f94618a4d8a307))
 
