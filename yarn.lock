@@ -3054,9 +3054,9 @@
     tslib "^2.8.1"
     tsyringe "^4.10.0"
 
-"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#3a70ec2b97a4fe2ed53f7746d69e9ec6a00dc324":
+"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#a21d896bd55c76070758dae65dc0693d1c3726db":
   version "0.0.8"
-  resolved "https://github.com/plebbit/plebbit-js#3a70ec2b97a4fe2ed53f7746d69e9ec6a00dc324"
+  resolved "https://github.com/plebbit/plebbit-js#a21d896bd55c76070758dae65dc0693d1c3726db"
   dependencies:
     "@bonfida/spl-name-service" "3.0.10"
     "@enhances/with-resolvers" "0.0.5"
