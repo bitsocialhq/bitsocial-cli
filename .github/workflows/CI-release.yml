@@ -11,6 +11,8 @@ jobs:
     name: Generate and upload tarballs for Linux x64
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - run: sudo apt update && sudo apt install -y gcc g++ make git build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev libfontconfig1 fontconfig libfontconfig1-dev libfontconfig nsis p7zip
       - name: Checkout
@@ -50,6 +52,8 @@ jobs:
     name: Generate and upload tarballs for Macos (x64 + arm64)
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: macos-latest # will use arm64
+    permissions:
+      contents: write
     strategy:
       matrix:
         arch: [x64, arm64]
@@ -91,6 +95,8 @@ jobs:
     name: Generate and upload windows installers
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: windows-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -139,6 +145,8 @@ jobs:
       name: Generate and upload linux arm64 tarballs
       runs-on: ubuntu-latest
       if: ${{ github.event.workflow_run.conclusion == 'success' }}
+      permissions:
+        contents: write
       steps:
         - name: Checkout
           uses: actions/checkout@v4
