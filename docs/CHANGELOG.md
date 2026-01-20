@@ -1,5 +1,10 @@
 # Changelog
 
+## <small>0.19.1 (2026-01-20)</small>
+
+* docs(changelog): remove duplicate 1.0.0 version ([54809cb](https://github.com/bitsocialhq/bitsocial-cli/commit/54809cb))
+* build(packaging): ci build ([fc0cfc5](https://github.com/bitsocialhq/bitsocial-cli/commit/fc0cfc5))
+
 ## 0.19.0 (2026-01-20)
 
 * fix(ci): add oclif debug logging and update dependencies ([27d3ffd](https://github.com/bitsocialhq/bitsocial-cli/commit/27d3ffd))
