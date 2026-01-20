@@ -14,7 +14,16 @@
     },
     "plugins": {
         "@release-it/conventional-changelog": {
-            "preset": "angular",
+            "preset": {
+                "name": "conventionalcommits",
+                "types": [
+                    { "type": "feat", "section": "Features" },
+                    { "type": "fix", "section": "Bug Fixes" },
+                    { "type": "perf", "section": "Performance Improvements" },
+                    { "type": "revert", "section": "Reverts" },
+                    { "type": "build", "section": "Build System" }
+                ]
+            },
             "infile": "docs/CHANGELOG.md",
             "preMajor": true
         }
