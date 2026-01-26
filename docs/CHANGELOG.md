@@ -1,5 +1,10 @@
 # Changelog
 
+## <small>0.19.2 (2026-01-26)</small>
+
+* build(deps): upgrade plebbit-js ([24a8ccb](https://github.com/bitsocialhq/bitsocial-cli/commit/24a8ccb))
+* chore(ci): remove CI-alerts workflow ([a504f96](https://github.com/bitsocialhq/bitsocial-cli/commit/a504f96))
+
 ## <small>0.19.1 (2026-01-20)</small>
 
 * docs(changelog): remove duplicate 1.0.0 version ([54809cb](https://github.com/bitsocialhq/bitsocial-cli/commit/54809cb))
