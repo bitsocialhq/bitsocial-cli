@@ -2557,10 +2557,10 @@
     semver "^7.3.5"
     tar "^6.1.11"
 
-"@mintpass/challenge@1.1.6":
-  version "1.1.6"
-  resolved "https://registry.yarnpkg.com/@mintpass/challenge/-/challenge-1.1.6.tgz#91cb412585ee8febfd921135e4388c6d5e0783c9"
-  integrity sha512-SdTXxDK/Nb1tAuT0VbkEcZHmIwnmtuQojgtbKJr24nN1d8DQeMzIcjCavqeaW6MbifrRdZn1ujvDyKAjy16ENg==
+"@mintpass/challenge@1.1.8":
+  version "1.1.8"
+  resolved "https://registry.yarnpkg.com/@mintpass/challenge/-/challenge-1.1.8.tgz#1fc6b6f66755b9a53852debd884a39a6e875ad38"
+  integrity sha512-kI7fyKut5dGWa039s+SmLZaFTdZ38ixZQ3GEBDmRXObVXQEBDn22TGYLRQBLWqshTQq51iowDBuWznO221FfPQ==
   dependencies:
     "@keyv/sqlite" "^4.0.5"
     env-paths "^3.0.0"
@@ -3080,9 +3080,9 @@
   resolved "https://registry.yarnpkg.com/@phun-ky/typeof/-/typeof-2.0.3.tgz#581f617862e6fd9245e992440e46a88dbc228005"
   integrity sha512-oeQJs1aa8Ghke8JIK9yuq/+KjMiaYeDZ38jx7MhkXncXlUKjqQ3wEm2X3qCKyjo+ZZofZj+WsEEiqkTtRuE2xQ==
 
-"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#a21d896bd55c76070758dae65dc0693d1c3726db":
+"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#f5e59dd44cb4b0d46bc08148185a771f523578e8":
   version "0.0.8"
-  resolved "https://github.com/plebbit/plebbit-js#a21d896bd55c76070758dae65dc0693d1c3726db"
+  resolved "https://github.com/plebbit/plebbit-js#f5e59dd44cb4b0d46bc08148185a771f523578e8"
   dependencies:
     "@bonfida/spl-name-service" "3.0.10"
     "@enhances/with-resolvers" "0.0.5"
@@ -3098,7 +3098,7 @@
     "@libp2p/peer-id" "6.0.4"
     "@libp2p/peer-id-factory" "4.2.4"
     "@libp2p/websockets" "10.1.2"
-    "@mintpass/challenge" "1.1.6"
+    "@mintpass/challenge" "1.1.8"
     "@plebbit/plebbit-logger" "github:plebbit/plebbit-logger#355a96d7659ed820047980049dfa627d30d83a69"
     "@plebbit/proper-lockfile" "github:plebbit/node-proper-lockfile#7fd6332117340c1d3d98dd0afee2d31cc06f72b8"
     "@types/proper-lockfile" "4.1.2"
