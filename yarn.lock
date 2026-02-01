@@ -722,18 +722,18 @@
     bs58 "5.0.0"
     buffer "^6.0.3"
 
-"@bonfida/spl-name-service@3.0.10":
-  version "3.0.10"
-  resolved "https://registry.yarnpkg.com/@bonfida/spl-name-service/-/spl-name-service-3.0.10.tgz#883f2e077eef7d91147f44ae383990a82479d5f8"
-  integrity sha512-CrqlEDz43K9fPIVaUXn29OiMWZUOs3+sxU7zHrlPjjdXn9GrJSVao5gjmflfK6tcwLxSSGC4F4GOg5erSfyR/A==
+"@bonfida/spl-name-service@3.0.16":
+  version "3.0.16"
+  resolved "https://registry.yarnpkg.com/@bonfida/spl-name-service/-/spl-name-service-3.0.16.tgz#5ebcadbb1908af9348ff15c20a4e4fdc8a1408da"
+  integrity sha512-Y47inKaoGYQ2gxykZsLepc0fNPMLWd5ycGQ6k2FiHvIzlY4trHijc7zr9TyDhB/eI9c3XTy5ItM01Izy5pIZ/A==
   dependencies:
     "@bonfida/sns-records" "0.0.1"
-    "@noble/curves" "^1.4.0"
-    "@scure/base" "^1.1.6"
+    "@noble/curves" "^1.9.1"
+    "@scure/base" "^1.2.5"
     "@solana/spl-token" "0.4.6"
     borsh "2.0.0"
     buffer "^6.0.3"
-    graphemesplit "^2.4.4"
+    graphemesplit "^2.6.0"
     ipaddr.js "^2.2.0"
     punycode "^2.3.1"
 
@@ -2666,7 +2666,7 @@
   dependencies:
     "@noble/hashes" "1.8.0"
 
-"@noble/curves@^1.4.0", "@noble/curves@^1.4.2", "@noble/curves@~1.9.0":
+"@noble/curves@^1.4.0", "@noble/curves@^1.4.2", "@noble/curves@^1.9.1", "@noble/curves@~1.9.0":
   version "1.9.7"
   resolved "https://registry.yarnpkg.com/@noble/curves/-/curves-1.9.7.tgz#79d04b4758a43e4bca2cbdc62e7771352fa6b951"
   integrity sha512-gbKGcRUYIjA3/zCCNaWDciTMFI0dCkvou3TL8Zmy5Nc7sJ47a0jtOeZoTaMxkuqRo9cRhjOdZJXegxYE5FN/xw==
@@ -3070,11 +3070,11 @@
   resolved "https://registry.yarnpkg.com/@phun-ky/typeof/-/typeof-2.0.3.tgz#581f617862e6fd9245e992440e46a88dbc228005"
   integrity sha512-oeQJs1aa8Ghke8JIK9yuq/+KjMiaYeDZ38jx7MhkXncXlUKjqQ3wEm2X3qCKyjo+ZZofZj+WsEEiqkTtRuE2xQ==
 
-"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#8e7d818688d0b4aab2ce6271b271167a4eb75225":
+"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#36f0619d9ffde55f96f5d0908afd5964c575f1a9":
   version "0.0.8"
-  resolved "https://github.com/plebbit/plebbit-js#8e7d818688d0b4aab2ce6271b271167a4eb75225"
+  resolved "https://github.com/plebbit/plebbit-js#36f0619d9ffde55f96f5d0908afd5964c575f1a9"
   dependencies:
-    "@bonfida/spl-name-service" "3.0.10"
+    "@bonfida/spl-name-service" "3.0.16"
     "@enhances/with-resolvers" "0.0.5"
     "@helia/block-brokers" "5.0.13"
     "@helia/delegated-routing-v1-http-api-client" "5.1.4"
@@ -3132,8 +3132,8 @@
     ts-custom-error "3.3.1"
     typestub-ipfs-only-hash "4.0.0"
     uuid "11.1.0"
-    viem "2.43.1"
-    zod "4.1.12"
+    viem "2.45.0"
+    zod "4.3.6"
 
 "@plebbit/plebbit-logger@github:plebbit/plebbit-logger#355a96d7659ed820047980049dfa627d30d83a69":
   version "0.0.1"
@@ -3364,7 +3364,7 @@
   resolved "https://registry.yarnpkg.com/@rtsao/scc/-/scc-1.1.0.tgz#927dd2fae9bc3361403ac2c7a00c32ddce9ad7e8"
   integrity sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==
 
-"@scure/base@^1.1.6", "@scure/base@~1.2.5":
+"@scure/base@^1.2.5", "@scure/base@~1.2.5":
   version "1.2.6"
   resolved "https://registry.yarnpkg.com/@scure/base/-/base-1.2.6.tgz#ca917184b8231394dd8847509c67a0be522e59f6"
   integrity sha512-g/nm5FgUa//MCj1gV09zTJTaM6KBAHqLN907YVQqf7zC49+DcO4B1so4ZX07Ef10Twr6nuqYEH9GEggFXA4Fmg==
@@ -8600,7 +8600,7 @@ graphemer@^1.4.0:
   resolved "https://registry.yarnpkg.com/graphemer/-/graphemer-1.4.0.tgz#fb2f1d55e0e3a1849aeffc90c4fa0dd53a0e66c6"
   integrity sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==
 
-graphemesplit@^2.4.4:
+graphemesplit@^2.6.0:
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/graphemesplit/-/graphemesplit-2.6.0.tgz#548ec986e83dcdfec31adf5c98b282985077ce46"
   integrity sha512-rG9w2wAfkpg0DILa1pjnjNfucng3usON360shisqIMUBw/87pojcBSrHmeE4UwryAuBih7g8m1oilf5/u8EWdQ==
@@ -11506,20 +11506,6 @@ own-keys@^1.0.1:
     object-keys "^1.1.1"
     safe-push-apply "^1.0.0"
 
-ox@0.10.5:
-  version "0.10.5"
-  resolved "https://registry.yarnpkg.com/ox/-/ox-0.10.5.tgz#dbef388065011b0109a25ed60359ca04cdd56434"
-  integrity sha512-mXJRiZswmX46abrzNkJpTN9sPJ/Rhevsp5Dfg0z80D55aoLNmEV4oN+/+feSNW593c2CnHavMqSVBanpJ0lUkQ==
-  dependencies:
-    "@adraffy/ens-normalize" "^1.11.0"
-    "@noble/ciphers" "^1.3.0"
-    "@noble/curves" "1.9.1"
-    "@noble/hashes" "^1.8.0"
-    "@scure/bip32" "^1.7.0"
-    "@scure/bip39" "^1.6.0"
-    abitype "^1.2.3"
-    eventemitter3 "5.0.1"
-
 ox@0.11.3:
   version "0.11.3"
   resolved "https://registry.yarnpkg.com/ox/-/ox-0.11.3.tgz#f50be1cae88822f5111b1e3f4a324c4c07eed422"
@@ -14193,20 +14179,6 @@ vary@~1.1.2:
   resolved "https://registry.yarnpkg.com/vary/-/vary-1.1.2.tgz#2299f02c6ded30d4a5961b0b9f74524a18f634fc"
   integrity sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==
 
-viem@2.43.1:
-  version "2.43.1"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-2.43.1.tgz#ec6eb4841ed8eb4a11d54cb0b39afa8204fcd287"
-  integrity sha512-S33pBNlRvOlVv4+L94Z8ydCMDB1j0cuHFUvaC28i6OTxw3uY1P4M3h1YDFK8YC1H9/lIbeBTTvCRhi0FqU/2iw==
-  dependencies:
-    "@noble/curves" "1.9.1"
-    "@noble/hashes" "1.8.0"
-    "@scure/bip32" "1.7.0"
-    "@scure/bip39" "1.6.0"
-    abitype "1.2.3"
-    isows "1.0.7"
-    ox "0.10.5"
-    ws "8.18.3"
-
 viem@2.45.0:
   version "2.45.0"
   resolved "https://registry.yarnpkg.com/viem/-/viem-2.45.0.tgz#5f7f28b639193b783b7fbb6bef7575e9cc8d6f86"
@@ -14596,7 +14568,7 @@ yoga-wasm-web@~0.3.3:
   resolved "https://registry.yarnpkg.com/yoga-wasm-web/-/yoga-wasm-web-0.3.3.tgz#eb8e9fcb18e5e651994732f19a220cb885d932ba"
   integrity sha512-N+d4UJSJbt/R3wqY7Coqs5pcV0aUj2j9IaQ3rNj9bVCLld8tTGKRa2USARjnvZJWVx1NDmQev8EknoczaOQDOA==
 
-zod@4.1.12:
-  version "4.1.12"
-  resolved "https://registry.yarnpkg.com/zod/-/zod-4.1.12.tgz#64f1ea53d00eab91853195653b5af9eee68970f0"
-  integrity sha512-JInaHOamG8pt5+Ey8kGmdcAcg3OL9reK8ltczgHTAwNhMys/6ThXHityHxVV2p3fkw/c+MAvBHFVYHFZDmjMCQ==
+zod@4.3.6:
+  version "4.3.6"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-4.3.6.tgz#89c56e0aa7d2b05107d894412227087885ab112a"
+  integrity sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==
