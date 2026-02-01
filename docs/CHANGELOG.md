@@ -1,5 +1,10 @@
 # Changelog
 
+## <small>0.19.3 (2026-01-29)</small>
+
+* build(deps): upgrade plebbit-js ([dfef175](https://github.com/bitsocialhq/bitsocial-cli/commit/dfef175))
+* build(packaging): ci build ([de2ba85](https://github.com/bitsocialhq/bitsocial-cli/commit/de2ba85))
+
 ## <small>0.19.2 (2026-01-26)</small>
 
 * build(deps): upgrade plebbit-js ([24a8ccb](https://github.com/bitsocialhq/bitsocial-cli/commit/24a8ccb))
