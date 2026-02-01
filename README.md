@@ -189,7 +189,7 @@ EXAMPLES
     $ bitsocial community create --title 'Hello Plebs' --description 'Welcome'
 ```
 
-_See code: [src/cli/commands/community/create.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.3/src/cli/commands/community/create.ts)_
+_See code: [src/cli/commands/community/create.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/community/create.ts)_
 
 ## `bitsocial community edit ADDRESS`
 
@@ -242,7 +242,7 @@ EXAMPLES
     $ bitsocial community edit plebbit.eth --settings.fetchThumbnailUrls=false
 ```
 
-_See code: [src/cli/commands/community/edit.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.3/src/cli/commands/community/edit.ts)_
+_See code: [src/cli/commands/community/edit.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/community/edit.ts)_
 
 ## `bitsocial community get ADDRESS`
 
@@ -267,7 +267,7 @@ EXAMPLES
   $ bitsocial community get 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
-_See code: [src/cli/commands/community/get.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.3/src/cli/commands/community/get.ts)_
+_See code: [src/cli/commands/community/get.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/community/get.ts)_
 
 ## `bitsocial community list`
 
@@ -290,7 +290,7 @@ EXAMPLES
   $ bitsocial community list
 ```
 
-_See code: [src/cli/commands/community/list.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.3/src/cli/commands/community/list.ts)_
+_See code: [src/cli/commands/community/list.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/community/list.ts)_
 
 ## `bitsocial community start ADDRESSES`
 
@@ -315,7 +315,7 @@ EXAMPLES
   $ bitsocial community start 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
-_See code: [src/cli/commands/community/start.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.3/src/cli/commands/community/start.ts)_
+_See code: [src/cli/commands/community/start.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/community/start.ts)_
 
 ## `bitsocial community stop ADDRESSES`
 
@@ -340,7 +340,7 @@ EXAMPLES
   $ bitsocial community stop Qmb99crTbSUfKXamXwZBe829Vf6w5w5TktPkb6WstC9RFW
 ```
 
-_See code: [src/cli/commands/community/stop.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.3/src/cli/commands/community/stop.ts)_
+_See code: [src/cli/commands/community/stop.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/community/stop.ts)_
 
 ## `bitsocial daemon`
 
@@ -377,7 +377,7 @@ EXAMPLES
   $ bitsocial daemon --plebbitOptions.kuboRpcClientsOptions[0] https://remoteipfsnode.com
 ```
 
-_See code: [src/cli/commands/daemon.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.3/src/cli/commands/daemon.ts)_
+_See code: [src/cli/commands/daemon.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/daemon.ts)_
 
 ## `bitsocial help [COMMAND]`
 
@@ -423,7 +423,7 @@ EXAMPLES
     $ bitsocial subplebbit create --title 'Hello Plebs' --description 'Welcome'
 ```
 
-_See code: [src/cli/commands/subplebbit/create.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.3/src/cli/commands/subplebbit/create.ts)_
+_See code: [src/cli/commands/subplebbit/create.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/subplebbit/create.ts)_
 
 ## `bitsocial subplebbit edit ADDRESS`
 
@@ -476,7 +476,7 @@ EXAMPLES
     subplebbit edit plebbit.eth --settings.fetchThumbnailUrls=false
 ```
 
-_See code: [src/cli/commands/subplebbit/edit.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.3/src/cli/commands/subplebbit/edit.ts)_
+_See code: [src/cli/commands/subplebbit/edit.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/subplebbit/edit.ts)_
 
 ## `bitsocial subplebbit get ADDRESS`
 
@@ -501,7 +501,7 @@ EXAMPLES
   plebbit subplebbit get 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
-_See code: [src/cli/commands/subplebbit/get.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.3/src/cli/commands/subplebbit/get.ts)_
+_See code: [src/cli/commands/subplebbit/get.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/subplebbit/get.ts)_
 
 ## `bitsocial subplebbit list`
 
@@ -524,7 +524,7 @@ EXAMPLES
   plebbit subplebbit list
 ```
 
-_See code: [src/cli/commands/subplebbit/list.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.3/src/cli/commands/subplebbit/list.ts)_
+_See code: [src/cli/commands/subplebbit/list.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/subplebbit/list.ts)_
 
 ## `bitsocial subplebbit start ADDRESSES`
 
@@ -549,7 +549,7 @@ EXAMPLES
   plebbit subplebbit start 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
-_See code: [src/cli/commands/subplebbit/start.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.3/src/cli/commands/subplebbit/start.ts)_
+_See code: [src/cli/commands/subplebbit/start.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/subplebbit/start.ts)_
 
 ## `bitsocial subplebbit stop ADDRESSES`
 
@@ -574,7 +574,7 @@ EXAMPLES
   plebbit subplebbit stop Qmb99crTbSUfKXamXwZBe829Vf6w5w5TktPkb6WstC9RFW
 ```
 
-_See code: [src/cli/commands/subplebbit/stop.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.3/src/cli/commands/subplebbit/stop.ts)_
+_See code: [src/cli/commands/subplebbit/stop.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/subplebbit/stop.ts)_
 <!-- commandsstop -->
 
 # Contribution
