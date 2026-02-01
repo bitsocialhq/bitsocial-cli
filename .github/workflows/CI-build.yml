@@ -1,4 +1,4 @@
-# build and commit the dist folder after successful CI
+# build and create a release after successful CI
 name: CI build
 
 on:
@@ -35,10 +35,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: yarn release --ci
-
-      # commit and push dist folder
-      - uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: "build(packaging): ci build"
-          file_pattern: dist
-          add_options: "--force"

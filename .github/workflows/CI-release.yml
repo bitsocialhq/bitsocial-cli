@@ -30,6 +30,10 @@ jobs:
         uses: WyriHaximus/github-action-get-previous-tag@v1
       - name: Install dependencies
         run: yarn install --frozen-lockfile
+      - name: Build from source
+        run: yarn build
+      - name: Generate oclif manifest
+        run: yarn oclif manifest
       - name: Download web uis
         run: yarn ci:download-web-uis
         env:
@@ -73,6 +77,10 @@ jobs:
         uses: WyriHaximus/github-action-get-previous-tag@v1
       - name: Install dependencies
         run: yarn install --frozen-lockfile
+      - name: Build from source
+        run: yarn build
+      - name: Generate oclif manifest
+        run: yarn oclif manifest
       - name: Download web uis
         run: yarn ci:download-web-uis
         env:
@@ -113,6 +121,10 @@ jobs:
         uses: WyriHaximus/github-action-get-previous-tag@v1
       - name: Install dependencies
         run: yarn install --frozen-lockfile
+      - name: Build from source
+        run: yarn build
+      - name: Generate oclif manifest
+        run: yarn oclif manifest
       - name: Download web uis
         run: yarn ci:download-web-uis
         env:
@@ -172,6 +184,8 @@ jobs:
               sudo apt install -y nodejs
               npm install --global yarn
               yarn install --frozen-lockfile
+              yarn build
+              yarn oclif manifest
               yarn ci:download-web-uis
               yarn ci:daemon:test-before-release
               yarn generate:executable:tarballs:linux:arm64

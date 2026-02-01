@@ -29,6 +29,6 @@
         }
     },
     "hooks": {
-        "before:git:release": "yarn oclif manifest && yarn generate:readme && git add docs/CHANGELOG.md README.md oclif.manifest.json package.json && git commit -m 'chore(release): ${version} [skip ci]'"
+        "before:git:release": "yarn oclif manifest && yarn generate:readme && git add docs/CHANGELOG.md README.md package.json && git commit -m 'chore(release): ${version} [skip ci]'"
     }
 }
