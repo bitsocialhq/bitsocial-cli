@@ -61,7 +61,7 @@ export async function startDaemonServer(rpcUrl: URL, ipfsGatewayUrl: URL, plebbi
     log("Discovered webuis", webUiNames);
     for (const webuiNameWithVersion of webUiNames) {
         const webuiDirPath = path.join(webuisDir, webuiNameWithVersion);
-        const webuiName = webuiNameWithVersion.split("-")[0]; // should be "seedit", "plebchan", "plebones"
+        const webuiName = webuiNameWithVersion.split("-")[0]; // should be "seedit", "plebones"
 
         const modifiedIndexHtmlString = await _generateModifiedIndexHtmlWithRpcSettings(
             webuiDirPath,
