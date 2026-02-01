@@ -109,23 +109,15 @@ const spawnBitsocialProcess = async (options: SpawnOptions): Promise<ChildProces
         throw e;
     }
 
-    const Plebbit = await import("@plebbit/plebbit-js");
-
-    const plebbit = await Plebbit.default({ plebbitRpcClientsOptions: ["ws://localhost:9138"] });
-
-    plebbit.on("error", (err) => log.error("Client Plebbit has emitted an error", err));
-
-    const sub = await plebbit.createSubplebbit({ address: communityAddress });
-
-    console.log("community description", sub.description);
-    if (sub.description !== "random description") {
-        await plebbit.destroy();
+    const getOutput = (await spawnBitsocialProcess({
+        args: ["community", "get", communityAddress]
+    })) as string;
+    const subJson = JSON.parse(getOutput);
+    console.log("community description", subJson.description);
+    if (subJson.description !== "random description") {
         await bitsocialDaemon.kill();
-        throw Error("community.description should be 'random description' at this point. Instead it's: " + sub.description);
+        throw Error("community.description should be 'random description' at this point. Instead it's: " + subJson.description);
     }
-
-    await sub.stop();
-    await plebbit.destroy();
     await bitsocialDaemon.kill();
 
     console.log("No problem with bitsocial-cli on this OS and platform");
