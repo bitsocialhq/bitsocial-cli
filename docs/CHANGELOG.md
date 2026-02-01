@@ -1,5 +1,11 @@
 # Changelog
 
+## <small>0.19.4 (2026-02-01)</small>
+
+* build(deps): upgrade plebbit-js ([b315d92](https://github.com/bitsocialhq/bitsocial-cli/commit/b315d92))
+* build(packaging): ci build ([87da2c4](https://github.com/bitsocialhq/bitsocial-cli/commit/87da2c4))
+* build(webuis): remove plebchan from web UIs ([359e24b](https://github.com/bitsocialhq/bitsocial-cli/commit/359e24b))
+
 ## <small>0.19.3 (2026-01-29)</small>
 
 * build(deps): upgrade plebbit-js ([dfef175](https://github.com/bitsocialhq/bitsocial-cli/commit/dfef175))
