@@ -158,12 +158,6 @@ $ bitsocial community edit mysub.eth '--roles["author-address.eth"]' null
 * [`bitsocial community stop ADDRESSES`](#bitsocial-community-stop-addresses)
 * [`bitsocial daemon`](#bitsocial-daemon)
 * [`bitsocial help [COMMAND]`](#bitsocial-help-command)
-* [`bitsocial subplebbit create`](#bitsocial-subplebbit-create)
-* [`bitsocial subplebbit edit ADDRESS`](#bitsocial-subplebbit-edit-address)
-* [`bitsocial subplebbit get ADDRESS`](#bitsocial-subplebbit-get-address)
-* [`bitsocial subplebbit list`](#bitsocial-subplebbit-list)
-* [`bitsocial subplebbit start ADDRESSES`](#bitsocial-subplebbit-start-addresses)
-* [`bitsocial subplebbit stop ADDRESSES`](#bitsocial-subplebbit-stop-addresses)
 
 ## `bitsocial community create`
 
@@ -189,7 +183,7 @@ EXAMPLES
     $ bitsocial community create --title 'Hello Plebs' --description 'Welcome'
 ```
 
-_See code: [src/cli/commands/community/create.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/community/create.ts)_
+_See code: [src/cli/commands/community/create.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.5/src/cli/commands/community/create.ts)_
 
 ## `bitsocial community edit ADDRESS`
 
@@ -242,7 +236,7 @@ EXAMPLES
     $ bitsocial community edit plebbit.eth --settings.fetchThumbnailUrls=false
 ```
 
-_See code: [src/cli/commands/community/edit.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/community/edit.ts)_
+_See code: [src/cli/commands/community/edit.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.5/src/cli/commands/community/edit.ts)_
 
 ## `bitsocial community get ADDRESS`
 
@@ -267,7 +261,7 @@ EXAMPLES
   $ bitsocial community get 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
-_See code: [src/cli/commands/community/get.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/community/get.ts)_
+_See code: [src/cli/commands/community/get.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.5/src/cli/commands/community/get.ts)_
 
 ## `bitsocial community list`
 
@@ -290,7 +284,7 @@ EXAMPLES
   $ bitsocial community list
 ```
 
-_See code: [src/cli/commands/community/list.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/community/list.ts)_
+_See code: [src/cli/commands/community/list.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.5/src/cli/commands/community/list.ts)_
 
 ## `bitsocial community start ADDRESSES`
 
@@ -315,7 +309,7 @@ EXAMPLES
   $ bitsocial community start 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
-_See code: [src/cli/commands/community/start.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/community/start.ts)_
+_See code: [src/cli/commands/community/start.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.5/src/cli/commands/community/start.ts)_
 
 ## `bitsocial community stop ADDRESSES`
 
@@ -340,7 +334,7 @@ EXAMPLES
   $ bitsocial community stop Qmb99crTbSUfKXamXwZBe829Vf6w5w5TktPkb6WstC9RFW
 ```
 
-_See code: [src/cli/commands/community/stop.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/community/stop.ts)_
+_See code: [src/cli/commands/community/stop.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.5/src/cli/commands/community/stop.ts)_
 
 ## `bitsocial daemon`
 
@@ -377,7 +371,7 @@ EXAMPLES
   $ bitsocial daemon --plebbitOptions.kuboRpcClientsOptions[0] https://remoteipfsnode.com
 ```
 
-_See code: [src/cli/commands/daemon.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/daemon.ts)_
+_See code: [src/cli/commands/daemon.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.5/src/cli/commands/daemon.ts)_
 
 ## `bitsocial help [COMMAND]`
 
@@ -398,183 +392,6 @@ DESCRIPTION
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.2.36/src/cli/commands/help.ts)_
-
-## `bitsocial subplebbit create`
-
-Create a subplebbit with specific properties. A newly created sub will be started after creation and be able to receive publications. For a list of properties, visit https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions
-
-```
-USAGE
-  $ bitsocial subplebbit create --plebbitRpcUrl <value> [--privateKeyPath <value>]
-
-FLAGS
-  --plebbitRpcUrl=<value>   (required) [default: ws://localhost:9138/] URL to Plebbit RPC
-  --privateKeyPath=<value>  Private key (PEM) of the subplebbit signer that will be used to determine address (if
-                            address is not a domain). If it's not provided then Plebbit will generate a private key
-
-DESCRIPTION
-  Create a subplebbit with specific properties. A newly created sub will be started after creation and be able to
-  receive publications. For a list of properties, visit
-  https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions
-
-EXAMPLES
-  Create a subplebbit with title 'Hello Plebs' and description 'Welcome'
-
-    $ bitsocial subplebbit create --title 'Hello Plebs' --description 'Welcome'
-```
-
-_See code: [src/cli/commands/subplebbit/create.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/subplebbit/create.ts)_
-
-## `bitsocial subplebbit edit ADDRESS`
-
-Edit a subplebbit properties. For a list of properties, visit https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions
-
-```
-USAGE
-  $ bitsocial subplebbit edit ADDRESS --plebbitRpcUrl <value>
-
-ARGUMENTS
-  ADDRESS  Address of the subplebbit address to edit
-
-FLAGS
-  --plebbitRpcUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC
-
-DESCRIPTION
-  Edit a subplebbit properties. For a list of properties, visit
-  https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions
-
-EXAMPLES
-  Change the address of the sub to a new ENS address
-
-    plebbit subplebbit edit 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu --address newAddress.eth
-
-  Add the author address 'esteban.eth' as an admin on the sub
-
-    plebbit subplebbit edit mysub.eth '--roles["esteban.eth"].role' admin
-
-  Add two challenges to the sub. The first challenge will be a question and answer, and the second will be an image
-  captcha
-
-    plebbit subplebbit edit mysub.eth --settings.challenges[0].name question \
-      --settings.challenges[0].options.question "what is the password?" --settings.challenges[0].options.answer \
-      thepassword --settings.challenges[1].name captcha-canvas-v3
-
-  Change the title and description
-
-    plebbit subplebbit edit mysub.eth --title "This is the new title" --description "This is the new description"
-
-  Remove a role from a moderator/admin/owner
-
-    plebbit subplebbit edit plebbit.eth --roles['rinse12.eth'] null
-
-  Enable settings.fetchThumbnailUrls to fetch the thumbnail of url submitted by authors
-
-    subplebbit edit plebbit.eth --settings.fetchThumbnailUrls
-
-  disable settings.fetchThumbnailUrls
-
-    subplebbit edit plebbit.eth --settings.fetchThumbnailUrls=false
-```
-
-_See code: [src/cli/commands/subplebbit/edit.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/subplebbit/edit.ts)_
-
-## `bitsocial subplebbit get ADDRESS`
-
-Fetch a local or remote subplebbit, and print its json in the terminal
-
-```
-USAGE
-  $ bitsocial subplebbit get ADDRESS --plebbitRpcUrl <value>
-
-ARGUMENTS
-  ADDRESS  Address of the subplebbit address to fetch
-
-FLAGS
-  --plebbitRpcUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC
-
-DESCRIPTION
-  Fetch a local or remote subplebbit, and print its json in the terminal
-
-EXAMPLES
-  plebbit subplebbit get plebmusic.eth
-
-  plebbit subplebbit get 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
-```
-
-_See code: [src/cli/commands/subplebbit/get.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/subplebbit/get.ts)_
-
-## `bitsocial subplebbit list`
-
-List your subplebbits
-
-```
-USAGE
-  $ bitsocial subplebbit list --plebbitRpcUrl <value> [-q]
-
-FLAGS
-  -q, --quiet                  Only display subplebbit addresses
-      --plebbitRpcUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC
-
-DESCRIPTION
-  List your subplebbits
-
-EXAMPLES
-  plebbit subplebbit list -q
-
-  plebbit subplebbit list
-```
-
-_See code: [src/cli/commands/subplebbit/list.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/subplebbit/list.ts)_
-
-## `bitsocial subplebbit start ADDRESSES`
-
-Start a subplebbit
-
-```
-USAGE
-  $ bitsocial subplebbit start ADDRESSES... --plebbitRpcUrl <value>
-
-ARGUMENTS
-  ADDRESSES...  Addresses of subplebbits to start. Separated by space
-
-FLAGS
-  --plebbitRpcUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC
-
-DESCRIPTION
-  Start a subplebbit
-
-EXAMPLES
-  plebbit subplebbit start plebbit.eth
-
-  plebbit subplebbit start 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
-```
-
-_See code: [src/cli/commands/subplebbit/start.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/subplebbit/start.ts)_
-
-## `bitsocial subplebbit stop ADDRESSES`
-
-Stop a subplebbit. The subplebbit will not publish or receive any publications until it is started again.
-
-```
-USAGE
-  $ bitsocial subplebbit stop ADDRESSES... --plebbitRpcUrl <value>
-
-ARGUMENTS
-  ADDRESSES...  Addresses of subplebbits to stop. Separated by space
-
-FLAGS
-  --plebbitRpcUrl=<value>  (required) [default: ws://localhost:9138/] URL to Plebbit RPC
-
-DESCRIPTION
-  Stop a subplebbit. The subplebbit will not publish or receive any publications until it is started again.
-
-EXAMPLES
-  plebbit subplebbit stop plebbit.eth
-
-  plebbit subplebbit stop Qmb99crTbSUfKXamXwZBe829Vf6w5w5TktPkb6WstC9RFW
-```
-
-_See code: [src/cli/commands/subplebbit/stop.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.4/src/cli/commands/subplebbit/stop.ts)_
 <!-- commandsstop -->
 
 # Contribution

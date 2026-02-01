@@ -1,5 +1,11 @@
 # Changelog
 
+## <small>0.19.5 (2026-02-01)</small>
+
+* fix(ci): avoid direct plebbit-js import in daemon release test ([9d21aaa](https://github.com/bitsocialhq/bitsocial-cli/commit/9d21aaa))
+* build(packaging): ci build ([c654609](https://github.com/bitsocialhq/bitsocial-cli/commit/c654609))
+* build(packaging): remove dist/ and oclif.manifest.json from git tracking ([79c86ab](https://github.com/bitsocialhq/bitsocial-cli/commit/79c86ab))
+
 ## <small>0.19.4 (2026-02-01)</small>
 
 * build(deps): upgrade plebbit-js ([b315d92](https://github.com/bitsocialhq/bitsocial-cli/commit/b315d92))
