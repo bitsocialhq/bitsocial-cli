@@ -50,7 +50,7 @@ export async function startDaemonServer(rpcUrl, ipfsGatewayUrl, plebbitOptions) 
     log("Discovered webuis", webUiNames);
     for (const webuiNameWithVersion of webUiNames) {
         const webuiDirPath = path.join(webuisDir, webuiNameWithVersion);
-        const webuiName = webuiNameWithVersion.split("-")[0]; // should be "seedit", "plebchan", "plebones"
+        const webuiName = webuiNameWithVersion.split("-")[0]; // should be "seedit", "plebones"
         const modifiedIndexHtmlString = await _generateModifiedIndexHtmlWithRpcSettings(webuiDirPath, webuiName, Number(ipfsGatewayUrl.port));
         const endpointLocal = `/${webuiName}`;
         webuiExpressApp.use(endpointLocal, express.static(webuiDirPath, { index: false }));
