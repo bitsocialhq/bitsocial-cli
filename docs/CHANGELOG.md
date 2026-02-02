@@ -1,5 +1,9 @@
 # Changelog
 
+## <small>0.19.6 (2026-02-02)</small>
+
+* build(deps): upgrade plebbit-js ([118763b](https://github.com/bitsocialhq/bitsocial-cli/commit/118763b))
+
 ## <small>0.19.5 (2026-02-01)</small>
 
 * fix(ci): avoid direct plebbit-js import in daemon release test ([9d21aaa](https://github.com/bitsocialhq/bitsocial-cli/commit/9d21aaa))
