@@ -3070,9 +3070,9 @@
   resolved "https://registry.yarnpkg.com/@phun-ky/typeof/-/typeof-2.0.3.tgz#581f617862e6fd9245e992440e46a88dbc228005"
   integrity sha512-oeQJs1aa8Ghke8JIK9yuq/+KjMiaYeDZ38jx7MhkXncXlUKjqQ3wEm2X3qCKyjo+ZZofZj+WsEEiqkTtRuE2xQ==
 
-"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#179ff836fa4d22365406092315a7a1ab014ee0b4":
+"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#d56d8f9c8752579a1054d4cd30a3a12dd855b132":
   version "0.0.8"
-  resolved "https://github.com/plebbit/plebbit-js#179ff836fa4d22365406092315a7a1ab014ee0b4"
+  resolved "https://github.com/plebbit/plebbit-js#d56d8f9c8752579a1054d4cd30a3a12dd855b132"
   dependencies:
     "@bonfida/spl-name-service" "3.0.16"
     "@enhances/with-resolvers" "0.0.5"
