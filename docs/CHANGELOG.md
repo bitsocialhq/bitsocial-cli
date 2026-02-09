@@ -1,5 +1,9 @@
 # Changelog
 
+## <small>0.19.11 (2026-02-09)</small>
+
+* fix: run WebSocket verification inside Docker container ([4b23cec](https://github.com/bitsocialhq/bitsocial-cli/commit/4b23cec))
+
 ## <small>0.19.10 (2026-02-09)</small>
 
 * feat: add container verification to Docker publish workflow ([6b38236](https://github.com/bitsocialhq/bitsocial-cli/commit/6b38236))
