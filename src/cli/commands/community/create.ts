@@ -39,7 +39,7 @@ export default class Create extends BaseCommand {
                 //@ts-expect-error
                 createOptions.signer = { privateKey: (await fs.promises.readFile(flags.privateKeyPath)).toString(), type: "ed25519" };
             } catch (e) {
-                const error = e as Error;
+                const error = e instanceof Error ? e : new Error(typeof e === "string" ? e : JSON.stringify(e));
                 //@ts-expect-error
                 error.details = { ...error.details, privateKeyPath: flags.privateKeyPath };
 
@@ -52,7 +52,7 @@ export default class Create extends BaseCommand {
             await createdSub.start();
             this.log(createdSub.address);
         } catch (e) {
-            const error = e as Error;
+            const error = e instanceof Error ? e : new Error(typeof e === "string" ? e : JSON.stringify(e));
             //@ts-expect-error
             error.details = { ...error.details, createOptions };
             await plebbit.destroy();

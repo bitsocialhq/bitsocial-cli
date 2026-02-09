@@ -35,9 +35,10 @@ export default class Start extends BaseCommand {
                 await sub.start();
                 this.log(address);
             } catch (e) {
+                const error = e instanceof Error ? e : new Error(typeof e === "string" ? e : JSON.stringify(e));
                 //@ts-expect-error
-                e.details = { ...e.details, address };
-                console.error(e);
+                error.details = { ...error.details, address };
+                console.error(error);
                 await plebbit.destroy();
                 this.exit(1);
             }

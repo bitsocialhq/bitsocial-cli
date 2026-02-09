@@ -69,6 +69,26 @@ const spawnBitsocialProcess = async (options: SpawnOptions): Promise<ChildProces
     });
 };
 
+const retrySpawnBitsocialProcess = async (options: SpawnOptions, maxRetries = 5): Promise<ChildProcess | string> => {
+    const Logger = await import("@plebbit/plebbit-logger");
+    const log = Logger.default("bitsocial-cli:ci:run-daemon-before-release:retrySpawnBitsocialProcess");
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            return await spawnBitsocialProcess(options);
+        } catch (e) {
+            if (attempt === maxRetries) {
+                log.error(`All ${maxRetries} attempts failed for args: ${options.args.join(" ")}`);
+                throw e;
+            }
+            const delaySeconds = attempt * 3;
+            log(`Attempt ${attempt}/${maxRetries} failed, retrying in ${delaySeconds}s...`, String(e));
+            await new Promise((resolve) => setTimeout(resolve, delaySeconds * 1000));
+        }
+    }
+    throw new Error("Unreachable");
+};
+
 (async () => {
     const Logger = await import("@plebbit/plebbit-logger");
     const log = Logger.default("bitsocial-cli:ci:run-daemon-before-release");
@@ -86,7 +106,7 @@ const spawnBitsocialProcess = async (options: SpawnOptions): Promise<ChildProces
 
     try {
         // Create community and capture address
-        communityAddress = (await spawnBitsocialProcess({
+        communityAddress = (await retrySpawnBitsocialProcess({
             args: ["community", "create", "--description", "test"]
         })) as string;
         log(`Created community with address: ${communityAddress}`);

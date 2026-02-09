@@ -71,9 +71,10 @@ export default class Edit extends BaseCommand {
             await sub.edit(finalMergedState);
             this.log(sub.address);
         } catch (e) {
+            const error = e instanceof Error ? e : new Error(typeof e === "string" ? e : JSON.stringify(e));
             //@ts-expect-error
-            e.details = { ...e.details, editOptions, address: args.address };
-            console.error(e);
+            error.details = { ...error.details, editOptions, address: args.address };
+            console.error(error);
             await plebbit.destroy();
             this.exit(1);
         }
