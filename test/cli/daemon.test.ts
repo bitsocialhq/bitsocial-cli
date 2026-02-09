@@ -10,7 +10,7 @@ import dns from "node:dns";
 dns.setDefaultResultOrder("ipv4first"); // to be able to resolve localhost
 
 const rpcServerEndPoint = defaults.PLEBBIT_RPC_URL;
-type ManagedChildProcess = ChildProcess & { kuboRpcUrl?: URL };
+type ManagedChildProcess = ChildProcess & { kuboRpcUrl?: URL; capturedStdout?: string };
 
 const makeRequestToKuboRpc = async (apiPort: number | string) => {
     return fetch(`http://localhost:${apiPort}/api/v0/bitswap/stat`, { method: "POST" });
@@ -94,16 +94,18 @@ const occupyPort = async (port: number, host: string) => {
     return server;
 };
 
-const startPlebbitDaemon = (args: string[]): Promise<ManagedChildProcess> => {
+const startPlebbitDaemon = (args: string[], env?: Record<string, string>): Promise<ManagedChildProcess> => {
     return new Promise(async (resolve, reject) => {
         const hasCustomDataPath = args.some((arg) => arg.startsWith("--plebbitOptions.dataPath"));
         const hasCustomLogPath = args.some((arg) => arg === "--logPath");
         const logPathArgs = hasCustomLogPath ? [] : ["--logPath", randomDirectory()];
         const daemonArgs = hasCustomDataPath ? args : ["--plebbitOptions.dataPath", randomDirectory(), ...args];
         const daemonProcess = spawn("node", ["./bin/run", "daemon", ...logPathArgs, ...daemonArgs], {
-            stdio: ["pipe", "pipe", "inherit"]
+            stdio: ["pipe", "pipe", "inherit"],
+            env: env ? { ...process.env, ...env } : undefined
         }) as ManagedChildProcess;
 
+        daemonProcess.capturedStdout = "";
         const onExit = (exitCode: number | null, signal: NodeJS.Signals | null) => {
             reject(`spawnAsync process '${daemonProcess.pid}' exited with code '${exitCode}' signal '${signal}'`);
         };
@@ -115,6 +117,7 @@ const startPlebbitDaemon = (args: string[]): Promise<ManagedChildProcess> => {
         };
         const onStdoutData = (data: Buffer) => {
             const output = data.toString();
+            daemonProcess.capturedStdout += output;
             const kuboConfigMatch = output.match(/kuboRpcClientsOptions:\s*\[\s*'([^']+)'/);
             if (!daemonProcess.kuboRpcUrl && kuboConfigMatch?.[1]) {
                 try {
@@ -511,6 +514,28 @@ describe(`bitsocial daemon --plebbitRpcUrl`, async () => {
             await testConnectionToPlebbitRpc(rpcUrl.port);
         } finally {
             await stopPlebbitDaemon(firstRpcProcess);
+        }
+    });
+});
+
+describe(`bitsocial daemon PLEBBIT_RPC_AUTH_KEY env var`, async () => {
+    beforeAll(async () => {
+        await ensureKuboNodeStopped();
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+    });
+
+    it(`daemon uses PLEBBIT_RPC_AUTH_KEY when set`, async () => {
+        const customAuthKey = "my-test-auth-key-1234567890";
+        const rpcUrl = new URL("ws://localhost:19138");
+        let daemonProcess: ManagedChildProcess | undefined;
+        try {
+            daemonProcess = await startPlebbitDaemon(
+                ["--plebbitOptions.dataPath", randomDirectory(), "--plebbitRpcUrl", rpcUrl.toString()],
+                { PLEBBIT_RPC_AUTH_KEY: customAuthKey }
+            );
+            expect(daemonProcess.capturedStdout).toContain(customAuthKey);
+        } finally {
+            await stopPlebbitDaemon(daemonProcess);
         }
     });
 });

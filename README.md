@@ -7,6 +7,7 @@
 -   [What is Bitsocial?](#what-is-bitsocial)
 -   [What is bitsocial-cli?](#what-is-bitsocial-cli)
 -   [Install](#install)
+-   [Docker](#docker)
 -   [Usage](#usage)
 -   [Commands](#commands)
 -   [Contribution](#contribution)
@@ -59,6 +60,98 @@ yarn ci:download-web-uis
 ```
 
 After running the last command you should be able to run commands directly against `./bin/run`, for example `./bin/run daemon`
+
+# Docker
+
+You can run bitsocial-cli as a Docker container. The container runs the daemon and exposes the RPC + web UI on port 9138.
+
+Once your container is running, you can use one of the bundled web UIs to browse the Bitsocial network and manage your communities -- no CLI commands needed. The web UIs provide a full-featured interface for creating communities, moderating, and browsing content entirely through your browser.
+
+If you're a power user, you can also run CLI commands against the running container with `docker exec`:
+
+```sh-session
+docker exec bitsocial node ./bin/run community list
+```
+
+## Docker Compose (recommended)
+
+Copy the example compose file and start the node:
+
+```sh-session
+cp docker-compose.example.yml docker-compose.yml
+docker compose up -d
+```
+
+View the logs to find your auth key URL:
+
+```sh-session
+docker compose logs -f
+```
+
+The output will include lines like:
+
+```
+plebbit rpc: listening on ws://localhost:9138/<auth-key> (secret auth key for remote connections)
+WebUI (seedit): http://<your-ip>:9138/<auth-key>/seedit (secret auth key for remote connections)
+```
+
+Open the WebUI URL in your browser to start using Bitsocial.
+
+### Example docker-compose.yml
+
+```yaml
+services:
+  bitsocial:
+    image: ghcr.io/bitsocialhq/bitsocial-cli:latest
+    container_name: bitsocial
+    restart: unless-stopped
+    ports:
+      - "9138:9138"
+    volumes:
+      - bitsocial-data:/data
+      - bitsocial-logs:/logs
+    environment:
+      - DEBUG=bitsocial*, plebbit*, -plebbit*trace
+      # Set a fixed auth key (useful for bookmarking the web UI URL).
+      # If left unset, a random key is generated on first start.
+      # - PLEBBIT_RPC_AUTH_KEY=your-custom-auth-key-here
+
+volumes:
+  bitsocial-data:
+  bitsocial-logs:
+```
+
+## Docker Run
+
+```sh-session
+docker run -d \
+  --name bitsocial \
+  --restart unless-stopped \
+  -p 9138:9138 \
+  -v bitsocial-data:/data \
+  -v bitsocial-logs:/logs \
+  ghcr.io/bitsocialhq/bitsocial-cli:latest
+```
+
+With a custom auth key:
+
+```sh-session
+docker run -d \
+  --name bitsocial \
+  --restart unless-stopped \
+  -p 9138:9138 \
+  -v bitsocial-data:/data \
+  -v bitsocial-logs:/logs \
+  -e PLEBBIT_RPC_AUTH_KEY=my-secret-key \
+  ghcr.io/bitsocialhq/bitsocial-cli:latest
+```
+
+## Building the Docker image locally
+
+```sh-session
+docker build -t bitsocial-cli .
+docker run -p 9138:9138 bitsocial-cli
+```
 
 # Usage
 

@@ -23,12 +23,18 @@ async function _generateModifiedIndexHtmlWithRpcSettings(webuiPath: string, webu
 async function _generateRpcAuthKeyIfNotExisting(plebbitDataPath: string) {
     // generate plebbit rpc auth key if doesn't exist
     const plebbitRpcAuthKeyPath = path.join(plebbitDataPath, "auth-key");
+    const envAuthKey = process.env["PLEBBIT_RPC_AUTH_KEY"];
     let plebbitRpcAuthKey: string;
-    try {
-        plebbitRpcAuthKey = await fs.readFile(plebbitRpcAuthKeyPath, "utf-8");
-    } catch (e) {
-        plebbitRpcAuthKey = randomBytes(32).toString("base64").replace(/[/+=]/g, "").substring(0, 40);
-        await fs.writeFile(plebbitRpcAuthKeyPath, plebbitRpcAuthKey, { flag: "wx" });
+    if (envAuthKey) {
+        plebbitRpcAuthKey = envAuthKey;
+        await fs.writeFile(plebbitRpcAuthKeyPath, plebbitRpcAuthKey);
+    } else {
+        try {
+            plebbitRpcAuthKey = await fs.readFile(plebbitRpcAuthKeyPath, "utf-8");
+        } catch (e) {
+            plebbitRpcAuthKey = randomBytes(32).toString("base64").replace(/[/+=]/g, "").substring(0, 40);
+            await fs.writeFile(plebbitRpcAuthKeyPath, plebbitRpcAuthKey, { flag: "wx" });
+        }
     }
     return plebbitRpcAuthKey;
 }

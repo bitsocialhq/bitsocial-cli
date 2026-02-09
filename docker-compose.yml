@@ -1,0 +1,18 @@
+services:
+  bitsocial:
+    image: ghcr.io/bitsocialhq/bitsocial-cli:latest
+    build: .
+    container_name: bitsocial
+    restart: unless-stopped
+    ports:
+      - "9138:9138"
+    volumes:
+      - bitsocial-data:/data
+      - bitsocial-logs:/logs
+    environment:
+      - DEBUG=bitsocial*, plebbit*, -plebbit*trace
+      # - PLEBBIT_RPC_AUTH_KEY=your-custom-auth-key-here
+
+volumes:
+  bitsocial-data:
+  bitsocial-logs:
