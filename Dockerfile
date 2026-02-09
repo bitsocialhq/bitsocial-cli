@@ -1,7 +1,7 @@
 # ---- Builder stage ----
 FROM node:22-slim AS builder
 
-RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -21,7 +21,7 @@ RUN GITHUB_TOKEN=${GITHUB_TOKEN} yarn ci:download-web-uis
 # ---- Runtime stage ----
 FROM node:22-slim
 
-RUN apt-get update && apt-get install -y --no-install-recommends tini git && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends tini git ca-certificates && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd --gid 1001 bitsocial && \
     useradd --uid 1001 --gid bitsocial --shell /bin/bash --create-home bitsocial
