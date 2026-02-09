@@ -9,7 +9,7 @@ on:
 
 jobs:
   docker:
-    name: Build and push Docker image
+    name: Build, test and push Docker image
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     permissions:
@@ -51,6 +51,76 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Build for local platform only (amd64) and load into Docker for testing
+      - name: Build image for testing
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: bitsocial-cli:test
+          build-args: |
+            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          cache-from: type=gha
+
+      - name: Start container
+        run: |
+          docker run -d \
+            --name bitsocial-test \
+            -e PLEBBIT_RPC_AUTH_KEY=ci-test-key \
+            -p 9138:9138 \
+            bitsocial-cli:test
+
+      - name: Wait for daemon to be ready
+        run: |
+          echo "Waiting for daemon to start..."
+          for i in $(seq 1 60); do
+            if docker exec bitsocial-test node -e "const net=require('net');const s=net.connect(9138,'localhost',()=>{s.end();process.exit(0)});s.on('error',()=>process.exit(1));setTimeout(()=>process.exit(1),3000)" 2>/dev/null; then
+              echo "Daemon is ready after ${i}s"
+              break
+            fi
+            if [ "$i" = "60" ]; then
+              echo "Daemon failed to start within 60s"
+              docker logs bitsocial-test
+              exit 1
+            fi
+            sleep 1
+          done
+
+      - name: Verify WebSocket RPC is accessible
+        run: |
+          node -e "
+            const WebSocket = require('ws');
+            const ws = new WebSocket('ws://localhost:9138');
+            const timeout = setTimeout(() => { console.error('WebSocket connection timed out'); process.exit(1); }, 10000);
+            ws.on('open', () => { clearTimeout(timeout); console.log('WebSocket connected successfully'); ws.close(); process.exit(0); });
+            ws.on('error', (err) => { clearTimeout(timeout); console.error('WebSocket error:', err.message); process.exit(1); });
+          "
+
+      - name: Test CLI commands inside container
+        run: |
+          # Create a community
+          COMMUNITY_ADDRESS=$(docker exec bitsocial-test node ./bin/run community create --description "docker-ci-test")
+          echo "Created community: $COMMUNITY_ADDRESS"
+
+          # Edit the community
+          docker exec bitsocial-test node ./bin/run community edit "$COMMUNITY_ADDRESS" --description "edited-in-docker"
+
+          # Verify the edit
+          COMMUNITY_JSON=$(docker exec bitsocial-test node ./bin/run community get "$COMMUNITY_ADDRESS")
+          DESCRIPTION=$(echo "$COMMUNITY_JSON" | node -e "process.stdin.resume();let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>console.log(JSON.parse(d).description))")
+          if [ "$DESCRIPTION" != "edited-in-docker" ]; then
+            echo "FAIL: expected description 'edited-in-docker', got '$DESCRIPTION'"
+            exit 1
+          fi
+          echo "All CLI commands passed inside Docker container"
+
+      - name: Stop test container
+        if: always()
+        run: |
+          docker stop bitsocial-test || true
+          docker rm bitsocial-test || true
+
+      # Full multi-arch build and push (uses cache from the test build)
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
