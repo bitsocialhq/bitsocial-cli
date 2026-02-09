@@ -1,5 +1,9 @@
 # Changelog
 
+## <small>0.19.9 (2026-02-09)</small>
+
+* feat: add Docker support ([a437478](https://github.com/bitsocialhq/bitsocial-cli/commit/a437478))
+
 ## <small>0.19.8 (2026-02-09)</small>
 
 * feat: add community delete command ([059d071](https://github.com/bitsocialhq/bitsocial-cli/commit/059d071))
