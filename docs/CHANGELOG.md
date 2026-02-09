@@ -1,5 +1,11 @@
 # Changelog
 
+## <small>0.19.8 (2026-02-09)</small>
+
+* feat: add community delete command ([059d071](https://github.com/bitsocialhq/bitsocial-cli/commit/059d071))
+* build(deps): upgrade plebbit-js ([b767be2](https://github.com/bitsocialhq/bitsocial-cli/commit/b767be2))
+* fix: add retry logic to CI pre-release test and normalize error handling in community commands ([ebdc4b4](https://github.com/bitsocialhq/bitsocial-cli/commit/ebdc4b4))
+
 ## <small>0.19.7 (2026-02-08)</small>
 
 * build(deps): upgrade plebbit-js ([3ab36e9](https://github.com/bitsocialhq/bitsocial-cli/commit/3ab36e9))
