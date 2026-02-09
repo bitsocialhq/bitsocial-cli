@@ -1,5 +1,12 @@
 # Changelog
 
+## <small>0.19.10 (2026-02-09)</small>
+
+* feat: add container verification to Docker publish workflow ([6b38236](https://github.com/bitsocialhq/bitsocial-cli/commit/6b38236))
+* feat: add descriptions for web UI clients in daemon output ([2620d32](https://github.com/bitsocialhq/bitsocial-cli/commit/2620d32))
+* feat: always print web UI URLs with auth key ([bf34d30](https://github.com/bitsocialhq/bitsocial-cli/commit/bf34d30))
+* fix: add ca-certificates to Docker image for git SSL verification ([85415cf](https://github.com/bitsocialhq/bitsocial-cli/commit/85415cf))
+
 ## <small>0.19.9 (2026-02-09)</small>
 
 * feat: add Docker support ([a437478](https://github.com/bitsocialhq/bitsocial-cli/commit/a437478))
