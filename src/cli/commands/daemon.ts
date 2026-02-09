@@ -289,10 +289,15 @@ export default class Daemon extends Command {
             const localIpAddress = "localhost";
             const remoteIpAddress = getLanIpV4Address() || localIpAddress;
             const rpcPort = plebbitRpcUrl.port;
+            const webuiDescriptions: Record<string, string> = {
+                plebones: "A bare bones UI client",
+                seedit: "Similar to old reddit UI"
+            };
             for (const webui of daemonServer.webuis) {
-                console.log(`WebUI (${webui.name}): http://${localIpAddress}:${rpcPort}${webui.endpointRemote}`);
+                const desc = webuiDescriptions[webui.name] ? ` - ${webuiDescriptions[webui.name]}` : "";
+                console.log(`WebUI (${webui.name}${desc}): http://${localIpAddress}:${rpcPort}${webui.endpointRemote}`);
                 if (remoteIpAddress !== localIpAddress)
-                    console.log(`WebUI (${webui.name}): http://${remoteIpAddress}:${rpcPort}${webui.endpointRemote}`);
+                    console.log(`WebUI (${webui.name}${desc}): http://${remoteIpAddress}:${rpcPort}${webui.endpointRemote}`);
             }
         };
 

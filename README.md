@@ -92,7 +92,7 @@ The output will include lines like:
 
 ```
 plebbit rpc: listening on ws://localhost:9138/<auth-key> (secret auth key for remote connections)
-WebUI (seedit): http://<your-ip>:9138/<auth-key>/seedit (secret auth key for remote connections)
+WebUI (seedit - Similar to old reddit UI): http://<your-ip>:9138/<auth-key>/seedit (secret auth key for remote connections)
 ```
 
 Open the WebUI URL in your browser to start using Bitsocial.
@@ -183,10 +183,10 @@ plebbit rpc: listening on ws://localhost:9138 (local connections only)
 plebbit rpc: listening on ws://localhost:9138/MHA1tm2QWG19z0bnkRarDNWIajDobl7iN2eM2PmL (secret auth key for remote connections)
 Bitsocial data path: /root/.local/share/bitsocial
 Communities in data path:  [ 'pleblore.eth' ]
-WebUI (plebones): http://localhost:9138/plebones (local connections only)
-WebUI (plebones): http://192.168.1.60:9138/MHA1tm2QWG19z0bnkRarDNWIajDobl7iN2eM2PmL/plebones (secret auth key for remote connections)
-WebUI (seedit): http://localhost:9138/seedit (local connections only)
-WebUI (seedit): http://192.168.1.60:9138/MHA1tm2QWG19z0bnkRarDNWIajDobl7iN2eM2PmL/seedit (secret auth key for remote connections)
+WebUI (plebones - A bare bones UI client): http://localhost:9138/plebones (local connections only)
+WebUI (plebones - A bare bones UI client): http://192.168.1.60:9138/MHA1tm2QWG19z0bnkRarDNWIajDobl7iN2eM2PmL/plebones (secret auth key for remote connections)
+WebUI (seedit - Similar to old reddit UI): http://localhost:9138/seedit (local connections only)
+WebUI (seedit - Similar to old reddit UI): http://192.168.1.60:9138/MHA1tm2QWG19z0bnkRarDNWIajDobl7iN2eM2PmL/seedit (secret auth key for remote connections)
 
 ```
 
