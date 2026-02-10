@@ -16,6 +16,8 @@ import { startDaemonServer } from "../../webui/daemon-server.js";
 import fs from "fs";
 import fsPromise from "fs/promises";
 import { EOL } from "node:os";
+import { formatWithOptions } from "node:util";
+import { createRequire } from "node:module";
 //@ts-expect-error
 import type { InputPlebbitOptions } from "@plebbit/plebbit-js/dist/node/types.js";
 //@ts-expect-error
@@ -56,22 +58,26 @@ export default class Daemon extends Command {
         "bitsocial daemon --plebbitOptions.kuboRpcClientsOptions[0] https://remoteipfsnode.com"
     ];
 
-    private _setupLogger(Logger: any) {
+    private _setupLogger(Logger: any): boolean {
         const envDebug: string | undefined = process.env["DEBUG"];
-        const debugNamespace = envDebug === "0" || envDebug === "" ? undefined : envDebug || "bitsocial*, plebbit*, -plebbit*trace";
+        const debugNamespace = envDebug === "0" || envDebug === "" ? undefined : envDebug;
 
         const debugDepth = process.env["DEBUG_DEPTH"] ? parseInt(process.env["DEBUG_DEPTH"]) : 10;
         Logger.inspectOpts = Logger.inspectOpts || {};
         Logger.inspectOpts.depth = debugDepth;
+
+        const defaultNamespace = "bitsocial*,plebbit*,-plebbit*trace";
 
         if (debugNamespace) {
             console.log("Debug logs is on with namespace", `"${debugNamespace}"`);
             console.log("Debug depth is set to", debugDepth);
             Logger.enable(debugNamespace);
         } else {
-            console.log("Debug logs are disabled");
-            Logger.disable();
+            Logger.enable(defaultNamespace);
+            console.log("Tip: set DEBUG='bitsocial*,plebbit*' to enable debug logging in the console");
         }
+
+        return !debugNamespace; // true = quiet mode
     }
 
     private async _getNewLogfileByEvacuatingOldLogsIfNeeded(logPath: string) {
@@ -95,7 +101,7 @@ export default class Daemon extends Command {
         return path.join(logPath, `bitsocial_cli_daemon_${new Date().toISOString().replace(/:/g, "-")}.log`);
     }
 
-    private async _pipeDebugLogsToLogFile(logPath: string) {
+    private async _pipeDebugLogsToLogFile(logPath: string, quietMode: boolean, Logger: any) {
         const logFilePath = await this._getNewLogfileByEvacuatingOldLogsIfNeeded(logPath);
 
         const logFile = fs.createWriteStream(logFilePath, { flags: "a" });
@@ -109,17 +115,35 @@ export default class Daemon extends Command {
 
         const isLogFileOverLimit = () => logFile.bytesWritten > 20000000; // 20mb
 
+        const writeTimestampedLine = (text: string) => {
+            if (isLogFileOverLimit()) return;
+            const timestamp = `[${new Date().toISOString()}] `;
+            const lines = text.split("\n");
+            const timestamped = lines.map((line, i) => (i === 0 ? timestamp + line : line)).join("\n");
+            logFile.write(timestamped);
+        };
+
+        if (quietMode) {
+            // In quiet mode, redirect debug library output directly to the log file
+            // instead of stderr, so error messages on stderr are not suppressed
+            const require = createRequire(import.meta.url);
+            const debugModule = require("@plebbit/plebbit-logger/node_modules/debug");
+            debugModule.log = (...args: any[]) => {
+                writeTimestampedLine(removeColor(formatWithOptions({ depth: Logger.inspectOpts?.depth || 10 }, ...args)).trimStart() + EOL);
+            };
+        }
+
         process.stdout.write = (...args) => {
             //@ts-expect-error
             const res = stdoutWrite(...args);
-            if (!isLogFileOverLimit()) logFile.write(removeColor(args[0]) + EOL);
+            writeTimestampedLine(removeColor(args[0]) + EOL);
             return res;
         };
 
         process.stderr.write = (...args) => {
             //@ts-expect-error
             const res = stderrWrite(...args);
-            if (!isLogFileOverLimit()) logFile.write(removeColor(args[0]).trimStart() + EOL);
+            writeTimestampedLine(removeColor(args[0]).trimStart() + EOL);
             return res;
         };
 
@@ -135,8 +159,8 @@ export default class Daemon extends Command {
     async run() {
         const { flags } = await this.parse(Daemon);
         const Logger = await getPlebbitLogger();
-        this._setupLogger(Logger);
-        await this._pipeDebugLogsToLogFile(flags.logPath);
+        const quietMode = this._setupLogger(Logger);
+        await this._pipeDebugLogsToLogFile(flags.logPath, quietMode, Logger);
         const log = Logger("bitsocial-cli:daemon");
 
         log(`flags: `, flags);
