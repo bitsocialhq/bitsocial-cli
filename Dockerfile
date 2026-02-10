@@ -34,6 +34,8 @@ RUN yarn install --frozen-lockfile --production && yarn cache clean
 COPY --from=builder /app/dist/ dist/
 COPY --from=builder /app/oclif.manifest.json ./
 COPY bin/ bin/
+RUN chmod +x bin/run
+RUN ln -s /app/bin/run /usr/local/bin/bitsocial
 
 RUN mkdir -p /data /logs && chown -R bitsocial:bitsocial /data /logs /app
 
@@ -51,4 +53,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD node -e "const net=require('net');const s=net.connect(9138,'localhost',()=>{s.end();process.exit(0)});s.on('error',()=>process.exit(1));setTimeout(()=>process.exit(1),5000)"
 
 ENTRYPOINT ["tini", "--"]
-CMD ["node", "./bin/run", "daemon"]
+CMD ["bitsocial", "daemon"]
