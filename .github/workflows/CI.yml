@@ -14,6 +14,7 @@ on:
       - 'ci-bin/*'
       - 'package.json'
       - 'yarn.lock'
+      - 'Dockerfile'
   push:
     branches:
       - master
@@ -26,6 +27,7 @@ on:
       - '.github/**'
       - 'package.json'
       - 'yarn.lock'
+      - 'Dockerfile'
 
 jobs:
   test-bitsocial-cli:
