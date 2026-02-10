@@ -1,5 +1,19 @@
 # Changelog
 
+## <small>0.19.12 (2026-02-10)</small>
+
+* docs: add Docker container data paths table to README ([bd3740d](https://github.com/bitsocialhq/bitsocial-cli/commit/bd3740d))
+* docs: update Docker exec example to use bitsocial command ([34f87c3](https://github.com/bitsocialhq/bitsocial-cli/commit/34f87c3))
+* docs(docs): update README.md and add example for starting all communities ([76b23a4](https://github.com/bitsocialhq/bitsocial-cli/commit/76b23a4))
+* build(deps): upgrade plebbit-js ([18df610](https://github.com/bitsocialhq/bitsocial-cli/commit/18df610))
+* build(deps): upgrade plebbit-js ([d489947](https://github.com/bitsocialhq/bitsocial-cli/commit/d489947))
+* feat: add --tail, --since, --until flags to `bitsocial logs` (docker logs-like) ([e8e5bd1](https://github.com/bitsocialhq/bitsocial-cli/commit/e8e5bd1))
+* feat: add 5chan UI and gracefully skip unavailable web UIs ([5447ee1](https://github.com/bitsocialhq/bitsocial-cli/commit/5447ee1))
+* feat: make `bitsocial` command available globally in Docker container ([69a2893](https://github.com/bitsocialhq/bitsocial-cli/commit/69a2893))
+* feat(docker): add stop_grace_period to allow graceful shutdown ([103f74a](https://github.com/bitsocialhq/bitsocial-cli/commit/103f74a))
+* feat(docker): expose IPFS gateway and Kubo API ports ([4220a44](https://github.com/bitsocialhq/bitsocial-cli/commit/4220a44))
+* ci: trigger CI pipeline on Dockerfile changes ([c8f325e](https://github.com/bitsocialhq/bitsocial-cli/commit/c8f325e))
+
 ## <small>0.19.11 (2026-02-09)</small>
 
 * fix: run WebSocket verification inside Docker container ([4b23cec](https://github.com/bitsocialhq/bitsocial-cli/commit/4b23cec))
