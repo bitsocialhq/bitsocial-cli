@@ -291,7 +291,8 @@ export default class Daemon extends Command {
             const rpcPort = plebbitRpcUrl.port;
             const webuiDescriptions: Record<string, string> = {
                 plebones: "A bare bones UI client",
-                seedit: "Similar to old reddit UI"
+                seedit: "Similar to old reddit UI",
+                "5chan": "Imageboard-style UI"
             };
             for (const webui of daemonServer.webuis) {
                 const desc = webuiDescriptions[webui.name] ? ` - ${webuiDescriptions[webui.name]}` : "";

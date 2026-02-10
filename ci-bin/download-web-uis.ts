@@ -6,7 +6,7 @@ import { Readable } from "stream";
 import decompress from "decompress";
 
 (async () => {
-    const webuiGithubRepos = ["plebbit/seedit", "plebbit/plebones"];
+    const webuiGithubRepos = ["plebbit/seedit", "plebbit/plebones", "bitsocialhq/5chan"];
     console.log("Github repos to download", webuiGithubRepos);
     const githubToken: string | undefined = process.env["GITHUB_TOKEN"]; // we need a token to avoid getting rate limited in CI
     if (githubToken) console.log("github token length", githubToken.length);
@@ -23,40 +23,50 @@ import decompress from "decompress";
     }
 
     for (const githubRepo of webuiGithubRepos) {
-        const headers = githubToken ? { authorization: `Bearer ${githubToken}` } : undefined;
-        const latestSeeditReleaseReq = await fetch(`https://api.github.com/repos/${githubRepo}/releases/latest`, {
-            headers
-        });
-        if (!latestSeeditReleaseReq.ok)
-            throw Error(
-                `Failed to fetch the release of ${githubRepo}, status code ${latestSeeditReleaseReq.status}, status text ${latestSeeditReleaseReq.statusText}`
-            );
-        const latestRelease = await latestSeeditReleaseReq.json() as any;
-        const htmlZipAsset = latestRelease.assets.find((asset: any) => asset.name.includes("html"));
-        const htmlZipRequest = await fetch(htmlZipAsset["browser_download_url"], { headers });
-        if (!htmlZipRequest.body)
-            throw Error(
-                `Failed to fetch ${htmlZipAsset["browser_download_url"]} html zip file ` +
-                    htmlZipRequest.status +
-                    " " +
-                    htmlZipRequest.statusText
-            );
+        try {
+            const headers = githubToken ? { authorization: `Bearer ${githubToken}` } : undefined;
+            const latestSeeditReleaseReq = await fetch(`https://api.github.com/repos/${githubRepo}/releases/latest`, {
+                headers
+            });
+            if (!latestSeeditReleaseReq.ok) {
+                console.warn(
+                    `Warning: Failed to fetch the release of ${githubRepo}, status code ${latestSeeditReleaseReq.status}, status text ${latestSeeditReleaseReq.statusText}. Skipping.`
+                );
+                continue;
+            }
+            const latestRelease = (await latestSeeditReleaseReq.json()) as any;
+            const htmlZipAsset = latestRelease.assets.find((asset: any) => asset.name.includes("html"));
+            if (!htmlZipAsset) {
+                console.warn(`Warning: No HTML zip asset found in latest release of ${githubRepo}. Skipping.`);
+                continue;
+            }
+            const htmlZipRequest = await fetch(htmlZipAsset["browser_download_url"], { headers });
+            if (!htmlZipRequest.ok || !htmlZipRequest.body) {
+                console.warn(
+                    `Warning: Failed to download ${htmlZipAsset["browser_download_url"]} html zip file, status ${htmlZipRequest.status} ${htmlZipRequest.statusText}. Skipping.`
+                );
+                continue;
+            }
 
-        const zipfilePath = path.join(dstOfWebui, htmlZipAsset.name);
-        const writer = createWriteStream(zipfilePath);
-        await streamFinished(Readable.fromWeb(htmlZipRequest.body as any).pipe(writer));
-        writer.close();
-        console.log("Downloaded", htmlZipAsset.name, "webui successfully. Attempting to unzip");
+            const zipfilePath = path.join(dstOfWebui, htmlZipAsset.name);
+            const writer = createWriteStream(zipfilePath);
+            await streamFinished(Readable.fromWeb(htmlZipRequest.body as any).pipe(writer));
+            writer.close();
+            console.log("Downloaded", htmlZipAsset.name, "webui successfully. Attempting to unzip");
 
-        await decompress(zipfilePath, dstOfWebui);
-        console.log("Unzipped", zipfilePath);
-        await fs.rm(zipfilePath);
-        console.log(`Downloaded`, githubRepo, "successfully");
+            await decompress(zipfilePath, dstOfWebui);
+            console.log("Unzipped", zipfilePath);
+            await fs.rm(zipfilePath);
+            console.log(`Downloaded`, githubRepo, "successfully");
 
-        const extractedDirName = htmlZipAsset.name.replace(".zip", "");
-        // We're renaming index.html here because we don't somebody to go to unmodified index.html
-        // they will get an error, but an error is preferable to going to the wrong html
-        const backupIndexHtml = path.join(dstOfWebui, extractedDirName, "index_backup_no_rpc.html");
-        await fs.rename(path.join(dstOfWebui, extractedDirName, "index.html"), backupIndexHtml);
+            const extractedDirName = htmlZipAsset.name.replace(".zip", "");
+            // We're renaming index.html here because we don't somebody to go to unmodified index.html
+            // they will get an error, but an error is preferable to going to the wrong html
+            const backupIndexHtml = path.join(dstOfWebui, extractedDirName, "index_backup_no_rpc.html");
+            await fs.rename(path.join(dstOfWebui, extractedDirName, "index.html"), backupIndexHtml);
+        } catch (e) {
+            console.warn(`Warning: Failed to download ${githubRepo}: ${e}. Skipping.`);
+            continue;
+        }
     }
 })();
