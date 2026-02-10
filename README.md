@@ -15,15 +15,16 @@
 
 # What is Bitsocial?
 
-Bitsocial is p2p and decentralized social media protocol built completely with IPFS/IPNS/pubsub. It doesn't use any central server, central database, public HTTP endpoint or DNS, it is pure peer to peer (except for the web client that can't join a P2P swarm directly, web clients use interchangeable HTTP providers). It will allow community owners to retain full ownership over their community. Whitepaper [here](https://github.com/plebbit/whitepaper/discussions/2)
+Bitsocial is p2p and decentralized social media protocol built completely with IPFS/IPNS/pubsub. It doesn't use any central server, central database, public HTTP endpoint or DNS, it is pure peer to peer and fully content addressable. It will allow community owners to retain full ownership over their community. Whitepaper [here](https://github.com/plebbit/whitepaper/discussions/2)
 
 # What is bitsocial-cli?
 
 `bitsocial-cli` is an interface to the backend of PKC protocol using [plebbit-js](https://github.com/plebbit/plebbit-js). Users can run and manage their communities using it. It is written in Typescript and designed to receive commands via CLI and WebSocket.
 
 -   Runs an IPFS and Bitsocial node
--   Command Line interface Interface to IPFS-Nodes
+-   Command Line interface to manage Bitsocial communities
 -   WebSocket RPC to access and control your communities and publications
+-   Includes Web UIs like Seedit where you can browse the network and manage your community
 
 # Install
 
@@ -65,7 +66,7 @@ After running the last command you should be able to run commands directly again
 
 You can run bitsocial-cli as a Docker container. The container runs the daemon and exposes the RPC + web UI on port 9138, the Kubo IPFS API on port 50019, and the IPFS Gateway on port 6473.
 
-Once your container is running, you can use one of the bundled web UIs to browse the Bitsocial network and manage your communities -- no CLI commands needed. The web UIs provide a full-featured interface for creating communities, moderating, and browsing content entirely through your browser.
+Once your container is running, you can use one of the bundled web UIs to browse the Bitsocial network and manage your communities -- no CLI commands needed. The web UIs provide a full-featured interface for creating communities, moderating, and browsing content entirely through your browser. All the Web UIs are interopable so you can post and read from whichever you like and you can see your own content on each client.
 
 If you're a power user, you can also run CLI commands against the running container with `docker exec`:
 
@@ -203,14 +204,14 @@ plebbit rpc: listening on ws://localhost:9138 (local connections only)
 plebbit rpc: listening on ws://localhost:9138/MHA1tm2QWG19z0bnkRarDNWIajDobl7iN2eM2PmL (secret auth key for remote connections)
 Bitsocial data path: /root/.local/share/bitsocial
 Communities in data path:  [ 'pleblore.eth' ]
-WebUI (plebones - A bare bones UI client): http://localhost:9138/plebones (local connections only)
+WebUI (plebones - A bare bones UI client): http://localhost:9138/MHA1tm2QWG19z0bnkRarDNWIajDobl7iN2eM2PmL/plebones (local connections only)
 WebUI (plebones - A bare bones UI client): http://192.168.1.60:9138/MHA1tm2QWG19z0bnkRarDNWIajDobl7iN2eM2PmL/plebones (secret auth key for remote connections)
-WebUI (seedit - Similar to old reddit UI): http://localhost:9138/seedit (local connections only)
+WebUI (seedit - Similar to old reddit UI): http://localhost:9138/MHA1tm2QWG19z0bnkRarDNWIajDobl7iN2eM2PmL/seedit (local connections only)
 WebUI (seedit - Similar to old reddit UI): http://192.168.1.60:9138/MHA1tm2QWG19z0bnkRarDNWIajDobl7iN2eM2PmL/seedit (secret auth key for remote connections)
 
 ```
 
-Once `bitsocial daemon` is running, you can create and manage your communities through the web interfaces, either seedit or plebones. If you're a power user and prefer CLI, then you can take a look at the commands below.
+Once `bitsocial daemon` is running, you can create and manage your communities through the web interfaces, either seedit or plebones. All the interfaces are interopable. If you're a power user and prefer CLI, then you can take a look at the commands below.
 
 ### Creating your first community
 
