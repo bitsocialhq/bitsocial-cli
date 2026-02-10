@@ -43,9 +43,10 @@ USER bitsocial
 
 ENV XDG_DATA_HOME=/data
 ENV XDG_STATE_HOME=/logs
-ENV DEBUG="bitsocial*, plebbit*, -plebbit*trace"
+ENV KUBO_RPC_URL="http://0.0.0.0:50019/api/v0"
+ENV IPFS_GATEWAY_URL="http://0.0.0.0:6473"
 
-EXPOSE 9138
+EXPOSE 9138 50019 6473
 
 VOLUME ["/data", "/logs"]
 

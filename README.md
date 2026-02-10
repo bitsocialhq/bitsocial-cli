@@ -63,7 +63,7 @@ After running the last command you should be able to run commands directly again
 
 # Docker
 
-You can run bitsocial-cli as a Docker container. The container runs the daemon and exposes the RPC + web UI on port 9138.
+You can run bitsocial-cli as a Docker container. The container runs the daemon and exposes the RPC + web UI on port 9138, the Kubo IPFS API on port 50019, and the IPFS Gateway on port 6473.
 
 Once your container is running, you can use one of the bundled web UIs to browse the Bitsocial network and manage your communities -- no CLI commands needed. The web UIs provide a full-featured interface for creating communities, moderating, and browsing content entirely through your browser.
 
@@ -117,7 +117,9 @@ services:
     container_name: bitsocial
     restart: unless-stopped
     ports:
-      - "9138:9138"
+      - "9138:9138"    # Plebbit RPC + Web UI
+      - "50019:50019"  # Kubo IPFS API
+      - "6473:6473"    # IPFS Gateway
     volumes:
       - bitsocial-data:/data
       - bitsocial-logs:/logs
@@ -126,6 +128,9 @@ services:
       # Set a fixed auth key (useful for bookmarking the web UI URL).
       # If left unset, a random key is generated on first start.
       # - PLEBBIT_RPC_AUTH_KEY=your-custom-auth-key-here
+      # Override Kubo IPFS bind addresses / ports:
+      # - KUBO_RPC_URL=http://0.0.0.0:50019/api/v0
+      # - IPFS_GATEWAY_URL=http://0.0.0.0:6473
 
 volumes:
   bitsocial-data:
@@ -139,6 +144,8 @@ docker run -d \
   --name bitsocial \
   --restart unless-stopped \
   -p 9138:9138 \
+  -p 50019:50019 \
+  -p 6473:6473 \
   -v bitsocial-data:/data \
   -v bitsocial-logs:/logs \
   ghcr.io/bitsocialhq/bitsocial-cli:latest
@@ -151,6 +158,8 @@ docker run -d \
   --name bitsocial \
   --restart unless-stopped \
   -p 9138:9138 \
+  -p 50019:50019 \
+  -p 6473:6473 \
   -v bitsocial-data:/data \
   -v bitsocial-logs:/logs \
   -e PLEBBIT_RPC_AUTH_KEY=my-secret-key \
@@ -161,7 +170,7 @@ docker run -d \
 
 ```sh-session
 docker build -t bitsocial-cli .
-docker run -p 9138:9138 bitsocial-cli
+docker run -p 9138:9138 -p 50019:50019 -p 6473:6473 bitsocial-cli
 ```
 
 # Usage

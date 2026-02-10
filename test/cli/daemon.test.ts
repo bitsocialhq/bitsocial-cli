@@ -540,4 +540,27 @@ describe(`bitsocial daemon PLEBBIT_RPC_AUTH_KEY env var`, async () => {
     });
 });
 
+describe(`bitsocial daemon KUBO_RPC_URL env var`, async () => {
+    beforeAll(async () => {
+        await ensureKuboNodeStopped();
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+    });
+
+    it(`daemon uses KUBO_RPC_URL env var to configure kubo bind address`, async () => {
+        const rpcUrl = new URL("ws://localhost:29138");
+        let daemonProcess: ManagedChildProcess | undefined;
+        try {
+            daemonProcess = await startPlebbitDaemon(
+                ["--plebbitOptions.dataPath", randomDirectory(), "--plebbitRpcUrl", rpcUrl.toString()],
+                { KUBO_RPC_URL: "http://0.0.0.0:50019/api/v0" }
+            );
+            // Kubo should be reachable on port 50019
+            const res = await fetch("http://localhost:50019/api/v0/bitswap/stat", { method: "POST" });
+            expect(res.status).toBe(200);
+        } finally {
+            await stopPlebbitDaemon(daemonProcess);
+        }
+    });
+});
+
 // TODO add tests for webui

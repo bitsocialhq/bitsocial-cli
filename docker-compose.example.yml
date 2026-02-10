@@ -18,7 +18,9 @@ services:
     container_name: bitsocial
     restart: unless-stopped
     ports:
-      - "9138:9138"
+      - "9138:9138"    # Plebbit RPC + Web UI
+      - "50019:50019"  # Kubo IPFS API
+      - "6473:6473"    # IPFS Gateway
     volumes:
       - bitsocial-data:/data
       - bitsocial-logs:/logs
@@ -29,6 +31,10 @@ services:
       # Useful for bookmarking the web UI URL or scripting RPC access.
       # If left unset, a random key is generated (visible in `docker compose logs`).
       # - PLEBBIT_RPC_AUTH_KEY=your-custom-auth-key-here
+
+      # Override Kubo IPFS bind addresses / ports:
+      # - KUBO_RPC_URL=http://0.0.0.0:50019/api/v0
+      # - IPFS_GATEWAY_URL=http://0.0.0.0:6473
 
     # # Uncomment to build from source instead of pulling the image:
     # build:
