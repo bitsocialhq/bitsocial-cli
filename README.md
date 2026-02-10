@@ -70,7 +70,7 @@ Once your container is running, you can use one of the bundled web UIs to browse
 If you're a power user, you can also run CLI commands against the running container with `docker exec`:
 
 ```sh-session
-docker exec bitsocial node ./bin/run community list
+docker exec bitsocial bitsocial community list
 ```
 
 ## Docker Compose (recommended)
