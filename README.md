@@ -73,6 +73,17 @@ If you're a power user, you can also run CLI commands against the running contai
 docker exec bitsocial bitsocial community list
 ```
 
+## Data paths inside the container
+
+| Path | Description |
+|---|---|
+| `/data/bitsocial` | Bitsocial data directory |
+| `/data/bitsocial/subplebbits` | Community SQLite databases |
+| `/data/bitsocial/.bitsocial-cli.ipfs` | Kubo IPFS repository |
+| `/logs/bitsocial` | Log files |
+
+The Docker volumes `bitsocial-data:/data` and `bitsocial-logs:/logs` are mapped to `/data` and `/logs` inside the container. The `bitsocial` subdirectory is created automatically by the application.
+
 ## Docker Compose (recommended)
 
 Copy the example compose file and start the node:
