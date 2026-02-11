@@ -325,6 +325,15 @@ describe("bitsocial logs (live daemon tests)", async () => {
         expect(logContent).toMatch(/^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\] /m);
     });
 
+    it("log file preserves ANSI color codes", async () => {
+        const files = (await fsPromise.readdir(logDir)).filter(
+            (f) => f.startsWith("bitsocial_cli_daemon_") && f.endsWith(".log")
+        );
+        const logContent = await fsPromise.readFile(path.join(logDir, files.sort().pop()!), "utf-8");
+        // The log file should contain ANSI escape codes (colors not stripped)
+        expect(logContent).toMatch(/\u001b\[/);
+    });
+
     it("bitsocial logs dumps log file content and exits", async () => {
         const result = await runBitsocialLogs([], stateHome);
         expect(result.exitCode).toBe(0);

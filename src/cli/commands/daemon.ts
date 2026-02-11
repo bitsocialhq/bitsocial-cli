@@ -108,15 +108,11 @@ export default class Daemon extends Command {
         const stdoutWrite = process.stdout.write.bind(process.stdout);
         const stderrWrite = process.stderr.write.bind(process.stderr);
 
-        const removeColor = (data: string | Uint8Array) => {
-            const parsedData = data instanceof Uint8Array ? Buffer.from(data).toString() : data;
-            return parsedData.replaceAll(/\u001b\[.*?m/g, "");
-        };
-
         const isLogFileOverLimit = () => logFile.bytesWritten > 20000000; // 20mb
 
         const writeTimestampedLine = (text: string) => {
             if (isLogFileOverLimit()) return;
+            if (!text || text.trim().length === 0) return;
             const timestamp = `[${new Date().toISOString()}] `;
             const lines = text.split("\n");
             const timestamped = lines.map((line, i) => (i === 0 ? timestamp + line : line)).join("\n");
@@ -128,22 +124,28 @@ export default class Daemon extends Command {
             // instead of stderr, so error messages on stderr are not suppressed
             const require = createRequire(import.meta.url);
             const debugModule = require("@plebbit/plebbit-logger/node_modules/debug");
+            // Force colors on and suppress the debug library's own date prefix
+            // so that only writeTimestampedLine adds timestamps
+            debugModule.inspectOpts.colors = true;
+            debugModule.inspectOpts.hideDate = true;
             debugModule.log = (...args: any[]) => {
-                writeTimestampedLine(removeColor(formatWithOptions({ depth: Logger.inspectOpts?.depth || 10 }, ...args)).trimStart() + EOL);
+                writeTimestampedLine(formatWithOptions({ depth: Logger.inspectOpts?.depth || 10, colors: true }, ...args).trimStart() + EOL);
             };
         }
+
+        const asString = (data: string | Uint8Array) => (typeof data === "string" ? data : Buffer.from(data).toString());
 
         process.stdout.write = (...args) => {
             //@ts-expect-error
             const res = stdoutWrite(...args);
-            writeTimestampedLine(removeColor(args[0]) + EOL);
+            writeTimestampedLine(asString(args[0]));
             return res;
         };
 
         process.stderr.write = (...args) => {
             //@ts-expect-error
             const res = stderrWrite(...args);
-            writeTimestampedLine(removeColor(args[0]).trimStart() + EOL);
+            writeTimestampedLine(asString(args[0]).trimStart());
             return res;
         };
 
@@ -157,6 +159,8 @@ export default class Daemon extends Command {
     }
 
     async run() {
+        process.env["DEBUG_COLORS"] = "1";
+        process.env["DEBUG_HIDE_DATE"] = "1";
         const { flags } = await this.parse(Daemon);
         const Logger = await getPlebbitLogger();
         const quietMode = this._setupLogger(Logger);
