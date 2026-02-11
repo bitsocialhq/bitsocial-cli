@@ -1,5 +1,9 @@
 # Changelog
 
+## <small>0.19.15 (2026-02-11)</small>
+
+* build(deps): upgrade plebbit-js ([aee99d8](https://github.com/bitsocialhq/bitsocial-cli/commit/aee99d8))
+
 ## <small>0.19.14 (2026-02-11)</small>
 
 * fix(daemon): ensure Kubo is killed on daemon shutdown and double Ctrl+C ([a91aa00](https://github.com/bitsocialhq/bitsocial-cli/commit/a91aa00))
