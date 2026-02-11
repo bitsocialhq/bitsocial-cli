@@ -563,4 +563,31 @@ describe(`bitsocial daemon KUBO_RPC_URL env var`, async () => {
     });
 });
 
-// TODO add tests for webui
+describe(`bitsocial daemon webui`, async () => {
+    let daemonProcess: ManagedChildProcess;
+    const rpcUrl = new URL("ws://localhost:39138");
+
+    beforeAll(async () => {
+        await ensureKuboNodeStopped();
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        daemonProcess = await startPlebbitDaemon([
+            "--plebbitOptions.dataPath",
+            randomDirectory(),
+            "--plebbitRpcUrl",
+            rpcUrl.toString()
+        ]);
+    });
+
+    afterAll(async () => {
+        await stopPlebbitDaemon(daemonProcess);
+    });
+
+    it(`5chan webui does not contain the hash redirect script`, async () => {
+        const res = await fetch(`http://localhost:${rpcUrl.port}/5chan`);
+        expect(res.status).toBe(200);
+        const html = await res.text();
+        expect(html).not.toMatch(/Redirect non-hash URLs/);
+    });
+});
+
+// TODO add more tests for webui

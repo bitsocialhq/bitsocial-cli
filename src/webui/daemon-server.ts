@@ -9,7 +9,9 @@ import { randomBytes } from "crypto";
 import express from "express";
 
 async function _generateModifiedIndexHtmlWithRpcSettings(webuiPath: string, webuiName: string, ipfsGatewayPort: number) {
-    const indexHtmlString = (await fs.readFile(path.join(webuiPath, "index_backup_no_rpc.html"))).toString();
+    const indexHtmlString = (await fs.readFile(path.join(webuiPath, "index_backup_no_rpc.html")))
+        .toString()
+        .replace(/<script>\s*\/\/\s*Redirect non-hash URLs[\s\S]*?<\/script>/, "");
     const defaultRpcOptionString = `[window.location.origin.replace("https://", "wss://").replace("http://", "ws://") + window.location.pathname.split('/' + '${webuiName}')[0]]`;
     // Ipfs media only locally because ipfs gateway doesn't allow remote connections
     const defaultIpfsMedia = `if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.hostname === "0.0.0.0")window.defaultMediaIpfsGatewayUrl = 'http://' + window.location.hostname + ':' + ${ipfsGatewayPort}`;
