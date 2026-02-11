@@ -254,13 +254,15 @@ export default class Daemon extends Command {
             pendingKuboStart = undefined;
             if (mainProcessExited) {
                 if (startedProcess?.pid && !startedProcess.killed) {
-                    try {
-                        process.kill(startedProcess.pid, "SIGINT");
-                    } catch (e) {
-                        if (!(e instanceof Error && "code" in e && (e as NodeJS.ErrnoException).code === "ESRCH"))
-                            log.error("Error killing kubo process", e);
+                    // Race condition: Kubo finished starting after mainProcessExited.
+                    // Use SIGKILL + process group kill for immediate termination.
+                    const pid = startedProcess.pid;
+                    if (process.platform !== "win32") {
+                        try { process.kill(-pid, "SIGKILL"); } catch { /* best effort */ }
                     }
+                    try { process.kill(pid, "SIGKILL"); } catch { /* best effort */ }
                 }
+                kuboProcess = undefined;
                 return;
             }
             kuboProcess = startedProcess;
@@ -337,6 +339,23 @@ export default class Daemon extends Command {
 
         let keepKuboUpInterval: NodeJS.Timeout | undefined;
         const { asyncExitHook } = await import("exit-hook");
+        const killKuboProcessGroup = (pid: number, signal: NodeJS.Signals) => {
+            // Kill the entire process group (negative PID) on non-Windows.
+            // Kubo is spawned with detached: true, so it has its own process group.
+            if (process.platform !== "win32") {
+                try {
+                    process.kill(-pid, signal);
+                } catch {
+                    /* best effort */
+                }
+            }
+            try {
+                process.kill(pid, signal);
+            } catch {
+                /* best effort */
+            }
+        };
+
         const killKuboProcess = async () => {
             if (pendingKuboStart) {
                 try {
@@ -346,17 +365,22 @@ export default class Daemon extends Command {
                 }
             }
             if (kuboProcess?.pid && !kuboProcess.killed) {
-                log("Attempting to kill kubo process with pid", kuboProcess.pid);
+                const pid = kuboProcess.pid;
+                log("Attempting to kill kubo process with pid", pid);
                 try {
-                    process.kill(kuboProcess.pid, "SIGINT");
-                    await new Promise((resolve) => {
-                        const timeout = setTimeout(resolve, 10000);
+                    killKuboProcessGroup(pid, "SIGINT");
+                    const exited = await new Promise<boolean>((resolve) => {
+                        const timeout = setTimeout(() => resolve(false), 5000);
                         kuboProcess?.once("exit", () => {
                             clearTimeout(timeout);
-                            resolve(undefined);
+                            resolve(true);
                         });
                     });
-                    log("Kubo process killed with pid", kuboProcess.pid);
+                    if (!exited) {
+                        log("Kubo process did not exit after SIGINT, escalating to SIGKILL");
+                        killKuboProcessGroup(pid, "SIGKILL");
+                    }
+                    log("Kubo process killed with pid", pid);
                 } catch (e) {
                     if (e instanceof Error && "code" in e && (e as NodeJS.ErrnoException).code === "ESRCH")
                         log("Kubo process already killed");
@@ -376,6 +400,11 @@ export default class Daemon extends Command {
                 log("Received signal to exit, shutting down both kubo and plebbit rpc. Please wait, it may take a few seconds");
 
                 mainProcessExited = true;
+
+                // Start killing Kubo immediately, in parallel with daemon server destroy.
+                // This way Kubo receives SIGINT right away, even if daemonServer.destroy() hangs.
+                const kuboKillPromise = killKuboProcess();
+
                 if (daemonServer)
                     try {
                         await daemonServer.destroy();
@@ -383,10 +412,20 @@ export default class Daemon extends Command {
                     } catch (e) {
                         log.error("Error shutting down daemon server", e);
                     }
-                await killKuboProcess();
+
+                await kuboKillPromise;
             },
             { wait: 120000 } // could take two minutes to shut down
         );
+
+        // Emergency cleanup: if the process force-exits (e.g. double Ctrl+C),
+        // synchronously SIGKILL kubo's process group. This is a no-op if
+        // killKuboProcess() already ran (it sets kuboProcess = undefined).
+        process.on("exit", () => {
+            if (kuboProcess?.pid) {
+                killKuboProcessGroup(kuboProcess.pid, "SIGKILL");
+            }
+        });
 
         keepKuboUpInterval = setInterval(async () => {
             if (mainProcessExited) return;

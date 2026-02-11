@@ -590,4 +590,106 @@ describe(`bitsocial daemon webui`, async () => {
     });
 });
 
+describe("bitsocial daemon kills kubo on its own shutdown (no backup /shutdown call)", async () => {
+    const rpcUrl = new URL("ws://localhost:49138");
+    const kuboApiUrl = "http://127.0.0.1:50029/api/v0";
+    const gatewayUrl = "http://127.0.0.1:6483";
+
+    const cleanupTestKubo = async () => {
+        // Ensure no leftover kubo on our test port from previous tests
+        try {
+            await fetch(`${kuboApiUrl}/shutdown`, { method: "POST" });
+        } catch {
+            /* ignore */
+        }
+        await waitForCondition(async () => {
+            try {
+                const res = await fetch(`${kuboApiUrl}/bitswap/stat`, { method: "POST" });
+                return !res.ok;
+            } catch {
+                return true;
+            }
+        });
+    };
+
+    beforeAll(async () => {
+        // Also ensure default kubo port is free (previous tests may have used it)
+        await ensureKuboNodeStopped();
+        await cleanupTestKubo();
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+    });
+
+    it("daemon's own cleanup kills kubo after SIGTERM", { timeout: 60000 }, async () => {
+        let daemonProcess: ManagedChildProcess | undefined;
+        try {
+            daemonProcess = await startPlebbitDaemon(
+                ["--plebbitOptions.dataPath", randomDirectory(), "--plebbitRpcUrl", rpcUrl.toString()],
+                { KUBO_RPC_URL: kuboApiUrl, IPFS_GATEWAY_URL: gatewayUrl }
+            );
+
+            // Verify kubo is running
+            const kuboRes = await fetch(`${kuboApiUrl}/bitswap/stat`, { method: "POST" });
+            expect(kuboRes.status).toBe(200);
+
+            // Send SIGTERM only - no backup /shutdown call
+            daemonProcess.kill("SIGTERM");
+
+            // Kubo should be killed promptly by the daemon's parallel shutdown.
+            // The daemon process itself may linger (daemonServer.destroy() retries
+            // HTTP calls to the now-dead kubo), but kubo should be gone quickly.
+            const kuboStopped = await waitForCondition(async () => {
+                try {
+                    const res = await fetch(`${kuboApiUrl}/bitswap/stat`, { method: "POST" });
+                    return !res.ok;
+                } catch {
+                    return true; // connection refused = stopped
+                }
+            }, 20000, 500);
+            expect(kuboStopped).toBe(true);
+        } finally {
+            await killChildProcess(daemonProcess);
+            await cleanupTestKubo();
+        }
+    });
+
+    it("daemon's own cleanup kills kubo after double SIGTERM (impatient user)", { timeout: 60000 }, async () => {
+        let daemonProcess: ManagedChildProcess | undefined;
+        try {
+            daemonProcess = await startPlebbitDaemon(
+                ["--plebbitOptions.dataPath", randomDirectory(), "--plebbitRpcUrl", rpcUrl.toString()],
+                { KUBO_RPC_URL: kuboApiUrl, IPFS_GATEWAY_URL: gatewayUrl }
+            );
+
+            // Verify kubo is running
+            const kuboRes = await fetch(`${kuboApiUrl}/bitswap/stat`, { method: "POST" });
+            expect(kuboRes.status).toBe(200);
+
+            // Send first SIGTERM
+            daemonProcess.kill("SIGTERM");
+
+            // Wait 1s then send second SIGTERM (simulating impatient double Ctrl+C)
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            try {
+                daemonProcess.kill("SIGTERM");
+            } catch {
+                /* process may have already exited */
+            }
+
+            // Kubo should be killed by the daemon's parallel shutdown or emergency exit handler
+            const kuboStopped = await waitForCondition(async () => {
+                try {
+                    const res = await fetch(`${kuboApiUrl}/bitswap/stat`, { method: "POST" });
+                    return !res.ok;
+                } catch {
+                    return true; // connection refused = stopped
+                }
+            }, 20000, 500);
+            expect(kuboStopped).toBe(true);
+        } finally {
+            await killChildProcess(daemonProcess);
+            await cleanupTestKubo();
+        }
+    });
+});
+
 // TODO add more tests for webui
