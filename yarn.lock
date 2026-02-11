@@ -2552,12 +2552,13 @@
     semver "^7.3.5"
     tar "^6.1.11"
 
-"@mintpass/challenge@1.1.10":
-  version "1.1.10"
-  resolved "https://registry.yarnpkg.com/@mintpass/challenge/-/challenge-1.1.10.tgz#b32547c55462df4582861e1ae005888056178d74"
-  integrity sha512-ICi668eSf6nqdwERqXXHWevrO/5CIx4mMFxsS7Ob/IS1lmRr5h7jeAfp4HVofdCkyMw6K61nzjfnhd9rd9AMjQ==
+"@mintpass/challenge@1.1.11":
+  version "1.1.11"
+  resolved "https://registry.yarnpkg.com/@mintpass/challenge/-/challenge-1.1.11.tgz#aa2d0d010d53f3d9bf36bf5427c8cb28b05a04bc"
+  integrity sha512-wr6oCXwrPer88xNNy7fksgBOI6lN+5zU9qkZ2+HSWBjJe1223XXbyJe/atvX/e3mi6ITVrbxOO3rO99iRDEwFg==
   dependencies:
     "@keyv/sqlite" "^4.0.5"
+    "@plebbit/plebbit-logger" "https://github.com/plebbit/plebbit-logger.git"
     env-paths "^3.0.0"
     keyv "5.5.0"
     multiformats "^13.1.0"
@@ -3070,9 +3071,9 @@
   resolved "https://registry.yarnpkg.com/@phun-ky/typeof/-/typeof-2.0.3.tgz#581f617862e6fd9245e992440e46a88dbc228005"
   integrity sha512-oeQJs1aa8Ghke8JIK9yuq/+KjMiaYeDZ38jx7MhkXncXlUKjqQ3wEm2X3qCKyjo+ZZofZj+WsEEiqkTtRuE2xQ==
 
-"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#6ff4da4fcb38b72ef10eb3c8dbb461314058d21b":
+"@plebbit/plebbit-js@https://github.com/plebbit/plebbit-js#a5da7e314b79abaf3ac923e2c2e511b64fc4fc5f":
   version "0.0.8"
-  resolved "https://github.com/plebbit/plebbit-js#6ff4da4fcb38b72ef10eb3c8dbb461314058d21b"
+  resolved "https://github.com/plebbit/plebbit-js#a5da7e314b79abaf3ac923e2c2e511b64fc4fc5f"
   dependencies:
     "@bonfida/spl-name-service" "3.0.16"
     "@enhances/with-resolvers" "0.0.5"
@@ -3088,7 +3089,7 @@
     "@libp2p/peer-id" "6.0.4"
     "@libp2p/peer-id-factory" "4.2.4"
     "@libp2p/websockets" "10.1.2"
-    "@mintpass/challenge" "1.1.10"
+    "@mintpass/challenge" "1.1.11"
     "@plebbit/plebbit-logger" "github:plebbit/plebbit-logger#355a96d7659ed820047980049dfa627d30d83a69"
     "@plebbit/proper-lockfile" "github:plebbit/node-proper-lockfile#7fd6332117340c1d3d98dd0afee2d31cc06f72b8"
     "@types/proper-lockfile" "4.1.2"
@@ -3134,6 +3135,12 @@
     uuid "11.1.0"
     viem "2.45.0"
     zod "4.3.6"
+
+"@plebbit/plebbit-logger@git+https://github.com/plebbit/plebbit-logger.git":
+  version "0.0.1"
+  resolved "git+https://github.com/plebbit/plebbit-logger.git#355a96d7659ed820047980049dfa627d30d83a69"
+  dependencies:
+    debug "4.3.4"
 
 "@plebbit/plebbit-logger@github:plebbit/plebbit-logger#355a96d7659ed820047980049dfa627d30d83a69":
   version "0.0.1"
