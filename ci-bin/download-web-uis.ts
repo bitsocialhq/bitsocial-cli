@@ -69,4 +69,13 @@ import decompress from "decompress";
             continue;
         }
     }
+
+    // Verify at least one web UI was downloaded
+    const downloadedEntries = await fs.readdir(dstOfWebui, { withFileTypes: true });
+    const webuiDirs = downloadedEntries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+    if (webuiDirs.length === 0) {
+        console.error("ERROR: No web UIs were downloaded. At least one web UI is required.");
+        process.exit(1);
+    }
+    console.log(`Successfully downloaded ${webuiDirs.length} web UI(s):`, webuiDirs);
 })();
