@@ -1,5 +1,14 @@
 # Changelog
 
+## <small>0.19.13 (2026-02-11)</small>
+
+* docs(docs): update README.md + docs in delete command ([0fd56f8](https://github.com/bitsocialhq/bitsocial-cli/commit/0fd56f8))
+* docs(README): mention `bitsocial logs` in Running Daemon section ([2f42f48](https://github.com/bitsocialhq/bitsocial-cli/commit/2f42f48))
+* build(deps): upgrade plebbit-js ([11894ef](https://github.com/bitsocialhq/bitsocial-cli/commit/11894ef))
+* fix(ci): fail build if no web UIs are downloaded ([004181e](https://github.com/bitsocialhq/bitsocial-cli/commit/004181e))
+* fix(docker): use BuildKit secret mounts instead of ARG for GITHUB_TOKEN ([49b79ec](https://github.com/bitsocialhq/bitsocial-cli/commit/49b79ec))
+* fix(logs): preserve ANSI colors in log output ([c6b0484](https://github.com/bitsocialhq/bitsocial-cli/commit/c6b0484))
+
 ## <small>0.19.12 (2026-02-10)</small>
 
 * docs: add Docker container data paths table to README ([bd3740d](https://github.com/bitsocialhq/bitsocial-cli/commit/bd3740d))
