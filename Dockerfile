@@ -15,8 +15,8 @@ COPY config/ config/
 
 RUN yarn build && yarn oclif manifest
 
-ARG GITHUB_TOKEN
-RUN GITHUB_TOKEN=${GITHUB_TOKEN} yarn ci:download-web-uis
+RUN --mount=type=secret,id=github_token \
+    GITHUB_TOKEN=$(cat /run/secrets/github_token 2>/dev/null || true) yarn ci:download-web-uis
 
 # ---- Runtime stage ----
 FROM node:22-slim
