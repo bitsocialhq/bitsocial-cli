@@ -1,5 +1,12 @@
 # Changelog
 
+## <small>0.19.14 (2026-02-11)</small>
+
+* fix(daemon): ensure Kubo is killed on daemon shutdown and double Ctrl+C ([a91aa00](https://github.com/bitsocialhq/bitsocial-cli/commit/a91aa00))
+* fix(daemon): print shutdown message to stdout on Ctrl+C ([c61dce2](https://github.com/bitsocialhq/bitsocial-cli/commit/c61dce2))
+* fix(webui): strip 5chan hash redirect script to fix "Cannot GET /" error ([a1b6d6f](https://github.com/bitsocialhq/bitsocial-cli/commit/a1b6d6f))
+* docs: replace BitSocial with Bitsocial for consistent naming ([fcec21a](https://github.com/bitsocialhq/bitsocial-cli/commit/fcec21a))
+
 ## <small>0.19.13 (2026-02-11)</small>
 
 * docs(docs): update README.md + docs in delete command ([0fd56f8](https://github.com/bitsocialhq/bitsocial-cli/commit/0fd56f8))
