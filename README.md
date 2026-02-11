@@ -485,7 +485,7 @@ _See code: [src/cli/commands/community/stop.ts](https://github.com/bitsocialhq/b
 
 ## `bitsocial daemon`
 
-Run a network-connected BitSocial node. Once the daemon is running you can create and start your communities and receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any machine. Within the web ui users are able to browse, create and manage their communities fully P2P.
+Run a network-connected Bitsocial node. Once the daemon is running you can create and start your communities and receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any machine. Within the web ui users are able to browse, create and manage their communities fully P2P.
 
 ```
 USAGE
@@ -497,7 +497,7 @@ FLAGS
   --plebbitRpcUrl=<value>  (required) [default: ws://localhost:9138/] Specify Plebbit RPC URL to listen on
 
 DESCRIPTION
-  Run a network-connected BitSocial node. Once the daemon is running you can create and start your communities and
+  Run a network-connected Bitsocial node. Once the daemon is running you can create and start your communities and
   receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on
   any machine. Within the web ui users are able to browse, create and manage their communities fully P2P.
   Options can be passed to the RPC's instance through flag --plebbitOptions.optionName. For a list of plebbit options
@@ -542,7 +542,7 @@ _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.2.3
 
 ## `bitsocial logs`
 
-View the latest BitSocial daemon log file. By default dumps the full log and exits. Use --follow to stream new output in real-time (like tail -f).
+View the latest Bitsocial daemon log file. By default dumps the full log and exits. Use --follow to stream new output in real-time (like tail -f).
 
 ```
 USAGE
@@ -557,7 +557,7 @@ FLAGS
                        2h, 1d)
 
 DESCRIPTION
-  View the latest BitSocial daemon log file. By default dumps the full log and exits. Use --follow to stream new output
+  View the latest Bitsocial daemon log file. By default dumps the full log and exits. Use --follow to stream new output
   in real-time (like tail -f).
 
 EXAMPLES

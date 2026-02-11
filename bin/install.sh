@@ -25,7 +25,7 @@ rm -rf "$BITSOCIAL_INSTALL_DIR"
 mkdir -p "$BITSOCIAL_INSTALL_DIR"
 
 tar -xzf $bitsocial_compressed_file_name --directory "$BITSOCIAL_INSTALL_DIR"
-echo "Extracted BitSocial install files to $BITSOCIAL_INSTALL_DIR"
+echo "Extracted Bitsocial install files to $BITSOCIAL_INSTALL_DIR"
 echo "Make sure not to delete this directory"
 
 bitsocial_bin_path=$(eval echo "$BITSOCIAL_INSTALL_DIR/bitsocial/bin/bitsocial") # Make sure it's expanded
@@ -40,7 +40,7 @@ for system_bin_path_dir in $binpaths; do
   system_bitsocial_bin_path=$(eval echo "$system_bin_path_dir/bitsocial")
   mkdir -p "$system_bin_path_dir"
   if ln -sf "$bitsocial_bin_path" "$system_bitsocial_bin_path" ; then
-    echo "BitSocial was installed successfully to $system_bitsocial_bin_path"
+    echo "Bitsocial was installed successfully to $system_bitsocial_bin_path"
 	echo "Run 'bitsocial --help' to get started"
 	echo "Need help? Join our community"
 
