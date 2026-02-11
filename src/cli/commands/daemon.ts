@@ -372,6 +372,7 @@ export default class Daemon extends Command {
             async () => {
                 if (keepKuboUpInterval) clearInterval(keepKuboUpInterval);
                 if (mainProcessExited) return; // we already exited
+                console.log("\nShutting down Bitsocial daemon, it may take a few seconds to shut down all communities and the IPFS node...");
                 log("Received signal to exit, shutting down both kubo and plebbit rpc. Please wait, it may take a few seconds");
 
                 mainProcessExited = true;
