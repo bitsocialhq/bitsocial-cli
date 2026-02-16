@@ -107,7 +107,10 @@ export default class Daemon extends Command {
         return { logFilePath: path.join(logPath, `bitsocial_cli_daemon_${new Date().toISOString().replace(/:/g, "-")}.log`), deletedLogFile, logfilesCapacity };
     }
 
-    private async _pipeDebugLogsToLogFile(logPath: string, Logger: PlebbitLogger) {
+    private async _pipeDebugLogsToLogFile(
+        logPath: string,
+        Logger: PlebbitLogger
+    ): Promise<{ logFilePath: string; stdoutWrite: typeof process.stdout.write }> {
         const { logFilePath, deletedLogFile, logfilesCapacity } = await this._getNewLogfileByEvacuatingOldLogsIfNeeded(logPath);
 
         const logFile = fs.createWriteStream(logFilePath, { flags: "a" });
@@ -177,6 +180,8 @@ export default class Daemon extends Command {
         });
 
         process.on("exit", () => logFile.close());
+
+        return { logFilePath, stdoutWrite };
     }
 
     async run() {
@@ -185,9 +190,10 @@ export default class Daemon extends Command {
         const { flags } = await this.parse(Daemon);
         const Logger = await getPlebbitLogger();
         this._setupLogger(Logger);
-        await this._pipeDebugLogsToLogFile(flags.logPath, Logger);
+        const { logFilePath, stdoutWrite } = await this._pipeDebugLogsToLogFile(flags.logPath, Logger);
         const log = Logger("bitsocial-cli:daemon");
 
+        try {
         // Log debug info after pipe is set up so it goes to the log file, not terminal
         const envDebug: string | undefined = process.env["_PLEBBIT_DEBUG"] || process.env["DEBUG"];
         const debugNamespace = envDebug === "0" || envDebug === "" ? undefined : envDebug;
@@ -478,5 +484,24 @@ export default class Daemon extends Command {
             else if (plebbitOptionsFromFlag?.kuboRpcClientsOptions && !usingDifferentProcessRpc) await keepKuboUp();
             await createOrConnectRpc();
         }, 5000);
+
+        } catch (err) {
+            const errorMsg = err instanceof Error ? err.message : String(err);
+            stdoutWrite(`\nDaemon failed to start: ${errorMsg}\n\n`);
+
+            // Show last 10 lines from log for context
+            try {
+                const logContent = fs.readFileSync(logFilePath, "utf-8");
+                const lines = logContent.trimEnd().split("\n");
+                const lastLines = lines.slice(-10).join("\n");
+                stdoutWrite(`Last log lines:\n${lastLines}\n\n`);
+            } catch {
+                /* log file might not exist yet */
+            }
+
+            stdoutWrite(`Full log: ${logFilePath}\n`);
+            stdoutWrite(`Or run: bitsocial logs\n`);
+            throw err;
+        }
     }
 }
