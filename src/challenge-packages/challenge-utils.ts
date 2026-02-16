@@ -137,13 +137,43 @@ export async function ensureNpmAvailable(): Promise<void> {
     });
 }
 
+export async function runNpmPack(packageSpec: string, destDir: string): Promise<string> {
+    const npmCliPath = getNpmCliPath();
+    return new Promise<string>((resolve, reject) => {
+        const proc = spawn(process.execPath, [npmCliPath, "pack", packageSpec, "--pack-destination", destDir], {
+            stdio: ["ignore", "pipe", "inherit"],
+            env: getNpmEnv()
+        });
+        let stdout = "";
+        proc.stdout.on("data", (data: Buffer) => {
+            stdout += data.toString();
+        });
+        proc.on("error", (err) => {
+            reject(new Error(`Failed to run npm pack: ${err.message}`));
+        });
+        proc.on("close", (code) => {
+            if (code === 0) {
+                // npm pack prints the tarball filename on the last non-empty line of stdout
+                const filename = stdout.trim().split("\n").pop()?.trim();
+                if (!filename) {
+                    reject(new Error("npm pack succeeded but produced no output"));
+                    return;
+                }
+                resolve(path.join(destDir, filename));
+            } else {
+                reject(new Error(`npm pack exited with code ${code}`));
+            }
+        });
+    });
+}
+
 export async function runNpmInstall(challengeDir: string): Promise<void> {
     const npmCliPath = getNpmCliPath();
     return new Promise<void>((resolve, reject) => {
         // Run npm through our own Node binary to guarantee ABI-compatible
         // native modules — npm's process.execPath and lifecycle scripts
         // will all use the same Node that's running bitsocial-cli
-        const proc = spawn(process.execPath, [npmCliPath, "install", "--production"], {
+        const proc = spawn(process.execPath, [npmCliPath, "install", "--omit=dev", "--install-strategy=nested", "--legacy-peer-deps"], {
             cwd: challengeDir,
             stdio: "inherit",
             env: getNpmEnv()

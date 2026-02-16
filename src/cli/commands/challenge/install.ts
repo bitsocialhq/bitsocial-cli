@@ -1,9 +1,6 @@
 import { Args, Flags, Command } from "@oclif/core";
 import path from "path";
 import fs from "fs/promises";
-import { createWriteStream } from "fs";
-import { finished as streamFinished } from "stream/promises";
-import { Readable } from "stream";
 import decompress from "decompress";
 import defaults from "../../../common-utils/defaults.js";
 import {
@@ -11,16 +8,17 @@ import {
     ensureChallengesDir,
     challengeNameToDir,
     readChallengePackageJson,
+    runNpmPack,
     runNpmInstall,
     verifyNativeModuleAbi
 } from "../../../challenge-packages/challenge-utils.js";
 
 export default class Install extends Command {
-    static override description = "Install a challenge package from a URL (.tar.gz archive)";
+    static override description = "Install a challenge package (npm package name, git URL, tarball URL, or local path)";
 
     static override args = {
-        url: Args.string({
-            description: "URL to a .tar.gz archive of the challenge package",
+        package: Args.string({
+            description: "Package specifier — anything npm can install (name, name@version, git URL, tarball URL, local path)",
             required: true
         })
     };
@@ -33,8 +31,11 @@ export default class Install extends Command {
     };
 
     static override examples = [
+        "bitsocial challenge install @mintpass/challenge",
+        "bitsocial challenge install @mintpass/challenge@1.0.0",
+        "bitsocial challenge install github:user/repo",
         "bitsocial challenge install https://example.com/my-challenge-1.0.0.tar.gz",
-        "bitsocial challenge install https://example.com/challenge.tar.gz --plebbitOptions.dataPath /custom/data"
+        "bitsocial challenge install ./my-local-challenge"
     ];
 
     async run(): Promise<void> {
@@ -44,26 +45,18 @@ export default class Install extends Command {
         // 1. Check npm is available
         await ensureNpmAvailable();
 
-        // 2. Download the archive to a temp dir
+        // 2. Use npm pack to download the package as a tarball
         const tmpDir = path.join(dataPath, ".challenge-install-tmp-" + Date.now());
         await fs.mkdir(tmpDir, { recursive: true });
 
         try {
-            const archivePath = path.join(tmpDir, "challenge.tar.gz");
-            const response = await fetch(args.url);
-            if (!response.ok || !response.body) {
-                this.error(`Failed to download ${args.url}: HTTP ${response.status} ${response.statusText}`);
-            }
-
-            const writer = createWriteStream(archivePath);
-            await streamFinished(Readable.fromWeb(response.body as any).pipe(writer));
-            writer.close();
+            const archivePath = await runNpmPack(args.package, tmpDir);
 
             // 3. Extract the archive
             const extractDir = path.join(tmpDir, "extracted");
             await decompress(archivePath, extractDir);
 
-            // 4. Find package.json (may be nested one level if archive has a root dir)
+            // 4. Find package.json (npm pack tarballs have a package/ root dir)
             let pkgDir = extractDir;
             try {
                 await readChallengePackageJson(pkgDir);
