@@ -26,10 +26,16 @@ import DataObjectParser from "dataobject-parser";
 
 import * as remeda from "remeda";
 
+type PlebbitLogger = typeof import("@plebbit/plebbit-logger").default & {
+    inspectOpts?: { depth?: number; colors?: boolean; [key: string]: any };
+};
+
 const defaultPlebbitOptions: InputPlebbitOptions = {
     dataPath: defaults.PLEBBIT_DATA_PATH,
     httpRoutersOptions: defaults.HTTP_TRACKERS
 };
+
+// TODO I think we need to print plebbitOptions to stdout
 
 export default class Daemon extends Command {
     static override description = `Run a network-connected Bitsocial node. Once the daemon is running you can create and start your communities and receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any machine. Within the web ui users are able to browse, create and manage their communities fully P2P.
@@ -59,7 +65,8 @@ export default class Daemon extends Command {
         "bitsocial daemon --plebbitOptions.kuboRpcClientsOptions[0] https://remoteipfsnode.com"
     ];
 
-    private _setupLogger(Logger: any): boolean {
+    private _setupLogger(Logger: PlebbitLogger): boolean {
+        const log = Logger("bitsocial-cli:daemon");
         const envDebug: string | undefined = process.env["DEBUG"];
         const debugNamespace = envDebug === "0" || envDebug === "" ? undefined : envDebug;
 
@@ -70,12 +77,13 @@ export default class Daemon extends Command {
         const defaultNamespace = "bitsocial*,plebbit*,-plebbit*trace";
 
         if (debugNamespace) {
-            console.log("Debug logs is on with namespace", `"${debugNamespace}"`);
-            console.log("Debug depth is set to", debugDepth);
+            log("Debug logs is on with namespace", `"${debugNamespace}"`);
+            log("Debug depth is set to", debugDepth);
             Logger.enable(debugNamespace);
         } else {
             Logger.enable(defaultNamespace);
-            console.log("Tip: set DEBUG='bitsocial*,plebbit*' to enable debug logging in the console");
+            console.log("To view logs, run: bitsocial logs");
+            console.log("For custom debug logging, restart the daemon with DEBUG env, e.g.: DEBUG='bitsocial*,plebbit*' bitsocial daemon");
         }
 
         return !debugNamespace; // true = quiet mode
@@ -102,7 +110,7 @@ export default class Daemon extends Command {
         return path.join(logPath, `bitsocial_cli_daemon_${new Date().toISOString().replace(/:/g, "-")}.log`);
     }
 
-    private async _pipeDebugLogsToLogFile(logPath: string, quietMode: boolean, Logger: any) {
+    private async _pipeDebugLogsToLogFile(logPath: string, quietMode: boolean, Logger: PlebbitLogger) {
         const logFilePath = await this._getNewLogfileByEvacuatingOldLogsIfNeeded(logPath);
 
         const logFile = fs.createWriteStream(logFilePath, { flags: "a" });
