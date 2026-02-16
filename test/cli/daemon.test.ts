@@ -6,11 +6,13 @@ import { describe, it, beforeAll, afterAll, afterEach, expect } from "vitest";
 import { directory as randomDirectory } from "tempy";
 import WebSocket from "ws";
 import { path as kuboExePathFunc } from "kubo";
+import fsPromise from "fs/promises";
+import path from "path";
 import dns from "node:dns";
 dns.setDefaultResultOrder("ipv4first"); // to be able to resolve localhost
 
 const rpcServerEndPoint = defaults.PLEBBIT_RPC_URL;
-type ManagedChildProcess = ChildProcess & { kuboRpcUrl?: URL; capturedStdout?: string };
+type ManagedChildProcess = ChildProcess & { kuboRpcUrl?: URL; capturedStdout?: string; capturedStderr?: string };
 
 const makeRequestToKuboRpc = async (apiPort: number | string) => {
     return fetch(`http://localhost:${apiPort}/api/v0/bitswap/stat`, { method: "POST" });
@@ -136,6 +138,52 @@ const startPlebbitDaemon = (args: string[], env?: Record<string, string>): Promi
 
         daemonProcess.on("exit", onExit);
         daemonProcess.stdout!.on("data", onStdoutData);
+        daemonProcess.on("error", onError);
+    });
+};
+
+const startPlebbitDaemonCapturingStderr = (args: string[], env?: Record<string, string>): Promise<ManagedChildProcess> => {
+    return new Promise(async (resolve, reject) => {
+        const hasCustomDataPath = args.some((arg) => arg.startsWith("--plebbitOptions.dataPath"));
+        const hasCustomLogPath = args.some((arg) => arg === "--logPath");
+        const logPathArgs = hasCustomLogPath ? [] : ["--logPath", randomDirectory()];
+        const daemonArgs = hasCustomDataPath ? args : ["--plebbitOptions.dataPath", randomDirectory(), ...args];
+        const daemonProcess = spawn("node", ["./bin/run", "daemon", ...logPathArgs, ...daemonArgs], {
+            stdio: ["pipe", "pipe", "pipe"],
+            env: env ? { ...process.env, ...env } : undefined
+        }) as ManagedChildProcess;
+
+        daemonProcess.capturedStdout = "";
+        daemonProcess.capturedStderr = "";
+        const onExit = (exitCode: number | null, signal: NodeJS.Signals | null) => {
+            reject(
+                `spawnAsync process '${daemonProcess.pid}' exited with code '${exitCode}' signal '${signal}'\nstdout: ${daemonProcess.capturedStdout}\nstderr: ${daemonProcess.capturedStderr}`
+            );
+        };
+        const onError = (error: Error) => {
+            daemonProcess.stdout!.off("data", onStdoutData);
+            daemonProcess.stderr!.off("data", onStderrData);
+            daemonProcess.off("exit", onExit);
+            daemonProcess.off("error", onError);
+            reject(error);
+        };
+        const onStderrData = (data: Buffer) => {
+            daemonProcess.capturedStderr += data.toString();
+        };
+        const onStdoutData = (data: Buffer) => {
+            const output = data.toString();
+            daemonProcess.capturedStdout += output;
+            if (output.match("Communities in data path")) {
+                daemonProcess.stdout!.off("data", onStdoutData);
+                daemonProcess.off("exit", onExit);
+                daemonProcess.off("error", onError);
+                resolve(daemonProcess);
+            }
+        };
+
+        daemonProcess.on("exit", onExit);
+        daemonProcess.stdout!.on("data", onStdoutData);
+        daemonProcess.stderr!.on("data", onStderrData);
         daemonProcess.on("error", onError);
     });
 };
@@ -696,6 +744,74 @@ describe("bitsocial daemon kills kubo on its own shutdown (no backup /shutdown c
         } finally {
             await killChildProcess(daemonProcess);
             await cleanupTestKubo();
+        }
+    });
+});
+
+describe("bitsocial daemon DEBUG env var", () => {
+    const testKuboApiUrl = "http://127.0.0.1:50039/api/v0";
+
+    const cleanupKubo = async () => {
+        await ensureKuboNodeStopped();
+        try {
+            await fetch(`${testKuboApiUrl}/shutdown`, { method: "POST" });
+        } catch {
+            /* ignore */
+        }
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+    };
+
+    beforeAll(cleanupKubo);
+    afterEach(cleanupKubo);
+
+    it("DEBUG=* does not leak debug output to stderr", { timeout: 60000 }, async () => {
+        const rpcUrl = new URL("ws://localhost:59138");
+        const logPath = randomDirectory();
+        let daemonProcess: ManagedChildProcess | undefined;
+        try {
+            daemonProcess = await startPlebbitDaemonCapturingStderr(
+                ["--plebbitOptions.dataPath", randomDirectory(), "--plebbitRpcUrl", rpcUrl.toString(), "--logPath", logPath],
+                { DEBUG: "*", KUBO_RPC_URL: "http://127.0.0.1:50039/api/v0", IPFS_GATEWAY_URL: "http://127.0.0.1:6493" }
+            );
+
+            // stderr should not contain debug-format output (lines ending with +Nms)
+            // Note: oclif may emit non-debug warnings to stderr which is fine
+            expect(daemonProcess.capturedStderr).not.toMatch(/\+\d+m?s$/m);
+
+            // stdout should contain the informational messages
+            expect(daemonProcess.capturedStdout).toContain("To view logs, run: bitsocial logs");
+
+            // The log file should contain debug output
+            const logFiles = await fsPromise.readdir(logPath);
+            const logFile = logFiles.find((f) => f.startsWith("bitsocial_cli_daemon"));
+            expect(logFile).toBeDefined();
+            const logContent = await fsPromise.readFile(path.join(logPath, logFile!), "utf-8");
+            expect(logContent.length).toBeGreaterThan(0);
+        } finally {
+            await stopPlebbitDaemon(daemonProcess);
+        }
+    });
+
+    it("daemon without DEBUG shows tip messages in stdout", { timeout: 60000 }, async () => {
+        const rpcUrl = new URL("ws://localhost:59139");
+        let daemonProcess: ManagedChildProcess | undefined;
+        try {
+            daemonProcess = await startPlebbitDaemonCapturingStderr(
+                ["--plebbitOptions.dataPath", randomDirectory(), "--plebbitRpcUrl", rpcUrl.toString()],
+                { KUBO_RPC_URL: "http://127.0.0.1:50039/api/v0", IPFS_GATEWAY_URL: "http://127.0.0.1:6493" }
+            );
+
+            // stderr should not contain debug-format output
+            expect(daemonProcess.capturedStderr).not.toMatch(/\+\d+m?s$/m);
+
+            // stdout should contain tip messages
+            expect(daemonProcess.capturedStdout).toContain("To view logs, run: bitsocial logs");
+            expect(daemonProcess.capturedStdout).toContain("DEBUG");
+
+            // Should NOT contain "Debug logs is on" since no DEBUG was set
+            expect(daemonProcess.capturedStderr).not.toContain("Debug logs is on");
+        } finally {
+            await stopPlebbitDaemon(daemonProcess);
         }
     });
 });

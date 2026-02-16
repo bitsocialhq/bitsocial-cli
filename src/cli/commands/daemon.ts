@@ -65,9 +65,8 @@ export default class Daemon extends Command {
         "bitsocial daemon --plebbitOptions.kuboRpcClientsOptions[0] https://remoteipfsnode.com"
     ];
 
-    private _setupLogger(Logger: PlebbitLogger): boolean {
-        const log = Logger("bitsocial-cli:daemon");
-        const envDebug: string | undefined = process.env["DEBUG"];
+    private _setupLogger(Logger: PlebbitLogger) {
+        const envDebug: string | undefined = process.env["_PLEBBIT_DEBUG"] || process.env["DEBUG"];
         const debugNamespace = envDebug === "0" || envDebug === "" ? undefined : envDebug;
 
         const debugDepth = process.env["DEBUG_DEPTH"] ? parseInt(process.env["DEBUG_DEPTH"]) : 10;
@@ -77,16 +76,13 @@ export default class Daemon extends Command {
         const defaultNamespace = "bitsocial*,plebbit*,-plebbit*trace";
 
         if (debugNamespace) {
-            log("Debug logs is on with namespace", `"${debugNamespace}"`);
-            log("Debug depth is set to", debugDepth);
             Logger.enable(debugNamespace);
         } else {
             Logger.enable(defaultNamespace);
-            console.log("To view logs, run: bitsocial logs");
-            console.log("For custom debug logging, restart the daemon with DEBUG env, e.g.: DEBUG='bitsocial*,plebbit*' bitsocial daemon");
         }
 
-        return !debugNamespace; // true = quiet mode
+        console.log("To view logs, run: bitsocial logs");
+        console.log("For custom debug logging, restart the daemon with DEBUG env, e.g.: DEBUG='bitsocial*,plebbit*' bitsocial daemon");
     }
 
     private async _getNewLogfileByEvacuatingOldLogsIfNeeded(logPath: string) {
@@ -100,18 +96,19 @@ export default class Daemon extends Command {
             file.name.startsWith("bitsocial_cli_daemon")
         );
         const logfilesCapacity = 5; // we only store 5 log files
+        let deletedLogFile: string | undefined;
         if (logFiles.length >= logfilesCapacity) {
             // we need to pick the oldest log to delete
             const logFileToDelete = logFiles.map((logFile) => logFile.name).sort()[0]; // TODO need to test this, not sure if it works
-            console.log(`Will remove log (${logFileToDelete}) because we reached capacity (${logfilesCapacity})`);
+            deletedLogFile = logFileToDelete;
             await fsPromise.rm(path.join(logPath, logFileToDelete));
         }
 
-        return path.join(logPath, `bitsocial_cli_daemon_${new Date().toISOString().replace(/:/g, "-")}.log`);
+        return { logFilePath: path.join(logPath, `bitsocial_cli_daemon_${new Date().toISOString().replace(/:/g, "-")}.log`), deletedLogFile, logfilesCapacity };
     }
 
-    private async _pipeDebugLogsToLogFile(logPath: string, quietMode: boolean, Logger: PlebbitLogger) {
-        const logFilePath = await this._getNewLogfileByEvacuatingOldLogsIfNeeded(logPath);
+    private async _pipeDebugLogsToLogFile(logPath: string, Logger: PlebbitLogger) {
+        const { logFilePath, deletedLogFile, logfilesCapacity } = await this._getNewLogfileByEvacuatingOldLogsIfNeeded(logPath);
 
         const logFile = fs.createWriteStream(logFilePath, { flags: "a" });
         const stdoutWrite = process.stdout.write.bind(process.stdout);
@@ -128,19 +125,17 @@ export default class Daemon extends Command {
             logFile.write(timestamped);
         };
 
-        if (quietMode) {
-            // In quiet mode, redirect debug library output directly to the log file
-            // instead of stderr, so error messages on stderr are not suppressed
-            const require = createRequire(import.meta.url);
-            const debugModule = require("@plebbit/plebbit-logger/node_modules/debug");
-            // Force colors on and suppress the debug library's own date prefix
-            // so that only writeTimestampedLine adds timestamps
-            debugModule.inspectOpts.colors = true;
-            debugModule.inspectOpts.hideDate = true;
-            debugModule.log = (...args: any[]) => {
-                writeTimestampedLine(formatWithOptions({ depth: Logger.inspectOpts?.depth || 10, colors: true }, ...args).trimStart() + EOL);
-            };
-        }
+        // Redirect debug library output directly to the log file
+        // instead of stderr, so only real errors appear in the terminal
+        const require = createRequire(import.meta.url);
+        const debugModule = require("@plebbit/plebbit-logger/node_modules/debug");
+        // Force colors on and suppress the debug library's own date prefix
+        // so that only writeTimestampedLine adds timestamps
+        debugModule.inspectOpts.colors = true;
+        debugModule.inspectOpts.hideDate = true;
+        debugModule.log = (...args: any[]) => {
+            writeTimestampedLine(formatWithOptions({ depth: Logger.inspectOpts?.depth || 10, colors: true }, ...args).trimStart() + EOL);
+        };
 
         const asString = (data: string | Uint8Array) => (typeof data === "string" ? data : Buffer.from(data).toString());
 
@@ -152,17 +147,34 @@ export default class Daemon extends Command {
         };
 
         process.stderr.write = (...args) => {
-            //@ts-expect-error
-            const res = stderrWrite(...args);
+            // Only write stderr to the log file, not to the terminal.
+            // Debug output goes to stderr; we want it in logs only.
+            // Real errors are caught by uncaughtException/unhandledRejection handlers
+            // which use console.error -> stderr.write -> this override -> log file.
             writeTimestampedLine(asString(args[0]).trimStart());
-            return res;
+            return true;
         };
 
-        console.log("Will store stderr + stdout log to", logFilePath);
+        const log = Logger("bitsocial-cli:daemon");
+        log(`Will store stderr + stdout log to ${logFilePath}`);
 
-        // errors aren't console logged
-        process.on("uncaughtException", console.error);
-        process.on("unhandledRejection", console.error);
+        if (deletedLogFile) {
+            log(`Will remove log (${deletedLogFile}) because we reached capacity (${logfilesCapacity})`);
+        }
+
+        // Write real errors to both the terminal and the log file
+        const writeErrorToTerminal = (err: unknown) => {
+            const msg = err instanceof Error ? err.stack || err.message : String(err);
+            stderrWrite(msg + EOL);
+        };
+        process.on("uncaughtException", (err) => {
+            writeErrorToTerminal(err);
+            console.error(err);
+        });
+        process.on("unhandledRejection", (err) => {
+            writeErrorToTerminal(err);
+            console.error(err);
+        });
 
         process.on("exit", () => logFile.close());
     }
@@ -172,9 +184,18 @@ export default class Daemon extends Command {
         process.env["DEBUG_HIDE_DATE"] = "1";
         const { flags } = await this.parse(Daemon);
         const Logger = await getPlebbitLogger();
-        const quietMode = this._setupLogger(Logger);
-        await this._pipeDebugLogsToLogFile(flags.logPath, quietMode, Logger);
+        this._setupLogger(Logger);
+        await this._pipeDebugLogsToLogFile(flags.logPath, Logger);
         const log = Logger("bitsocial-cli:daemon");
+
+        // Log debug info after pipe is set up so it goes to the log file, not terminal
+        const envDebug: string | undefined = process.env["_PLEBBIT_DEBUG"] || process.env["DEBUG"];
+        const debugNamespace = envDebug === "0" || envDebug === "" ? undefined : envDebug;
+        if (debugNamespace) {
+            const debugDepth = process.env["DEBUG_DEPTH"] ? parseInt(process.env["DEBUG_DEPTH"]) : 10;
+            log("Debug logs is on with namespace", `"${debugNamespace}"`);
+            log("Debug depth is set to", debugDepth);
+        }
 
         log(`flags: `, flags);
 
@@ -202,13 +223,13 @@ export default class Daemon extends Command {
         const kuboRpcEndpoint = plebbitOptionsFromFlag?.kuboRpcClientsOptions
             ? new URL(plebbitOptionsFromFlag.kuboRpcClientsOptions[0]!.toString())
             : ipfsConfig?.["Addresses"]?.["API"]
-            ? await parseMultiAddrKuboRpcToUrl(ipfsConfig?.["Addresses"]?.["API"])
-            : defaults.KUBO_RPC_URL;
+              ? await parseMultiAddrKuboRpcToUrl(ipfsConfig?.["Addresses"]?.["API"])
+              : defaults.KUBO_RPC_URL;
         const ipfsGatewayEndpoint = plebbitOptionsFromFlag?.ipfsGatewayUrls
             ? new URL(plebbitOptionsFromFlag.ipfsGatewayUrls[0])
             : ipfsConfig?.["Addresses"]?.["Gateway"]
-            ? await parseMultiAddrIpfsGatewayToUrl(ipfsConfig?.["Addresses"]?.["Gateway"])
-            : defaults.IPFS_GATEWAY_URL;
+              ? await parseMultiAddrIpfsGatewayToUrl(ipfsConfig?.["Addresses"]?.["Gateway"])
+              : defaults.IPFS_GATEWAY_URL;
 
         defaultPlebbitOptions.kuboRpcClientsOptions = [kuboRpcEndpoint.toString()];
         const mergedPlebbitOptions = { ...defaultPlebbitOptions, ...plebbitOptionsFromFlag };
@@ -267,9 +288,17 @@ export default class Daemon extends Command {
                     // Use SIGKILL + process group kill for immediate termination.
                     const pid = startedProcess.pid;
                     if (process.platform !== "win32") {
-                        try { process.kill(-pid, "SIGKILL"); } catch { /* best effort */ }
+                        try {
+                            process.kill(-pid, "SIGKILL");
+                        } catch {
+                            /* best effort */
+                        }
                     }
-                    try { process.kill(pid, "SIGKILL"); } catch { /* best effort */ }
+                    try {
+                        process.kill(pid, "SIGKILL");
+                    } catch {
+                        /* best effort */
+                    }
                 }
                 kuboProcess = undefined;
                 return;
@@ -317,8 +346,7 @@ export default class Daemon extends Command {
 
             // Load installed challenge packages before starting the RPC server
             const loadedChallenges = await loadChallengesIntoPlebbit(mergedPlebbitOptions.dataPath);
-            if (loadedChallenges.length > 0)
-                console.log(`Loaded challenge packages: ${loadedChallenges.join(", ")}`);
+            if (loadedChallenges.length > 0) console.log(`Loaded challenge packages: ${loadedChallenges.join(", ")}`);
 
             daemonServer = await startDaemonServer(plebbitRpcUrl, ipfsGatewayEndpoint, mergedPlebbitOptions);
 
@@ -410,7 +438,9 @@ export default class Daemon extends Command {
             async () => {
                 if (keepKuboUpInterval) clearInterval(keepKuboUpInterval);
                 if (mainProcessExited) return; // we already exited
-                console.log("\nShutting down Bitsocial daemon, it may take a few seconds to shut down all communities and the IPFS node...");
+                console.log(
+                    "\nShutting down Bitsocial daemon, it may take a few seconds to shut down all communities and the IPFS node..."
+                );
                 log("Received signal to exit, shutting down both kubo and plebbit rpc. Please wait, it may take a few seconds");
 
                 mainProcessExited = true;

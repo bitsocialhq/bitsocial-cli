@@ -1,5 +1,13 @@
 #!/usr/bin/env node
 
-import oclif from "@oclif/core";
+// Save and strip DEBUG before any imports so the debug module
+// doesn't auto-enable stderr output. The daemon command will
+// re-enable namespaces programmatically and redirect to the log file.
+if (process.env.DEBUG) {
+    process.env._PLEBBIT_DEBUG = process.env.DEBUG;
+    delete process.env.DEBUG;
+}
 
-oclif.run(undefined, import.meta.url).then(oclif.flush).catch(oclif.Errors.handle);
+// Dynamic import so the stripping above runs before oclif loads
+const oclif = await import("@oclif/core");
+oclif.default.run(undefined, import.meta.url).then(oclif.default.flush).catch(oclif.default.Errors.handle);
