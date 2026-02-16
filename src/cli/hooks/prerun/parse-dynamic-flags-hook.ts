@@ -6,7 +6,7 @@ const parseCommandInputToProperType = (input: any) => {
     if (input === "true") return true;
     else if (input === "false") return false;
     else if (input === "null") return null;
-    else if (!Number.isNaN(parseInt(input))) return parseInt(input);
+    else if (input.trim() !== "" && !Number.isNaN(Number(input))) return Number(input);
     else return input;
 };
 

@@ -168,6 +168,18 @@ describe("bitsocial community edit", () => {
 
     // Setting null
 
+    it(`Preserves string values that start with a number`, async () => {
+        const { result } = await runEditCommand(
+            'community edit plebbit.eth --rules[0] "1. First rule text" --rules[1] "2. Second rule text"'
+        );
+        expect(result.error).toBeUndefined();
+        expect(editFake.calledOnce).toBe(true);
+        const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
+        const mergedRules = <string[]>mergedEditOptions["rules"];
+        expect(mergedRules[0]).toBe("1. First rule text");
+        expect(mergedRules[1]).toBe("2. Second rule text");
+    });
+
     it(`Can set null as a value to a nested flag`, async () => {
         const { result } = await runEditCommand("community edit plebbit.eth --roles['rinse12.eth'] null");
         expect(result.error).toBeUndefined();
