@@ -8,9 +8,110 @@ on:
       - "completed"
 
 jobs:
-  docker:
-    name: Build, test and push Docker image
+  docker-test:
+    name: Build and test Docker image
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Build for local platform only (amd64) and load into Docker for testing
+      - name: Build image for testing
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: bitsocial-cli:test
+          secrets: |
+            github_token=${{ secrets.GITHUB_TOKEN }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Start services with docker compose
+        env:
+          BITSOCIAL_IMAGE: bitsocial-cli:test
+        run: docker compose -f docker-compose.yml up -d
+
+      - name: Wait for daemon to be ready
+        run: |
+          echo "Waiting for daemon to start..."
+          for i in $(seq 1 60); do
+            if docker compose -f docker-compose.yml exec -T bitsocial node -e "const net=require('net');const s=net.connect(9138,'localhost',()=>{s.end();process.exit(0)});s.on('error',()=>process.exit(1));setTimeout(()=>process.exit(1),3000)" 2>/dev/null; then
+              echo "Daemon is ready after ${i}s"
+              break
+            fi
+            if [ "$i" = "60" ]; then
+              echo "Daemon failed to start within 60s"
+              docker compose -f docker-compose.yml logs --no-color
+              exit 1
+            fi
+            sleep 1
+          done
+
+      - name: Verify WebSocket RPC is accessible
+        run: |
+          docker compose -f docker-compose.yml exec -T bitsocial node -e "
+            const WebSocket = require('ws');
+            const ws = new WebSocket('ws://localhost:9138');
+            const timeout = setTimeout(() => { console.error('WebSocket connection timed out'); process.exit(1); }, 10000);
+            ws.on('open', () => { clearTimeout(timeout); console.log('WebSocket connected successfully'); ws.close(); process.exit(0); });
+            ws.on('error', (err) => { clearTimeout(timeout); console.error('WebSocket error:', err.message); process.exit(1); });
+          "
+
+      - name: Test CLI commands inside compose service
+        run: |
+          # Create a community
+          COMMUNITY_ADDRESS=$(docker compose -f docker-compose.yml exec -T bitsocial node ./bin/run community create --description "docker-ci-test" | tr -d '\r' | tail -n 1)
+          if [ -z "$COMMUNITY_ADDRESS" ]; then
+            echo "FAIL: community create did not return an address"
+            exit 1
+          fi
+          echo "Created community: $COMMUNITY_ADDRESS"
+
+          # Verify the created community can be loaded
+          COMMUNITY_JSON=$(docker compose -f docker-compose.yml exec -T bitsocial node ./bin/run community get "$COMMUNITY_ADDRESS" | tr -d '\r')
+          echo "$COMMUNITY_JSON" | EXPECTED_ADDRESS="$COMMUNITY_ADDRESS" node -e "
+            process.stdin.resume();
+            let data = '';
+            process.stdin.on('data', chunk => data += chunk);
+            process.stdin.on('end', () => {
+              const community = JSON.parse(data);
+              if (community.address !== process.env.EXPECTED_ADDRESS) {
+                console.error(\`FAIL: expected address '\${process.env.EXPECTED_ADDRESS}', got '\${community.address}'\`);
+                process.exit(1);
+              }
+              if (community.description !== 'docker-ci-test') {
+                console.error(\`FAIL: expected description 'docker-ci-test', got '\${community.description}'\`);
+                process.exit(1);
+              }
+              console.log('community get returned expected payload');
+            });
+          "
+          echo "All CLI commands passed inside docker compose service"
+
+      - name: Dump compose logs on failure
+        if: failure()
+        run: docker compose -f docker-compose.yml logs --no-color
+
+      - name: Stop and remove docker compose services
+        if: always()
+        run: docker compose -f docker-compose.yml down -v
+
+  docker-push:
+    name: Push Docker image
+    needs:
+      - docker-test
+    if: ${{ github.event.workflow_run.conclusion == 'success' && needs.docker-test.result == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -21,7 +122,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.head_ref }}
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Get latest release tag
         id: previoustag
@@ -51,76 +152,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Build for local platform only (amd64) and load into Docker for testing
-      - name: Build image for testing
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          load: true
-          tags: bitsocial-cli:test
-          secrets: |
-            github_token=${{ secrets.GITHUB_TOKEN }}
-          cache-from: type=gha
-
-      - name: Start container
-        run: |
-          docker run -d \
-            --name bitsocial-test \
-            -e PLEBBIT_RPC_AUTH_KEY=ci-test-key \
-            -p 9138:9138 \
-            bitsocial-cli:test
-
-      - name: Wait for daemon to be ready
-        run: |
-          echo "Waiting for daemon to start..."
-          for i in $(seq 1 60); do
-            if docker exec bitsocial-test node -e "const net=require('net');const s=net.connect(9138,'localhost',()=>{s.end();process.exit(0)});s.on('error',()=>process.exit(1));setTimeout(()=>process.exit(1),3000)" 2>/dev/null; then
-              echo "Daemon is ready after ${i}s"
-              break
-            fi
-            if [ "$i" = "60" ]; then
-              echo "Daemon failed to start within 60s"
-              docker logs bitsocial-test
-              exit 1
-            fi
-            sleep 1
-          done
-
-      - name: Verify WebSocket RPC is accessible
-        run: |
-          docker exec bitsocial-test node -e "
-            const WebSocket = require('ws');
-            const ws = new WebSocket('ws://localhost:9138');
-            const timeout = setTimeout(() => { console.error('WebSocket connection timed out'); process.exit(1); }, 10000);
-            ws.on('open', () => { clearTimeout(timeout); console.log('WebSocket connected successfully'); ws.close(); process.exit(0); });
-            ws.on('error', (err) => { clearTimeout(timeout); console.error('WebSocket error:', err.message); process.exit(1); });
-          "
-
-      - name: Test CLI commands inside container
-        run: |
-          # Create a community
-          COMMUNITY_ADDRESS=$(docker exec bitsocial-test node ./bin/run community create --description "docker-ci-test")
-          echo "Created community: $COMMUNITY_ADDRESS"
-
-          # Edit the community
-          docker exec bitsocial-test node ./bin/run community edit "$COMMUNITY_ADDRESS" --description "edited-in-docker"
-
-          # Verify the edit
-          COMMUNITY_JSON=$(docker exec bitsocial-test node ./bin/run community get "$COMMUNITY_ADDRESS")
-          DESCRIPTION=$(echo "$COMMUNITY_JSON" | node -e "process.stdin.resume();let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>console.log(JSON.parse(d).description))")
-          if [ "$DESCRIPTION" != "edited-in-docker" ]; then
-            echo "FAIL: expected description 'edited-in-docker', got '$DESCRIPTION'"
-            exit 1
-          fi
-          echo "All CLI commands passed inside Docker container"
-
-      - name: Stop test container
-        if: always()
-        run: |
-          docker stop bitsocial-test || true
-          docker rm bitsocial-test || true
-
-      # Full multi-arch build and push (uses cache from the test build)
+      # Full multi-arch build and push
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
