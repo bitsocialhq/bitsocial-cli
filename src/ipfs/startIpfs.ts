@@ -56,7 +56,15 @@ export async function mergeCliDefaultsIntoIpfsConfig(log: any, ipfsConfigPath: s
         Addresses: {
             ...(currentIpfsConfigFile["Addresses"] ?? {}),
             Gateway: `/ip4/${gatewayUrl.hostname}/tcp/${gatewayUrl.port}`,
-            API: `/ip4/${apiUrl.hostname}/tcp/${apiUrl.port}`
+            API: `/ip4/${apiUrl.hostname}/tcp/${apiUrl.port}`,
+            Swarm: [
+                "/ip4/0.0.0.0/tcp/0",
+                "/ip6/::/tcp/0",
+                "/ip4/0.0.0.0/udp/0/quic-v1",
+                "/ip4/0.0.0.0/udp/0/quic-v1/webtransport",
+                "/ip6/::/udp/0/quic-v1",
+                "/ip6/::/udp/0/quic-v1/webtransport"
+            ]
         },
         AutoTLS: {
             ...(currentIpfsConfigFile["AutoTLS"] ?? {}),

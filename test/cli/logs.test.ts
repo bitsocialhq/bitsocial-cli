@@ -4,92 +4,21 @@ import { directory as randomDirectory } from "tempy";
 import fsPromise from "fs/promises";
 import path from "path";
 import dns from "node:dns";
+import {
+    type ManagedChildProcess,
+    stopPlebbitDaemon,
+    startPlebbitDaemon,
+    waitForCondition
+} from "../helpers/daemon-helpers.js";
 dns.setDefaultResultOrder("ipv4first");
 
-type ManagedChildProcess = ChildProcess & { capturedStdout?: string };
-
-const startPlebbitDaemon = (args: string[], env?: Record<string, string>): Promise<ManagedChildProcess> => {
-    return new Promise(async (resolve, reject) => {
-        const hasCustomDataPath = args.some((arg) => arg.startsWith("--plebbitOptions.dataPath"));
-        const hasCustomLogPath = args.some((arg) => arg === "--logPath");
-        const logPathArgs = hasCustomLogPath ? [] : ["--logPath", randomDirectory()];
-        const daemonArgs = hasCustomDataPath ? args : ["--plebbitOptions.dataPath", randomDirectory(), ...args];
-        const daemonProcess = spawn("node", ["./bin/run", "daemon", ...logPathArgs, ...daemonArgs], {
-            stdio: ["pipe", "pipe", "inherit"],
-            env: env ? { ...process.env, ...env } : undefined
-        }) as ManagedChildProcess;
-
-        daemonProcess.capturedStdout = "";
-        const onExit = (exitCode: number | null, signal: NodeJS.Signals | null) => {
-            reject(`spawnAsync process '${daemonProcess.pid}' exited with code '${exitCode}' signal '${signal}'`);
-        };
-        const onError = (error: Error) => {
-            daemonProcess.stdout!.off("data", onStdoutData);
-            daemonProcess.off("exit", onExit);
-            daemonProcess.off("error", onError);
-            reject(error);
-        };
-        const onStdoutData = (data: Buffer) => {
-            const output = data.toString();
-            daemonProcess.capturedStdout += output;
-            if (output.match("Communities in data path")) {
-                daemonProcess.stdout!.off("data", onStdoutData);
-                daemonProcess.off("exit", onExit);
-                daemonProcess.off("error", onError);
-                resolve(daemonProcess);
-            }
-        };
-
-        daemonProcess.on("exit", onExit);
-        daemonProcess.stdout!.on("data", onStdoutData);
-        daemonProcess.on("error", onError);
-    });
-};
-
-const killChildProcess = async (proc?: ChildProcess) => {
-    if (!proc) return;
-    if (proc.exitCode !== null || proc.signalCode !== null) return;
-    await new Promise<void>((resolve) => {
-        let settled = false;
-        const cleanup = () => {
-            if (settled) return;
-            settled = true;
-            clearTimeout(timer);
-            resolve();
-        };
-        const timer = setTimeout(() => {
-            if (proc.exitCode === null && proc.signalCode === null) proc.kill("SIGKILL");
-        }, 5000);
-        proc.once("exit", cleanup);
-        proc.once("close", cleanup);
-        const killed = proc.kill();
-        if (!killed && (proc.exitCode !== null || proc.signalCode !== null)) cleanup();
-    });
-};
-
-const stopPlebbitDaemon = async (proc?: ManagedChildProcess) => {
-    if (!proc) return;
-    await killChildProcess(proc);
-};
-
-const ensureKuboNodeStopped = async () => {
-    const defaults = (await import("../../dist/common-utils/defaults.js")).default;
-    try {
-        await fetch(`${defaults.KUBO_RPC_URL}/shutdown`, { method: "POST" });
-    } catch {
-        /* ignore */
-    }
-    const deadline = Date.now() + 20000;
-    while (Date.now() <= deadline) {
-        try {
-            const res = await fetch(`${defaults.KUBO_RPC_URL}/bitswap/stat`, { method: "POST" });
-            if (!res.ok) break;
-        } catch {
-            break;
-        }
-        await new Promise((resolve) => setTimeout(resolve, 500));
-    }
-};
+// --- Port allocation (unique to this test file) ---
+const RPC_PORT = 9438;
+const KUBO_API_PORT = 50129;
+const GATEWAY_PORT = 6583;
+const rpcWsUrl = `ws://localhost:${RPC_PORT}`;
+const kuboApiUrl = `http://0.0.0.0:${KUBO_API_PORT}/api/v0`;
+const gatewayUrl = `http://0.0.0.0:${GATEWAY_PORT}`;
 
 // env-paths computes log path as $XDG_STATE_HOME/bitsocial
 // So we create stateHome and use stateHome/bitsocial as the logDir
@@ -118,7 +47,7 @@ const runBitsocialLogs = (args: string[], stateHome: string): Promise<{ stdout: 
         const timer = setTimeout(() => {
             proc.kill("SIGKILL");
             reject(new Error("bitsocial logs timed out"));
-        }, 10000);
+        }, 30000);
         proc.on("close", (exitCode) => {
             clearTimeout(timer);
             resolve({ stdout, stderr, exitCode });
@@ -292,16 +221,20 @@ describe("bitsocial logs (live daemon tests)", async () => {
     let logDir: string;
 
     beforeAll(async () => {
-        await ensureKuboNodeStopped();
         ({ stateHome, logDir } = await createLogDirWithStateHome());
-        daemonProcess = await startPlebbitDaemon(["--logPath", logDir]);
-        // Give the daemon a moment to write some debug logs
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        daemonProcess = await startPlebbitDaemon(
+            ["--logPath", logDir, "--plebbitRpcUrl", rpcWsUrl],
+            { KUBO_RPC_URL: kuboApiUrl, IPFS_GATEWAY_URL: gatewayUrl }
+        );
+        // Wait for log file to be written
+        await waitForCondition(async () => {
+            const files = await fsPromise.readdir(logDir);
+            return files.some((f) => f.startsWith("bitsocial_cli_daemon_") && f.endsWith(".log"));
+        }, 10000, 500);
     });
 
     afterAll(async () => {
         await stopPlebbitDaemon(daemonProcess);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
     });
 
     it("daemon writes debug output to log file even when DEBUG is not set", async () => {
@@ -366,14 +299,23 @@ describe("bitsocial logs (live daemon tests)", async () => {
             });
 
             let stdout = "";
+            let killed = false;
             proc.stdout.on("data", (data: Buffer) => {
                 stdout += data.toString();
+                // Kill once we've received data
+                if (!killed) {
+                    killed = true;
+                    proc.kill("SIGINT");
+                }
             });
 
-            // Let it stream for a few seconds then kill it
+            // Fallback: kill after 10 seconds if no data received
             const timer = setTimeout(() => {
-                proc.kill("SIGINT");
-            }, 3000);
+                if (!killed) {
+                    killed = true;
+                    proc.kill("SIGINT");
+                }
+            }, 10000);
 
             proc.on("close", () => {
                 clearTimeout(timer);
@@ -397,13 +339,21 @@ describe("bitsocial logs (live daemon tests)", async () => {
             });
 
             let stdout = "";
+            let killed = false;
             proc.stdout.on("data", (data: Buffer) => {
                 stdout += data.toString();
+                if (!killed) {
+                    killed = true;
+                    proc.kill("SIGINT");
+                }
             });
 
             const timer = setTimeout(() => {
-                proc.kill("SIGINT");
-            }, 3000);
+                if (!killed) {
+                    killed = true;
+                    proc.kill("SIGINT");
+                }
+            }, 10000);
 
             proc.on("close", () => {
                 clearTimeout(timer);

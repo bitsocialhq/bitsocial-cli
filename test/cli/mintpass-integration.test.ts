@@ -3,11 +3,17 @@ import { describe, it, beforeAll, afterAll, expect } from "vitest";
 import { directory as randomDirectory } from "tempy";
 import dns from "node:dns";
 import Plebbit from "@plebbit/plebbit-js";
+import {
+    type ManagedChildProcess,
+    stopPlebbitDaemon,
+    waitForCondition,
+    startPlebbitDaemon,
+    waitForKuboReady
+} from "../helpers/daemon-helpers.js";
 
 dns.setDefaultResultOrder("ipv4first");
 
 type PlebbitInstance = Awaited<ReturnType<typeof Plebbit>>;
-type ManagedChildProcess = ChildProcess & { kuboRpcUrl?: URL; capturedStdout?: string };
 
 // --- Port allocation (unique to this test file) ---
 const RPC_PORT = 59238;
@@ -17,97 +23,7 @@ const rpcWsUrl = `ws://localhost:${RPC_PORT}`;
 const kuboApiUrl = `http://0.0.0.0:${KUBO_API_PORT}/api/v0`;
 const gatewayUrl = `http://0.0.0.0:${GATEWAY_PORT}`;
 
-// --- Helpers (adapted from challenge-integration.test.ts) ---
-
-const killChildProcess = async (proc?: ChildProcess) => {
-    if (!proc) return;
-    if (proc.exitCode !== null || proc.signalCode !== null) return;
-    await new Promise<void>((resolve) => {
-        let settled = false;
-        const cleanup = () => {
-            if (settled) return;
-            settled = true;
-            clearTimeout(timer);
-            resolve();
-        };
-        const timer = setTimeout(() => {
-            if (proc.exitCode === null && proc.signalCode === null) proc.kill("SIGKILL");
-        }, 5000);
-        proc.once("exit", cleanup);
-        proc.once("close", cleanup);
-        const killed = proc.kill();
-        if (!killed && (proc.exitCode !== null || proc.signalCode !== null)) cleanup();
-    });
-};
-
-const stopPlebbitDaemon = async (proc?: ManagedChildProcess) => {
-    if (!proc) return;
-    await killChildProcess(proc);
-    const kuboRpcUrl = proc.kuboRpcUrl;
-    if (!kuboRpcUrl) return;
-    const shutdownUrl = new URL(kuboRpcUrl.toString());
-    shutdownUrl.pathname = `${shutdownUrl.pathname.replace(/\/$/, "")}/shutdown`;
-    try {
-        await fetch(shutdownUrl, { method: "POST" });
-    } catch {
-        /* ignore */
-    }
-};
-
-const waitForCondition = async (predicate: () => Promise<boolean> | boolean, timeoutMs = 20000, intervalMs = 500) => {
-    const deadline = Date.now() + timeoutMs;
-    while (Date.now() <= deadline) {
-        if (await predicate()) return true;
-        await new Promise((resolve) => setTimeout(resolve, intervalMs));
-    }
-    return false;
-};
-
-const startPlebbitDaemon = (args: string[], env?: Record<string, string>): Promise<ManagedChildProcess> => {
-    return new Promise(async (resolve, reject) => {
-        const hasCustomDataPath = args.some((arg) => arg.startsWith("--plebbitOptions.dataPath"));
-        const hasCustomLogPath = args.some((arg) => arg === "--logPath");
-        const logPathArgs = hasCustomLogPath ? [] : ["--logPath", randomDirectory()];
-        const daemonArgs = hasCustomDataPath ? args : ["--plebbitOptions.dataPath", randomDirectory(), ...args];
-        const daemonProcess = spawn("node", ["./bin/run", "daemon", ...logPathArgs, ...daemonArgs], {
-            stdio: ["pipe", "pipe", "inherit"],
-            env: env ? { ...process.env, ...env } : undefined
-        }) as ManagedChildProcess;
-
-        daemonProcess.capturedStdout = "";
-        const onExit = (exitCode: number | null, signal: NodeJS.Signals | null) => {
-            reject(`spawnAsync process '${daemonProcess.pid}' exited with code '${exitCode}' signal '${signal}'`);
-        };
-        const onError = (error: Error) => {
-            daemonProcess.stdout!.off("data", onStdoutData);
-            daemonProcess.off("exit", onExit);
-            daemonProcess.off("error", onError);
-            reject(error);
-        };
-        const onStdoutData = (data: Buffer) => {
-            const output = data.toString();
-            daemonProcess.capturedStdout += output;
-            const kuboConfigMatch = output.match(/kuboRpcClientsOptions:\s*\[\s*'([^']+)'/);
-            if (!daemonProcess.kuboRpcUrl && kuboConfigMatch?.[1]) {
-                try {
-                    daemonProcess.kuboRpcUrl = new URL(kuboConfigMatch[1]);
-                } catch {
-                    /* ignore parse errors */
-                }
-            }
-            if (output.match("Communities in data path")) {
-                daemonProcess.stdout!.off("data", onStdoutData);
-                daemonProcess.off("exit", onExit);
-                daemonProcess.off("error", onError);
-                resolve(daemonProcess);
-            }
-        };
-
-        daemonProcess.on("exit", onExit);
-        daemonProcess.stdout!.on("data", onStdoutData);
-        daemonProcess.on("error", onError);
-    });
-};
+// --- Helpers specific to this test file ---
 
 const runBitsocialChallenge = (
     args: string[],
@@ -216,18 +132,7 @@ describe("@mintpass/challenge integration tests", { timeout: 600_000 }, () => {
         });
 
         // Wait for kubo API to be fully ready (it can lag behind the "Communities in data path" message)
-        const kuboReady = await waitForCondition(
-            async () => {
-                try {
-                    const res = await fetch(`http://localhost:${KUBO_API_PORT}/api/v0/bitswap/stat`, { method: "POST" });
-                    return res.ok;
-                } catch {
-                    return false;
-                }
-            },
-            30000,
-            500
-        );
+        const kuboReady = await waitForKuboReady(`http://localhost:${KUBO_API_PORT}/api/v0`, 30000);
         expect(kuboReady).toBe(true);
 
         // Connect plebbit-js RPC client
