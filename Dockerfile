@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends git ca-certific
 WORKDIR /app
 
 COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile --network-timeout 600000 && yarn cache clean
+RUN yarn install --frozen-lockfile --network-timeout 600000 --network-concurrency 1 && yarn cache clean
 
 COPY src/ src/
 COPY bin/ bin/
@@ -29,7 +29,7 @@ RUN groupadd --gid 1001 bitsocial && \
 WORKDIR /app
 
 COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile --production --network-timeout 600000 && yarn cache clean
+RUN yarn install --frozen-lockfile --production --network-timeout 600000 --network-concurrency 1 && yarn cache clean
 
 COPY --from=builder /app/dist/ dist/
 COPY --from=builder /app/oclif.manifest.json ./
