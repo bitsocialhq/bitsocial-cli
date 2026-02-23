@@ -29,6 +29,8 @@ jobs:
         uses: WyriHaximus/github-action-get-previous-tag@v1
       - name: Install dependencies
         run: yarn install --frozen-lockfile
+        env:
+          HUSKY: "0"
       - name: Build from source
         run: yarn build
       - name: Generate oclif manifest
@@ -75,6 +77,8 @@ jobs:
         uses: WyriHaximus/github-action-get-previous-tag@v1
       - name: Install dependencies
         run: yarn install --frozen-lockfile
+        env:
+          HUSKY: "0"
       - name: Build from source
         run: yarn build
       - name: Generate oclif manifest
@@ -118,6 +122,8 @@ jobs:
         uses: WyriHaximus/github-action-get-previous-tag@v1
       - name: Install dependencies
         run: yarn install --frozen-lockfile
+        env:
+          HUSKY: "0"
       - name: Build from source
         run: yarn build
       - name: Generate oclif manifest
@@ -179,7 +185,7 @@ jobs:
               curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
               sudo apt install -y nodejs
               npm install --global yarn
-              yarn install --frozen-lockfile
+              HUSKY=0 yarn install --frozen-lockfile
               yarn build
               yarn oclif manifest
               yarn ci:download-web-uis
