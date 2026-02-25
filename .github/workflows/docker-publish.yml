@@ -37,22 +37,25 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Prepare compose files
+        run: cp .github/docker-compose.ci.yml docker-compose.yml
+
       - name: Start services with docker compose
         env:
           BITSOCIAL_IMAGE: bitsocial-cli:test
-        run: docker compose -f docker-compose.yml -f .github/docker-compose.ci.yml up -d
+        run: docker compose up -d
 
       - name: Wait for daemon to be ready
         run: |
           echo "Waiting for daemon to start..."
           for i in $(seq 1 60); do
-            if docker compose -f docker-compose.yml -f .github/docker-compose.ci.yml exec -T bitsocial node -e "const net=require('net');const s=net.connect(9138,'localhost',()=>{s.end();process.exit(0)});s.on('error',()=>process.exit(1));setTimeout(()=>process.exit(1),3000)" 2>/dev/null; then
+            if docker compose exec -T bitsocial node -e "const net=require('net');const s=net.connect(9138,'localhost',()=>{s.end();process.exit(0)});s.on('error',()=>process.exit(1));setTimeout(()=>process.exit(1),3000)" 2>/dev/null; then
               echo "Daemon is ready after ${i}s"
               break
             fi
             if [ "$i" = "60" ]; then
               echo "Daemon failed to start within 60s"
-              docker compose -f docker-compose.yml -f .github/docker-compose.ci.yml logs --no-color
+              docker compose logs --no-color
               exit 1
             fi
             sleep 1
@@ -60,7 +63,7 @@ jobs:
 
       - name: Verify WebSocket RPC is accessible
         run: |
-          docker compose -f docker-compose.yml -f .github/docker-compose.ci.yml exec -T bitsocial node -e "
+          docker compose exec -T bitsocial node -e "
             const WebSocket = require('ws');
             const ws = new WebSocket('ws://localhost:9138');
             const timeout = setTimeout(() => { console.error('WebSocket connection timed out'); process.exit(1); }, 10000);
@@ -71,7 +74,7 @@ jobs:
       - name: Test CLI commands inside compose service
         run: |
           # Create a community
-          COMMUNITY_ADDRESS=$(docker compose -f docker-compose.yml -f .github/docker-compose.ci.yml exec -T bitsocial node ./bin/run community create --description "docker-ci-test" | tr -d '\r' | tail -n 1)
+          COMMUNITY_ADDRESS=$(docker compose exec -T bitsocial node ./bin/run community create --description "docker-ci-test" | tr -d '\r' | tail -n 1)
           if [ -z "$COMMUNITY_ADDRESS" ]; then
             echo "FAIL: community create did not return an address"
             exit 1
@@ -79,7 +82,7 @@ jobs:
           echo "Created community: $COMMUNITY_ADDRESS"
 
           # Verify the created community can be loaded
-          COMMUNITY_JSON=$(docker compose -f docker-compose.yml -f .github/docker-compose.ci.yml exec -T bitsocial node ./bin/run community get "$COMMUNITY_ADDRESS" | tr -d '\r')
+          COMMUNITY_JSON=$(docker compose exec -T bitsocial node ./bin/run community get "$COMMUNITY_ADDRESS" | tr -d '\r')
           echo "$COMMUNITY_JSON" | EXPECTED_ADDRESS="$COMMUNITY_ADDRESS" node -e "
             process.stdin.resume();
             let data = '';
@@ -101,11 +104,11 @@ jobs:
 
       - name: Dump compose logs on failure
         if: failure()
-        run: docker compose -f docker-compose.yml -f .github/docker-compose.ci.yml logs --no-color
+        run: docker compose logs --no-color
 
       - name: Stop and remove docker compose services
         if: always()
-        run: docker compose -f docker-compose.yml -f .github/docker-compose.ci.yml down -v
+        run: docker compose down -v
 
   docker-push:
     name: Push Docker image

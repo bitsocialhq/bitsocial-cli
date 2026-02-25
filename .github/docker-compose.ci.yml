@@ -1,5 +1,18 @@
-# CI override: disable sysctls that require privileged containers
-# (GitHub Actions runners don't allow setting kernel sysctls)
+# CI-only: full compose without sysctls (GitHub Actions doesn't allow them)
 services:
   bitsocial:
-    sysctls: []
+    image: ${BITSOCIAL_IMAGE:-ghcr.io/bitsocialhq/bitsocial-cli:latest}
+    container_name: bitsocial
+    restart: unless-stopped
+    stop_grace_period: 30s
+    ports:
+      - "9138:9138"
+      - "50019:50019"
+      - "6473:6473"
+    volumes:
+      - bitsocial-data:/data
+      - bitsocial-logs:/logs
+
+volumes:
+  bitsocial-data:
+  bitsocial-logs:
