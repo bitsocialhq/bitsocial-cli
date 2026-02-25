@@ -1,5 +1,9 @@
 # Changelog
 
+## <small>0.19.26 (2026-02-25)</small>
+
+* fix(ci): disable sysctls in Docker Publish workflow for GitHub Actions ([1d48ceb](https://github.com/bitsocialhq/bitsocial-cli/commit/1d48ceb))
+
 ## <small>0.19.25 (2026-02-25)</small>
 
 * build(deps): upgrade plebbit-js ([2c91b4e](https://github.com/bitsocialhq/bitsocial-cli/commit/2c91b4e))
