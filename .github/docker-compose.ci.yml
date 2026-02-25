@@ -1,0 +1,5 @@
+# CI override: disable sysctls that require privileged containers
+# (GitHub Actions runners don't allow setting kernel sysctls)
+services:
+  bitsocial:
+    sysctls: []
