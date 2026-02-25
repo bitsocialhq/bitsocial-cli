@@ -31,8 +31,18 @@ export abstract class BaseCommand extends Command {
             return connectOverride(plebbitRpcUrl);
         }
         const plebbit = await Plebbit({ plebbitRpcClientsOptions: [plebbitRpcUrl] });
-        plebbit.on("error", (err) => console.error("Error from plebbit instance", err));
-        await new Promise((resolve) => plebbit.once("subplebbitschange", resolve));
+        const errors: Error[] = [];
+        plebbit.on("error", (err) => {
+            errors.push(err);
+            console.error("Error from plebbit instance", err);
+        });
+        await new Promise<void>((resolve, reject) => {
+            plebbit.once("subplebbitschange", () => resolve());
+            setTimeout(() => {
+                const lastError = errors[errors.length - 1];
+                reject(lastError ?? new Error(`Timed out waiting for RPC server at ${plebbitRpcUrl} to respond`));
+            }, 20000);
+        });
         return plebbit;
     }
 }
