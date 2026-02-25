@@ -1,5 +1,9 @@
 # Changelog
 
+## <small>0.19.23 (2026-02-23)</small>
+
+* fix(deps): regenerate yarn.lock to resolve stale dependency resolutions ([14dd623](https://github.com/bitsocialhq/bitsocial-cli/commit/14dd623))
+
 ## <small>0.19.22 (2026-02-23)</small>
 
 * fix(ci): serialize yarn installs to prevent viem extraction race condition ([2141602](https://github.com/bitsocialhq/bitsocial-cli/commit/2141602))
