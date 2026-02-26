@@ -37,11 +37,14 @@ export abstract class BaseCommand extends Command {
             console.error("Error from plebbit instance", err);
         });
         await new Promise<void>((resolve, reject) => {
-            plebbit.once("subplebbitschange", () => resolve());
-            setTimeout(() => {
+            const timeout = setTimeout(() => {
                 const lastError = errors[errors.length - 1];
                 reject(lastError ?? new Error(`Timed out waiting for RPC server at ${plebbitRpcUrl} to respond`));
             }, 20000);
+            plebbit.once("subplebbitschange", () => {
+                clearTimeout(timeout);
+                resolve();
+            });
         });
         return plebbit;
     }

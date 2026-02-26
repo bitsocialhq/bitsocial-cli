@@ -52,6 +52,35 @@ describe("RPC connection timeout", () => {
         expect(caughtError!.message).toMatch(/Timed out waiting for RPC server/);
     });
 
+    it("should resolve immediately and clear timeout when subplebbitschange is emitted", async () => {
+        const { default: PlebbitMock } = await import("@plebbit/plebbit-js");
+        const fakePlebbit = new EventEmitter();
+        vi.mocked(PlebbitMock).mockResolvedValue(fakePlebbit as any);
+
+        const { BaseCommand } = await import("../../src/cli/base-command.js");
+        class TestCommand extends BaseCommand {
+            async run() {}
+            connectToPlebbitRpc(url: string) {
+                return this._connectToPlebbitRpc(url);
+            }
+        }
+        const cmd = new TestCommand([], {} as any);
+
+        const connectPromise = cmd.connectToPlebbitRpc("ws://localhost:9138");
+
+        // Let the Plebbit() promise resolve so the listener is registered
+        await vi.advanceTimersByTimeAsync(0);
+
+        // Simulate successful connection
+        fakePlebbit.emit("subplebbitschange", []);
+
+        const result = await connectPromise;
+        expect(result).toBe(fakePlebbit);
+
+        // Advance past the 20s mark — if timeout wasn't cleared, this would reject
+        await vi.advanceTimersByTimeAsync(25000);
+    });
+
     it("should reject with the last plebbit error if one was emitted before timeout", async () => {
         const { default: PlebbitMock } = await import("@plebbit/plebbit-js");
         const fakePlebbit = new EventEmitter();
