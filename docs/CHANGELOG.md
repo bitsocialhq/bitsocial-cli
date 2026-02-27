@@ -1,5 +1,10 @@
 # Changelog
 
+## <small>0.19.33 (2026-02-27)</small>
+
+* fix(docker): use --ignore-scripts to fix arm64 build failure ([55ae002](https://github.com/bitsocialhq/bitsocial-cli/commit/55ae002))
+* docs: document Docker log viewing options in README ([2147c45](https://github.com/bitsocialhq/bitsocial-cli/commit/2147c45))
+
 ## <small>0.19.32 (2026-02-27)</small>
 
 * fix(ci): skip husky install in non-git contexts to fix tarball generation ([54be9fc](https://github.com/bitsocialhq/bitsocial-cli/commit/54be9fc))
