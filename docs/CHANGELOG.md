@@ -1,5 +1,11 @@
 # Changelog
 
+## <small>0.19.29 (2026-02-27)</small>
+
+* chore: migrate repo and CI from yarn to npm ([0b9991c](https://github.com/bitsocialhq/bitsocial-cli/commit/0b9991c))
+* chore: remove packageManager field from package.json ([ce21221](https://github.com/bitsocialhq/bitsocial-cli/commit/ce21221))
+* fix(release): switch release hook from yarn to npm ([c18e98b](https://github.com/bitsocialhq/bitsocial-cli/commit/c18e98b))
+
 ## <small>0.19.28 (2026-02-26)</small>
 
 * chore(deps): upgrade kubo from 0.39.0 to 0.40.0 ([7539af6](https://github.com/bitsocialhq/bitsocial-cli/commit/7539af6))
