@@ -1,5 +1,9 @@
 # Changelog
 
+## <small>0.19.32 (2026-02-27)</small>
+
+* fix(ci): skip husky install in non-git contexts to fix tarball generation ([54be9fc](https://github.com/bitsocialhq/bitsocial-cli/commit/54be9fc))
+
 ## <small>0.19.31 (2026-02-27)</small>
 
 * fix(ci): add retry logic to tarball generation for transient network failures ([f31cd0f](https://github.com/bitsocialhq/bitsocial-cli/commit/f31cd0f))
