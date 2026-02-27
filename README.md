@@ -94,7 +94,7 @@ cp docker-compose.example.yml docker-compose.yml
 docker compose up -d
 ```
 
-View the logs to find your auth key URL:
+View the startup logs to find your auth key URL:
 
 ```sh-session
 docker compose logs -f
@@ -108,6 +108,34 @@ WebUI (seedit - Similar to old reddit UI): http://<your-ip>:9138/<auth-key>/seed
 ```
 
 Open the WebUI URL in your browser to start using Bitsocial.
+
+### Viewing logs
+
+There are two ways to view logs from a Docker container:
+
+**Quick logs** — shows stdout output only (startup messages, errors):
+
+```sh-session
+docker compose logs -f          # Docker Compose
+docker logs -f bitsocial        # Docker Run
+```
+
+**Full debug logs** — shows the complete daemon log including debug/trace output:
+
+```sh-session
+docker exec bitsocial bitsocial logs -f
+```
+
+The `bitsocial logs` command supports several filtering flags:
+
+```sh-session
+docker exec bitsocial bitsocial logs -f              # follow (stream new lines)
+docker exec bitsocial bitsocial logs -n 100           # last 100 lines
+docker exec bitsocial bitsocial logs --since 1h       # entries from the last hour
+docker exec bitsocial bitsocial logs --until 30m      # entries up to 30 minutes ago
+```
+
+Debug and trace logs are written only to the log file, not to stdout, so `docker logs` will not show them. Use `bitsocial logs` inside the container for the full picture.
 
 ### Example docker-compose.yml
 
