@@ -1,5 +1,10 @@
 # Changelog
 
+## <small>0.19.34 (2026-02-27)</small>
+
+* chore: upgrade @plebbit/plebbit-js to ca9288c4 ([9be2269](https://github.com/bitsocialhq/bitsocial-cli/commit/9be2269))
+* fix(ci): use GNU tar on Windows to fix oclif --force-local error ([e5fbaaa](https://github.com/bitsocialhq/bitsocial-cli/commit/e5fbaaa))
+
 ## <small>0.19.33 (2026-02-27)</small>
 
 * fix(docker): use --ignore-scripts to fix arm64 build failure ([55ae002](https://github.com/bitsocialhq/bitsocial-cli/commit/55ae002))
