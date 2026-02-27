@@ -79,7 +79,6 @@
     "engines": {
         "node": ">=22.0.0"
     },
-    "packageManager": "npm@10.9.4",
     "devDependencies": {
         "@commitlint/cli": "20.2.0",
         "@commitlint/config-conventional": "20.3.1",
