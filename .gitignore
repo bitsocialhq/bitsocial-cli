@@ -124,3 +124,12 @@ build/
 .git.bk
 .dist_test/
 tmp/
+
+# AI agents
+.cursor
+.codex
+.claude
+.agents
+
+# macOS
+.DS_Store
