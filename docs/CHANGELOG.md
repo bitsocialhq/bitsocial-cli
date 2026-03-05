@@ -1,5 +1,9 @@
 # Changelog
 
+## <small>0.19.35 (2026-03-05)</small>
+
+* chore: upgrade @plebbit/plebbit-js to 10ed04e3 and kubo to 0.40.1 ([afa5101](https://github.com/bitsocialhq/bitsocial-cli/commit/afa5101))
+
 ## <small>0.19.34 (2026-02-27)</small>
 
 * chore: upgrade @plebbit/plebbit-js to ca9288c4 ([9be2269](https://github.com/bitsocialhq/bitsocial-cli/commit/9be2269))
