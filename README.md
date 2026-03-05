@@ -6,7 +6,7 @@
   <img src="./docs/assets/readme/cli-banner.jpg" alt="CLI banner" height="100" />
 </p>
 
-# Table of contents
+## Table of contents
 
 -   [What is Bitsocial?](#what-is-bitsocial)
 -   [What is bitsocial-cli?](#what-is-bitsocial-cli)
@@ -17,11 +17,11 @@
 -   [Contribution](#contribution)
 -   [Feedback](#feedback)
 
-# What is Bitsocial?
+## What is Bitsocial?
 
 Bitsocial is p2p and decentralized social media protocol built completely with IPFS/IPNS/pubsub. It doesn't use any central server, central database, public HTTP endpoint or DNS, it is pure peer to peer and fully content addressable. It will allow community owners to retain full ownership over their community. Whitepaper [here](https://github.com/plebbit/whitepaper/discussions/2)
 
-# What is bitsocial-cli?
+## What is bitsocial-cli?
 
 `bitsocial-cli` is an interface to the backend of PKC protocol using [plebbit-js](https://github.com/plebbit/plebbit-js). Users can run and manage their communities using it. It is written in Typescript and designed to receive commands via CLI and WebSocket.
 
@@ -30,15 +30,15 @@ Bitsocial is p2p and decentralized social media protocol built completely with I
 -   WebSocket RPC to access and control your communities and publications
 -   Includes Web UIs like Seedit where you can browse the network and manage your community
 
-# Install
+## Install
 
-## For Linux/MacOS
+### For Linux/MacOS
 
 ```sh-session
 curl https://raw.githubusercontent.com/bitsocialhq/bitsocial-cli/master/bin/install.sh | sh
 ```
 
-### If you want to install a specific bitsocial-cli version
+#### If you want to install a specific bitsocial-cli version
 
 ```sh-session
 curl https://raw.githubusercontent.com/bitsocialhq/bitsocial-cli/master/bin/install.sh | sh -s 0.14.4
@@ -46,11 +46,11 @@ curl https://raw.githubusercontent.com/bitsocialhq/bitsocial-cli/master/bin/inst
 
 If you get `libfontconfig dependency error`, then you need to install libfontconfig by running `sudo apt install -y libfontconfig1 fontconfig libfontconfig1-dev libfontconfig`
 
-## For Windows
+### For Windows
 
 For Windows, You need to install [vc-redist](https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170) first. After you install `vc-redist`, download the installer of [bitsocial](https://github.com/bitsocialhq/bitsocial-cli/releases/latest/download/bitsocial_installer_win32_x64.exe) and next your way to the end
 
-## Build your Bitsocial executable manually (optional)
+### Build your Bitsocial executable manually (optional)
 
 In case the installation script is not working for you or you just want to build the source code directly. First, you need to have `NodeJS 22` and `npm` installed
 
@@ -66,7 +66,7 @@ npm run ci:download-web-uis
 
 After running the last command you should be able to run commands directly against `./bin/run`, for example `./bin/run daemon`
 
-# Docker
+## Docker
 
 You can run bitsocial-cli as a Docker container. The container runs the daemon and exposes the RPC + web UI on port 9138, the Kubo IPFS API on port 50019, and the IPFS Gateway on port 6473.
 
@@ -78,7 +78,7 @@ If you're a power user, you can also run CLI commands against the running contai
 docker exec bitsocial bitsocial community list
 ```
 
-## Data paths inside the container
+### Data paths inside the container
 
 | Path | Description |
 |---|---|
@@ -89,7 +89,7 @@ docker exec bitsocial bitsocial community list
 
 The Docker volumes `bitsocial-data:/data` and `bitsocial-logs:/logs` are mapped to `/data` and `/logs` inside the container. The `bitsocial` subdirectory is created automatically by the application.
 
-## Docker Compose (recommended)
+### Docker Compose (recommended)
 
 Copy the example compose file and start the node:
 
@@ -113,7 +113,7 @@ WebUI (seedit - Similar to old reddit UI): http://<your-ip>:9138/<auth-key>/seed
 
 Open the WebUI URL in your browser to start using Bitsocial.
 
-### Viewing logs
+#### Viewing logs
 
 There are two ways to view logs from a Docker container:
 
@@ -141,7 +141,7 @@ docker exec bitsocial bitsocial logs --until 30m      # entries up to 30 minutes
 
 Debug and trace logs are written only to the log file, not to stdout, so `docker logs` will not show them. Use `bitsocial logs` inside the container for the full picture.
 
-### Example docker-compose.yml
+#### Example docker-compose.yml
 
 ```yaml
 services:
@@ -170,7 +170,7 @@ volumes:
   bitsocial-logs:
 ```
 
-## Docker Run
+### Docker Run
 
 ```sh-session
 docker run -d \
@@ -199,16 +199,16 @@ docker run -d \
   ghcr.io/bitsocialhq/bitsocial-cli:latest
 ```
 
-## Building the Docker image locally
+### Building the Docker image locally
 
 ```sh-session
 docker build -t bitsocial-cli .
 docker run -p 9138:9138 -p 50019:50019 -p 6473:6473 bitsocial-cli
 ```
 
-# Usage
+## Usage
 
-## The data/config directory of Bitsocial
+### The data/config directory of Bitsocial
 
 This is the default directory where bitsocial-cli will keep its config, as well as data for local communities:
 
@@ -216,7 +216,7 @@ This is the default directory where bitsocial-cli will keep its config, as well 
 -   Windows: %LOCALAPPDATA%\bitsocial
 -   Linux: ~/.local/share/bitsocial
 
-## The logs directory of Bitsocial
+### The logs directory of Bitsocial
 
 bitsocial-cli will keep logs in this directory, with a cap of 10M per log file.
 
@@ -224,7 +224,7 @@ bitsocial-cli will keep logs in this directory, with a cap of 10M per log file.
 -   Windows: %LOCALAPPDATA%\bitsocial\Log
 -   Linux: ~/.local/state/bitsocial
 
-## Running Daemon
+### Running Daemon
 
 In Bash (or powershell if you're on Windows), run `bitsocial daemon` to able to connect to the network. You need to have the `bitsocial daemon` terminal running to be able to execute other commands.
 
@@ -247,14 +247,14 @@ Once `bitsocial daemon` is running, you can create and manage your communities t
 
 If you need to view detailed protocol or IPFS logs for debugging, you can use `bitsocial logs`. For example, `bitsocial logs --tail 50` shows the last 50 lines, or `bitsocial logs --since 1h` shows logs from the past hour.
 
-### Creating your first community
+#### Creating your first community
 
 ```sh-session
 $ bitsocial community create --title "Hello World!" --description "This is gonna be great"
 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
-### Listing all your communities
+#### Listing all your communities
 
 ```sh-session
 $ bitsocial community list
@@ -271,31 +271,31 @@ Address                                              Started
  videos-livestreams-podcasts.bso                      false
 ```
 
-### Adding a role moderator to your community
+#### Adding a role moderator to your community
 
 ```sh-session
 $ bitsocial community edit mysub.bso '--roles["author-address.bso"].role' moderator
 ```
 
-### Adding a role owner to your community
+#### Adding a role owner to your community
 
 ```sh-session
 $ bitsocial community edit mysub.bso '--roles["author-address.bso"].role' owner
 ```
 
-### Adding a role admin to your community
+#### Adding a role admin to your community
 
 ```sh-session
 $ bitsocial community edit mysub.bso '--roles["author-address.bso"].role' admin
 ```
 
-### Removing a role
+#### Removing a role
 
 ```sh-session
 $ bitsocial community edit mysub.bso '--roles["author-address.bso"]' null
 ```
 
-# Commands
+## Commands
 
 <!-- commands -->
 * [`bitsocial challenge install PACKAGE`](#bitsocial-challenge-install-package)
@@ -312,7 +312,7 @@ $ bitsocial community edit mysub.bso '--roles["author-address.bso"]' null
 * [`bitsocial help [COMMAND]`](#bitsocial-help-command)
 * [`bitsocial logs`](#bitsocial-logs)
 
-## `bitsocial challenge install PACKAGE`
+### `bitsocial challenge install PACKAGE`
 
 Install a challenge package (npm package name, git URL, tarball URL, or local path)
 
@@ -343,7 +343,7 @@ EXAMPLES
 
 _See code: [src/cli/commands/challenge/install.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.35/src/cli/commands/challenge/install.ts)_
 
-## `bitsocial challenge list`
+### `bitsocial challenge list`
 
 List installed challenge packages
 
@@ -366,7 +366,7 @@ EXAMPLES
 
 _See code: [src/cli/commands/challenge/list.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.35/src/cli/commands/challenge/list.ts)_
 
-## `bitsocial challenge remove NAME`
+### `bitsocial challenge remove NAME`
 
 Remove an installed challenge package
 
@@ -391,7 +391,7 @@ EXAMPLES
 
 _See code: [src/cli/commands/challenge/remove.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.35/src/cli/commands/challenge/remove.ts)_
 
-## `bitsocial community create`
+### `bitsocial community create`
 
 Create a community with specific properties. A newly created community will be started after creation and be able to receive publications. For a list of properties, visit https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions
 
@@ -417,7 +417,7 @@ EXAMPLES
 
 _See code: [src/cli/commands/community/create.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.35/src/cli/commands/community/create.ts)_
 
-## `bitsocial community delete ADDRESSES`
+### `bitsocial community delete ADDRESSES`
 
 Delete a community permanently.
 
@@ -442,7 +442,7 @@ EXAMPLES
 
 _See code: [src/cli/commands/community/delete.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.35/src/cli/commands/community/delete.ts)_
 
-## `bitsocial community edit ADDRESS`
+### `bitsocial community edit ADDRESS`
 
 Edit a community's properties. For a list of properties, visit https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions
 
@@ -495,7 +495,7 @@ EXAMPLES
 
 _See code: [src/cli/commands/community/edit.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.35/src/cli/commands/community/edit.ts)_
 
-## `bitsocial community get ADDRESS`
+### `bitsocial community get ADDRESS`
 
 Fetch a local or remote community, and print its json in the terminal
 
@@ -520,7 +520,7 @@ EXAMPLES
 
 _See code: [src/cli/commands/community/get.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.35/src/cli/commands/community/get.ts)_
 
-## `bitsocial community list`
+### `bitsocial community list`
 
 List your communities
 
@@ -543,7 +543,7 @@ EXAMPLES
 
 _See code: [src/cli/commands/community/list.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.35/src/cli/commands/community/list.ts)_
 
-## `bitsocial community start ADDRESSES`
+### `bitsocial community start ADDRESSES`
 
 Start a community
 
@@ -572,7 +572,7 @@ EXAMPLES
 
 _See code: [src/cli/commands/community/start.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.35/src/cli/commands/community/start.ts)_
 
-## `bitsocial community stop ADDRESSES`
+### `bitsocial community stop ADDRESSES`
 
 Stop a community. The community will not publish or receive any publications until it is started again.
 
@@ -597,7 +597,7 @@ EXAMPLES
 
 _See code: [src/cli/commands/community/stop.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.35/src/cli/commands/community/stop.ts)_
 
-## `bitsocial daemon`
+### `bitsocial daemon`
 
 Run a network-connected Bitsocial node. Once the daemon is running you can create and start your communities and receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any machine. Within the web ui users are able to browse, create and manage their communities fully P2P.
 
@@ -634,7 +634,7 @@ EXAMPLES
 
 _See code: [src/cli/commands/daemon.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.35/src/cli/commands/daemon.ts)_
 
-## `bitsocial help [COMMAND]`
+### `bitsocial help [COMMAND]`
 
 Display help for bitsocial.
 
@@ -654,7 +654,7 @@ DESCRIPTION
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.2.36/src/cli/commands/help.ts)_
 
-## `bitsocial logs`
+### `bitsocial logs`
 
 View the latest BitSocial daemon log file. By default dumps the full log and exits. Use --follow to stream new output in real-time (like tail -f).
 
@@ -691,13 +691,13 @@ EXAMPLES
 _See code: [src/cli/commands/logs.ts](https://github.com/bitsocialhq/bitsocial-cli/blob/v0.19.35/src/cli/commands/logs.ts)_
 <!-- commandsstop -->
 
-# Contribution
+## Contribution
 
 We're always happy to receive pull requests. Few things to keep in mind:
 
 -   This repo follows [Angular commit conventions](https://github.com/angular/angular/blob/main/CONTRIBUTING.md). Easiest way to follow these conventions is by using `npm run commit` instead of `git commit`
 -   If you're adding a feature, make sure to add tests to your pull requests
 
-# Feedback
+## Feedback
 
 We would love your feedback on our community channels
