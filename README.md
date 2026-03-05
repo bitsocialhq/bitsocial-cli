@@ -2,6 +2,10 @@
 
 # bitsocial-cli: A Bitsocial Node with WebSocket and Command Line Interface
 
+<p align="left">
+  <img src="./docs/assets/readme/cli-banner.jpg" alt="CLI banner" height="100" />
+</p>
+
 # Table of contents
 
 -   [What is Bitsocial?](#what-is-bitsocial)
