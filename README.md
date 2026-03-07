@@ -23,7 +23,7 @@ Bitsocial is p2p and decentralized social media protocol built completely with I
 
 ## What is bitsocial-cli?
 
-`bitsocial-cli` is an interface to the backend of PKC protocol using [plebbit-js](https://github.com/plebbit/plebbit-js). Users can run and manage their communities using it. It is written in Typescript and designed to receive commands via CLI and WebSocket.
+`bitsocial-cli` is an interface to the backend of Bitsocial protocol using [plebbit-js](https://github.com/plebbit/plebbit-js). Users can run and manage their communities using it. It is written in Typescript and designed to receive commands via CLI and WebSocket.
 
 -   Runs an IPFS and Bitsocial node
 -   Command Line interface to manage Bitsocial communities
