@@ -22,16 +22,16 @@ export default class Get extends BaseCommand {
     async run(): Promise<void> {
         const { args, flags } = await this.parse(Get);
 
-        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcUrl.toString());
+        const pkc = await this._connectToPkcRpc(flags.pkcRpcUrl.toString());
         try {
-            const sub = await plebbit.getSubplebbit({ address: args.address });
-            const subJson = JSON.parse(JSON.stringify(sub));
-            this.logJson({ posts: subJson.posts, ...remeda.omit(subJson, ["posts"]) }); // make sure posts is printed first, because most users won't look at it
+            const community = await pkc.getCommunity({ address: args.address });
+            const communityJson = JSON.parse(JSON.stringify(community));
+            this.logJson({ posts: communityJson.posts, ...remeda.omit(communityJson, ["posts"]) }); // make sure posts is printed first, because most users won't look at it
         } catch (e) {
             console.error(e);
-            await plebbit.destroy();
+            await pkc.destroy();
             this.exit(1);
         }
-        await plebbit.destroy();
+        await pkc.destroy();
     }
 }

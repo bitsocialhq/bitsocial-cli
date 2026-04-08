@@ -1,9 +1,9 @@
 import { describe, it, beforeAll, afterAll, afterEach, expect } from "vitest";
 //@ts-ignore
 import Sinon from "sinon";
-import type { SubplebbitEditOptions } from "../types/communityTypes.js";
+import type { CommunityEditOptions } from "../types/communityTypes.js";
 import { currentSubProps } from "../fixtures/communityForEditFixture.js";
-import { clearPlebbitRpcConnectOverride, setPlebbitRpcConnectOverride } from "../helpers/plebbit-test-overrides.js";
+import { clearPkcRpcConnectOverride, setPkcRpcConnectOverride } from "../helpers/pkc-test-overrides.js";
 import { runCliCommand } from "../helpers/run-cli.js";
 
 describe("bitsocial community edit", () => {
@@ -14,21 +14,21 @@ describe("bitsocial community edit", () => {
     const runEditCommand = (args: string) => runCliCommand(args);
 
     beforeAll(() => {
-        const plebbitInstanceFake = sandbox.fake.resolves({
-            createSubplebbit: sandbox.fake.resolves({
+        const pkcInstanceFake = sandbox.fake.resolves({
+            createCommunity: sandbox.fake.resolves({
                 edit: editFake,
                 ...currentSubProps,
                 toJSONInternalRpc: () => JSON.parse(JSON.stringify(currentSubProps))
             }),
-            subplebbits: ["plebbit.bso"],
+            communities: ["plebbit.bso"],
             destroy: () => {}
         });
-        setPlebbitRpcConnectOverride(plebbitInstanceFake);
+        setPkcRpcConnectOverride(pkcInstanceFake);
     });
 
     afterEach(() => editFake.resetHistory());
     afterAll(() => {
-        clearPlebbitRpcConnectOverride();
+        clearPkcRpcConnectOverride();
         sandbox.restore();
     });
 
@@ -40,7 +40,7 @@ describe("bitsocial community edit", () => {
         );
         expect(result.error).toBeUndefined();
         expect(editFake.calledOnce).toBe(true);
-        const parsedArgs = <SubplebbitEditOptions>editFake.args[0][0];
+        const parsedArgs = <CommunityEditOptions>editFake.args[0][0];
         expect(parsedArgs.title).toBe("new Title");
         expect(parsedArgs.description).toBe("new Description");
         expect(parsedArgs.pubsubTopic).toBe("new Pubsub topic");
@@ -51,7 +51,7 @@ describe("bitsocial community edit", () => {
         const { result } = await runEditCommand('community edit plebbit.bso --suggested.secondaryColor "new suggested.secondaryColor"');
         expect(result.error).toBeUndefined();
         expect(editFake.calledOnce).toBe(true);
-        const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
+        const mergedEditOptions = <CommunityEditOptions>editFake.args[0][0];
         expect(mergedEditOptions.suggested!.secondaryColor).toBe("new suggested.secondaryColor");
     });
 
@@ -63,7 +63,7 @@ describe("bitsocial community edit", () => {
         );
         expect(result.error).toBeUndefined();
         expect(editFake.calledOnce).toBe(true);
-        const argsOfSubEdit = <SubplebbitEditOptions>editFake.args[0][0];
+        const argsOfSubEdit = <CommunityEditOptions>editFake.args[0][0];
         const mergedRules = <string[]>argsOfSubEdit["rules"]; // merging the input from user and current state of sub
 
         expect(mergedRules).toEqual([
@@ -78,7 +78,7 @@ describe("bitsocial community edit", () => {
         const { result } = await runEditCommand('community edit plebbit.bso --rules "New Rule1 random" --rules "New Rule2 random"');
         expect(result.error).toBeUndefined();
         expect(editFake.calledOnce).toBe(true);
-        const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
+        const mergedEditOptions = <CommunityEditOptions>editFake.args[0][0];
         const mergedRulesAfterEdit = <string[]>mergedEditOptions["rules"];
         expect(mergedRulesAfterEdit).toEqual([
             "New Rule1 random",
@@ -94,7 +94,7 @@ describe("bitsocial community edit", () => {
         );
         expect(result.error).toBeUndefined();
         expect(editFake.calledOnce).toBe(true);
-        const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
+        const mergedEditOptions = <CommunityEditOptions>editFake.args[0][0];
         expect(typeof mergedEditOptions.settings).toBe("object");
 
         // test for settings.challenges here
@@ -114,7 +114,7 @@ describe("bitsocial community edit", () => {
         const { result } = await runEditCommand("community edit plebbit.bso --randomBooleanField");
         expect(result.error).toBeUndefined();
         expect(editFake.calledOnce).toBe(true);
-        const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
+        const mergedEditOptions = <CommunityEditOptions>editFake.args[0][0];
         const randomBoolean = (mergedEditOptions as Record<string, unknown>)["randomBooleanField"];
         expect(randomBoolean).toBe(true);
     });
@@ -123,7 +123,7 @@ describe("bitsocial community edit", () => {
         const { result } = await runEditCommand("community edit plebbit.bso --randomBooleanField=true");
         expect(result.error).toBeUndefined();
         expect(editFake.calledOnce).toBe(true);
-        const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
+        const mergedEditOptions = <CommunityEditOptions>editFake.args[0][0];
         const randomBoolean = (mergedEditOptions as Record<string, unknown>)["randomBooleanField"];
         expect(randomBoolean).toBe(true);
     });
@@ -132,7 +132,7 @@ describe("bitsocial community edit", () => {
         const { result } = await runEditCommand("community edit plebbit.bso --settings.fetchThumbnailUrls");
         expect(result.error).toBeUndefined();
         expect(editFake.calledOnce).toBe(true);
-        const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
+        const mergedEditOptions = <CommunityEditOptions>editFake.args[0][0];
         expect(typeof mergedEditOptions.settings).toBe("object");
         expect(mergedEditOptions.settings!.fetchThumbnailUrls).toBe(true);
     });
@@ -141,7 +141,7 @@ describe("bitsocial community edit", () => {
         const { result } = await runEditCommand("community edit plebbit.bso --settings.fetchThumbnailUrls=true");
         expect(result.error).toBeUndefined();
         expect(editFake.calledOnce).toBe(true);
-        const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
+        const mergedEditOptions = <CommunityEditOptions>editFake.args[0][0];
         expect(typeof mergedEditOptions.settings).toBe("object");
         expect(mergedEditOptions.settings!.fetchThumbnailUrls).toBe(true);
     });
@@ -152,7 +152,7 @@ describe("bitsocial community edit", () => {
         const { result } = await runEditCommand("community edit plebbit.bso --randomBooleanField=false");
         expect(result.error).toBeUndefined();
         expect(editFake.calledOnce).toBe(true);
-        const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
+        const mergedEditOptions = <CommunityEditOptions>editFake.args[0][0];
         const randomBoolean = (mergedEditOptions as Record<string, unknown>)["randomBooleanField"];
         expect(randomBoolean).toBe(false);
     });
@@ -161,7 +161,7 @@ describe("bitsocial community edit", () => {
         const { result } = await runEditCommand("community edit plebbit.bso --settings.fetchThumbnailUrls=false");
         expect(result.error).toBeUndefined();
         expect(editFake.calledOnce).toBe(true);
-        const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
+        const mergedEditOptions = <CommunityEditOptions>editFake.args[0][0];
         expect(typeof mergedEditOptions.settings).toBe("object");
         expect(mergedEditOptions.settings!.fetchThumbnailUrls).toBe(false);
     });
@@ -174,7 +174,7 @@ describe("bitsocial community edit", () => {
         );
         expect(result.error).toBeUndefined();
         expect(editFake.calledOnce).toBe(true);
-        const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
+        const mergedEditOptions = <CommunityEditOptions>editFake.args[0][0];
         const mergedRules = <string[]>mergedEditOptions["rules"];
         expect(mergedRules[0]).toBe("1. First rule text");
         expect(mergedRules[1]).toBe("2. Second rule text");
@@ -184,7 +184,7 @@ describe("bitsocial community edit", () => {
         const { result } = await runEditCommand("community edit plebbit.bso --roles['rinse12.bso'] null");
         expect(result.error).toBeUndefined();
         expect(editFake.calledOnce).toBe(true);
-        const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
+        const mergedEditOptions = <CommunityEditOptions>editFake.args[0][0];
 
         expect(mergedEditOptions.roles!["rinse12.bso"]).toBeNull();
         expect(mergedEditOptions.roles!["estebanabaroa.bso"]).toEqual(currentSubProps.roles!["estebanabaroa.bso"]);
@@ -194,7 +194,7 @@ describe("bitsocial community edit", () => {
         const { result } = await runEditCommand("community edit plebbit.bso --nullField] null");
         expect(result.error).toBeUndefined();
         expect(editFake.calledOnce).toBe(true);
-        const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
+        const mergedEditOptions = <CommunityEditOptions>editFake.args[0][0];
 
         const nullField = (mergedEditOptions as Record<string, unknown>)["nullField"];
         expect(nullField).toBeNull();
@@ -204,7 +204,7 @@ describe("bitsocial community edit", () => {
         const { result } = await runEditCommand("community edit plebbit.bso --settings null");
         expect(result.error).toBeUndefined();
         expect(editFake.calledOnce).toBe(true);
-        const mergedEditOptions = <SubplebbitEditOptions>editFake.args[0][0];
+        const mergedEditOptions = <CommunityEditOptions>editFake.args[0][0];
 
         expect(mergedEditOptions.settings).toBeNull();
     });

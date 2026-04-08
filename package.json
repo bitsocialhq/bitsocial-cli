@@ -90,6 +90,7 @@
         "@types/node": "22.19.13",
         "@types/prettier": "2.7.1",
         "@types/tcp-port-used": "1.0.4",
+        "@types/ws": "^8.18.1",
         "commitizen": "4.2.5",
         "cz-conventional-changelog": "3.3.0",
         "eslint": "8.27.0",
@@ -102,8 +103,8 @@
         "shx": "0.3.4",
         "sinon": "17.0.1",
         "tempy": "1.0.1",
-        "vitest": "4.0.17",
         "ts-node": "10.9.2",
+        "vitest": "4.0.17",
         "wait-on": "6.0.1"
     },
     "dependencies": {
@@ -112,7 +113,7 @@
         "@oclif/plugin-help": "6.2.36",
         "@oclif/plugin-not-found": "3.2.73",
         "@oclif/table": "0.5.1",
-        "@plebbit/plebbit-js": "https://github.com/plebbit/plebbit-js#10ed04e3866dd986a7f802bc9efd027f0e7d465b",
+        "@pkc/pkc-js": "https://github.com/pkcprotocol/pkc-js#542952a1a63211be218c31fe3dc256df2cdc6375",
         "dataobject-parser": "1.2.22",
         "decompress": "4.2.1",
         "env-paths": "2.2.1",
@@ -123,8 +124,5 @@
         "tslib": "2.6.2",
         "typescript": "5.9.3"
     },
-    "overrides": {
-        "node-datachannel": "0.32.1",
-        "react-devtools-core": "6.1.5"
-    }
+    "overrides": {}
 }

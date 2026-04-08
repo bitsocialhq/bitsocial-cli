@@ -1,6 +1,6 @@
-import type { SubplebbitEditOptions, SubplebbitInstance, SubplebbitIpfsType } from "../types/communityTypes.js";
+import type { CommunityEditOptions, CommunityInstance, CommunityIpfsType } from "../types/communityTypes.js";
 
-export const currentSubProps: Partial<SubplebbitInstance> = {
+export const currentSubProps: Partial<CommunityInstance> = {
     title: "original title",
     description: "original description",
     pubsubTopic: "original pubsub topic",
@@ -46,7 +46,7 @@ export const currentSubProps: Partial<SubplebbitInstance> = {
 };
 
 //TODO add flairs here
-export const objectPropsToEdit: Required<Pick<SubplebbitEditOptions, "roles" | "features" | "suggested" | "settings">> = {
+export const objectPropsToEdit: Required<Pick<CommunityEditOptions, "roles" | "features" | "suggested" | "settings">> = {
     settings: {
         challenges: [
             undefined as any, // Should add a new challenge, settings.challenges[0] should be kept as is

@@ -16,7 +16,7 @@ If something behaves unexpectedly (a test fails for unclear reasons, a build bre
 
 ## Project Overview
 
-**bitsocial-cli** is an oclif-based CLI + daemon for the BitSocial protocol (built on top of plebbit-js). It manages communities, challenges, IPFS nodes, and web UIs from the command line.
+**bitsocial-cli** is an oclif-based CLI + daemon for the BitSocial protocol (built on top of pkc-js). It manages communities, challenges, IPFS nodes, and web UIs from the command line.
 
 ## Instruction Priority
 
@@ -104,9 +104,9 @@ npm run build:test:watch             # watch mode for test build
 
 ## Playbooks (Load On Demand)
 
-_No playbooks yet. As recurring workflows emerge (e.g., release process, adding a new command, upgrading plebbit-js), create them as separate files and reference them here._
+_No playbooks yet. As recurring workflows emerge (e.g., release process, adding a new command, upgrading pkc-js), create them as separate files and reference them here._
 
 <!-- Example future entry:
 - [Adding a new CLI command](playbooks/new-command.md)
-- [Upgrading plebbit-js](playbooks/upgrade-plebbit-js.md)
+- [Upgrading pkc-js](playbooks/upgrade-pkc-js.md)
 -->

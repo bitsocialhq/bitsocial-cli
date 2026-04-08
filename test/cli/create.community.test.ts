@@ -2,8 +2,8 @@ import { runCommand } from "@oclif/test";
 import { describe, it, beforeAll, afterAll, afterEach, expect } from "vitest";
 import signers from "../fixtures/signers.js";
 import Sinon from "sinon";
-import type { CreateSubplebbitOptions } from "../types/communityTypes.js";
-import { clearPlebbitRpcConnectOverride, setPlebbitRpcConnectOverride } from "../helpers/plebbit-test-overrides.js";
+import type { CreateCommunityOptions } from "../types/communityTypes.js";
+import { clearPkcRpcConnectOverride, setPkcRpcConnectOverride } from "../helpers/pkc-test-overrides.js";
 
 const cliCreateOptions = {
     privateKeyPath: "test/fixtures/community_0_private_key.pem",
@@ -23,31 +23,31 @@ describe("bitsocial community create", () => {
     const sandbox = Sinon.createSandbox();
 
     const startFake = sandbox.fake();
-    const plebbitCreateStub = sandbox.fake.resolves({ address: signers[0]!.address, start: startFake, started: false });
+    const pkcCreateStub = sandbox.fake.resolves({ address: signers[0]!.address, start: startFake, started: false });
     const runCreateCommand = (args: string) => runCommand(args, process.cwd(), { stripAnsi: true });
     beforeAll(async () => {
-        const plebbitInstanceFake = sandbox.fake.resolves({
-            createSubplebbit: plebbitCreateStub,
+        const pkcInstanceFake = sandbox.fake.resolves({
+            createCommunity: pkcCreateStub,
             destroy: () => {}
         });
-        setPlebbitRpcConnectOverride(plebbitInstanceFake);
+        setPkcRpcConnectOverride(pkcInstanceFake);
     });
 
     afterEach(() => {
-        plebbitCreateStub.resetHistory();
+        pkcCreateStub.resetHistory();
         startFake.resetHistory();
     });
 
     afterAll(() => {
-        clearPlebbitRpcConnectOverride();
+        clearPkcRpcConnectOverride();
         sandbox.restore();
     });
 
     it(`Parses minimal create options correctly`, async () => {
         const result = await runCreateCommand("community create --description testDescription");
         expect(result.error).toBeUndefined();
-        expect(plebbitCreateStub.calledOnce).toBe(true);
-        const parsedArgs = <CreateSubplebbitOptions>plebbitCreateStub.args[0][0];
+        expect(pkcCreateStub.calledOnce).toBe(true);
+        const parsedArgs = <CreateCommunityOptions>pkcCreateStub.args[0][0];
         // PrivateKeyPath will be processed to signer
         expect(parsedArgs.description).toBe("testDescription");
         expect(startFake.calledOnce).toBe(true);
@@ -58,8 +58,8 @@ describe("bitsocial community create", () => {
             'community create --privateKeyPath test/fixtures/community_0_private_key.pem --title "testTitle" --description "testDescription" --suggested.primaryColor testPrimaryColor --suggested.secondaryColor testSecondaryColor --suggested.avatarUrl http://localhost:8080/avatar.png --suggested.bannerUrl http://localhost:8080/banner.png --suggested.backgroundUrl http://localhost:8080/background.png --suggested.language testLanguage'
         );
         expect(result.error).toBeUndefined();
-        expect(plebbitCreateStub.calledOnce).toBe(true);
-        const parsedArgs = <CreateSubplebbitOptions>plebbitCreateStub.args[0][0];
+        expect(pkcCreateStub.calledOnce).toBe(true);
+        const parsedArgs = <CreateCommunityOptions>pkcCreateStub.args[0][0];
         // PrivateKeyPath will be processed to signer
         expect(parsedArgs.title).toBe(cliCreateOptions.title);
         expect(parsedArgs.description).toBe(cliCreateOptions.description);

@@ -9,7 +9,7 @@ export default class List extends Command {
 
     static override flags = {
         quiet: Flags.boolean({ char: "q", summary: "Only display challenge names" }),
-        "plebbitOptions.dataPath": Flags.directory({
+        "pkcOptions.dataPath": Flags.directory({
             description: "Data path where challenges are installed",
             required: false
         })
@@ -19,7 +19,7 @@ export default class List extends Command {
 
     async run(): Promise<void> {
         const { flags } = await this.parse(List);
-        const dataPath = flags["plebbitOptions.dataPath"] || defaults.PLEBBIT_DATA_PATH;
+        const dataPath = flags["pkcOptions.dataPath"] || defaults.PKC_DATA_PATH;
 
         const challenges = await listInstalledChallenges(dataPath);
 

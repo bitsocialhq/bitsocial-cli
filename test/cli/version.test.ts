@@ -10,15 +10,15 @@ const PACKAGE_JSON_PATH = join(process.cwd(), "package.json");
 const getExpectedValues = () => {
     const cliPkg = JSON.parse(readFileSync(PACKAGE_JSON_PATH, "utf-8"));
     const cliVersion = cliPkg.version;
-    const plebbitJsDep = cliPkg.dependencies["@plebbit/plebbit-js"];
-    // Extract commit hash from URL like "https://github.com/plebbit/plebbit-js#a21d896bd55c76070758dae65dc0693d1c3726db"
-    const commitMatch = plebbitJsDep?.match(/#([a-f0-9]+)$/);
+    const pkcJsDep = cliPkg.dependencies["@pkc/pkc-js"];
+    // Extract commit hash from URL like "https://github.com/pkcprotocol/pkc-js#542952a1..."
+    const commitMatch = pkcJsDep?.match(/#([a-f0-9]+)$/);
     const commit = commitMatch ? commitMatch[1].substring(0, 7) : undefined;
     return { cliVersion, commit };
 };
 
 describe("bitsocial --version", () => {
-    it("should print CLI version and plebbit-js version with commit hash", async () => {
+    it("should print CLI version and pkc-js version with commit hash", async () => {
         const { cliVersion, commit } = getExpectedValues();
 
         const result = await new Promise<{ stdout: string; stderr: string; exitCode: number | null }>((resolve) => {
@@ -54,8 +54,8 @@ describe("bitsocial --version", () => {
         expect(lines[0]).toMatch(/linux-x64|darwin-x64|darwin-arm64|win32-x64/);
         expect(lines[0]).toMatch(/node-v\d+\.\d+\.\d+/);
 
-        // Second line should contain plebbit-js version and commit
-        expect(lines[1]).toContain("plebbit-js/");
+        // Second line should contain pkc-js version and commit
+        expect(lines[1]).toContain("pkc-js/");
         if (commit) {
             expect(lines[1]).toContain(`(${commit})`);
         }

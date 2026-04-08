@@ -1,11 +1,11 @@
-type PlebbitModule = Awaited<typeof import("@plebbit/plebbit-js", { with: { "resolution-mode": "import" } })>;
-type PlebbitFactory = PlebbitModule["default"];
+type PKCModule = Awaited<typeof import("@pkc/pkc-js", { with: { "resolution-mode": "import" } })>;
+type PKCFactory = PKCModule["default"];
 
 
-type PlebbitInstance = Awaited<ReturnType<PlebbitFactory>>;
-export type SubplebbitInstance = Awaited<ReturnType<PlebbitInstance["createSubplebbit"]>>;
+type PKCInstance = Awaited<ReturnType<PKCFactory>>;
+export type CommunityInstance = Awaited<ReturnType<PKCInstance["createCommunity"]>>;
 
 
-export type SubplebbitIpfsType = NonNullable<SubplebbitInstance["raw"]["subplebbitIpfs"]>;
-export type CreateSubplebbitOptions = NonNullable<Parameters<PlebbitInstance["createSubplebbit"]>[0]>;
-export type SubplebbitEditOptions = Parameters<SubplebbitInstance["edit"]>[0];
+export type CommunityIpfsType = NonNullable<CommunityInstance["raw"]["communityIpfs"]>;
+export type CreateCommunityOptions = NonNullable<Parameters<PKCInstance["createCommunity"]>[0]>;
+export type CommunityEditOptions = Parameters<CommunityInstance["edit"]>[0];

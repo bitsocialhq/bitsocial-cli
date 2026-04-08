@@ -2,12 +2,12 @@
 import DataObjectParser from "dataobject-parser";
 import { Args } from "@oclif/core";
 import { BaseCommand } from "../../base-command.js";
-import { getPlebbitLogger, mergeDeep } from "../../../util.js";
+import { getPKCLogger, mergeDeep } from "../../../util.js";
 import * as remeda from "remeda";
 
 export default class Edit extends BaseCommand {
     static override description =
-        "Edit a community's properties. For a list of properties, visit https://github.com/plebbit/plebbit-js#subplebbiteditsubplebbiteditoptions";
+        "Edit a community's properties. For a list of properties, visit https://github.com/pkcprotocol/pkc-js";
 
     static override args = {
         address: Args.string({
@@ -52,32 +52,32 @@ export default class Edit extends BaseCommand {
     async run(): Promise<void> {
         const { flags, args } = await this.parse(Edit);
 
-        const log = (await getPlebbitLogger())("bitsocial-cli:commands:community:edit");
+        const log = (await getPKCLogger())("bitsocial-cli:commands:community:edit");
         log(`flags: `, flags);
-        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcUrl.toString());
+        const pkc = await this._connectToPkcRpc(flags.pkcRpcUrl.toString());
 
-        const editOptions = DataObjectParser.transpose(remeda.omit(flags, ["plebbitRpcUrl"]))["_data"];
+        const editOptions = DataObjectParser.transpose(remeda.omit(flags, ["pkcRpcUrl"]))["_data"];
         log("Edit options parsed:", editOptions);
 
-        const localSubs = plebbit.subplebbits;
-        if (!localSubs.includes(args.address)) this.error("Can't edit a remote community, make sure you're editing a local community");
+        const localCommunities = pkc.communities;
+        if (!localCommunities.includes(args.address)) this.error("Can't edit a remote community, make sure you're editing a local community");
 
         try {
-            const sub = await plebbit.createSubplebbit({ address: args.address });
+            const community = await pkc.createCommunity({ address: args.address });
 
-            const mergedSubState = remeda.pick(sub, remeda.keys.strict(editOptions));
-            const finalMergedState = mergeDeep(mergedSubState, editOptions);
-            log("Internal sub state after merge:", finalMergedState);
-            await sub.edit(finalMergedState);
-            this.log(sub.address);
+            const mergedState = remeda.pick(community, remeda.keys.strict(editOptions));
+            const finalMergedState = mergeDeep(mergedState, editOptions);
+            log("Internal community state after merge:", finalMergedState);
+            await community.edit(finalMergedState);
+            this.log(community.address);
         } catch (e) {
             const error = e instanceof Error ? e : new Error(typeof e === "string" ? e : JSON.stringify(e));
             //@ts-expect-error
             error.details = { ...error.details, editOptions, address: args.address };
             console.error(error);
-            await plebbit.destroy();
+            await pkc.destroy();
             this.exit(1);
         }
-        await plebbit.destroy();
+        await pkc.destroy();
     }
 }

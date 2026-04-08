@@ -1,12 +1,11 @@
 import type {
-    CreateNewLocalSubplebbitUserOptions as PlebbitCreateSubplebbitOptions
+    CreateNewLocalCommunityUserOptions as PKCCreateCommunityOptions
     //@ts-expect-error
-} from "@plebbit/plebbit-js/dist/node/subplebbit/types.js";
+} from "@pkc/pkc-js/dist/node/community/types.js";
 
-// TODO add subplebbit.settings
-export interface CliCreateSubplebbitOptions
+export interface CliCreateCommunityOptions
     extends Pick<
-        PlebbitCreateSubplebbitOptions,
+        PKCCreateCommunityOptions,
         "title" | "description" | "suggested" | "settings" | "features" | "roles" | "rules" | "flairs"
     > {
     privateKeyPath?: string;

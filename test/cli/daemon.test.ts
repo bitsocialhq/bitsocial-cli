@@ -11,9 +11,9 @@ import dns from "node:dns";
 import {
     type ManagedChildProcess,
     killChildProcess,
-    stopPlebbitDaemon,
+    stopPkcDaemon,
     waitForCondition,
-    startPlebbitDaemon,
+    startPkcDaemon,
     ensureKuboNodeStopped,
     waitForWebSocketOpen,
     waitForKuboReady,
@@ -29,7 +29,7 @@ const DAEMON_RPC_URL = `ws://localhost:${DAEMON_RPC_PORT}`;
 const DAEMON_KUBO_URL = `http://0.0.0.0:${DAEMON_KUBO_PORT}/api/v0`;
 const DAEMON_GATEWAY_URL = `http://0.0.0.0:${DAEMON_GATEWAY_PORT}`;
 
-const testConnectionToPlebbitRpc = async (rpcServerPort: number | string) => {
+const testConnectionToPkcRpc = async (rpcServerPort: number | string) => {
     const rpcClient = new WebSocket(`ws://localhost:${rpcServerPort}`);
     await waitForWebSocketOpen(rpcClient);
     expect(rpcClient.readyState).toBe(1); // 1 = connected
@@ -48,12 +48,12 @@ const occupyPort = async (port: number, host: string) => {
     return server;
 };
 
-const startPlebbitDaemonCapturingStderr = (args: string[], env?: Record<string, string>): Promise<ManagedChildProcess> => {
+const startPkcDaemonCapturingStderr = (args: string[], env?: Record<string, string>): Promise<ManagedChildProcess> => {
     return new Promise(async (resolve, reject) => {
-        const hasCustomDataPath = args.some((arg) => arg.startsWith("--plebbitOptions.dataPath"));
+        const hasCustomDataPath = args.some((arg) => arg.startsWith("--pkcOptions.dataPath"));
         const hasCustomLogPath = args.some((arg) => arg === "--logPath");
         const logPathArgs = hasCustomLogPath ? [] : ["--logPath", randomDirectory()];
-        const daemonArgs = hasCustomDataPath ? args : ["--plebbitOptions.dataPath", randomDirectory(), ...args];
+        const daemonArgs = hasCustomDataPath ? args : ["--pkcOptions.dataPath", randomDirectory(), ...args];
         const daemonProcess = spawn("node", ["./bin/run", "daemon", ...logPathArgs, ...daemonArgs], {
             stdio: ["pipe", "pipe", "pipe"],
             env: env ? { ...process.env, ...env } : undefined
@@ -134,12 +134,12 @@ const startKuboDaemon = async (kuboApiPort: number): Promise<ChildProcess> => {
     });
 };
 
-const runPlebbitDaemonExpectFailure = (args: string[], envOverrides?: Record<string, string>, timeoutMs = 60000) => {
+const runPkcDaemonExpectFailure = (args: string[], envOverrides?: Record<string, string>, timeoutMs = 60000) => {
     return new Promise<{ exitCode: number | null; stdout: string; stderr: string }>((resolve, reject) => {
-        const hasCustomDataPath = args.some((arg) => arg.startsWith("--plebbitOptions.dataPath"));
+        const hasCustomDataPath = args.some((arg) => arg.startsWith("--pkcOptions.dataPath"));
         const hasCustomLogPath = args.some((arg) => arg === "--logPath");
         const logPathArgs = hasCustomLogPath ? [] : ["--logPath", randomDirectory()];
-        const daemonArgs = hasCustomDataPath ? args : ["--plebbitOptions.dataPath", randomDirectory(), ...args];
+        const daemonArgs = hasCustomDataPath ? args : ["--pkcOptions.dataPath", randomDirectory(), ...args];
 
         const daemonProcess = spawn("node", ["./bin/run", "daemon", ...logPathArgs, ...daemonArgs], {
             stdio: ["ignore", "pipe", "pipe"],
@@ -191,8 +191,8 @@ describe("bitsocial daemon (kubo daemon is started by bitsocial-cli)", async () 
     beforeAll(async () => {
         await ensureKuboNodeStopped(DAEMON_KUBO_URL);
 
-        daemonProcess = await startPlebbitDaemon(
-            ["--plebbitOptions.dataPath", randomDirectory(), "--plebbitRpcUrl", DAEMON_RPC_URL],
+        daemonProcess = await startPkcDaemon(
+            ["--pkcOptions.dataPath", randomDirectory(), "--pkcRpcUrl", DAEMON_RPC_URL],
             { KUBO_RPC_URL: DAEMON_KUBO_URL, IPFS_GATEWAY_URL: DAEMON_GATEWAY_URL }
         );
         expect(typeof daemonProcess.pid).toBe("number");
@@ -200,11 +200,11 @@ describe("bitsocial daemon (kubo daemon is started by bitsocial-cli)", async () 
     });
 
     afterAll(async () => {
-        await stopPlebbitDaemon(daemonProcess);
+        await stopPkcDaemon(daemonProcess);
         await waitForPortFree(DAEMON_RPC_PORT, "localhost", 10000);
     });
 
-    it(`Plebbit RPC server is started`, async () => {
+    it(`PKC RPC server is started`, async () => {
         const rpcClient = new WebSocket(DAEMON_RPC_URL);
         await waitForWebSocketOpen(rpcClient);
         expect(rpcClient.readyState).toBe(1); // 1 = connected
@@ -256,9 +256,9 @@ describe("bitsocial daemon (kubo daemon is started by bitsocial-cli)", async () 
         })
     );
 
-    it(`kubo node is killed after killing plebbit daemon`, async () => {
+    it(`kubo node is killed after killing pkc daemon`, async () => {
         expect(daemonProcess.kill()).toBe(true);
-        await stopPlebbitDaemon(daemonProcess);
+        await stopPkcDaemon(daemonProcess);
 
         // Wait for RPC to become unreachable
         const rpcClient = new WebSocket(DAEMON_RPC_URL);
@@ -324,8 +324,8 @@ describe("bitsocial daemon port availability validation", () => {
         }
         occupiedServers.push(server);
 
-        const result = await runPlebbitDaemonExpectFailure(
-            ["--plebbitOptions.dataPath", randomDirectory(), "--plebbitRpcUrl", validationRpcUrl],
+        const result = await runPkcDaemonExpectFailure(
+            ["--pkcOptions.dataPath", randomDirectory(), "--pkcRpcUrl", validationRpcUrl],
             envOverrides
         );
         expect(result.exitCode).not.toBe(0);
@@ -362,14 +362,14 @@ describe("bitsocial daemon kubo restart cleanup", async () => {
     const cleanupKuboApiUrl = `http://localhost:50099/api/v0`;
 
     it("stops kubo when daemon exits during a restart cycle", { timeout: 60000 }, async () => {
-        const previousDelay = process.env["PLEBBIT_CLI_TEST_IPFS_READY_DELAY_MS"];
-        process.env["PLEBBIT_CLI_TEST_IPFS_READY_DELAY_MS"] = "5000";
+        const previousDelay = process.env["PKC_CLI_TEST_IPFS_READY_DELAY_MS"];
+        process.env["PKC_CLI_TEST_IPFS_READY_DELAY_MS"] = "5000";
 
         let daemonProcess: ManagedChildProcess | undefined;
         try {
             await ensureKuboNodeStopped(cleanupKuboApiUrl);
-            daemonProcess = await startPlebbitDaemon(
-                ["--plebbitOptions.dataPath", randomDirectory(), "--plebbitRpcUrl", cleanupRpcUrl],
+            daemonProcess = await startPkcDaemon(
+                ["--pkcOptions.dataPath", randomDirectory(), "--pkcRpcUrl", cleanupRpcUrl],
                 { KUBO_RPC_URL: cleanupKuboUrl, IPFS_GATEWAY_URL: cleanupGatewayUrl }
             );
             expect(typeof daemonProcess.pid).toBe("number");
@@ -405,9 +405,9 @@ describe("bitsocial daemon kubo restart cleanup", async () => {
             }, 10000, 500);
             expect(kuboStoppedAfterKill).toBe(true);
         } finally {
-            if (daemonProcess) await stopPlebbitDaemon(daemonProcess);
-            if (previousDelay === undefined) delete process.env["PLEBBIT_CLI_TEST_IPFS_READY_DELAY_MS"];
-            else process.env["PLEBBIT_CLI_TEST_IPFS_READY_DELAY_MS"] = previousDelay;
+            if (daemonProcess) await stopPkcDaemon(daemonProcess);
+            if (previousDelay === undefined) delete process.env["PKC_CLI_TEST_IPFS_READY_DELAY_MS"];
+            else process.env["PKC_CLI_TEST_IPFS_READY_DELAY_MS"] = previousDelay;
             await ensureKuboNodeStopped(cleanupKuboApiUrl);
         }
     });
@@ -432,15 +432,15 @@ describe(`bitsocial daemon (kubo daemon is started by another process on the sam
     });
 
     it(`bitsocial daemon can use a kubo node started by another program`, async () => {
-        let plebbitDaemonProcess: ManagedChildProcess | undefined;
+        let pkcDaemonProcess: ManagedChildProcess | undefined;
         try {
-            plebbitDaemonProcess = await startPlebbitDaemon(
+            pkcDaemonProcess = await startPkcDaemon(
                 [
-                    "--plebbitOptions.dataPath",
+                    "--pkcOptions.dataPath",
                     randomDirectory(),
-                    "--plebbitOptions.kuboRpcClientsOptions[0]",
+                    "--pkcOptions.kuboRpcClientsOptions[0]",
                     extKuboRpcUrl.toString(),
-                    "--plebbitRpcUrl",
+                    "--pkcRpcUrl",
                     extRpcUrl
                 ],
                 { KUBO_RPC_URL: extKuboRpcUrl.toString(), IPFS_GATEWAY_URL: extGatewayUrl }
@@ -450,20 +450,20 @@ describe(`bitsocial daemon (kubo daemon is started by another process on the sam
             expect(rpcClient.readyState).toBe(1); // 1 = connected
             rpcClient.close();
         } finally {
-            await stopPlebbitDaemon(plebbitDaemonProcess);
+            await stopPkcDaemon(pkcDaemonProcess);
         }
     });
 
     it(`bitsocial daemon monitors Kubo RPC started by another process, and start a new Kubo process if needed`, async () => {
-        let plebbitDaemonProcess: ManagedChildProcess | undefined;
+        let pkcDaemonProcess: ManagedChildProcess | undefined;
         try {
-            plebbitDaemonProcess = await startPlebbitDaemon(
+            pkcDaemonProcess = await startPkcDaemon(
                 [
-                    "--plebbitOptions.dataPath",
+                    "--pkcOptions.dataPath",
                     randomDirectory(),
-                    "--plebbitOptions.kuboRpcClientsOptions[0]",
+                    "--pkcOptions.kuboRpcClientsOptions[0]",
                     extKuboRpcUrl.toString(),
-                    "--plebbitRpcUrl",
+                    "--pkcRpcUrl",
                     extRpcUrl
                 ],
                 { KUBO_RPC_URL: extKuboRpcUrl.toString(), IPFS_GATEWAY_URL: extGatewayUrl }
@@ -474,7 +474,7 @@ describe(`bitsocial daemon (kubo daemon is started by another process on the sam
 
             await killChildProcess(kuboDaemonProcess);
 
-            // plebbit daemon should start a new kubo daemon
+            // pkc daemon should start a new kubo daemon
             const kuboRestarted = await waitForCondition(async () => {
                 try {
                     const res = await fetch(`http://localhost:${extKuboPort}/api/v0/bitswap/stat`, { method: "POST" });
@@ -485,12 +485,12 @@ describe(`bitsocial daemon (kubo daemon is started by another process on the sam
             }, 30000, 500);
             expect(kuboRestarted).toBe(true);
         } finally {
-            await stopPlebbitDaemon(plebbitDaemonProcess);
+            await stopPkcDaemon(pkcDaemonProcess);
         }
     });
 });
 
-describe(`bitsocial daemon (relying on plebbit RPC started by another process)`, async () => {
+describe(`bitsocial daemon (relying on PKC RPC started by another process)`, async () => {
     let rpcProcess: ManagedChildProcess;
     const rpcRpcUrl = `ws://localhost:9368`;
     const rpcKuboUrl = `http://0.0.0.0:50149/api/v0`;
@@ -498,39 +498,39 @@ describe(`bitsocial daemon (relying on plebbit RPC started by another process)`,
 
     beforeAll(async () => {
         await ensureKuboNodeStopped(`http://localhost:50149/api/v0`);
-        rpcProcess = await startPlebbitDaemon(
-            ["--plebbitOptions.dataPath", randomDirectory(), "--plebbitRpcUrl", rpcRpcUrl],
+        rpcProcess = await startPkcDaemon(
+            ["--pkcOptions.dataPath", randomDirectory(), "--pkcRpcUrl", rpcRpcUrl],
             { KUBO_RPC_URL: rpcKuboUrl, IPFS_GATEWAY_URL: rpcGatewayUrl }
         );
-        await testConnectionToPlebbitRpc(9368);
+        await testConnectionToPkcRpc(9368);
     });
 
     afterAll(async () => {
-        await stopPlebbitDaemon(rpcProcess);
+        await stopPkcDaemon(rpcProcess);
         await waitForPortFree(9368, "localhost", 10000);
     });
 
-    it(`bitsocial daemon detects and uses another process' plebbit RPC`, async () => {
+    it(`bitsocial daemon detects and uses another process' PKC RPC`, async () => {
         let anotherRpcProcess: ManagedChildProcess | undefined;
         try {
-            anotherRpcProcess = await startPlebbitDaemon(
-                ["--plebbitRpcUrl", rpcRpcUrl],
+            anotherRpcProcess = await startPkcDaemon(
+                ["--pkcRpcUrl", rpcRpcUrl],
                 { KUBO_RPC_URL: rpcKuboUrl, IPFS_GATEWAY_URL: rpcGatewayUrl }
             );
-            await testConnectionToPlebbitRpc(9368);
+            await testConnectionToPkcRpc(9368);
         } finally {
-            await stopPlebbitDaemon(anotherRpcProcess); // should not affect rpcProcess
+            await stopPkcDaemon(anotherRpcProcess); // should not affect rpcProcess
         }
-        await testConnectionToPlebbitRpc(9368);
+        await testConnectionToPkcRpc(9368);
     });
-    it(`bitsocial daemon is monitoring another process' plebbit RPC and make sure it's always up`, async () => {
+    it(`bitsocial daemon is monitoring another process' PKC RPC and make sure it's always up`, async () => {
         let anotherRpcProcess: ManagedChildProcess | undefined;
         try {
-            anotherRpcProcess = await startPlebbitDaemon(
-                ["--plebbitOptions.dataPath", randomDirectory(), "--plebbitRpcUrl", rpcRpcUrl],
+            anotherRpcProcess = await startPkcDaemon(
+                ["--pkcOptions.dataPath", randomDirectory(), "--pkcRpcUrl", rpcRpcUrl],
                 { KUBO_RPC_URL: rpcKuboUrl, IPFS_GATEWAY_URL: rpcGatewayUrl }
             );
-            await stopPlebbitDaemon(rpcProcess);
+            await stopPkcDaemon(rpcProcess);
 
             // Wait for anotherRpcProcess to restart the RPC
             const rpcRestarted = await waitForCondition(async () => {
@@ -555,40 +555,40 @@ describe(`bitsocial daemon (relying on plebbit RPC started by another process)`,
             }, 30000, 1000);
             expect(rpcRestarted).toBe(true);
         } finally {
-            await stopPlebbitDaemon(anotherRpcProcess);
+            await stopPkcDaemon(anotherRpcProcess);
         }
     });
 });
 
-describe(`bitsocial daemon --plebbitRpcUrl`, async () => {
+describe(`bitsocial daemon --pkcRpcUrl`, async () => {
     it(`A bitsocial daemon should be change where to listen URL`, async () => {
         const rpcUrl = new URL("ws://localhost:11138");
         let firstRpcProcess: ManagedChildProcess | undefined;
         try {
-            firstRpcProcess = await startPlebbitDaemon(
-                ["--plebbitRpcUrl", rpcUrl.toString()],
+            firstRpcProcess = await startPkcDaemon(
+                ["--pkcRpcUrl", rpcUrl.toString()],
                 { KUBO_RPC_URL: "http://0.0.0.0:50159/api/v0", IPFS_GATEWAY_URL: "http://0.0.0.0:6613" }
             );
-            await testConnectionToPlebbitRpc(rpcUrl.port);
+            await testConnectionToPkcRpc(rpcUrl.port);
         } finally {
-            await stopPlebbitDaemon(firstRpcProcess);
+            await stopPkcDaemon(firstRpcProcess);
         }
     });
 });
 
-describe(`bitsocial daemon PLEBBIT_RPC_AUTH_KEY env var`, async () => {
-    it(`daemon uses PLEBBIT_RPC_AUTH_KEY when set`, async () => {
+describe(`bitsocial daemon PKC_RPC_AUTH_KEY env var`, async () => {
+    it(`daemon uses PKC_RPC_AUTH_KEY when set`, async () => {
         const customAuthKey = "my-test-auth-key-1234567890";
         const rpcUrl = new URL("ws://localhost:19138");
         let daemonProcess: ManagedChildProcess | undefined;
         try {
-            daemonProcess = await startPlebbitDaemon(
-                ["--plebbitOptions.dataPath", randomDirectory(), "--plebbitRpcUrl", rpcUrl.toString()],
-                { PLEBBIT_RPC_AUTH_KEY: customAuthKey, KUBO_RPC_URL: "http://0.0.0.0:50169/api/v0", IPFS_GATEWAY_URL: "http://0.0.0.0:6623" }
+            daemonProcess = await startPkcDaemon(
+                ["--pkcOptions.dataPath", randomDirectory(), "--pkcRpcUrl", rpcUrl.toString()],
+                { PKC_RPC_AUTH_KEY: customAuthKey, KUBO_RPC_URL: "http://0.0.0.0:50169/api/v0", IPFS_GATEWAY_URL: "http://0.0.0.0:6623" }
             );
             expect(daemonProcess.capturedStdout).toContain(customAuthKey);
         } finally {
-            await stopPlebbitDaemon(daemonProcess);
+            await stopPkcDaemon(daemonProcess);
         }
     });
 });
@@ -599,15 +599,15 @@ describe(`bitsocial daemon KUBO_RPC_URL env var`, async () => {
         const testKuboPort = 50179;
         let daemonProcess: ManagedChildProcess | undefined;
         try {
-            daemonProcess = await startPlebbitDaemon(
-                ["--plebbitOptions.dataPath", randomDirectory(), "--plebbitRpcUrl", rpcUrl.toString()],
+            daemonProcess = await startPkcDaemon(
+                ["--pkcOptions.dataPath", randomDirectory(), "--pkcRpcUrl", rpcUrl.toString()],
                 { KUBO_RPC_URL: `http://0.0.0.0:${testKuboPort}/api/v0`, IPFS_GATEWAY_URL: "http://0.0.0.0:6633" }
             );
             // Kubo should be reachable on the configured port
             const res = await fetch(`http://localhost:${testKuboPort}/api/v0/bitswap/stat`, { method: "POST" });
             expect(res.status).toBe(200);
         } finally {
-            await stopPlebbitDaemon(daemonProcess);
+            await stopPkcDaemon(daemonProcess);
         }
     });
 });
@@ -617,14 +617,14 @@ describe(`bitsocial daemon webui`, async () => {
     const rpcUrl = new URL("ws://localhost:39138");
 
     beforeAll(async () => {
-        daemonProcess = await startPlebbitDaemon(
-            ["--plebbitOptions.dataPath", randomDirectory(), "--plebbitRpcUrl", rpcUrl.toString()],
+        daemonProcess = await startPkcDaemon(
+            ["--pkcOptions.dataPath", randomDirectory(), "--pkcRpcUrl", rpcUrl.toString()],
             { KUBO_RPC_URL: "http://0.0.0.0:50189/api/v0", IPFS_GATEWAY_URL: "http://0.0.0.0:6643" }
         );
     });
 
     afterAll(async () => {
-        await stopPlebbitDaemon(daemonProcess);
+        await stopPkcDaemon(daemonProcess);
     });
 
     it(`5chan webui does not contain the hash redirect script`, async () => {
@@ -655,8 +655,8 @@ describe("bitsocial daemon kills kubo on its own shutdown (no backup /shutdown c
     it("daemon's own cleanup kills kubo after SIGTERM", { timeout: 60000 }, async () => {
         let daemonProcess: ManagedChildProcess | undefined;
         try {
-            daemonProcess = await startPlebbitDaemon(
-                ["--plebbitOptions.dataPath", randomDirectory(), "--plebbitRpcUrl", rpcUrl.toString()],
+            daemonProcess = await startPkcDaemon(
+                ["--pkcOptions.dataPath", randomDirectory(), "--pkcRpcUrl", rpcUrl.toString()],
                 { KUBO_RPC_URL: kuboApiUrl, IPFS_GATEWAY_URL: gatewayUrl }
             );
 
@@ -686,8 +686,8 @@ describe("bitsocial daemon kills kubo on its own shutdown (no backup /shutdown c
     it("daemon's own cleanup kills kubo after double SIGTERM (impatient user)", { timeout: 60000 }, async () => {
         let daemonProcess: ManagedChildProcess | undefined;
         try {
-            daemonProcess = await startPlebbitDaemon(
-                ["--plebbitOptions.dataPath", randomDirectory(), "--plebbitRpcUrl", rpcUrl.toString()],
+            daemonProcess = await startPkcDaemon(
+                ["--pkcOptions.dataPath", randomDirectory(), "--pkcRpcUrl", rpcUrl.toString()],
                 { KUBO_RPC_URL: kuboApiUrl, IPFS_GATEWAY_URL: gatewayUrl }
             );
 
@@ -739,8 +739,8 @@ describe("bitsocial daemon DEBUG env var", () => {
         const logPath = randomDirectory();
         let daemonProcess: ManagedChildProcess | undefined;
         try {
-            daemonProcess = await startPlebbitDaemonCapturingStderr(
-                ["--plebbitOptions.dataPath", randomDirectory(), "--plebbitRpcUrl", rpcUrl.toString(), "--logPath", logPath],
+            daemonProcess = await startPkcDaemonCapturingStderr(
+                ["--pkcOptions.dataPath", randomDirectory(), "--pkcRpcUrl", rpcUrl.toString(), "--logPath", logPath],
                 { DEBUG: "*", KUBO_RPC_URL: testKuboApiUrl, IPFS_GATEWAY_URL: testGatewayUrl }
             );
 
@@ -757,7 +757,7 @@ describe("bitsocial daemon DEBUG env var", () => {
             const logContent = await fsPromise.readFile(path.join(logPath, logFile!), "utf-8");
             expect(logContent.length).toBeGreaterThan(0);
         } finally {
-            await stopPlebbitDaemon(daemonProcess);
+            await stopPkcDaemon(daemonProcess);
         }
     });
 
@@ -765,8 +765,8 @@ describe("bitsocial daemon DEBUG env var", () => {
         const rpcUrl = new URL("ws://localhost:59339");
         let daemonProcess: ManagedChildProcess | undefined;
         try {
-            daemonProcess = await startPlebbitDaemonCapturingStderr(
-                ["--plebbitOptions.dataPath", randomDirectory(), "--plebbitRpcUrl", rpcUrl.toString()],
+            daemonProcess = await startPkcDaemonCapturingStderr(
+                ["--pkcOptions.dataPath", randomDirectory(), "--pkcRpcUrl", rpcUrl.toString()],
                 { KUBO_RPC_URL: testKuboApiUrl, IPFS_GATEWAY_URL: testGatewayUrl }
             );
 
@@ -780,7 +780,7 @@ describe("bitsocial daemon DEBUG env var", () => {
             // Should NOT contain "Debug logs is on" since no DEBUG was set
             expect(daemonProcess.capturedStderr).not.toContain("Debug logs is on");
         } finally {
-            await stopPlebbitDaemon(daemonProcess);
+            await stopPkcDaemon(daemonProcess);
         }
     });
 });

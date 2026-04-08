@@ -15,7 +15,7 @@ export default class Remove extends Command {
     };
 
     static override flags = {
-        "plebbitOptions.dataPath": Flags.directory({
+        "pkcOptions.dataPath": Flags.directory({
             description: "Data path where challenges are installed",
             required: false
         })
@@ -28,7 +28,7 @@ export default class Remove extends Command {
 
     async run(): Promise<void> {
         const { args, flags } = await this.parse(Remove);
-        const dataPath = flags["plebbitOptions.dataPath"] || defaults.PLEBBIT_DATA_PATH;
+        const dataPath = flags["pkcOptions.dataPath"] || defaults.PKC_DATA_PATH;
 
         const challengesDir = getChallengesDir(dataPath);
         const challengeDir = challengeNameToDir(challengesDir, args.name);

@@ -1,6 +1,6 @@
 import { describe, it, beforeAll, afterAll, afterEach, expect } from "vitest";
 import Sinon from "sinon";
-import { clearPlebbitRpcConnectOverride, setPlebbitRpcConnectOverride } from "../helpers/plebbit-test-overrides.js";
+import { clearPkcRpcConnectOverride, setPkcRpcConnectOverride } from "../helpers/pkc-test-overrides.js";
 import { runCliCommand } from "../helpers/run-cli.js";
 
 describe("bitsocial community get", () => {
@@ -12,24 +12,24 @@ describe("bitsocial community get", () => {
         updatedAt: 1234
     };
 
-    const getSubplebbitFake = sandbox.fake.resolves(fakeCommunity);
+    const getCommunityFake = sandbox.fake.resolves(fakeCommunity);
     const destroyFake = sandbox.fake();
 
     beforeAll(() => {
-        const plebbitInstanceFake = sandbox.fake.resolves({
-            getSubplebbit: getSubplebbitFake,
+        const pkcInstanceFake = sandbox.fake.resolves({
+            getCommunity: getCommunityFake,
             destroy: destroyFake
         });
-        setPlebbitRpcConnectOverride(plebbitInstanceFake);
+        setPkcRpcConnectOverride(pkcInstanceFake);
     });
 
     afterEach(() => {
-        getSubplebbitFake.resetHistory();
+        getCommunityFake.resetHistory();
         destroyFake.resetHistory();
     });
 
     afterAll(() => {
-        clearPlebbitRpcConnectOverride();
+        clearPkcRpcConnectOverride();
         sandbox.restore();
     });
 
@@ -37,7 +37,7 @@ describe("bitsocial community get", () => {
         const { result, stdout } = await runCliCommand("community get plebbit.bso");
 
         expect(result.error).toBeUndefined();
-        expect(getSubplebbitFake.calledOnceWith({ address: "plebbit.bso" })).toBe(true);
+        expect(getCommunityFake.calledOnceWith({ address: "plebbit.bso" })).toBe(true);
         expect(destroyFake.calledOnce).toBe(true);
 
         const output = stdout.trim();

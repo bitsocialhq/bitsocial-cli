@@ -1,4 +1,4 @@
-import { getPlebbitLogger } from "../../../util.js";
+import { getPKCLogger } from "../../../util.js";
 import { BaseCommand } from "../../base-command.js";
 import { Args } from "@oclif/core";
 
@@ -28,25 +28,25 @@ export default class Start extends BaseCommand {
         const { argv, flags } = await this.parse(Start);
 
         const addresses = <string[]>argv;
-        const log = (await getPlebbitLogger())("bitsocial-cli:commands:community:start");
+        const log = (await getPKCLogger())("bitsocial-cli:commands:community:start");
         log(`addresses: `, addresses);
         log(`flags: `, flags);
 
-        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcUrl.toString());
+        const pkc = await this._connectToPkcRpc(flags.pkcRpcUrl.toString());
         for (const address of addresses) {
             try {
-                const sub = await plebbit.createSubplebbit({ address });
-                await sub.start();
+                const community = await pkc.createCommunity({ address });
+                await community.start();
                 this.log(address);
             } catch (e) {
                 const error = e instanceof Error ? e : new Error(typeof e === "string" ? e : JSON.stringify(e));
                 //@ts-expect-error
                 error.details = { ...error.details, address };
                 console.error(error);
-                await plebbit.destroy();
+                await pkc.destroy();
                 this.exit(1);
             }
         }
-        await plebbit.destroy();
+        await pkc.destroy();
     }
 }

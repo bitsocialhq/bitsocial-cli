@@ -27,7 +27,7 @@ export const killChildProcess = async (proc?: ChildProcess) => {
     });
 };
 
-export const stopPlebbitDaemon = async (proc?: ManagedChildProcess) => {
+export const stopPkcDaemon = async (proc?: ManagedChildProcess) => {
     if (!proc) return;
     await killChildProcess(proc);
     const kuboRpcUrl = proc.kuboRpcUrl;
@@ -67,12 +67,12 @@ export const ensureKuboNodeStopped = async (kuboRpcUrl?: string) => {
     });
 };
 
-export const startPlebbitDaemon = (args: string[], env?: Record<string, string>): Promise<ManagedChildProcess> => {
+export const startPkcDaemon = (args: string[], env?: Record<string, string>): Promise<ManagedChildProcess> => {
     return new Promise(async (resolve, reject) => {
-        const hasCustomDataPath = args.some((arg) => arg.startsWith("--plebbitOptions.dataPath"));
+        const hasCustomDataPath = args.some((arg) => arg.startsWith("--pkcOptions.dataPath"));
         const hasCustomLogPath = args.some((arg) => arg === "--logPath");
         const logPathArgs = hasCustomLogPath ? [] : ["--logPath", randomDirectory()];
-        const daemonArgs = hasCustomDataPath ? args : ["--plebbitOptions.dataPath", randomDirectory(), ...args];
+        const daemonArgs = hasCustomDataPath ? args : ["--pkcOptions.dataPath", randomDirectory(), ...args];
         const daemonProcess = spawn("node", ["./bin/run", "daemon", ...logPathArgs, ...daemonArgs], {
             stdio: ["pipe", "pipe", "pipe"],
             env: env ? { ...process.env, ...env } : undefined

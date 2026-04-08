@@ -126,7 +126,7 @@ describe("startKuboNode port validation", { timeout: 90_000 }, () => {
     it("rejects when a swarm TCP port is occupied", async () => {
         const { server: swarmServer, port: swarmPort } = await listenOnEphemeralPort("127.0.0.1");
         const dataPath = tempDirectory();
-        const ipfsDataPath = path.join(dataPath, ".plebbit-cli.ipfs");
+        const ipfsDataPath = path.join(dataPath, ".bitsocial-cli.ipfs");
         const apiPort = await getAvailablePort();
         const gatewayPort = await getAvailablePort();
         const apiUrl = new URL(`http://127.0.0.1:${apiPort}`);
@@ -207,7 +207,7 @@ describe("kubo RPC + gateway integration", { timeout: 120_000 }, () => {
         const kuboBinaryPath = await resolveKuboBinary();
         const fileDirectory = tempDirectory();
         const filePath = path.join(fileDirectory, "hello.txt");
-        const fileContents = `plebbit kubo integration ${Date.now()}`;
+        const fileContents = `pkc kubo integration ${Date.now()}`;
         await fs.writeFile(filePath, fileContents, "utf8");
 
         const { stdout } = await execFileAsync(kuboBinaryPath, ["add", "-q", filePath], {

@@ -3,6 +3,7 @@ import fs from "fs/promises";
 import type { Dirent } from "fs";
 import { spawn } from "child_process";
 import defaults from "../common-utils/defaults.js";
+import { migrateDataDirectory } from "../common-utils/data-migration.js";
 
 export interface InstalledChallenge {
     name: string;
@@ -12,7 +13,7 @@ export interface InstalledChallenge {
 }
 
 export function getChallengesDir(dataPath?: string): string {
-    return path.join(dataPath || defaults.PLEBBIT_DATA_PATH, "challenges");
+    return path.join(dataPath || defaults.PKC_DATA_PATH, "challenges");
 }
 
 export async function ensureChallengesDir(dataPath?: string): Promise<string> {
@@ -223,11 +224,11 @@ export async function verifyNativeModuleAbi(challengeDir: string): Promise<void>
     }
 }
 
-export async function loadChallengesIntoPlebbit(dataPath?: string): Promise<string[]> {
+export async function loadChallengesIntoPKC(dataPath?: string): Promise<string[]> {
     const challenges = await listInstalledChallenges(dataPath);
     if (challenges.length === 0) return [];
 
-    const Plebbit = await import("@plebbit/plebbit-js");
+    const PKC = await import("@pkc/pkc-js");
     const loadedNames: string[] = [];
 
     for (const challenge of challenges) {
@@ -238,7 +239,7 @@ export async function loadChallengesIntoPlebbit(dataPath?: string): Promise<stri
             const entryPath = path.resolve(challenge.path, entryPoint);
             const imported = await import(entryPath);
             const factory = imported.default || imported;
-            (Plebbit.default as any).challenges[challenge.name] = factory;
+            (PKC.default as any).challenges[challenge.name] = factory;
             loadedNames.push(challenge.name);
         } catch (err) {
             console.error(`Failed to load challenge "${challenge.name}":`, err);

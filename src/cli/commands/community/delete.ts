@@ -1,4 +1,4 @@
-import { getPlebbitLogger } from "../../../util.js";
+import { getPKCLogger } from "../../../util.js";
 import { BaseCommand } from "../../base-command.js";
 import { Args } from "@oclif/core";
 
@@ -23,27 +23,27 @@ export default class Delete extends BaseCommand {
     async run() {
         const { argv, flags } = await this.parse(Delete);
 
-        const log = (await getPlebbitLogger())("bitsocial-cli:commands:community:delete");
+        const log = (await getPKCLogger())("bitsocial-cli:commands:community:delete");
         log(`addresses: `, argv);
         log(`flags: `, flags);
         const addresses = <string[]>argv;
         if (!Array.isArray(addresses)) this.error(`Failed to parse addresses correctly (${addresses})`);
 
-        const plebbit = await this._connectToPlebbitRpc(flags.plebbitRpcUrl.toString());
+        const pkc = await this._connectToPkcRpc(flags.pkcRpcUrl.toString());
         for (const address of addresses) {
             try {
-                const sub = await plebbit.createSubplebbit({ address });
-                await sub.delete();
+                const community = await pkc.createCommunity({ address });
+                await community.delete();
                 this.log(address);
             } catch (e) {
                 const error = e instanceof Error ? e : new Error(typeof e === "string" ? e : JSON.stringify(e));
                 //@ts-expect-error
                 error.details = { ...error.details, address };
                 console.error(error);
-                await plebbit.destroy();
+                await pkc.destroy();
                 this.exit(1);
             }
         }
-        await plebbit.destroy();
+        await pkc.destroy();
     }
 }

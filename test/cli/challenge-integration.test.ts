@@ -4,18 +4,18 @@ import { directory as randomDirectory } from "tempy";
 import fsPromise from "fs/promises";
 import path from "path";
 import dns from "node:dns";
-import Plebbit from "@plebbit/plebbit-js";
+import PKC from "@pkc/pkc-js";
 import {
     type ManagedChildProcess,
-    stopPlebbitDaemon,
+    stopPkcDaemon,
     waitForCondition,
-    startPlebbitDaemon,
+    startPkcDaemon,
     waitForKuboReady
 } from "../helpers/daemon-helpers.js";
 
 dns.setDefaultResultOrder("ipv4first");
 
-type PlebbitInstance = Awaited<ReturnType<typeof Plebbit>>;
+type PKCInstance = Awaited<ReturnType<typeof PKC>>;
 
 // --- Port allocation (unique to this test file) ---
 const RPC_PORT = 59138;
@@ -91,8 +91,8 @@ const runBitsocialChallenge = (
 // --- Core helper: publish a comment and go through the challenge flow ---
 
 async function publishCommentWithChallenge(opts: {
-    plebbit: PlebbitInstance;
-    subplebbitAddress: string;
+    pkc: PKCInstance;
+    communityAddress: string;
     challengeAnswer: string;
     timeoutMs?: number;
 }): Promise<{
@@ -100,11 +100,11 @@ async function publishCommentWithChallenge(opts: {
     challengeText?: string;
     challengeErrors?: (string | undefined)[];
 }> {
-    const { plebbit, subplebbitAddress, challengeAnswer, timeoutMs = 60000 } = opts;
-    const signer = await plebbit.createSigner();
-    const comment = await plebbit.createComment({
+    const { pkc, communityAddress, challengeAnswer, timeoutMs = 60000 } = opts;
+    const signer = await pkc.createSigner();
+    const comment = await pkc.createComment({
         signer,
-        subplebbitAddress,
+        communityAddress: communityAddress,
         content: "test comment " + Date.now(),
         title: "test title"
     });
@@ -148,7 +148,7 @@ async function publishCommentWithChallenge(opts: {
 
 describe("challenge integration tests", { timeout: 600_000 }, () => {
     let daemonProcess: ManagedChildProcess | undefined;
-    let plebbit: PlebbitInstance;
+    let pkc: PKCInstance;
     let dataPath: string;
 
     beforeAll(async () => {
@@ -163,13 +163,13 @@ describe("challenge integration tests", { timeout: 600_000 }, () => {
             answer: "2"
         });
 
-        const installResult = await runBitsocialChallenge(["install", challengeSrcDir, "--plebbitOptions.dataPath", dataPath]);
+        const installResult = await runBitsocialChallenge(["install", challengeSrcDir, "--pkcOptions.dataPath", dataPath]);
         expect(installResult.exitCode).toBe(0);
         expect(installResult.stdout).toContain("Installed challenge 'test-challenge@1.0.0'");
 
         // Start daemon — it handles kubo, RPC, and webui internally
-        daemonProcess = await startPlebbitDaemon(
-            ["--plebbitOptions.dataPath", dataPath, "--plebbitRpcUrl", rpcWsUrl],
+        daemonProcess = await startPkcDaemon(
+            ["--pkcOptions.dataPath", dataPath, "--pkcRpcUrl", rpcWsUrl],
             { KUBO_RPC_URL: kuboApiUrl, IPFS_GATEWAY_URL: gatewayUrl }
         );
 
@@ -177,10 +177,10 @@ describe("challenge integration tests", { timeout: 600_000 }, () => {
         const kuboReady = await waitForKuboReady(`http://localhost:${KUBO_API_PORT}/api/v0`, 30000);
         expect(kuboReady).toBe(true);
 
-        // Connect plebbit-js RPC client
-        plebbit = await Plebbit({ plebbitRpcClientsOptions: [rpcWsUrl] });
-        plebbit.on("error", (err) => console.error("Plebbit RPC error:", err));
-        await new Promise((resolve) => plebbit.once("subplebbitschange", resolve));
+        // Connect pkc-js RPC client
+        pkc = await PKC({ pkcRpcClientsOptions: [rpcWsUrl] });
+        pkc.on("error", (err) => console.error("PKC RPC error:", err));
+        await new Promise((resolve) => pkc.once("communitieschange", resolve));
 
         // Give the daemon's internal IPFS connections time to fully initialize
         await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -188,11 +188,11 @@ describe("challenge integration tests", { timeout: 600_000 }, () => {
 
     afterAll(async () => {
         try {
-            await plebbit?.destroy();
+            await pkc?.destroy();
         } catch {
             /* ignore */
         }
-        await stopPlebbitDaemon(daemonProcess);
+        await stopPkcDaemon(daemonProcess);
     });
 
     describe("local custom challenge", () => {
@@ -200,7 +200,7 @@ describe("challenge integration tests", { timeout: 600_000 }, () => {
         let sub: any;
 
         beforeAll(async () => {
-            sub = await plebbit.createSubplebbit();
+            sub = await pkc.createCommunity();
             subAddress = sub.address;
             await sub.edit({
                 settings: {
@@ -208,7 +208,7 @@ describe("challenge integration tests", { timeout: 600_000 }, () => {
                 }
             });
             await sub.start();
-            // Wait for subplebbit to publish its first IPNS record
+            // Wait for community to publish its first IPNS record
             await waitForCondition(() => !!(sub as any).updatedAt, 60000, 500);
         }, 120_000);
 
@@ -226,8 +226,8 @@ describe("challenge integration tests", { timeout: 600_000 }, () => {
 
         it("correct answer passes challenge verification", { timeout: 120_000 }, async () => {
             const result = await publishCommentWithChallenge({
-                plebbit,
-                subplebbitAddress: subAddress,
+                pkc,
+                communityAddress: subAddress,
                 challengeAnswer: "2"
             });
             expect(result.challengeSuccess).toBe(true);
@@ -236,8 +236,8 @@ describe("challenge integration tests", { timeout: 600_000 }, () => {
 
         it("wrong answer fails challenge verification", { timeout: 120_000 }, async () => {
             const result = await publishCommentWithChallenge({
-                plebbit,
-                subplebbitAddress: subAddress,
+                pkc,
+                communityAddress: subAddress,
                 challengeAnswer: "wrong"
             });
             expect(result.challengeSuccess).toBe(false);
@@ -249,7 +249,7 @@ describe("challenge integration tests", { timeout: 600_000 }, () => {
         let sub: any;
 
         beforeAll(async () => {
-            sub = await plebbit.createSubplebbit();
+            sub = await pkc.createCommunity();
             subAddress = sub.address;
             await sub.edit({
                 settings: {
@@ -278,8 +278,8 @@ describe("challenge integration tests", { timeout: 600_000 }, () => {
 
         it("correct answer passes question challenge", { timeout: 120_000 }, async () => {
             const result = await publishCommentWithChallenge({
-                plebbit,
-                subplebbitAddress: subAddress,
+                pkc,
+                communityAddress: subAddress,
                 challengeAnswer: "secret123"
             });
             expect(result.challengeSuccess).toBe(true);
@@ -287,8 +287,8 @@ describe("challenge integration tests", { timeout: 600_000 }, () => {
 
         it("wrong answer fails question challenge", { timeout: 120_000 }, async () => {
             const result = await publishCommentWithChallenge({
-                plebbit,
-                subplebbitAddress: subAddress,
+                pkc,
+                communityAddress: subAddress,
                 challengeAnswer: "wrong"
             });
             expect(result.challengeSuccess).toBe(false);
@@ -307,7 +307,7 @@ describe("challenge integration tests", { timeout: 600_000 }, () => {
             });
 
             // Install while daemon is running
-            const installResult = await runBitsocialChallenge(["install", challengeSrcDir, "--plebbitOptions.dataPath", dataPath]);
+            const installResult = await runBitsocialChallenge(["install", challengeSrcDir, "--pkcOptions.dataPath", dataPath]);
             expect(installResult.exitCode).toBe(0);
             expect(installResult.stdout).toContain("Installed challenge 'test-challenge-v2@1.0.0'");
 
@@ -318,8 +318,8 @@ describe("challenge integration tests", { timeout: 600_000 }, () => {
             expect(reloadBody.ok).toBe(true);
             expect(reloadBody.challenges).toContain("test-challenge-v2");
 
-            // Create a subplebbit using the hot-reloaded challenge
-            const sub = await plebbit.createSubplebbit();
+            // Create a community using the hot-reloaded challenge
+            const sub = await pkc.createCommunity();
             await sub.edit({
                 settings: {
                     challenges: [{ name: "test-challenge-v2" }]
@@ -330,8 +330,8 @@ describe("challenge integration tests", { timeout: 600_000 }, () => {
 
             try {
                 const result = await publishCommentWithChallenge({
-                    plebbit,
-                    subplebbitAddress: sub.address,
+                    pkc,
+                    communityAddress: sub.address,
                     challengeAnswer: "4"
                 });
                 expect(result.challengeSuccess).toBe(true);

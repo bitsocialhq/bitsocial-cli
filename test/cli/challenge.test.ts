@@ -80,7 +80,7 @@ describe("bitsocial challenge install", () => {
 
     it("installs a valid challenge package from local path", async () => {
         const dataPath = randomDirectory();
-        const result = await runBitsocialChallenge(["install", challengeSrcDir, "--plebbitOptions.dataPath", dataPath]);
+        const result = await runBitsocialChallenge(["install", challengeSrcDir, "--pkcOptions.dataPath", dataPath]);
         expect(result.exitCode).toBe(0);
         expect(result.stdout).toContain("Installed challenge 'test-challenge@1.0.0'");
 
@@ -97,9 +97,9 @@ describe("bitsocial challenge install", () => {
     it("errors when already installed", async () => {
         const dataPath = randomDirectory();
         // Install once
-        await runBitsocialChallenge(["install", challengeSrcDir, "--plebbitOptions.dataPath", dataPath]);
+        await runBitsocialChallenge(["install", challengeSrcDir, "--pkcOptions.dataPath", dataPath]);
         // Try again
-        const result = await runBitsocialChallenge(["install", challengeSrcDir, "--plebbitOptions.dataPath", dataPath]);
+        const result = await runBitsocialChallenge(["install", challengeSrcDir, "--pkcOptions.dataPath", dataPath]);
         expect(result.exitCode).not.toBe(0);
         const combined = `${result.stdout}\n${result.stderr}`;
         expect(combined).toContain("already installed");
@@ -110,7 +110,7 @@ describe("bitsocial challenge install", () => {
         const result = await runBitsocialChallenge([
             "install",
             "@nonexistent-scope-abc123/this-package-does-not-exist-xyz789",
-            "--plebbitOptions.dataPath",
+            "--pkcOptions.dataPath",
             dataPath
         ]);
         expect(result.exitCode).not.toBe(0);
@@ -132,7 +132,7 @@ describe("bitsocial challenge install (scoped package)", () => {
 
     it("installs a scoped package correctly", async () => {
         const dataPath = randomDirectory();
-        const result = await runBitsocialChallenge(["install", challengeSrcDir, "--plebbitOptions.dataPath", dataPath]);
+        const result = await runBitsocialChallenge(["install", challengeSrcDir, "--pkcOptions.dataPath", dataPath]);
         expect(result.exitCode).toBe(0);
         expect(result.stdout).toContain("Installed challenge '@test-scope/my-challenge@2.0.0'");
 
@@ -146,7 +146,7 @@ describe("bitsocial challenge install (scoped package)", () => {
 describe("bitsocial challenge list", () => {
     it("shows 'No challenge packages installed' when empty", async () => {
         const dataPath = randomDirectory();
-        const result = await runBitsocialChallenge(["list", "--plebbitOptions.dataPath", dataPath]);
+        const result = await runBitsocialChallenge(["list", "--pkcOptions.dataPath", dataPath]);
         expect(result.exitCode).toBe(0);
         expect(result.stdout).toContain("No challenge packages installed");
     });
@@ -160,7 +160,7 @@ describe("bitsocial challenge list", () => {
             description: "A test challenge"
         });
 
-        const result = await runBitsocialChallenge(["list", "--plebbitOptions.dataPath", dataPath]);
+        const result = await runBitsocialChallenge(["list", "--pkcOptions.dataPath", dataPath]);
         expect(result.exitCode).toBe(0);
         expect(result.stdout).toContain("test-challenge");
         expect(result.stdout).toContain("1.0.0");
@@ -174,7 +174,7 @@ describe("bitsocial challenge list", () => {
             description: "A test challenge"
         });
 
-        const result = await runBitsocialChallenge(["list", "-q", "--plebbitOptions.dataPath", dataPath]);
+        const result = await runBitsocialChallenge(["list", "-q", "--pkcOptions.dataPath", dataPath]);
         expect(result.exitCode).toBe(0);
         expect(result.stdout.trim()).toBe("test-challenge");
     });
@@ -186,7 +186,7 @@ describe("bitsocial challenge remove", () => {
         const challengeDir = path.join(dataPath, "challenges", "test-challenge");
         await createMinimalChallengeDir(challengeDir, "test-challenge", { version: "1.0.0" });
 
-        const result = await runBitsocialChallenge(["remove", "test-challenge", "--plebbitOptions.dataPath", dataPath]);
+        const result = await runBitsocialChallenge(["remove", "test-challenge", "--pkcOptions.dataPath", dataPath]);
         expect(result.exitCode).toBe(0);
         expect(result.stdout).toContain("Removed challenge 'test-challenge'");
 
@@ -202,7 +202,7 @@ describe("bitsocial challenge remove", () => {
         const result = await runBitsocialChallenge([
             "remove",
             "@test-scope/my-challenge",
-            "--plebbitOptions.dataPath",
+            "--pkcOptions.dataPath",
             dataPath
         ]);
         expect(result.exitCode).toBe(0);
@@ -215,7 +215,7 @@ describe("bitsocial challenge remove", () => {
 
     it("errors on non-existent challenge", async () => {
         const dataPath = randomDirectory();
-        const result = await runBitsocialChallenge(["remove", "nonexistent", "--plebbitOptions.dataPath", dataPath]);
+        const result = await runBitsocialChallenge(["remove", "nonexistent", "--pkcOptions.dataPath", dataPath]);
         expect(result.exitCode).not.toBe(0);
         const combined = `${result.stdout}\n${result.stderr}`;
         expect(combined).toContain("not installed");

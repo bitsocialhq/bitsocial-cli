@@ -1,51 +1,51 @@
 import { Command, Flags } from "@oclif/core";
 import defaults from "../common-utils/defaults.js";
-import Plebbit from "@plebbit/plebbit-js";
-import { getPlebbitLogger, setupDebugLogger } from "../util.js";
-type PlebbitInstance = Awaited<ReturnType<typeof Plebbit>>;
-type PlebbitConnectOverride = (plebbitRpcUrl: string) => Promise<PlebbitInstance>;
+import PKC from "@pkc/pkc-js";
+import { getPKCLogger, setupDebugLogger } from "../util.js";
+type PKCInstance = Awaited<ReturnType<typeof PKC>>;
+type PKCConnectOverride = (pkcRpcUrl: string) => Promise<PKCInstance>;
 
-const getPlebbitConnectOverride = (): PlebbitConnectOverride | undefined => {
-    const globalWithOverride = globalThis as { __PLEBBIT_RPC_CONNECT_OVERRIDE?: PlebbitConnectOverride };
-    return globalWithOverride.__PLEBBIT_RPC_CONNECT_OVERRIDE;
+const getPKCConnectOverride = (): PKCConnectOverride | undefined => {
+    const globalWithOverride = globalThis as { __PKC_RPC_CONNECT_OVERRIDE?: PKCConnectOverride };
+    return globalWithOverride.__PKC_RPC_CONNECT_OVERRIDE;
 };
 
 export abstract class BaseCommand extends Command {
     static override baseFlags = {
-        plebbitRpcUrl: Flags.url({
-            summary: "URL to Plebbit RPC",
+        pkcRpcUrl: Flags.url({
+            summary: "URL to PKC RPC",
             required: true,
-            default: defaults.PLEBBIT_RPC_URL
+            default: defaults.PKC_RPC_URL
         })
     };
 
     async init(): Promise<void> {
         await super.init();
-        const Logger = await getPlebbitLogger();
+        const Logger = await getPKCLogger();
         setupDebugLogger(Logger, { enableDefaultNamespace: false });
     }
 
-    protected async _connectToPlebbitRpc(plebbitRpcUrl: string): Promise<PlebbitInstance> {
-        const connectOverride = getPlebbitConnectOverride();
+    protected async _connectToPkcRpc(pkcRpcUrl: string): Promise<PKCInstance> {
+        const connectOverride = getPKCConnectOverride();
         if (connectOverride) {
-            return connectOverride(plebbitRpcUrl);
+            return connectOverride(pkcRpcUrl);
         }
-        const plebbit = await Plebbit({ plebbitRpcClientsOptions: [plebbitRpcUrl] });
+        const pkc = await PKC({ pkcRpcClientsOptions: [pkcRpcUrl] });
         const errors: Error[] = [];
-        plebbit.on("error", (err) => {
+        pkc.on("error", (err) => {
             errors.push(err);
-            console.error("Error from plebbit instance", err);
+            console.error("Error from pkc instance", err);
         });
         await new Promise<void>((resolve, reject) => {
             const timeout = setTimeout(() => {
                 const lastError = errors[errors.length - 1];
-                reject(lastError ?? new Error(`Timed out waiting for RPC server at ${plebbitRpcUrl} to respond`));
+                reject(lastError ?? new Error(`Timed out waiting for RPC server at ${pkcRpcUrl} to respond`));
             }, 20000);
-            plebbit.once("subplebbitschange", () => {
+            pkc.once("communitieschange", () => {
                 clearTimeout(timeout);
                 resolve();
             });
         });
-        return plebbit;
+        return pkc;
     }
 }

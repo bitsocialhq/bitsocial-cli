@@ -1,6 +1,6 @@
 import { describe, it, beforeAll, afterAll, afterEach, expect } from "vitest";
 import Sinon from "sinon";
-import { clearPlebbitRpcConnectOverride, setPlebbitRpcConnectOverride } from "../helpers/plebbit-test-overrides.js";
+import { clearPkcRpcConnectOverride, setPkcRpcConnectOverride } from "../helpers/pkc-test-overrides.js";
 import { runCliCommand } from "../helpers/run-cli.js";
 
 describe("bitsocial community list", () => {
@@ -8,16 +8,16 @@ describe("bitsocial community list", () => {
     const fakeCommunities = ["plebbit1.bso", "plebbit2.bso"];
 
     beforeAll(() => {
-        const plebbitInstanceFake = sandbox.fake.resolves({
-            subplebbits: fakeCommunities,
+        const pkcInstanceFake = sandbox.fake.resolves({
+            communities: fakeCommunities,
             destroy: () => {}
         });
-        setPlebbitRpcConnectOverride(plebbitInstanceFake);
+        setPkcRpcConnectOverride(pkcInstanceFake);
     });
 
     afterEach(() => sandbox.resetHistory());
     afterAll(() => {
-        clearPlebbitRpcConnectOverride();
+        clearPkcRpcConnectOverride();
         sandbox.restore();
     });
 

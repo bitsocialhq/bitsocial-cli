@@ -5,7 +5,7 @@ This document provides a comprehensive checklist for renaming the plebbit-cli co
 - **plebbit** (command) → **bitsocial** (command)
 - **subplebbit** → **community**
 
-> **Note:** plebbit-js has NOT been rebranded yet. All @plebbit/plebbit-js imports, Plebbit class names, and plebbit-js API calls (createSubplebbit, getSubplebbit, etc.) remain unchanged.
+> **Note:** plebbit-js has been rebranded to pkc-js (@pkc/pkc-js). All imports, class names, and API calls have been updated (PKC, createCommunity, getCommunity, etc.).
 
 ## Summary Statistics
 

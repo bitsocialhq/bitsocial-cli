@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import EventEmitter from "events";
 
-vi.mock("@plebbit/plebbit-js", () => {
+vi.mock("@pkc/pkc-js", () => {
     return {
         default: vi.fn()
     };
@@ -10,7 +10,7 @@ vi.mock("@plebbit/plebbit-js", () => {
 // Also mock the logger so BaseCommand.init() doesn't fail
 vi.mock("../../src/util.js", () => {
     return {
-        getPlebbitLogger: vi.fn().mockResolvedValue(() => () => {}),
+        getPKCLogger: vi.fn().mockResolvedValue(() => () => {}),
         setupDebugLogger: vi.fn()
     };
 });
@@ -25,21 +25,21 @@ describe("RPC connection timeout", () => {
         vi.restoreAllMocks();
     });
 
-    it("should throw if subplebbitschange is not emitted within 20s", async () => {
-        const { default: PlebbitMock } = await import("@plebbit/plebbit-js");
-        const fakePlebbit = new EventEmitter();
-        vi.mocked(PlebbitMock).mockResolvedValue(fakePlebbit as any);
+    it("should throw if communitieschange is not emitted within 20s", async () => {
+        const { default: PKCMock } = await import("@pkc/pkc-js");
+        const fakePkc = new EventEmitter();
+        vi.mocked(PKCMock).mockResolvedValue(fakePkc as any);
 
         const { BaseCommand } = await import("../../src/cli/base-command.js");
         class TestCommand extends BaseCommand {
             async run() {}
-            connectToPlebbitRpc(url: string) {
-                return this._connectToPlebbitRpc(url);
+            connectToPkcRpc(url: string) {
+                return this._connectToPkcRpc(url);
             }
         }
         const cmd = new TestCommand([], {} as any);
 
-        const connectPromise = cmd.connectToPlebbitRpc("ws://localhost:9138/wrong-auth");
+        const connectPromise = cmd.connectToPkcRpc("ws://localhost:9138/wrong-auth");
         // Prevent unhandled rejection warning — we assert on the error below
         let caughtError: Error | undefined;
         connectPromise.catch((err) => {
@@ -52,62 +52,62 @@ describe("RPC connection timeout", () => {
         expect(caughtError!.message).toMatch(/Timed out waiting for RPC server/);
     });
 
-    it("should resolve immediately and clear timeout when subplebbitschange is emitted", async () => {
-        const { default: PlebbitMock } = await import("@plebbit/plebbit-js");
-        const fakePlebbit = new EventEmitter();
-        vi.mocked(PlebbitMock).mockResolvedValue(fakePlebbit as any);
+    it("should resolve immediately and clear timeout when communitieschange is emitted", async () => {
+        const { default: PKCMock } = await import("@pkc/pkc-js");
+        const fakePkc = new EventEmitter();
+        vi.mocked(PKCMock).mockResolvedValue(fakePkc as any);
 
         const { BaseCommand } = await import("../../src/cli/base-command.js");
         class TestCommand extends BaseCommand {
             async run() {}
-            connectToPlebbitRpc(url: string) {
-                return this._connectToPlebbitRpc(url);
+            connectToPkcRpc(url: string) {
+                return this._connectToPkcRpc(url);
             }
         }
         const cmd = new TestCommand([], {} as any);
 
-        const connectPromise = cmd.connectToPlebbitRpc("ws://localhost:9138");
+        const connectPromise = cmd.connectToPkcRpc("ws://localhost:9138");
 
-        // Let the Plebbit() promise resolve so the listener is registered
+        // Let the PKC() promise resolve so the listener is registered
         await vi.advanceTimersByTimeAsync(0);
 
         // Simulate successful connection
-        fakePlebbit.emit("subplebbitschange", []);
+        fakePkc.emit("communitieschange", []);
 
         const result = await connectPromise;
-        expect(result).toBe(fakePlebbit);
+        expect(result).toBe(fakePkc);
 
         // Advance past the 20s mark — if timeout wasn't cleared, this would reject
         await vi.advanceTimersByTimeAsync(25000);
     });
 
-    it("should reject with the last plebbit error if one was emitted before timeout", async () => {
-        const { default: PlebbitMock } = await import("@plebbit/plebbit-js");
-        const fakePlebbit = new EventEmitter();
-        vi.mocked(PlebbitMock).mockResolvedValue(fakePlebbit as any);
+    it("should reject with the last pkc error if one was emitted before timeout", async () => {
+        const { default: PKCMock } = await import("@pkc/pkc-js");
+        const fakePkc = new EventEmitter();
+        vi.mocked(PKCMock).mockResolvedValue(fakePkc as any);
 
         const { BaseCommand } = await import("../../src/cli/base-command.js");
         class TestCommand extends BaseCommand {
             async run() {}
-            connectToPlebbitRpc(url: string) {
-                return this._connectToPlebbitRpc(url);
+            connectToPkcRpc(url: string) {
+                return this._connectToPkcRpc(url);
             }
         }
         const cmd = new TestCommand([], {} as any);
 
-        const connectPromise = cmd.connectToPlebbitRpc("ws://localhost:9138/wrong-auth");
+        const connectPromise = cmd.connectToPkcRpc("ws://localhost:9138/wrong-auth");
         let caughtError: Error | undefined;
         connectPromise.catch((err) => {
             caughtError = err;
         });
 
-        // Wait a tick so the Plebbit() promise resolves and the error listener is registered
+        // Wait a tick so the PKC() promise resolves and the error listener is registered
         await vi.advanceTimersByTimeAsync(0);
 
-        // Simulate plebbit emitting an auth error
+        // Simulate pkc emitting an auth error
         const authError = new Error("RPC server rejected the connection. The auth key is either missing or wrong.");
         Object.assign(authError, { code: "ERR_RPC_AUTH_REQUIRED" });
-        fakePlebbit.emit("error", authError);
+        fakePkc.emit("error", authError);
 
         await vi.advanceTimersByTimeAsync(20000);
 

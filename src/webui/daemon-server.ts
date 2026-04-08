@@ -4,10 +4,10 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import fs from "fs/promises";
-import { getPlebbitLogger } from "../util.js";
+import { getPKCLogger } from "../util.js";
 import { randomBytes } from "crypto";
 import express from "express";
-import { loadChallengesIntoPlebbit } from "../challenge-packages/challenge-utils.js";
+import { loadChallengesIntoPKC } from "../challenge-packages/challenge-utils.js";
 
 async function _generateModifiedIndexHtmlWithRpcSettings(webuiPath: string, webuiName: string, ipfsGatewayPort: number) {
     const indexHtmlString = (await fs.readFile(path.join(webuiPath, "index_backup_no_rpc.html")))
@@ -16,49 +16,48 @@ async function _generateModifiedIndexHtmlWithRpcSettings(webuiPath: string, webu
     const defaultRpcOptionString = `[window.location.origin.replace("https://", "wss://").replace("http://", "ws://") + window.location.pathname.split('/' + '${webuiName}')[0]]`;
     // Ipfs media only locally because ipfs gateway doesn't allow remote connections
     const defaultIpfsMedia = `if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.hostname === "0.0.0.0")window.defaultMediaIpfsGatewayUrl = 'http://' + window.location.hostname + ':' + ${ipfsGatewayPort}`;
-    const defaultOptionsString = `<script>window.defaultPlebbitOptions = {plebbitRpcClientsOptions: ${defaultRpcOptionString}};${defaultIpfsMedia};console.log(window.defaultPlebbitOptions, window.defaultMediaIpfsGatewayUrl)</script>`;
+    const defaultOptionsString = `<script>window.defaultPkcOptions = {pkcRpcClientsOptions: ${defaultRpcOptionString}};${defaultIpfsMedia};console.log(window.defaultPkcOptions, window.defaultMediaIpfsGatewayUrl)</script>`;
 
     const modifiedIndexHtmlContent = "<!DOCTYPE html>" + defaultOptionsString + indexHtmlString.replace("<!DOCTYPE html>", "");
 
     return modifiedIndexHtmlContent;
 }
 
-async function _generateRpcAuthKeyIfNotExisting(plebbitDataPath: string) {
-    // generate plebbit rpc auth key if doesn't exist
-    const plebbitRpcAuthKeyPath = path.join(plebbitDataPath, "auth-key");
-    const envAuthKey = process.env["PLEBBIT_RPC_AUTH_KEY"];
-    let plebbitRpcAuthKey: string;
+async function _generateRpcAuthKeyIfNotExisting(pkcDataPath: string) {
+    const pkcRpcAuthKeyPath = path.join(pkcDataPath, "auth-key");
+    const envAuthKey = process.env["PKC_RPC_AUTH_KEY"];
+    let pkcRpcAuthKey: string;
     if (envAuthKey) {
-        plebbitRpcAuthKey = envAuthKey;
-        await fs.writeFile(plebbitRpcAuthKeyPath, plebbitRpcAuthKey);
+        pkcRpcAuthKey = envAuthKey;
+        await fs.writeFile(pkcRpcAuthKeyPath, pkcRpcAuthKey);
     } else {
         try {
-            plebbitRpcAuthKey = await fs.readFile(plebbitRpcAuthKeyPath, "utf-8");
+            pkcRpcAuthKey = await fs.readFile(pkcRpcAuthKeyPath, "utf-8");
         } catch (e) {
-            plebbitRpcAuthKey = randomBytes(32).toString("base64").replace(/[/+=]/g, "").substring(0, 40);
-            await fs.writeFile(plebbitRpcAuthKeyPath, plebbitRpcAuthKey, { flag: "wx" });
+            pkcRpcAuthKey = randomBytes(32).toString("base64").replace(/[/+=]/g, "").substring(0, 40);
+            await fs.writeFile(pkcRpcAuthKeyPath, pkcRpcAuthKey, { flag: "wx" });
         }
     }
-    return plebbitRpcAuthKey;
+    return pkcRpcAuthKey;
 }
 
 // The daemon server will host both RPC and webui on the same port
-export async function startDaemonServer(rpcUrl: URL, ipfsGatewayUrl: URL, plebbitOptions: any) {
-    // Start plebbit-js RPC
-    const log = (await getPlebbitLogger())("bitsocial-cli:daemon:startDaemonServer");
+export async function startDaemonServer(rpcUrl: URL, ipfsGatewayUrl: URL, pkcOptions: any) {
+    // Start pkc-js RPC
+    const log = (await getPKCLogger())("bitsocial-cli:daemon:startDaemonServer");
     const webuiExpressApp = express();
     const httpServer = webuiExpressApp.listen(Number(rpcUrl.port));
     log("HTTP server is running on", "0.0.0.0" + ":" + rpcUrl.port);
-    const rpcAuthKey = await _generateRpcAuthKeyIfNotExisting(plebbitOptions.dataPath!);
-    const PlebbitWsServer = await import("@plebbit/plebbit-js/rpc");
+    const rpcAuthKey = await _generateRpcAuthKeyIfNotExisting(pkcOptions.dataPath!);
+    const PKCRpc = await import("@pkc/pkc-js/rpc");
 
     // Will add ability to edit later, but it's hard coded for now
 
-    log("Will be passing plebbit options to RPC server", plebbitOptions);
+    log("Will be passing pkc options to RPC server", pkcOptions);
 
-    const rpcServer = await PlebbitWsServer.default.PlebbitWsServer({
+    const rpcServer = await PKCRpc.default.PKCWsServer({
         server: httpServer,
-        plebbitOptions: plebbitOptions,
+        pkcOptions: pkcOptions,
         authKey: rpcAuthKey
     });
 
@@ -128,7 +127,7 @@ export async function startDaemonServer(rpcUrl: URL, ipfsGatewayUrl: URL, plebbi
     // Challenge reload endpoints
     const handleChallengeReload = async (_req: express.Request, res: express.Response) => {
         try {
-            const loadedNames = await loadChallengesIntoPlebbit(plebbitOptions.dataPath);
+            const loadedNames = await loadChallengesIntoPKC(pkcOptions.dataPath);
             // Notify all connected RPC clients about the updated challenges
             const onSettingsChange = (rpcServer as any)._onSettingsChange;
             if (onSettingsChange) {
@@ -137,7 +136,7 @@ export async function startDaemonServer(rpcUrl: URL, ipfsGatewayUrl: URL, plebbi
                     if (!handlers) continue;
                     for (const subscriptionId of Object.keys(handlers)) {
                         const handler = handlers[subscriptionId];
-                        if (handler) await handler({ newPlebbit: (rpcServer as any).plebbit });
+                        if (handler) await handler({ newPKC: (rpcServer as any).pkc });
                     }
                 }
             }
@@ -172,5 +171,5 @@ export async function startDaemonServer(rpcUrl: URL, ipfsGatewayUrl: URL, plebbi
         daemonServerDestroyed = true;
     };
 
-    return { rpcAuthKey, listedSub: rpcServer.plebbit.subplebbits, webuis, destroy: cleanupDaemonServer };
+    return { rpcAuthKey, listedSub: rpcServer.pkc.communities, webuis, destroy: cleanupDaemonServer };
 }

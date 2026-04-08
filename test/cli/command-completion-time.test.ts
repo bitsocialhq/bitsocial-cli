@@ -6,8 +6,8 @@ import path from "path";
 import dns from "node:dns";
 import {
     type ManagedChildProcess,
-    stopPlebbitDaemon,
-    startPlebbitDaemon,
+    stopPkcDaemon,
+    startPkcDaemon,
     waitForCondition,
     waitForPortFree
 } from "../helpers/daemon-helpers.js";
@@ -76,7 +76,7 @@ const createMinimalChallengeDir = async (
     );
 };
 
-describe("CLI commands complete within 10s (real plebbit instance)", () => {
+describe("CLI commands complete within 10s (real pkc instance)", () => {
     let daemonProcess: ManagedChildProcess;
     let communityAddress: string;
     let stateHome: string;
@@ -87,8 +87,8 @@ describe("CLI commands complete within 10s (real plebbit instance)", () => {
         logDir = path.join(stateHome, "bitsocial");
         await fsPromise.mkdir(logDir, { recursive: true });
 
-        daemonProcess = await startPlebbitDaemon(
-            ["--logPath", logDir, "--plebbitRpcUrl", rpcWsUrl],
+        daemonProcess = await startPkcDaemon(
+            ["--logPath", logDir, "--pkcRpcUrl", rpcWsUrl],
             { KUBO_RPC_URL: kuboApiUrl, IPFS_GATEWAY_URL: gatewayUrl }
         );
 
@@ -100,7 +100,7 @@ describe("CLI commands complete within 10s (real plebbit instance)", () => {
     }, 120_000);
 
     afterAll(async () => {
-        await stopPlebbitDaemon(daemonProcess);
+        await stopPkcDaemon(daemonProcess);
         await waitForPortFree(RPC_PORT);
         await waitForPortFree(KUBO_API_PORT);
         await waitForPortFree(GATEWAY_PORT);
@@ -108,7 +108,7 @@ describe("CLI commands complete within 10s (real plebbit instance)", () => {
 
     it("community create completes within 10s", { timeout: 10_000 }, async () => {
         const result = await runBitsocialCommand(
-            ["community", "create", "--description", "test community", "--plebbitRpcUrl", rpcWsUrl]
+            ["community", "create", "--description", "test community", "--pkcRpcUrl", rpcWsUrl]
         );
         expect(result.exitCode).toBe(0);
         communityAddress = result.stdout.trim();
@@ -117,7 +117,7 @@ describe("CLI commands complete within 10s (real plebbit instance)", () => {
 
     it("community list -q completes within 10s", { timeout: 10_000 }, async () => {
         const result = await runBitsocialCommand(
-            ["community", "list", "-q", "--plebbitRpcUrl", rpcWsUrl]
+            ["community", "list", "-q", "--pkcRpcUrl", rpcWsUrl]
         );
         expect(result.exitCode).toBe(0);
         expect(result.stdout).toContain(communityAddress);
@@ -125,7 +125,7 @@ describe("CLI commands complete within 10s (real plebbit instance)", () => {
 
     it("community list (table) completes within 10s", { timeout: 10_000 }, async () => {
         const result = await runBitsocialCommand(
-            ["community", "list", "--plebbitRpcUrl", rpcWsUrl]
+            ["community", "list", "--pkcRpcUrl", rpcWsUrl]
         );
         expect(result.exitCode).toBe(0);
         expect(result.stdout).toContain(communityAddress);
@@ -133,7 +133,7 @@ describe("CLI commands complete within 10s (real plebbit instance)", () => {
 
     it("community get completes within 10s", { timeout: 10_000 }, async () => {
         const result = await runBitsocialCommand(
-            ["community", "get", communityAddress, "--plebbitRpcUrl", rpcWsUrl]
+            ["community", "get", communityAddress, "--pkcRpcUrl", rpcWsUrl]
         );
         expect(result.exitCode).toBe(0);
         const json = JSON.parse(result.stdout);
@@ -142,7 +142,7 @@ describe("CLI commands complete within 10s (real plebbit instance)", () => {
 
     it("community edit completes within 10s", { timeout: 10_000 }, async () => {
         const result = await runBitsocialCommand(
-            ["community", "edit", communityAddress, "--title", "new title", "--plebbitRpcUrl", rpcWsUrl]
+            ["community", "edit", communityAddress, "--title", "new title", "--pkcRpcUrl", rpcWsUrl]
         );
         expect(result.exitCode).toBe(0);
         expect(result.stdout.trim()).toBe(communityAddress);
@@ -150,7 +150,7 @@ describe("CLI commands complete within 10s (real plebbit instance)", () => {
 
     it("community stop completes within 10s", { timeout: 10_000 }, async () => {
         const result = await runBitsocialCommand(
-            ["community", "stop", communityAddress, "--plebbitRpcUrl", rpcWsUrl]
+            ["community", "stop", communityAddress, "--pkcRpcUrl", rpcWsUrl]
         );
         expect(result.exitCode).toBe(0);
         expect(result.stdout.trim()).toBe(communityAddress);
@@ -158,7 +158,7 @@ describe("CLI commands complete within 10s (real plebbit instance)", () => {
 
     it("community start completes within 10s", { timeout: 10_000 }, async () => {
         const result = await runBitsocialCommand(
-            ["community", "start", communityAddress, "--plebbitRpcUrl", rpcWsUrl]
+            ["community", "start", communityAddress, "--pkcRpcUrl", rpcWsUrl]
         );
         expect(result.exitCode).toBe(0);
         expect(result.stdout.trim()).toBe(communityAddress);
@@ -166,7 +166,7 @@ describe("CLI commands complete within 10s (real plebbit instance)", () => {
 
     it("community stop (before delete) completes within 10s", { timeout: 10_000 }, async () => {
         const result = await runBitsocialCommand(
-            ["community", "stop", communityAddress, "--plebbitRpcUrl", rpcWsUrl]
+            ["community", "stop", communityAddress, "--pkcRpcUrl", rpcWsUrl]
         );
         expect(result.exitCode).toBe(0);
         expect(result.stdout.trim()).toBe(communityAddress);
@@ -174,7 +174,7 @@ describe("CLI commands complete within 10s (real plebbit instance)", () => {
 
     it("community delete completes within 10s", { timeout: 10_000 }, async () => {
         const result = await runBitsocialCommand(
-            ["community", "delete", communityAddress, "--plebbitRpcUrl", rpcWsUrl]
+            ["community", "delete", communityAddress, "--pkcRpcUrl", rpcWsUrl]
         );
         expect(result.exitCode).toBe(0);
         expect(result.stdout.trim()).toBe(communityAddress);
@@ -182,7 +182,7 @@ describe("CLI commands complete within 10s (real plebbit instance)", () => {
 
     it("community list -q shows no communities after delete", { timeout: 10_000 }, async () => {
         const result = await runBitsocialCommand(
-            ["community", "list", "-q", "--plebbitRpcUrl", rpcWsUrl]
+            ["community", "list", "-q", "--pkcRpcUrl", rpcWsUrl]
         );
         expect(result.exitCode).toBe(0);
         expect(result.stdout.trim()).not.toContain(communityAddress);
@@ -214,7 +214,7 @@ describe("challenge commands complete within 10s", () => {
 
     it("challenge list (empty) completes within 10s", { timeout: 10_000 }, async () => {
         const result = await runBitsocialCommand(
-            ["challenge", "list", "--plebbitOptions.dataPath", dataPath]
+            ["challenge", "list", "--pkcOptions.dataPath", dataPath]
         );
         expect(result.exitCode).toBe(0);
         expect(result.stdout).toContain("No challenge packages installed");
@@ -222,7 +222,7 @@ describe("challenge commands complete within 10s", () => {
 
     it("challenge install completes within 10s", { timeout: 10_000 }, async () => {
         const result = await runBitsocialCommand(
-            ["challenge", "install", challengeSrcDir, "--plebbitOptions.dataPath", dataPath]
+            ["challenge", "install", challengeSrcDir, "--pkcOptions.dataPath", dataPath]
         );
         expect(result.exitCode).toBe(0);
         expect(result.stdout).toContain("Installed challenge 'test-challenge@1.0.0'");
@@ -230,7 +230,7 @@ describe("challenge commands complete within 10s", () => {
 
     it("challenge list (after install) completes within 10s", { timeout: 10_000 }, async () => {
         const result = await runBitsocialCommand(
-            ["challenge", "list", "--plebbitOptions.dataPath", dataPath]
+            ["challenge", "list", "--pkcOptions.dataPath", dataPath]
         );
         expect(result.exitCode).toBe(0);
         expect(result.stdout).toContain("test-challenge");
@@ -238,7 +238,7 @@ describe("challenge commands complete within 10s", () => {
 
     it("challenge remove completes within 10s", { timeout: 10_000 }, async () => {
         const result = await runBitsocialCommand(
-            ["challenge", "remove", "test-challenge", "--plebbitOptions.dataPath", dataPath]
+            ["challenge", "remove", "test-challenge", "--pkcOptions.dataPath", dataPath]
         );
         expect(result.exitCode).toBe(0);
         expect(result.stdout).toContain("Removed challenge 'test-challenge'");
@@ -246,7 +246,7 @@ describe("challenge commands complete within 10s", () => {
 
     it("challenge list (after remove) completes within 10s", { timeout: 10_000 }, async () => {
         const result = await runBitsocialCommand(
-            ["challenge", "list", "--plebbitOptions.dataPath", dataPath]
+            ["challenge", "list", "--pkcOptions.dataPath", dataPath]
         );
         expect(result.exitCode).toBe(0);
         expect(result.stdout).toContain("No challenge packages installed");

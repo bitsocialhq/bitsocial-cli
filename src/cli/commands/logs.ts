@@ -136,7 +136,7 @@ export default class Logs extends Command {
 
     async run() {
         const { flags } = await this.parse(Logs);
-        const logPath = defaults.PLEBBIT_LOG_PATH;
+        const logPath = defaults.PKC_LOG_PATH;
         const latestLogFile = await this._findLatestLogFile(logPath);
 
         const since = flags.since ? this._parseTimestamp(flags.since) : undefined;

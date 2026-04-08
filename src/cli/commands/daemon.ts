@@ -7,66 +7,64 @@ import path from "path";
 import tcpPortUsed from "tcp-port-used";
 import {
     getLanIpV4Address,
-    getPlebbitLogger,
+    getPKCLogger,
     setupDebugLogger,
     loadKuboConfigFile,
     parseMultiAddrKuboRpcToUrl,
     parseMultiAddrIpfsGatewayToUrl
 } from "../../util.js";
-import type { PlebbitLogger } from "../../util.js";
+import type { PKCLogger } from "../../util.js";
 import { startDaemonServer } from "../../webui/daemon-server.js";
-import { loadChallengesIntoPlebbit } from "../../challenge-packages/challenge-utils.js";
+import { loadChallengesIntoPKC } from "../../challenge-packages/challenge-utils.js";
+import { migrateDataDirectory } from "../../common-utils/data-migration.js";
 import fs from "fs";
 import fsPromise from "fs/promises";
 import { EOL } from "node:os";
 import { formatWithOptions } from "node:util";
 import { createRequire } from "node:module";
 //@ts-expect-error
-import type { InputPlebbitOptions } from "@plebbit/plebbit-js/dist/node/types.js";
+import type { InputPKCOptions } from "@pkc/pkc-js/dist/node/types.js";
 //@ts-expect-error
 import DataObjectParser from "dataobject-parser";
 
 import * as remeda from "remeda";
 
-const defaultPlebbitOptions: InputPlebbitOptions = {
-    dataPath: defaults.PLEBBIT_DATA_PATH,
+const defaultPkcOptions: InputPKCOptions = {
+    dataPath: defaults.PKC_DATA_PATH,
     httpRoutersOptions: defaults.HTTP_TRACKERS
 };
 
-// TODO I think we need to print plebbitOptions to stdout
-
 export default class Daemon extends Command {
     static override description = `Run a network-connected Bitsocial node. Once the daemon is running you can create and start your communities and receive publications from users. The daemon will also serve web ui on http that can be accessed through a browser on any machine. Within the web ui users are able to browse, create and manage their communities fully P2P.
-    Options can be passed to the RPC's instance through flag --plebbitOptions.optionName. For a list of plebbit options (https://github.com/plebbit/plebbit-js?tab=readme-ov-file#plebbitoptions)
+    Options can be passed to the RPC's instance through flag --pkcOptions.optionName. For a list of pkc options (https://github.com/pkcprotocol/pkc-js?tab=readme-ov-file#pkcoptions)
     If you need to modify ipfs config, you should head to {bitsocial-data-path}/.ipfs-bitsocial-cli/config and modify the config file
     `;
 
     static override flags = {
-        plebbitRpcUrl: Flags.url({
-            description: "Specify Plebbit RPC URL to listen on",
+        pkcRpcUrl: Flags.url({
+            description: "Specify PKC RPC URL to listen on",
             required: true,
-            default: defaults.PLEBBIT_RPC_URL
+            default: defaults.PKC_RPC_URL
         }),
 
         logPath: Flags.directory({
             description: "Specify a directory which will be used to store logs",
             required: true,
-            default: defaults.PLEBBIT_LOG_PATH
+            default: defaults.PKC_LOG_PATH
         })
     };
 
     static override examples = [
         "bitsocial daemon",
-        "bitsocial daemon --plebbitRpcUrl ws://localhost:53812",
-        "bitsocial daemon --plebbitOptions.dataPath /tmp/bitsocial-datapath/",
-        "bitsocial daemon --plebbitOptions.chainProviders.eth[0].url https://ethrpc.com",
-        "bitsocial daemon --plebbitOptions.kuboRpcClientsOptions[0] https://remoteipfsnode.com"
+        "bitsocial daemon --pkcRpcUrl ws://localhost:53812",
+        "bitsocial daemon --pkcOptions.dataPath /tmp/bitsocial-datapath/",
+        "bitsocial daemon --pkcOptions.kuboRpcClientsOptions[0] https://remoteipfsnode.com"
     ];
 
-    private _setupLogger(Logger: PlebbitLogger) {
+    private _setupLogger(Logger: PKCLogger) {
         setupDebugLogger(Logger, { enableDefaultNamespace: true });
         console.log("To view logs, run: bitsocial logs");
-        console.log("For custom debug logging, restart the daemon with DEBUG env, e.g.: DEBUG='bitsocial*,plebbit*' bitsocial daemon");
+        console.log("For custom debug logging, restart the daemon with DEBUG env, e.g.: DEBUG='bitsocial*,pkc*' bitsocial daemon");
     }
 
     private async _getNewLogfileByEvacuatingOldLogsIfNeeded(logPath: string) {
@@ -93,7 +91,7 @@ export default class Daemon extends Command {
 
     private async _pipeDebugLogsToLogFile(
         logPath: string,
-        Logger: PlebbitLogger
+        Logger: PKCLogger
     ): Promise<{ logFilePath: string; stdoutWrite: typeof process.stdout.write }> {
         const { logFilePath, deletedLogFile, logfilesCapacity } = await this._getNewLogfileByEvacuatingOldLogsIfNeeded(logPath);
 
@@ -115,7 +113,7 @@ export default class Daemon extends Command {
         // Redirect debug library output directly to the log file
         // instead of stderr, so only real errors appear in the terminal
         const require = createRequire(import.meta.url);
-        const debugModule = require("@plebbit/plebbit-logger/node_modules/debug");
+        const debugModule = require("debug");
         // Force colors on and suppress the debug library's own date prefix
         // so that only writeTimestampedLine adds timestamps
         debugModule.inspectOpts.colors = true;
@@ -172,14 +170,14 @@ export default class Daemon extends Command {
         process.env["DEBUG_COLORS"] = "1";
         process.env["DEBUG_HIDE_DATE"] = "1";
         const { flags } = await this.parse(Daemon);
-        const Logger = await getPlebbitLogger();
+        const Logger = await getPKCLogger();
         this._setupLogger(Logger);
         const { logFilePath, stdoutWrite } = await this._pipeDebugLogsToLogFile(flags.logPath, Logger);
         const log = Logger("bitsocial-cli:daemon");
 
         try {
         // Log debug info after pipe is set up so it goes to the log file, not terminal
-        const envDebug: string | undefined = process.env["_PLEBBIT_DEBUG"] || process.env["DEBUG"];
+        const envDebug: string | undefined = process.env["_PKC_DEBUG"] || process.env["DEBUG"];
         const debugNamespace = envDebug === "0" || envDebug === "" ? undefined : envDebug;
         if (debugNamespace) {
             const debugDepth = process.env["DEBUG_DEPTH"] ? parseInt(process.env["DEBUG_DEPTH"]) : 10;
@@ -189,41 +187,44 @@ export default class Daemon extends Command {
 
         log(`flags: `, flags);
 
-        const plebbitRpcUrl = new URL(flags.plebbitRpcUrl);
+        const pkcRpcUrl = new URL(flags.pkcRpcUrl);
 
-        const plebbitOptionsFlagNames = Object.keys(flags).filter((flag) => flag.startsWith("plebbitOptions"));
-        const plebbitOptionsFromFlag: InputPlebbitOptions | undefined =
-            plebbitOptionsFlagNames.length > 0
-                ? DataObjectParser.transpose(remeda.pick(flags, plebbitOptionsFlagNames))["_data"]?.["plebbitOptions"]
+        const pkcOptionsFlagNames = Object.keys(flags).filter((flag) => flag.startsWith("pkcOptions"));
+        const pkcOptionsFromFlag: InputPKCOptions | undefined =
+            pkcOptionsFlagNames.length > 0
+                ? DataObjectParser.transpose(remeda.pick(flags, pkcOptionsFlagNames))["_data"]?.["pkcOptions"]
                 : undefined;
 
-        if (plebbitOptionsFromFlag?.plebbitRpcClientsOptions && plebbitRpcUrl.toString() !== defaults.PLEBBIT_RPC_URL.toString()) {
+        if (pkcOptionsFromFlag?.pkcRpcClientsOptions && pkcRpcUrl.toString() !== defaults.PKC_RPC_URL.toString()) {
             this.error(
-                "Can't provide plebbitOptions.plebbitRpcClientsOptions and --plebbitRpcUrl simuatelounsly. You have to choose between connecting to an RPC or starting up a new RPC"
+                "Can't provide pkcOptions.pkcRpcClientsOptions and --pkcRpcUrl simultaneously. You have to choose between connecting to an RPC or starting up a new RPC"
             );
         }
 
-        if (plebbitOptionsFromFlag?.kuboRpcClientsOptions && plebbitOptionsFromFlag.kuboRpcClientsOptions.length !== 1)
-            this.error("Can't provide plebbitOptions.kuboRpcClientsOptions as an array with more than 1 element, or as a non array");
+        if (pkcOptionsFromFlag?.kuboRpcClientsOptions && pkcOptionsFromFlag.kuboRpcClientsOptions.length !== 1)
+            this.error("Can't provide pkcOptions.kuboRpcClientsOptions as an array with more than 1 element, or as a non array");
 
-        if (plebbitOptionsFromFlag?.ipfsGatewayUrls && plebbitOptionsFromFlag.ipfsGatewayUrls.length !== 1)
-            this.error("Can't provide plebbitOptions.ipfsGatewayUrls as an array with more than 1 element, or as a non array");
+        if (pkcOptionsFromFlag?.ipfsGatewayUrls && pkcOptionsFromFlag.ipfsGatewayUrls.length !== 1)
+            this.error("Can't provide pkcOptions.ipfsGatewayUrls as an array with more than 1 element, or as a non array");
 
-        const ipfsConfig = await loadKuboConfigFile(plebbitOptionsFromFlag?.dataPath || defaultPlebbitOptions.dataPath!);
-        const kuboRpcEndpoint = plebbitOptionsFromFlag?.kuboRpcClientsOptions
-            ? new URL(plebbitOptionsFromFlag.kuboRpcClientsOptions[0]!.toString())
+        const ipfsConfig = await loadKuboConfigFile(pkcOptionsFromFlag?.dataPath || defaultPkcOptions.dataPath!);
+        const kuboRpcEndpoint = pkcOptionsFromFlag?.kuboRpcClientsOptions
+            ? new URL(pkcOptionsFromFlag.kuboRpcClientsOptions[0]!.toString())
             : ipfsConfig?.["Addresses"]?.["API"]
               ? await parseMultiAddrKuboRpcToUrl(ipfsConfig?.["Addresses"]?.["API"])
               : defaults.KUBO_RPC_URL;
-        const ipfsGatewayEndpoint = plebbitOptionsFromFlag?.ipfsGatewayUrls
-            ? new URL(plebbitOptionsFromFlag.ipfsGatewayUrls[0])
+        const ipfsGatewayEndpoint = pkcOptionsFromFlag?.ipfsGatewayUrls
+            ? new URL(pkcOptionsFromFlag.ipfsGatewayUrls[0])
             : ipfsConfig?.["Addresses"]?.["Gateway"]
               ? await parseMultiAddrIpfsGatewayToUrl(ipfsConfig?.["Addresses"]?.["Gateway"])
               : defaults.IPFS_GATEWAY_URL;
 
-        defaultPlebbitOptions.kuboRpcClientsOptions = [kuboRpcEndpoint.toString()];
-        const mergedPlebbitOptions = { ...defaultPlebbitOptions, ...plebbitOptionsFromFlag };
-        log("Merged plebbit options that will be used for this node", mergedPlebbitOptions);
+        defaultPkcOptions.kuboRpcClientsOptions = [kuboRpcEndpoint.toString()];
+        const mergedPkcOptions = { ...defaultPkcOptions, ...pkcOptionsFromFlag };
+        log("Merged pkc options that will be used for this node", mergedPkcOptions);
+
+        // Migrate data directory before creating PKC instance
+        migrateDataDirectory(mergedPkcOptions.dataPath!);
 
         let mainProcessExited = false;
         let pendingKuboStart: Promise<ChildProcessWithoutNullStreams> | undefined;
@@ -259,7 +260,7 @@ export default class Daemon extends Command {
                     }:${kuboApiPort} (configured as ${kuboRpcEndpoint.toString()}) is already in use.`
                 );
             }
-            const startPromise = startKuboNode(kuboRpcEndpoint, ipfsGatewayEndpoint, mergedPlebbitOptions.dataPath!, (process) => {
+            const startPromise = startKuboNode(kuboRpcEndpoint, ipfsGatewayEndpoint, mergedPkcOptions.dataPath!, (process) => {
                 kuboProcess = process;
             });
             pendingKuboStart = startPromise;
@@ -317,40 +318,40 @@ export default class Daemon extends Command {
         const createOrConnectRpc = async () => {
             if (mainProcessExited) return;
             if (startedOwnRpc) return;
-            const isRpcPortTaken = await tcpPortUsed.check(Number(plebbitRpcUrl.port), plebbitRpcUrl.hostname);
+            const isRpcPortTaken = await tcpPortUsed.check(Number(pkcRpcUrl.port), pkcRpcUrl.hostname);
             if (isRpcPortTaken && usingDifferentProcessRpc) return;
             if (isRpcPortTaken) {
                 log(
-                    `Plebbit RPC is already running (${plebbitRpcUrl}) by another program. bitsocial-cli will use the running RPC server, and if shuts down, bitsocial-cli will start a new RPC instance`
+                    `PKC RPC is already running (${pkcRpcUrl}) by another program. bitsocial-cli will use the running RPC server, and if shuts down, bitsocial-cli will start a new RPC instance`
                 );
-                console.log("Using the already started RPC server at:", plebbitRpcUrl);
-                console.log("bitsocial-cli daemon will monitor the plebbit RPC and kubo ipfs API to make sure they're always up");
-                const Plebbit = await import("@plebbit/plebbit-js");
-                const plebbit = await Plebbit.default({ plebbitRpcClientsOptions: [plebbitRpcUrl.toString()] });
-                await new Promise((resolve) => plebbit.once("subplebbitschange", resolve));
-                plebbit.on("error", (error) => console.error("Error from plebbit instance", error));
-                console.log(`Communities in data path: `, plebbit.subplebbits);
+                console.log("Using the already started RPC server at:", pkcRpcUrl);
+                console.log("bitsocial-cli daemon will monitor the PKC RPC and kubo ipfs API to make sure they're always up");
+                const PKC = await import("@pkc/pkc-js");
+                const pkc = await PKC.default({ pkcRpcClientsOptions: [pkcRpcUrl.toString()] });
+                await new Promise((resolve) => pkc.once("communitieschange", resolve));
+                pkc.on("error", (error) => console.error("Error from pkc instance", error));
+                console.log(`Communities in data path: `, pkc.communities);
                 usingDifferentProcessRpc = true;
                 return;
             }
 
             // Load installed challenge packages before starting the RPC server
-            const loadedChallenges = await loadChallengesIntoPlebbit(mergedPlebbitOptions.dataPath);
+            const loadedChallenges = await loadChallengesIntoPKC(mergedPkcOptions.dataPath);
             if (loadedChallenges.length > 0) console.log(`Loaded challenge packages: ${loadedChallenges.join(", ")}`);
 
-            daemonServer = await startDaemonServer(plebbitRpcUrl, ipfsGatewayEndpoint, mergedPlebbitOptions);
+            daemonServer = await startDaemonServer(pkcRpcUrl, ipfsGatewayEndpoint, mergedPkcOptions);
 
             usingDifferentProcessRpc = false;
             startedOwnRpc = true;
-            console.log(`plebbit rpc: listening on ${plebbitRpcUrl} (local connections only)`);
-            console.log(`plebbit rpc: listening on ${plebbitRpcUrl}${daemonServer.rpcAuthKey} (secret auth key for remote connections)`);
+            console.log(`pkc rpc: listening on ${pkcRpcUrl} (local connections only)`);
+            console.log(`pkc rpc: listening on ${pkcRpcUrl}${daemonServer.rpcAuthKey} (secret auth key for remote connections)`);
 
-            console.log(`Bitsocial data path: ${path.resolve(mergedPlebbitOptions.dataPath!)}`);
+            console.log(`Bitsocial data path: ${path.resolve(mergedPkcOptions.dataPath!)}`);
             console.log(`Communities in data path: `, daemonServer.listedSub);
 
             const localIpAddress = "localhost";
             const remoteIpAddress = getLanIpV4Address() || localIpAddress;
-            const rpcPort = plebbitRpcUrl.port;
+            const rpcPort = pkcRpcUrl.port;
             const webuiDescriptions: Record<string, string> = {
                 plebones: "A bare bones UI client",
                 seedit: "Similar to old reddit UI",
@@ -364,9 +365,9 @@ export default class Daemon extends Command {
             }
         };
 
-        const isRpcPortTaken = await tcpPortUsed.check(Number(plebbitRpcUrl.port), plebbitRpcUrl.hostname);
+        const isRpcPortTaken = await tcpPortUsed.check(Number(pkcRpcUrl.port), pkcRpcUrl.hostname);
 
-        if (!plebbitOptionsFromFlag?.kuboRpcClientsOptions && !isRpcPortTaken && !usingDifferentProcessRpc) await keepKuboUp();
+        if (!pkcOptionsFromFlag?.kuboRpcClientsOptions && !isRpcPortTaken && !usingDifferentProcessRpc) await keepKuboUp();
         await createOrConnectRpc();
 
         let keepKuboUpInterval: NodeJS.Timeout | undefined;
@@ -431,7 +432,7 @@ export default class Daemon extends Command {
                 console.log(
                     "\nShutting down Bitsocial daemon, it may take a few seconds to shut down all communities and the IPFS node..."
                 );
-                log("Received signal to exit, shutting down both kubo and plebbit rpc. Please wait, it may take a few seconds");
+                log("Received signal to exit, shutting down both kubo and pkc rpc. Please wait, it may take a few seconds");
 
                 mainProcessExited = true;
 
@@ -463,9 +464,9 @@ export default class Daemon extends Command {
 
         keepKuboUpInterval = setInterval(async () => {
             if (mainProcessExited) return;
-            const isRpcPortTaken = await tcpPortUsed.check(Number(plebbitRpcUrl.port), plebbitRpcUrl.hostname);
-            if (!plebbitOptionsFromFlag?.kuboRpcClientsOptions && !isRpcPortTaken && !usingDifferentProcessRpc) await keepKuboUp();
-            else if (plebbitOptionsFromFlag?.kuboRpcClientsOptions && !usingDifferentProcessRpc) await keepKuboUp();
+            const isRpcPortTaken = await tcpPortUsed.check(Number(pkcRpcUrl.port), pkcRpcUrl.hostname);
+            if (!pkcOptionsFromFlag?.kuboRpcClientsOptions && !isRpcPortTaken && !usingDifferentProcessRpc) await keepKuboUp();
+            else if (pkcOptionsFromFlag?.kuboRpcClientsOptions && !usingDifferentProcessRpc) await keepKuboUp();
             await createOrConnectRpc();
         }, 5000);
 

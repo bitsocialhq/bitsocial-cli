@@ -23,7 +23,7 @@ Bitsocial is p2p and decentralized social media protocol built completely with I
 
 ## What is bitsocial-cli?
 
-`bitsocial-cli` is an interface to the backend of Bitsocial protocol using [plebbit-js](https://github.com/plebbit/plebbit-js). Users can run and manage their communities using it. It is written in Typescript and designed to receive commands via CLI and WebSocket.
+`bitsocial-cli` is an interface to the backend of PKC protocol using [pkc-js](https://github.com/pkcprotocol/pkc-js). Users can run and manage their communities using it. It is written in Typescript and designed to receive commands via CLI and WebSocket.
 
 -   Runs an IPFS and Bitsocial node
 -   Command Line interface to manage Bitsocial communities
@@ -150,17 +150,17 @@ services:
     container_name: bitsocial
     restart: unless-stopped
     ports:
-      - "9138:9138"    # Plebbit RPC + Web UI
+      - "9138:9138"    # PKC RPC + Web UI
       - "50019:50019"  # Kubo IPFS API
       - "6473:6473"    # IPFS Gateway
     volumes:
       - bitsocial-data:/data
       - bitsocial-logs:/logs
     environment:
-      - DEBUG=bitsocial*, plebbit*, -plebbit*trace
+      - DEBUG=bitsocial*, pkc*, -pkc*trace
       # Set a fixed auth key (useful for bookmarking the web UI URL).
       # If left unset, a random key is generated on first start.
-      # - PLEBBIT_RPC_AUTH_KEY=your-custom-auth-key-here
+      # - PKC_RPC_AUTH_KEY=your-custom-auth-key-here
       # Override Kubo IPFS bind addresses / ports:
       # - KUBO_RPC_URL=http://0.0.0.0:50019/api/v0
       # - IPFS_GATEWAY_URL=http://0.0.0.0:6473
@@ -195,7 +195,7 @@ docker run -d \
   -p 6473:6473 \
   -v bitsocial-data:/data \
   -v bitsocial-logs:/logs \
-  -e PLEBBIT_RPC_AUTH_KEY=my-secret-key \
+  -e PKC_RPC_AUTH_KEY=my-secret-key \
   ghcr.io/bitsocialhq/bitsocial-cli:latest
 ```
 

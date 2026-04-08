@@ -6,7 +6,7 @@ import * as remeda from "remeda";
 import assert from "assert";
 import tcpPortUsed from "tcp-port-used";
 import { path as ipfsExePathFunc } from "kubo";
-import { getPlebbitLogger } from "../util.js";
+import { getPKCLogger } from "../util.js";
 
 async function getKuboExePath(): Promise<string> {
     return ipfsExePathFunc();
@@ -213,7 +213,7 @@ export async function startKuboNode(
     onSpawn?: (process: ChildProcessWithoutNullStreams) => void
 ): Promise<ChildProcessWithoutNullStreams> {
     return new Promise(async (resolve, reject) => {
-        const log = (await getPlebbitLogger())("bitsocial-cli:ipfs:startKuboNode");
+        const log = (await getPKCLogger())("bitsocial-cli:ipfs:startKuboNode");
         const ipfsDataPath = process.env["IPFS_PATH"] || path.join(dataPath, ".bitsocial-cli.ipfs");
         await fs.promises.mkdir(ipfsDataPath, { recursive: true });
         const ipfsConfigPath = path.join(ipfsDataPath, "config");
@@ -304,7 +304,7 @@ export async function startKuboNode(
                 daemonReady = true;
                 assert(typeof kuboProcess.pid === "number", `kuboProcess.pid (${kuboProcess.pid}) is not a valid pid`);
 
-                const delayRaw = process.env["PLEBBIT_CLI_TEST_IPFS_READY_DELAY_MS"];
+                const delayRaw = process.env["PKC_CLI_TEST_IPFS_READY_DELAY_MS"];
                 const readyDelay = delayRaw ? Number(delayRaw) : 0;
                 const completeResolve = () => {
                     // IMPORTANT: Remove promise-specific handlers once startup is successful

@@ -24,7 +24,7 @@ export default class Install extends Command {
     };
 
     static override flags = {
-        "plebbitOptions.dataPath": Flags.directory({
+        "pkcOptions.dataPath": Flags.directory({
             description: "Data path to install the challenge into",
             required: false
         })
@@ -40,7 +40,7 @@ export default class Install extends Command {
 
     async run(): Promise<void> {
         const { args, flags } = await this.parse(Install);
-        const dataPath = flags["plebbitOptions.dataPath"] || defaults.PLEBBIT_DATA_PATH;
+        const dataPath = flags["pkcOptions.dataPath"] || defaults.PKC_DATA_PATH;
 
         // 1. Check npm is available
         await ensureNpmAvailable();

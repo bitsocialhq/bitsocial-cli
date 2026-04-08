@@ -6,8 +6,8 @@ import path from "path";
 import dns from "node:dns";
 import {
     type ManagedChildProcess,
-    stopPlebbitDaemon,
-    startPlebbitDaemon,
+    stopPkcDaemon,
+    startPkcDaemon,
     waitForCondition
 } from "../helpers/daemon-helpers.js";
 dns.setDefaultResultOrder("ipv4first");
@@ -163,7 +163,7 @@ describe("bitsocial logs (synthetic log file tests)", () => {
     it("multi-line entries are kept together", async () => {
         const content = [
             `[2026-01-01T00:00:00.000Z] bitsocial-cli:daemon flags:  {`,
-            `  plebbitRpcUrl: URL { }`,
+            `  pkcRpcUrl: URL { }`,
             `} +0ms`,
             `[2026-01-01T01:00:00.000Z] second entry`
         ].join("\n");
@@ -178,7 +178,7 @@ describe("bitsocial logs (synthetic log file tests)", () => {
     it("multi-line entries include continuation lines", async () => {
         const content = [
             `[2026-01-01T00:00:00.000Z] bitsocial-cli:daemon flags:  {`,
-            `  plebbitRpcUrl: URL { }`,
+            `  pkcRpcUrl: URL { }`,
             `} +0ms`,
             `[2026-01-01T01:00:00.000Z] second entry`
         ].join("\n");
@@ -187,7 +187,7 @@ describe("bitsocial logs (synthetic log file tests)", () => {
         const result = await runBitsocialLogs(["-n", "2"], stateHome);
         expect(result.exitCode).toBe(0);
         expect(result.stdout).toContain("flags");
-        expect(result.stdout).toContain("plebbitRpcUrl");
+        expect(result.stdout).toContain("pkcRpcUrl");
         expect(result.stdout).toContain("} +0ms");
         expect(result.stdout).toContain("second entry");
     });
@@ -222,8 +222,8 @@ describe("bitsocial logs (live daemon tests)", async () => {
 
     beforeAll(async () => {
         ({ stateHome, logDir } = await createLogDirWithStateHome());
-        daemonProcess = await startPlebbitDaemon(
-            ["--logPath", logDir, "--plebbitRpcUrl", rpcWsUrl],
+        daemonProcess = await startPkcDaemon(
+            ["--logPath", logDir, "--pkcRpcUrl", rpcWsUrl],
             { KUBO_RPC_URL: kuboApiUrl, IPFS_GATEWAY_URL: gatewayUrl }
         );
         // Wait for log file to be written
@@ -234,7 +234,7 @@ describe("bitsocial logs (live daemon tests)", async () => {
     });
 
     afterAll(async () => {
-        await stopPlebbitDaemon(daemonProcess);
+        await stopPkcDaemon(daemonProcess);
     });
 
     it("daemon writes debug output to log file even when DEBUG is not set", async () => {
@@ -244,9 +244,9 @@ describe("bitsocial logs (live daemon tests)", async () => {
         expect(files.length).toBeGreaterThan(0);
 
         const logContent = await fsPromise.readFile(path.join(logDir, files.sort().pop()!), "utf-8");
-        // The log file should contain debug output from bitsocial or plebbit namespaces
+        // The log file should contain debug output from bitsocial or pkc namespaces
         expect(logContent.length).toBeGreaterThan(0);
-        expect(logContent).toMatch(/bitsocial|plebbit/i);
+        expect(logContent).toMatch(/bitsocial|pkc/i);
     });
 
     it("log file contains ISO timestamp prefixes", async () => {
@@ -271,7 +271,7 @@ describe("bitsocial logs (live daemon tests)", async () => {
         const result = await runBitsocialLogs([], stateHome);
         expect(result.exitCode).toBe(0);
         expect(result.stdout.length).toBeGreaterThan(0);
-        expect(result.stdout).toMatch(/bitsocial|plebbit/i);
+        expect(result.stdout).toMatch(/bitsocial|pkc/i);
     });
 
     it("bitsocial logs --tail N limits output", async () => {
