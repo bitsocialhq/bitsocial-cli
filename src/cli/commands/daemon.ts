@@ -17,6 +17,7 @@ import type { PKCLogger } from "../../util.js";
 import { startDaemonServer } from "../../webui/daemon-server.js";
 import { loadChallengesIntoPKC } from "../../challenge-packages/challenge-utils.js";
 import { migrateDataDirectory } from "../../common-utils/data-migration.js";
+import { createBsoResolvers } from "../../common-utils/resolvers.js";
 import fs from "fs";
 import fsPromise from "fs/promises";
 import { EOL } from "node:os";
@@ -51,6 +52,13 @@ export default class Daemon extends Command {
             description: "Specify a directory which will be used to store logs",
             required: true,
             default: defaults.PKC_LOG_PATH
+        }),
+
+        chainProviderUrls: Flags.string({
+            description:
+                'Ethereum RPC URL(s) for .bso/.eth name resolution. Can be specified multiple times. Defaults to viem public transport and https://ethrpc.xyz',
+            multiple: true,
+            default: ["viem", "https://ethrpc.xyz"]
         })
     };
 
@@ -58,7 +66,9 @@ export default class Daemon extends Command {
         "bitsocial daemon",
         "bitsocial daemon --pkcRpcUrl ws://localhost:53812",
         "bitsocial daemon --pkcOptions.dataPath /tmp/bitsocial-datapath/",
-        "bitsocial daemon --pkcOptions.kuboRpcClientsOptions[0] https://remoteipfsnode.com"
+        "bitsocial daemon --pkcOptions.kuboRpcClientsOptions[0] https://remoteipfsnode.com",
+        "bitsocial daemon --chainProviderUrls https://mainnet.infura.io/v3/YOUR_KEY",
+        "bitsocial daemon --chainProviderUrls viem --chainProviderUrls https://mainnet.infura.io/v3/YOUR_KEY"
     ];
 
     private _setupLogger(Logger: PKCLogger) {
@@ -225,6 +235,10 @@ export default class Daemon extends Command {
 
         // Migrate data directory before creating PKC instance
         migrateDataDirectory(mergedPkcOptions.dataPath!);
+
+        // Create BSO name resolvers for .bso/.eth domain resolution
+        const bsoResolvers = createBsoResolvers(flags.chainProviderUrls, mergedPkcOptions.dataPath);
+        mergedPkcOptions.nameResolvers = [...(mergedPkcOptions.nameResolvers || []), ...bsoResolvers];
 
         let mainProcessExited = false;
         let pendingKuboStart: Promise<ChildProcessWithoutNullStreams> | undefined;
