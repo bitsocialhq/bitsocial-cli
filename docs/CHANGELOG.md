@@ -1,5 +1,10 @@
 # Changelog
 
+## <small>0.19.39 (2026-04-12)</small>
+
+* chore: upgrade @pkcprotocol/pkc-js to 0.0.15 ([02cdb46](https://github.com/bitsocialhq/bitsocial-cli/commit/02cdb46))
+* fix(ci): patch oclif to surface makensis errors on Windows ([cf42b55](https://github.com/bitsocialhq/bitsocial-cli/commit/cf42b55))
+
 ## <small>0.19.38 (2026-04-11)</small>
 
 * chore: upgrade @pkcprotocol/pkc-js to 0.0.14 ([52176bd](https://github.com/bitsocialhq/bitsocial-cli/commit/52176bd))
