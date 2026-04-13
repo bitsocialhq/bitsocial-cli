@@ -160,6 +160,8 @@ jobs:
       - name: Generate Windows installer
         run: npm run generate:installer:windows
         shell: bash
+        env:
+          npm_config_legacy_peer_deps: "true"
       # You can't use oclif pack on windows, so we're skipping it for now
       # - name: Generate Windows tarballs
       #   run: npm run generate:executable:tarballs:windows
