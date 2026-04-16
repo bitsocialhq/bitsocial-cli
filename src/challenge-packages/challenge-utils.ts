@@ -220,13 +220,21 @@ export async function runNpmInstall(challengeDir: string): Promise<void> {
         // will all use the same Node that's running bitsocial-cli.
         // Use piped stdio and forward explicitly so output is visible even
         // when the parent process has piped stdio (e.g. spawned by tests).
-        const proc = spawn(process.execPath, [npmCliPath, "install", "--omit=dev", "--legacy-peer-deps"], {
+        const args = [npmCliPath, "install", "--omit=dev", "--legacy-peer-deps", "--loglevel", "verbose", "--foreground-scripts"];
+        process.stderr.write(`[challenge-install] spawning: ${process.execPath} ${args.join(" ")}\n`);
+        process.stderr.write(`[challenge-install] cwd: ${challengeDir}\n`);
+        const proc = spawn(process.execPath, args, {
             cwd: challengeDir,
             stdio: ["ignore", "pipe", "pipe"],
             env: getNpmEnv()
         });
-        proc.stdout?.pipe(process.stdout);
-        proc.stderr?.pipe(process.stderr);
+        process.stderr.write(`[challenge-install] npm install process spawned (pid: ${proc.pid})\n`);
+        proc.stdout?.on("data", (data: Buffer) => {
+            process.stderr.write(`[npm-stdout] ${data.toString()}`);
+        });
+        proc.stderr?.on("data", (data: Buffer) => {
+            process.stderr.write(`[npm-stderr] ${data.toString()}`);
+        });
         proc.on("error", (err) => {
             reject(new Error(`Failed to run npm install: ${err.message}`));
         });
