@@ -222,7 +222,15 @@ describe("bitsocial daemon (kubo daemon is started by bitsocial-cli)", async () 
                 method: "POST"
             });
             expect(shutdownRes.status).toBe(200);
-            await expect(fetch(`${kuboApiUrl}/bitswap/stat`, { method: "POST" })).rejects.toThrow();
+            // Wait for kubo to actually shut down after acknowledging the shutdown request
+            await waitForCondition(async () => {
+                try {
+                    await fetch(`${kuboApiUrl}/bitswap/stat`, { method: "POST" });
+                    return false; // still responding
+                } catch {
+                    return true; // connection refused — kubo is down
+                }
+            }, 10000, 100);
 
             // Try to connect to kubo node every 100ms with proper cleanup
             await new Promise<void>((resolve, reject) => {
