@@ -33,6 +33,10 @@ export default class Logs extends Command {
             description:
                 "Show logs before timestamp (ISO 8601, e.g. 2026-01-02T13:23:37Z) or relative time (e.g. 30s, 42m, 2h, 1d)",
             required: false
+        }),
+        logPath: Flags.directory({
+            description: "Specify the directory containing log files",
+            required: false
         })
     };
 
@@ -136,7 +140,7 @@ export default class Logs extends Command {
 
     async run() {
         const { flags } = await this.parse(Logs);
-        const logPath = defaults.PKC_LOG_PATH;
+        const logPath = flags.logPath ?? defaults.PKC_LOG_PATH;
         const latestLogFile = await this._findLatestLogFile(logPath);
 
         const since = flags.since ? this._parseTimestamp(flags.since) : undefined;

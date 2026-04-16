@@ -64,3 +64,5 @@ jobs:
 
       - run: DEBUG="bitsocial*, plebbit*, oclif*" npm run test:cli
         shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

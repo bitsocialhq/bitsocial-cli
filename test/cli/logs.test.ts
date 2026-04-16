@@ -20,20 +20,16 @@ const rpcWsUrl = `ws://localhost:${RPC_PORT}`;
 const kuboApiUrl = `http://0.0.0.0:${KUBO_API_PORT}/api/v0`;
 const gatewayUrl = `http://0.0.0.0:${GATEWAY_PORT}`;
 
-// env-paths computes log path as $XDG_STATE_HOME/bitsocial
-// So we create stateHome and use stateHome/bitsocial as the logDir
-const createLogDirWithStateHome = async () => {
-    const stateHome = randomDirectory();
-    const logDir = path.join(stateHome, "bitsocial");
+const createLogDir = async () => {
+    const logDir = randomDirectory();
     await fsPromise.mkdir(logDir, { recursive: true });
-    return { stateHome, logDir };
+    return { logDir };
 };
 
-const runBitsocialLogs = (args: string[], stateHome: string): Promise<{ stdout: string; stderr: string; exitCode: number | null }> => {
+const runBitsocialLogs = (args: string[], logDir: string): Promise<{ stdout: string; stderr: string; exitCode: number | null }> => {
     return new Promise((resolve, reject) => {
-        const proc = spawn("node", ["./bin/run", "logs", ...args], {
-            stdio: ["pipe", "pipe", "pipe"],
-            env: { ...process.env, XDG_STATE_HOME: stateHome }
+        const proc = spawn("node", ["./bin/run", "logs", "--logPath", logDir, ...args], {
+            stdio: ["pipe", "pipe", "pipe"]
         });
 
         let stdout = "";
@@ -59,12 +55,11 @@ const runBitsocialLogs = (args: string[], stateHome: string): Promise<{ stdout: 
 const buildLogLine = (date: Date, message: string) => `[${date.toISOString()}] ${message}`;
 
 describe("bitsocial logs (synthetic log file tests)", () => {
-    let stateHome: string;
     let logDir: string;
     let logFile: string;
 
     beforeAll(async () => {
-        ({ stateHome, logDir } = await createLogDirWithStateHome());
+        ({ logDir } = await createLogDir());
         logFile = path.join(logDir, "bitsocial_cli_daemon_2026-01-01T00-00-00.000Z.log");
     });
 
@@ -77,7 +72,7 @@ describe("bitsocial logs (synthetic log file tests)", () => {
         }
         await fsPromise.writeFile(logFile, lines.join("\n") + "\n");
 
-        const result = await runBitsocialLogs(["-n", "3"], stateHome);
+        const result = await runBitsocialLogs(["-n", "3"], logDir);
         expect(result.exitCode).toBe(0);
         expect(result.stdout).toContain("entry 7");
         expect(result.stdout).toContain("entry 8");
@@ -94,7 +89,7 @@ describe("bitsocial logs (synthetic log file tests)", () => {
         }
         await fsPromise.writeFile(logFile, lines.join("\n") + "\n");
 
-        const result = await runBitsocialLogs(["-n", "0"], stateHome);
+        const result = await runBitsocialLogs(["-n", "0"], logDir);
         expect(result.exitCode).toBe(0);
         expect(result.stdout).toBe("");
     });
@@ -107,7 +102,7 @@ describe("bitsocial logs (synthetic log file tests)", () => {
         ];
         await fsPromise.writeFile(logFile, lines.join("\n") + "\n");
 
-        const result = await runBitsocialLogs(["--since", "2026-01-01T00:30:00.000Z"], stateHome);
+        const result = await runBitsocialLogs(["--since", "2026-01-01T00:30:00.000Z"], logDir);
         expect(result.exitCode).toBe(0);
         expect(result.stdout).not.toContain("old entry");
         expect(result.stdout).toContain("mid entry");
@@ -122,7 +117,7 @@ describe("bitsocial logs (synthetic log file tests)", () => {
         ];
         await fsPromise.writeFile(logFile, lines.join("\n") + "\n");
 
-        const result = await runBitsocialLogs(["--until", "2026-01-01T01:30:00.000Z"], stateHome);
+        const result = await runBitsocialLogs(["--until", "2026-01-01T01:30:00.000Z"], logDir);
         expect(result.exitCode).toBe(0);
         expect(result.stdout).toContain("old entry");
         expect(result.stdout).toContain("mid entry");
@@ -138,7 +133,7 @@ describe("bitsocial logs (synthetic log file tests)", () => {
         ];
         await fsPromise.writeFile(logFile, lines.join("\n") + "\n");
 
-        const result = await runBitsocialLogs(["--since", "2026-01-01T00:30:00.000Z", "-n", "2"], stateHome);
+        const result = await runBitsocialLogs(["--since", "2026-01-01T00:30:00.000Z", "-n", "2"], logDir);
         expect(result.exitCode).toBe(0);
         expect(result.stdout).not.toContain("before cutoff");
         expect(result.stdout).not.toContain("after cutoff 1");
@@ -154,7 +149,7 @@ describe("bitsocial logs (synthetic log file tests)", () => {
         const lines = [buildLogLine(oldDate, "old entry"), buildLogLine(recentDate, "recent entry")];
         await fsPromise.writeFile(logFile, lines.join("\n") + "\n");
 
-        const result = await runBitsocialLogs(["--since", "5m"], stateHome);
+        const result = await runBitsocialLogs(["--since", "5m"], logDir);
         expect(result.exitCode).toBe(0);
         expect(result.stdout).not.toContain("old entry");
         expect(result.stdout).toContain("recent entry");
@@ -169,7 +164,7 @@ describe("bitsocial logs (synthetic log file tests)", () => {
         ].join("\n");
         await fsPromise.writeFile(logFile, content + "\n");
 
-        const result = await runBitsocialLogs(["-n", "1"], stateHome);
+        const result = await runBitsocialLogs(["-n", "1"], logDir);
         expect(result.exitCode).toBe(0);
         expect(result.stdout).toContain("second entry");
         expect(result.stdout).not.toContain("flags");
@@ -184,7 +179,7 @@ describe("bitsocial logs (synthetic log file tests)", () => {
         ].join("\n");
         await fsPromise.writeFile(logFile, content + "\n");
 
-        const result = await runBitsocialLogs(["-n", "2"], stateHome);
+        const result = await runBitsocialLogs(["-n", "2"], logDir);
         expect(result.exitCode).toBe(0);
         expect(result.stdout).toContain("flags");
         expect(result.stdout).toContain("pkcRpcUrl");
@@ -196,7 +191,7 @@ describe("bitsocial logs (synthetic log file tests)", () => {
         const lines = [buildLogLine(new Date("2026-01-01T00:00:00.000Z"), "entry")];
         await fsPromise.writeFile(logFile, lines.join("\n") + "\n");
 
-        const result = await runBitsocialLogs(["-n", "abc"], stateHome);
+        const result = await runBitsocialLogs(["-n", "abc"], logDir);
         expect(result.exitCode).not.toBe(0);
     });
 
@@ -204,24 +199,23 @@ describe("bitsocial logs (synthetic log file tests)", () => {
         const lines = [buildLogLine(new Date("2026-01-01T00:00:00.000Z"), "entry")];
         await fsPromise.writeFile(logFile, lines.join("\n") + "\n");
 
-        const result = await runBitsocialLogs(["--since", "not-a-date"], stateHome);
+        const result = await runBitsocialLogs(["--since", "not-a-date"], logDir);
         expect(result.exitCode).not.toBe(0);
     });
 
     it("bitsocial logs errors when no log files exist", async () => {
-        const { stateHome: emptyStateHome } = await createLogDirWithStateHome();
-        const result = await runBitsocialLogs([], emptyStateHome);
+        const { logDir: emptyLogDir } = await createLogDir();
+        const result = await runBitsocialLogs([], emptyLogDir);
         expect(result.exitCode).not.toBe(0);
     });
 });
 
 describe("bitsocial logs (live daemon tests)", async () => {
     let daemonProcess: ManagedChildProcess;
-    let stateHome: string;
     let logDir: string;
 
     beforeAll(async () => {
-        ({ stateHome, logDir } = await createLogDirWithStateHome());
+        ({ logDir } = await createLogDir());
         daemonProcess = await startPkcDaemon(
             ["--logPath", logDir, "--pkcRpcUrl", rpcWsUrl],
             { KUBO_RPC_URL: kuboApiUrl, IPFS_GATEWAY_URL: gatewayUrl }
@@ -268,15 +262,15 @@ describe("bitsocial logs (live daemon tests)", async () => {
     });
 
     it("bitsocial logs dumps log file content and exits", async () => {
-        const result = await runBitsocialLogs([], stateHome);
+        const result = await runBitsocialLogs([], logDir);
         expect(result.exitCode).toBe(0);
         expect(result.stdout.length).toBeGreaterThan(0);
         expect(result.stdout).toMatch(/bitsocial|pkc/i);
     });
 
     it("bitsocial logs --tail N limits output", async () => {
-        const resultAll = await runBitsocialLogs([], stateHome);
-        const resultTail = await runBitsocialLogs(["-n", "2"], stateHome);
+        const resultAll = await runBitsocialLogs([], logDir);
+        const resultTail = await runBitsocialLogs(["-n", "2"], logDir);
 
         expect(resultAll.exitCode).toBe(0);
         expect(resultTail.exitCode).toBe(0);
@@ -285,7 +279,7 @@ describe("bitsocial logs (live daemon tests)", async () => {
     });
 
     it("bitsocial logs --since filters recent entries", async () => {
-        const result = await runBitsocialLogs(["--since", "5m"], stateHome);
+        const result = await runBitsocialLogs(["--since", "5m"], logDir);
         expect(result.exitCode).toBe(0);
         // Should have some recent output since daemon is running
         expect(result.stdout.length).toBeGreaterThan(0);
@@ -293,9 +287,8 @@ describe("bitsocial logs (live daemon tests)", async () => {
 
     it("bitsocial logs -f streams new log data", async () => {
         const result = await new Promise<{ stdout: string }>((resolve, reject) => {
-            const proc = spawn("node", ["./bin/run", "logs", "-f"], {
-                stdio: ["pipe", "pipe", "pipe"],
-                env: { ...process.env, XDG_STATE_HOME: stateHome }
+            const proc = spawn("node", ["./bin/run", "logs", "--logPath", logDir, "-f"], {
+                stdio: ["pipe", "pipe", "pipe"]
             });
 
             let stdout = "";
@@ -333,9 +326,8 @@ describe("bitsocial logs (live daemon tests)", async () => {
 
     it("bitsocial logs --tail N -f shows N initial entries then streams", async () => {
         const result = await new Promise<{ stdout: string }>((resolve, reject) => {
-            const proc = spawn("node", ["./bin/run", "logs", "-n", "3", "-f"], {
-                stdio: ["pipe", "pipe", "pipe"],
-                env: { ...process.env, XDG_STATE_HOME: stateHome }
+            const proc = spawn("node", ["./bin/run", "logs", "--logPath", logDir, "-n", "3", "-f"], {
+                stdio: ["pipe", "pipe", "pipe"]
             });
 
             let stdout = "";
