@@ -106,7 +106,8 @@ const startKuboDaemon = async (kuboApiPort: number): Promise<ChildProcess> => {
     const configPath = path.join(ipfsPath, "config");
     const config = JSON.parse(await fsPromise.readFile(configPath, "utf-8"));
     config.Addresses.API = `/ip4/127.0.0.1/tcp/${kuboApiPort}`;
-    // Use random swarm ports to avoid conflicts
+    // Use random ports for gateway and swarm to avoid conflicts
+    config.Addresses.Gateway = `/ip4/127.0.0.1/tcp/0`;
     config.Addresses.Swarm = ["/ip4/0.0.0.0/tcp/0", "/ip6/::/tcp/0"];
     await fsPromise.writeFile(configPath, JSON.stringify(config, null, 2));
 
@@ -495,6 +496,58 @@ describe(`bitsocial daemon (kubo daemon is started by another process on the sam
                     return false;
                 }
             }, 30000, 500);
+            expect(kuboRestarted).toBe(true);
+        } finally {
+            await stopPkcDaemon(pkcDaemonProcess);
+        }
+    });
+
+    it(`bitsocial daemon restarts kubo even when port lingers briefly after external kubo dies`, async () => {
+        // Restart external kubo for this test (previous test killed it)
+        kuboDaemonProcess = await startKuboDaemon(extKuboPort);
+
+        let pkcDaemonProcess: ManagedChildProcess | undefined;
+        try {
+            pkcDaemonProcess = await startPkcDaemon(
+                [
+                    "--pkcOptions.dataPath",
+                    randomDirectory(),
+                    "--pkcOptions.kuboRpcClientsOptions[0]",
+                    extKuboRpcUrl.toString(),
+                    "--pkcRpcUrl",
+                    extRpcUrl
+                ],
+                { KUBO_RPC_URL: extKuboRpcUrl.toString(), IPFS_GATEWAY_URL: extGatewayUrl }
+            );
+            const rpcClient = new WebSocket(extRpcUrl);
+            await waitForWebSocketOpen(rpcClient);
+            expect(rpcClient.readyState).toBe(1);
+            rpcClient.close();
+
+            // Kill external kubo, then immediately occupy the port with a dummy server
+            // to simulate TCP TIME_WAIT (port taken but no healthy kubo)
+            await killChildProcess(kuboDaemonProcess);
+            kuboDaemonProcess = undefined;
+            const portBlocker = await occupyPort(extKuboPort, "127.0.0.1");
+
+            // Hold the port for 8s — enough for at least one keepKuboUp() interval tick
+            // to encounter the port-taken-but-unhealthy state
+            await new Promise((resolve) => setTimeout(resolve, 8000));
+            await new Promise<void>((resolve) => portBlocker.close(() => resolve()));
+
+            // Daemon should recover and start a new kubo once the port is free
+            const kuboRestarted = await waitForCondition(
+                async () => {
+                    try {
+                        const res = await fetch(`http://localhost:${extKuboPort}/api/v0/bitswap/stat`, { method: "POST" });
+                        return res.ok;
+                    } catch {
+                        return false;
+                    }
+                },
+                30000,
+                500
+            );
             expect(kuboRestarted).toBe(true);
         } finally {
             await stopPkcDaemon(pkcDaemonProcess);

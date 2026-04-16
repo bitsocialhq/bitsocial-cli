@@ -491,8 +491,12 @@ export default class Daemon extends Command {
         keepKuboUpInterval = setInterval(async () => {
             if (mainProcessExited) return;
             const isRpcPortTaken = await tcpPortUsed.check(Number(pkcRpcUrl.port), pkcRpcUrl.hostname);
-            if (!pkcOptionsFromFlag?.kuboRpcClientsOptions && !isRpcPortTaken && !usingDifferentProcessRpc) await keepKuboUp();
-            else if (pkcOptionsFromFlag?.kuboRpcClientsOptions && !usingDifferentProcessRpc) await keepKuboUp();
+            try {
+                if (!pkcOptionsFromFlag?.kuboRpcClientsOptions && !isRpcPortTaken && !usingDifferentProcessRpc) await keepKuboUp();
+                else if (pkcOptionsFromFlag?.kuboRpcClientsOptions && !usingDifferentProcessRpc) await keepKuboUp();
+            } catch (error) {
+                log.trace(`keepKuboUp error (will retry): ${error instanceof Error ? error.message : String(error)}`);
+            }
             await createOrConnectRpc();
         }, 5000);
 
