@@ -24,7 +24,7 @@ describe("bitsocial community list", () => {
     it(`-q Outputs only community addresses`, async () => {
         const { result, stdout } = await runCliCommand("community list -q");
         expect(result.error).toBeUndefined();
-        const trimmedOutput: string[] = stdout.trim().split("\n");
+        const trimmedOutput: string[] = stdout.trim().split(/\r?\n/);
         expect(trimmedOutput).toEqual(fakeCommunities);
     });
 });

@@ -55,6 +55,7 @@ export default class Install extends Command {
             // 3. Extract the archive
             const extractDir = path.join(tmpDir, "extracted");
             await decompress(archivePath, extractDir);
+            process.stderr.write("[challenge-install] archive extracted\n");
 
             // 4. Find package.json (npm pack tarballs have a package/ root dir)
             let pkgDir = extractDir;
@@ -106,7 +107,9 @@ export default class Install extends Command {
             await fs.rename(pkgDir, destDir);
 
             // 8. Run npm install
+            process.stderr.write(`[challenge-install] starting npm install in ${destDir}\n`);
             await runNpmInstall(destDir);
+            process.stderr.write("[challenge-install] npm install completed\n");
 
             // 9. Verify native modules are ABI-compatible
             try {

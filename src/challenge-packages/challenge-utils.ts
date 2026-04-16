@@ -217,12 +217,16 @@ export async function runNpmInstall(challengeDir: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         // Run npm through our own Node binary to guarantee ABI-compatible
         // native modules — npm's process.execPath and lifecycle scripts
-        // will all use the same Node that's running bitsocial-cli
+        // will all use the same Node that's running bitsocial-cli.
+        // Use piped stdio and forward explicitly so output is visible even
+        // when the parent process has piped stdio (e.g. spawned by tests).
         const proc = spawn(process.execPath, [npmCliPath, "install", "--omit=dev", "--install-strategy=nested", "--legacy-peer-deps"], {
             cwd: challengeDir,
-            stdio: "inherit",
+            stdio: ["ignore", "pipe", "pipe"],
             env: getNpmEnv()
         });
+        proc.stdout?.pipe(process.stdout);
+        proc.stderr?.pipe(process.stderr);
         proc.on("error", (err) => {
             reject(new Error(`Failed to run npm install: ${err.message}`));
         });

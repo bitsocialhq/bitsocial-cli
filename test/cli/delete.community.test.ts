@@ -31,7 +31,7 @@ describe("bitsocial community delete", () => {
         expect(deleteFake.callCount).toBe(addresses.length);
 
         // Validate outputs
-        const trimmedOutput: string[] = stdout.trim().split("\n");
+        const trimmedOutput: string[] = stdout.trim().split(/\r?\n/);
         expect(trimmedOutput).toEqual(addresses);
         expect(result.error).toBeUndefined();
     });
