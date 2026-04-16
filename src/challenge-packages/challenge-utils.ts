@@ -220,7 +220,7 @@ export async function runNpmInstall(challengeDir: string): Promise<void> {
         // will all use the same Node that's running bitsocial-cli.
         // Use piped stdio and forward explicitly so output is visible even
         // when the parent process has piped stdio (e.g. spawned by tests).
-        const proc = spawn(process.execPath, [npmCliPath, "install", "--omit=dev", "--install-strategy=nested", "--legacy-peer-deps", "--loglevel", "verbose"], {
+        const proc = spawn(process.execPath, [npmCliPath, "install", "--omit=dev", "--legacy-peer-deps"], {
             cwd: challengeDir,
             stdio: ["ignore", "pipe", "pipe"],
             env: getNpmEnv()
