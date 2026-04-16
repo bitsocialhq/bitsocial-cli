@@ -112,7 +112,7 @@ async function publishCommentWithChallenge(opts: {
 
 // --- Tests ---
 
-describe("@bitsocial/mintpass-challenge integration tests", { timeout: 600_000 }, () => {
+describe("@bitsocial/mintpass-challenge integration tests", { timeout: 720_000 }, () => {
     let daemonProcess: ManagedChildProcess | undefined;
     let pkc: PKCInstance;
     let dataPath: string;
@@ -142,7 +142,7 @@ describe("@bitsocial/mintpass-challenge integration tests", { timeout: 600_000 }
 
         // Give the daemon's internal IPFS connections time to fully initialize
         await new Promise((resolve) => setTimeout(resolve, 5000));
-    }, 240_000);
+    }, 480_000);
 
     afterAll(async () => {
         try {

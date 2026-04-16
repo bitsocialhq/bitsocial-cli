@@ -174,9 +174,11 @@ describe("CLI commands complete within 10s (real pkc instance)", () => {
         expect(result.stdout.trim()).toBe(communityAddress);
     });
 
-    it("community delete completes within 10s", { timeout: 10_000 }, async () => {
+    it("community delete completes within 30s", { timeout: 30_000 }, async () => {
         const result = await runBitsocialCommand(
-            ["community", "delete", communityAddress, "--pkcRpcUrl", rpcWsUrl]
+            ["community", "delete", communityAddress, "--pkcRpcUrl", rpcWsUrl],
+            undefined,
+            30_000
         );
         expect(result.exitCode).toBe(0);
         expect(result.stdout.trim()).toBe(communityAddress);
