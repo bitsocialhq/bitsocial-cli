@@ -113,7 +113,10 @@ async function publishCommentWithChallenge(opts: {
 
 // --- Tests ---
 
-describe("@bitsocial/mintpass-challenge integration tests", { timeout: 720_000 }, () => {
+// Skipped on Windows: npm install for this challenge package is extremely slow on Windows CI
+// (NTFS + Windows Defender overhead with hundreds of transitive deps + sqlite3 native compilation).
+// The same logic is covered by Ubuntu and macOS CI runs.
+describe.skipIf(process.platform === "win32")("@bitsocial/mintpass-challenge integration tests", { timeout: 720_000 }, () => {
     let daemonProcess: ManagedChildProcess | undefined;
     let pkc: PKCInstance;
     let dataPath: string;
