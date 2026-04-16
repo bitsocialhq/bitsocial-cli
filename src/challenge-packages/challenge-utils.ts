@@ -96,10 +96,15 @@ export async function listInstalledChallenges(dataPath?: string): Promise<Instal
 }
 
 function getNpmCliPathRelative(nodeExecPath: string): string {
-    // npm-cli.js lives at a standard location relative to a Node binary:
+    // npm-cli.js lives at a standard location relative to a Node binary.
+    const nodeDir = path.dirname(nodeExecPath);
+    if (process.platform === "win32") {
+        // Windows: <node-dir>/node_modules/npm/bin/npm-cli.js
+        return path.join(nodeDir, "node_modules", "npm", "bin", "npm-cli.js");
+    }
+    // Unix (nvm, official installers, distro packages):
     //   <node-dir>/../lib/node_modules/npm/bin/npm-cli.js
-    // This holds for nvm, official installers, and distro packages.
-    return path.join(path.dirname(nodeExecPath), "..", "lib", "node_modules", "npm", "bin", "npm-cli.js");
+    return path.join(nodeDir, "..", "lib", "node_modules", "npm", "bin", "npm-cli.js");
 }
 
 async function getNpmCliPath(): Promise<string> {
@@ -126,7 +131,9 @@ async function getNpmCliPath(): Promise<string> {
         // Otherwise, the system npm binary lives beside a Node that has npm installed —
         // derive npm-cli.js relative to that Node
         const systemNodeDir = path.dirname(realNpmBin);
-        const systemNpmCli = path.join(systemNodeDir, "..", "lib", "node_modules", "npm", "bin", "npm-cli.js");
+        const systemNpmCli = process.platform === "win32"
+            ? path.join(systemNodeDir, "node_modules", "npm", "bin", "npm-cli.js")
+            : path.join(systemNodeDir, "..", "lib", "node_modules", "npm", "bin", "npm-cli.js");
         await fs.access(systemNpmCli);
         return systemNpmCli;
     } catch {

@@ -361,7 +361,11 @@ describe("bitsocial daemon kubo restart cleanup", async () => {
     const cleanupGatewayUrl = `http://0.0.0.0:6553`;
     const cleanupKuboApiUrl = `http://localhost:50099/api/v0`;
 
-    it("stops kubo when daemon exits during a restart cycle", { timeout: 60000 }, async () => {
+    // On Windows, process.kill() calls TerminateProcess() which instantly kills the daemon
+    // without running exit hooks (asyncExitHook/process.on("exit")), so the daemon has no
+    // opportunity to clean up kubo. On Unix, SIGTERM is caught by the exit hook which runs
+    // killKuboProcess(). The normal user path (Ctrl+C/SIGINT) works on all platforms.
+    it.skipIf(process.platform === "win32")("stops kubo when daemon exits during a restart cycle", { timeout: 60000 }, async () => {
         const previousDelay = process.env["PKC_CLI_TEST_IPFS_READY_DELAY_MS"];
         process.env["PKC_CLI_TEST_IPFS_READY_DELAY_MS"] = "5000";
 
