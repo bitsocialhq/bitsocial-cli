@@ -133,6 +133,51 @@ describe("bitsocial challenge install", () => {
 
         const result = await runBitsocialChallenge(["install", srcDir, "--pkcOptions.dataPath", dataPath]);
         expect(result.exitCode, `install failed with stderr:\n${result.stderr}`).toBe(0);
+
+        // Verify package.json is restored with devDependencies intact
+        const installedPkg = JSON.parse(
+            await fsPromise.readFile(path.join(dataPath, "challenges", "devdep-challenge", "package.json"), "utf-8")
+        );
+        expect(installedPkg.devDependencies).toEqual({ "@test/nonexistent-pkg-abc123": "99.99.99" });
+    });
+
+    it("preserves original package.json after install with devDependencies", async () => {
+        const dataPath = randomDirectory();
+        const srcDir = path.join(randomDirectory(), "preserve-pkg-challenge");
+        const originalPkg = {
+            name: "preserve-pkg-challenge",
+            version: "2.0.0",
+            description: "test that package.json is byte-identical after install",
+            devDependencies: {
+                "prettier": "*"
+            }
+        };
+        const originalContent = JSON.stringify(originalPkg, null, 2);
+        await fsPromise.mkdir(srcDir, { recursive: true });
+        await fsPromise.writeFile(path.join(srcDir, "package.json"), originalContent);
+        await fsPromise.writeFile(
+            path.join(srcDir, "index.js"),
+            `export default function() { return { type: 'text/plain', challenge: '1+1', getChallenge: async () => ({ challenge: '1+1', type: 'text/plain', verify: async (answer) => ({ success: answer === '2' }) }) }; };`
+        );
+
+        const result = await runBitsocialChallenge(["install", srcDir, "--pkcOptions.dataPath", dataPath]);
+        expect(result.exitCode, `install failed with stderr:\n${result.stderr}`).toBe(0);
+
+        // The installed package.json must still contain devDependencies
+        const restoredContent = await fsPromise.readFile(
+            path.join(dataPath, "challenges", "preserve-pkg-challenge", "package.json"), "utf-8"
+        );
+        const restoredPkg = JSON.parse(restoredContent);
+        expect(restoredPkg.devDependencies).toEqual({ "prettier": "*" });
+    });
+
+    it("does not pass --legacy-peer-deps on non-Windows platforms", async () => {
+        if (process.platform === "win32") return; // skip on Windows — flag is expected there
+        const dataPath = randomDirectory();
+        const result = await runBitsocialChallenge(["install", challengeSrcDir, "--pkcOptions.dataPath", dataPath]);
+        expect(result.exitCode).toBe(0);
+        const combined = `${result.stdout}\n${result.stderr}`;
+        expect(combined).not.toContain("--legacy-peer-deps");
     });
 
     it("errors on non-existent package name", async () => {

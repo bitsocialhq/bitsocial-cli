@@ -214,27 +214,55 @@ export async function runNpmPack(packageSpec: string, destDir: string): Promise<
 
 export async function runNpmInstall(challengeDir: string): Promise<void> {
     const npmCliPath = await getNpmCliPath();
-    return new Promise<void>((resolve, reject) => {
-        // Run npm through our own Node binary to guarantee ABI-compatible
-        // native modules — npm's process.execPath and lifecycle scripts
-        // will all use the same Node that's running bitsocial-cli.
-        // Use piped stdio and forward explicitly so output is visible even
-        // when the parent process has piped stdio (e.g. spawned by tests).
-        const proc = spawn(process.execPath, [npmCliPath, "install", "--omit=dev", "--legacy-peer-deps"], {
-            cwd: challengeDir,
-            stdio: ["ignore", "pipe", "pipe"],
-            env: getNpmEnv()
+
+    // Strip devDependencies from the manifest before running npm install.
+    // npm's Arborist resolves ALL declared deps (including dev) during tree
+    // building even with --omit=dev — unresolvable devDep versions cause
+    // ETARGET failures before the omit filter applies.  Removing them from
+    // the manifest prevents Arborist from creating those edges at all.
+    // The original package.json is restored after install (byte-identical).
+    const pkgJsonPath = path.join(challengeDir, "package.json");
+    const originalContent = await fs.readFile(pkgJsonPath, "utf-8");
+    const pkg = JSON.parse(originalContent);
+    const hadDevDeps = pkg.devDependencies !== undefined;
+
+    if (hadDevDeps) {
+        const stripped = { ...pkg };
+        delete stripped.devDependencies;
+        await fs.writeFile(pkgJsonPath, JSON.stringify(stripped, null, 2) + "\n");
+    }
+
+    try {
+        await new Promise<void>((resolve, reject) => {
+            // Run npm through our own Node binary to guarantee ABI-compatible
+            // native modules — npm's process.execPath and lifecycle scripts
+            // will all use the same Node that's running bitsocial-cli.
+            // Use piped stdio and forward explicitly so output is visible even
+            // when the parent process has piped stdio (e.g. spawned by tests).
+            const args = [npmCliPath, "install", "--omit=dev", "--no-audit", "--no-fund"];
+            if (process.platform === "win32") {
+                args.push("--legacy-peer-deps");
+            }
+            const proc = spawn(process.execPath, args, {
+                cwd: challengeDir,
+                stdio: ["ignore", "pipe", "pipe"],
+                env: getNpmEnv()
+            });
+            proc.stdout?.pipe(process.stdout);
+            proc.stderr?.pipe(process.stderr);
+            proc.on("error", (err) => {
+                reject(new Error(`Failed to run npm install: ${err.message}`));
+            });
+            proc.on("close", (code) => {
+                if (code === 0) resolve();
+                else reject(new Error(`npm install exited with code ${code}`));
+            });
         });
-        proc.stdout?.pipe(process.stdout);
-        proc.stderr?.pipe(process.stderr);
-        proc.on("error", (err) => {
-            reject(new Error(`Failed to run npm install: ${err.message}`));
-        });
-        proc.on("close", (code) => {
-            if (code === 0) resolve();
-            else reject(new Error(`npm install exited with code ${code}`));
-        });
-    });
+    } finally {
+        if (hadDevDeps) {
+            await fs.writeFile(pkgJsonPath, originalContent);
+        }
+    }
 }
 
 export async function verifyNativeModuleAbi(challengeDir: string): Promise<void> {
