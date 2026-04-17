@@ -72,7 +72,7 @@ When the user gives a prompt to implement a feature:
 
 1. **MUST** create a GitHub issue for the feature before starting work (`gh issue create`).
 2. **MUST** keep the issue updated with the current plan and progress as work proceeds.
-3. **MUST** close the issue once the feature is fully implemented and verified.
+3. **MUST** ask the user whether to close the issue after the feature is fully implemented and verified — do not close it automatically or via `Closes #N` in commit messages.
 
 ## Core MUST Rules
 
