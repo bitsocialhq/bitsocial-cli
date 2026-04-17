@@ -2,7 +2,7 @@
 import DataObjectParser from "dataobject-parser";
 import { Args } from "@oclif/core";
 import { BaseCommand } from "../../base-command.js";
-import { getPKCLogger, mergeDeep } from "../../../util.js";
+import { PKCLogger, mergeDeep } from "../../../util.js";
 import * as remeda from "remeda";
 
 export default class Edit extends BaseCommand {
@@ -52,7 +52,7 @@ export default class Edit extends BaseCommand {
     async run(): Promise<void> {
         const { flags, args } = await this.parse(Edit);
 
-        const log = (await getPKCLogger())("bitsocial-cli:commands:community:edit");
+        const log = PKCLogger("bitsocial-cli:commands:community:edit");
         log(`flags: `, flags);
         const pkc = await this._connectToPkcRpc(flags.pkcRpcUrl.toString());
 

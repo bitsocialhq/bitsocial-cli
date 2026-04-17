@@ -1,4 +1,4 @@
-import { getPKCLogger } from "../../../util.js";
+import { PKCLogger } from "../../../util.js";
 import { BaseCommand } from "../../base-command.js";
 import { Args } from "@oclif/core";
 
@@ -24,7 +24,7 @@ export default class Stop extends BaseCommand {
     async run() {
         const { argv, flags } = await this.parse(Stop);
 
-        const log = (await getPKCLogger())("bitsocial-cli:commands:community:stop");
+        const log = PKCLogger("bitsocial-cli:commands:community:stop");
         log(`addresses: `, argv);
         log(`flags: `, flags);
         const addresses = <string[]>argv;

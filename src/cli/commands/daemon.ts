@@ -7,13 +7,13 @@ import path from "path";
 import tcpPortUsed from "tcp-port-used";
 import {
     getLanIpV4Address,
-    getPKCLogger,
+    PKCLogger,
     setupDebugLogger,
     loadKuboConfigFile,
     parseMultiAddrKuboRpcToUrl,
     parseMultiAddrIpfsGatewayToUrl
 } from "../../util.js";
-import type { PKCLogger } from "../../util.js";
+import type { PKCLoggerType } from "../../util.js";
 import { startDaemonServer } from "../../webui/daemon-server.js";
 import { loadChallengesIntoPKC } from "../../challenge-packages/challenge-utils.js";
 import { migrateDataDirectory } from "../../common-utils/data-migration.js";
@@ -80,7 +80,7 @@ export default class Daemon extends Command {
         "bitsocial daemon --chainProviderUrls viem --chainProviderUrls https://mainnet.infura.io/v3/YOUR_KEY"
     ];
 
-    private _setupLogger(Logger: PKCLogger) {
+    private _setupLogger(Logger: PKCLoggerType) {
         setupDebugLogger(Logger, { enableDefaultNamespace: true });
         console.log("To view logs, run: bitsocial logs");
         console.log("For custom debug logging, restart the daemon with DEBUG env, e.g.: DEBUG='bitsocial*,pkc*' bitsocial daemon");
@@ -110,7 +110,7 @@ export default class Daemon extends Command {
 
     private async _pipeDebugLogsToLogFile(
         logPath: string,
-        Logger: PKCLogger
+        Logger: PKCLoggerType
     ): Promise<{ logFilePath: string; stdoutWrite: typeof process.stdout.write }> {
         const { logFilePath, deletedLogFile, logfilesCapacity } = await this._getNewLogfileByEvacuatingOldLogsIfNeeded(logPath);
 
@@ -203,10 +203,9 @@ export default class Daemon extends Command {
         process.env["DEBUG_COLORS"] = "1";
         process.env["DEBUG_HIDE_DATE"] = "1";
         const { flags } = await this.parse(Daemon);
-        const Logger = await getPKCLogger();
-        this._setupLogger(Logger);
-        const { logFilePath, stdoutWrite } = await this._pipeDebugLogsToLogFile(flags.logPath, Logger);
-        const log = Logger("bitsocial-cli:daemon");
+        this._setupLogger(PKCLogger as PKCLoggerType);
+        const { logFilePath, stdoutWrite } = await this._pipeDebugLogsToLogFile(flags.logPath, PKCLogger as PKCLoggerType);
+        const log = PKCLogger("bitsocial-cli:daemon");
 
         try {
         // Log debug info after pipe is set up so it goes to the log file, not terminal

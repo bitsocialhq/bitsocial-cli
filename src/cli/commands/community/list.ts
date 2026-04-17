@@ -1,7 +1,7 @@
 import { Flags } from "@oclif/core";
 import { BaseCommand } from "../../base-command.js";
 import { EOL } from "os";
-import { getPKCLogger } from "../../../util.js";
+import { PKCLogger } from "../../../util.js";
 import { printTable } from "@oclif/table";
 
 export default class List extends BaseCommand {
@@ -16,7 +16,7 @@ export default class List extends BaseCommand {
     async run(): Promise<void> {
         const { flags } = await this.parse(List);
 
-        const log = (await getPKCLogger())("bitsocial-cli:commands:community:list");
+        const log = PKCLogger("bitsocial-cli:commands:community:list");
         log(`flags: `, flags);
         const pkc = await this._connectToPkcRpc(flags.pkcRpcUrl.toString());
         const communities = pkc.communities;

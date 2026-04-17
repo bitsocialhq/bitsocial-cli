@@ -1,4 +1,4 @@
-import { getPKCLogger } from "../../../util.js";
+import { PKCLogger } from "../../../util.js";
 import { BaseCommand } from "../../base-command.js";
 import { Args } from "@oclif/core";
 
@@ -23,7 +23,7 @@ export default class Delete extends BaseCommand {
     async run() {
         const { argv, flags } = await this.parse(Delete);
 
-        const log = (await getPKCLogger())("bitsocial-cli:commands:community:delete");
+        const log = PKCLogger("bitsocial-cli:commands:community:delete");
         log(`addresses: `, argv);
         log(`flags: `, flags);
         const addresses = <string[]>argv;

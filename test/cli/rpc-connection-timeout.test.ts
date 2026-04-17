@@ -9,8 +9,9 @@ vi.mock("@pkcprotocol/pkc-js", () => {
 
 // Also mock the logger so BaseCommand.init() doesn't fail
 vi.mock("../../src/util.js", () => {
+    const noopLogger = Object.assign(() => () => {}, { disable: () => {}, enable: () => {}, enabled: () => false });
     return {
-        getPKCLogger: vi.fn().mockResolvedValue(() => () => {}),
+        PKCLogger: noopLogger,
         setupDebugLogger: vi.fn()
     };
 });

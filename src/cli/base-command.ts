@@ -1,7 +1,7 @@
 import { Command, Flags } from "@oclif/core";
 import defaults from "../common-utils/defaults.js";
 import PKC from "@pkcprotocol/pkc-js";
-import { getPKCLogger, setupDebugLogger } from "../util.js";
+import { PKCLogger, setupDebugLogger, type PKCLoggerType } from "../util.js";
 type PKCInstance = Awaited<ReturnType<typeof PKC>>;
 type PKCConnectOverride = (pkcRpcUrl: string) => Promise<PKCInstance>;
 
@@ -21,8 +21,7 @@ export abstract class BaseCommand extends Command {
 
     async init(): Promise<void> {
         await super.init();
-        const Logger = await getPKCLogger();
-        setupDebugLogger(Logger, { enableDefaultNamespace: false });
+        setupDebugLogger(PKCLogger as PKCLoggerType, { enableDefaultNamespace: false });
     }
 
     protected async _connectToPkcRpc(pkcRpcUrl: string): Promise<PKCInstance> {

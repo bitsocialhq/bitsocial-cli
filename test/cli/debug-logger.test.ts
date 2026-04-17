@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { getPKCLogger, setupDebugLogger, type PKCLogger } from "../../dist/util.js";
+import { PKCLogger, setupDebugLogger, type PKCLoggerType } from "../../dist/util.js";
 
 describe("setupDebugLogger", () => {
     let savedDebug: string | undefined;
@@ -24,9 +24,8 @@ describe("setupDebugLogger", () => {
     };
 
     // Helper: disable logger first, then set env vars (Logger.disable() deletes process.env.DEBUG)
-    const resetLoggerAndSetEnv = async (env: { DEBUG?: string; _PKC_DEBUG?: string; DEBUG_DEPTH?: string }) => {
-        const Logger = await getPKCLogger();
-        Logger.disable(); // This deletes process.env.DEBUG as a side effect
+    const resetLoggerAndSetEnv = (env: { DEBUG?: string; _PKC_DEBUG?: string; DEBUG_DEPTH?: string }) => {
+        PKCLogger.disable(); // This deletes process.env.DEBUG as a side effect
         // Set env vars AFTER disable
         if ("DEBUG" in env) {
             if (env.DEBUG === undefined) delete process.env["DEBUG"];
@@ -40,7 +39,7 @@ describe("setupDebugLogger", () => {
             if (env.DEBUG_DEPTH === undefined) delete process.env["DEBUG_DEPTH"];
             else process.env["DEBUG_DEPTH"] = env.DEBUG_DEPTH;
         }
-        return Logger;
+        return PKCLogger;
     };
 
     it("enables namespace from DEBUG env var", async () => {
@@ -97,7 +96,7 @@ describe("setupDebugLogger", () => {
 
     it("respects DEBUG_DEPTH env var", async () => {
         saveEnv();
-        const Logger = await resetLoggerAndSetEnv({ DEBUG: undefined, _PKC_DEBUG: undefined, DEBUG_DEPTH: "5" }) as PKCLogger;
+        const Logger = await resetLoggerAndSetEnv({ DEBUG: undefined, _PKC_DEBUG: undefined, DEBUG_DEPTH: "5" }) as PKCLoggerType;
 
         const result = setupDebugLogger(Logger);
 
@@ -107,7 +106,7 @@ describe("setupDebugLogger", () => {
 
     it("defaults DEBUG_DEPTH to 10", async () => {
         saveEnv();
-        const Logger = await resetLoggerAndSetEnv({ DEBUG: undefined, _PKC_DEBUG: undefined, DEBUG_DEPTH: undefined }) as PKCLogger;
+        const Logger = await resetLoggerAndSetEnv({ DEBUG: undefined, _PKC_DEBUG: undefined, DEBUG_DEPTH: undefined }) as PKCLoggerType;
 
         const result = setupDebugLogger(Logger);
 

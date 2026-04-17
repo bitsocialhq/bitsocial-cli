@@ -2,15 +2,12 @@ import os from "os";
 import path from "path";
 import fs from "fs";
 import * as fsPromises from "fs/promises";
+import PKCLogger from "@pkcprotocol/pkc-logger";
+export { PKCLogger };
 
-export type PKCLogger = Awaited<ReturnType<typeof getPKCLogger>> & {
+export type PKCLoggerType = typeof PKCLogger & {
     inspectOpts?: { depth?: number; colors?: boolean; [key: string]: any };
 };
-
-export async function getPKCLogger() {
-    const Logger = await import("@pkcprotocol/pkc-logger");
-    return Logger.default;
-}
 
 /**
  * Read _PKC_DEBUG / DEBUG env vars and configure the Logger instance.
@@ -21,7 +18,7 @@ export async function getPKCLogger() {
  *   explicitly set DEBUG or _PKC_DEBUG (used by non-daemon commands).
  */
 export function setupDebugLogger(
-    Logger: PKCLogger,
+    Logger: PKCLoggerType,
     options: { enableDefaultNamespace?: boolean } = {}
 ): { debugNamespace: string | undefined; debugDepth: number } {
     const envDebug: string | undefined = process.env["_PKC_DEBUG"] || process.env["DEBUG"];

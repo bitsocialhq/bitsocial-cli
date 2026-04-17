@@ -3,7 +3,7 @@ import { Flags } from "@oclif/core";
 import DataObjectParser from "dataobject-parser";
 import fs from "fs";
 import { BaseCommand } from "../../base-command.js";
-import { getPKCLogger } from "../../../util.js";
+import { PKCLogger } from "../../../util.js";
 import * as remeda from "remeda";
 
 export default class Create extends BaseCommand {
@@ -28,7 +28,7 @@ export default class Create extends BaseCommand {
     async run(): Promise<void> {
         const { flags } = await this.parse(Create);
 
-        const log = (await getPKCLogger())("bitsocial-cli:commands:community:create");
+        const log = PKCLogger("bitsocial-cli:commands:community:create");
         log(`flags: `, flags);
         const pkc = await this._connectToPkcRpc(flags.pkcRpcUrl.toString());
         const createOptions: NonNullable<Parameters<(typeof pkc)["createCommunity"]>[0]> = DataObjectParser.transpose(

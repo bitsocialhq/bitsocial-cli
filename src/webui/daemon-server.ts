@@ -4,7 +4,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import fs from "fs/promises";
-import { getPKCLogger } from "../util.js";
+import { PKCLogger } from "../util.js";
 import { randomBytes } from "crypto";
 import express from "express";
 import { loadChallengesIntoPKC } from "../challenge-packages/challenge-utils.js";
@@ -44,7 +44,7 @@ async function _generateRpcAuthKeyIfNotExisting(pkcDataPath: string) {
 // The daemon server will host both RPC and webui on the same port
 export async function startDaemonServer(rpcUrl: URL, ipfsGatewayUrl: URL, pkcOptions: any) {
     // Start pkc-js RPC
-    const log = (await getPKCLogger())("bitsocial-cli:daemon:startDaemonServer");
+    const log = PKCLogger("bitsocial-cli:daemon:startDaemonServer");
     const webuiExpressApp = express();
     const httpServer = webuiExpressApp.listen(Number(rpcUrl.port));
     log("HTTP server is running on", "0.0.0.0" + ":" + rpcUrl.port);
