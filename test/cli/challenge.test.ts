@@ -112,6 +112,29 @@ describe("bitsocial challenge install", () => {
         expect(combined).toContain("already installed");
     });
 
+    it("installs successfully when devDependencies have unresolvable versions", async () => {
+        const dataPath = randomDirectory();
+        const srcDir = path.join(randomDirectory(), "devdep-challenge");
+        await fsPromise.mkdir(srcDir, { recursive: true });
+        await fsPromise.writeFile(
+            path.join(srcDir, "package.json"),
+            JSON.stringify({
+                name: "devdep-challenge",
+                version: "1.0.0",
+                devDependencies: {
+                    "@test/nonexistent-pkg-abc123": "99.99.99"
+                }
+            }, null, 2)
+        );
+        await fsPromise.writeFile(
+            path.join(srcDir, "index.js"),
+            `export default function() { return { type: 'text/plain', challenge: '1+1', getChallenge: async () => ({ challenge: '1+1', type: 'text/plain', verify: async (answer) => ({ success: answer === '2' }) }) }; };`
+        );
+
+        const result = await runBitsocialChallenge(["install", srcDir, "--pkcOptions.dataPath", dataPath]);
+        expect(result.exitCode, `install failed with stderr:\n${result.stderr}`).toBe(0);
+    });
+
     it("errors on non-existent package name", async () => {
         const dataPath = randomDirectory();
         const result = await runBitsocialChallenge([
