@@ -26,7 +26,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends git ca-certific
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm pkg delete scripts.prepare && npm ci --omit=dev --ignore-scripts --network-timeout 600000 && npm rebuild && npm cache clean --force
+RUN npm pkg delete scripts.prepare scripts.postinstall && npm ci --omit=dev --ignore-scripts --network-timeout 600000 && npm rebuild && npm cache clean --force
 
 # ---- Runtime stage ----
 FROM node:22-slim
