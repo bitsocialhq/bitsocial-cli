@@ -43,7 +43,7 @@ jobs:
       - name: Create Github Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run release -- --ci || true
+        run: npm run release -- --ci
 
       - name: Check if released
         id: release

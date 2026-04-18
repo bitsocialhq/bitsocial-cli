@@ -4,8 +4,7 @@
         "requireCommits": true,
         "commit": false,
         "tagAnnotation": "v${version}",
-        "tagName": "v${version}",
-        "tagArgs": ["--force"]
+        "tagName": "v${version}"
     },
     "npm": { "publish": false },
     "github": {

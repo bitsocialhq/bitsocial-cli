@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends git ca-certific
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci --ignore-scripts --network-timeout 600000 && npm rebuild && npm cache clean --force
+RUN npm ci --ignore-scripts --network-timeout 600000 && npm pkg delete scripts.postinstall && npm rebuild && npm cache clean --force
 
 COPY src/ src/
 COPY bin/ bin/
