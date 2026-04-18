@@ -50,4 +50,42 @@ describe("bitsocial community get", () => {
         expect(addressIndex).toBeGreaterThan(-1);
         expect(postsIndex).toBeLessThan(addressIndex);
     });
+
+    it("Looks up community by --name", async () => {
+        const { result } = await runCliCommand("community get --name my-community");
+
+        expect(result.error).toBeUndefined();
+        expect(getCommunityFake.calledOnceWith({ name: "my-community" })).toBe(true);
+        expect(destroyFake.calledOnce).toBe(true);
+    });
+
+    it("Looks up community by --publicKey", async () => {
+        const { result } = await runCliCommand("community get --publicKey 12D3KooWTest");
+
+        expect(result.error).toBeUndefined();
+        expect(getCommunityFake.calledOnceWith({ publicKey: "12D3KooWTest" })).toBe(true);
+        expect(destroyFake.calledOnce).toBe(true);
+    });
+
+    it("Passes multiple identifiers to getCommunity", async () => {
+        const { result } = await runCliCommand("community get --name my-community --publicKey 12D3KooWTest");
+
+        expect(result.error).toBeUndefined();
+        expect(getCommunityFake.calledOnceWith({ name: "my-community", publicKey: "12D3KooWTest" })).toBe(true);
+        expect(destroyFake.calledOnce).toBe(true);
+    });
+
+    it("Passes address and flags combined to getCommunity", async () => {
+        const { result } = await runCliCommand("community get plebbit.bso --publicKey 12D3KooWTest");
+
+        expect(result.error).toBeUndefined();
+        expect(getCommunityFake.calledOnceWith({ address: "plebbit.bso", publicKey: "12D3KooWTest" })).toBe(true);
+        expect(destroyFake.calledOnce).toBe(true);
+    });
+
+    it("Errors when no identifier is provided", async () => {
+        const { result } = await runCliCommand("community get");
+
+        expect(result.error).toBeDefined();
+    });
 });
