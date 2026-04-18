@@ -62,7 +62,8 @@
         },
         "hooks": {
             "init": [
-                "./dist/cli/hooks/init/version-hook"
+                "./dist/cli/hooks/init/version-hook",
+                "./dist/cli/hooks/init/banner-hook"
             ],
             "prerun": [
                 "./dist/cli/hooks/prerun/parse-dynamic-flags-hook"
