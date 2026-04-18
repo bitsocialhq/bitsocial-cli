@@ -311,6 +311,9 @@ $ bitsocial community edit mysub.bso '--roles["author-address.bso"]' null
 * [`bitsocial daemon`](#bitsocial-daemon)
 * [`bitsocial help [COMMAND]`](#bitsocial-help-command)
 * [`bitsocial logs`](#bitsocial-logs)
+* [`bitsocial update check`](#bitsocial-update-check)
+* [`bitsocial update install [VERSION]`](#bitsocial-update-install-version)
+* [`bitsocial update versions`](#bitsocial-update-versions)
 
 ## `bitsocial challenge install PACKAGE`
 
@@ -693,6 +696,74 @@ EXAMPLES
 ```
 
 _See code: [src/cli/commands/logs.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.40/src/cli/commands/logs.ts)_
+
+## `bitsocial update check`
+
+Check if a newer version of bitsocial is available on npm
+
+```
+USAGE
+  $ bitsocial update check
+
+DESCRIPTION
+  Check if a newer version of bitsocial is available on npm
+
+EXAMPLES
+  $ bitsocial update check
+```
+
+_See code: [src/cli/commands/update/check.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.40/src/cli/commands/update/check.ts)_
+
+## `bitsocial update install [VERSION]`
+
+Install a specific version of bitsocial from npm
+
+```
+USAGE
+  $ bitsocial update install [VERSION] [--force]
+
+ARGUMENTS
+  [VERSION]  [default: latest] Version to install (e.g. "0.19.40" or "latest")
+
+FLAGS
+  --force  Reinstall even if already on the requested version
+
+DESCRIPTION
+  Install a specific version of bitsocial from npm
+
+EXAMPLES
+  $ bitsocial update install
+
+  $ bitsocial update install latest
+
+  $ bitsocial update install 0.19.40
+
+  $ bitsocial update install --force
+```
+
+_See code: [src/cli/commands/update/install.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.40/src/cli/commands/update/install.ts)_
+
+## `bitsocial update versions`
+
+List available bitsocial versions on npm
+
+```
+USAGE
+  $ bitsocial update versions [--limit <value>]
+
+FLAGS
+  --limit=<value>  [default: 20] Maximum number of versions to display
+
+DESCRIPTION
+  List available bitsocial versions on npm
+
+EXAMPLES
+  $ bitsocial update versions
+
+  $ bitsocial update versions --limit 5
+```
+
+_See code: [src/cli/commands/update/versions.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.40/src/cli/commands/update/versions.ts)_
 <!-- commandsstop -->
 
 ## Contribution

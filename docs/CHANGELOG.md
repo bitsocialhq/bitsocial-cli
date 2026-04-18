@@ -1,5 +1,16 @@
 # Changelog
 
+* fix: show clear error when daemon is offline instead of dumping websocket error object (8a938bd)
+* fix: delete postinstall script in Docker deps stage to prevent build failure (0ea2eed)
+* Merge branch 'master' of github.com:bitsocialnet/bitsocial-cli (6515c41)
+* refactor: replace dynamic import of pkc-logger with static import (250415b)
+* feat: switch to postinstall webui downloads and remove tarball infrastructure (504ded0)
+* feat: add `bitsocial update` command and switch distribution to npm (78ce677)
+* feat: log timing expectation at start of challenge install (83fb082)
+* docs: require user confirmation before closing GitHub issues (6277e7b)
+* fix: strip devDependencies before npm install to avoid ETARGET on unresolvable devDeps (6957efc)
+* test: add failing test for challenge install with unresolvable devDependencies (5b69a75)
+
 ## <small>0.19.40 (2026-04-16)</small>
 
 * fix: fall back to system npm when bundled Node lacks npm ([5761f43](https://github.com/bitsocialnet/bitsocial-cli/commit/5761f43))
