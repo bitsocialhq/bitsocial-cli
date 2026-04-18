@@ -19,6 +19,7 @@ import { printBanner } from "../ascii-banner.js";
 import { loadChallengesIntoPKC } from "../../challenge-packages/challenge-utils.js";
 import { migrateDataDirectory } from "../../common-utils/data-migration.js";
 import { createBsoResolvers } from "../../common-utils/resolvers.js";
+import { pruneStaleStates, writeDaemonState, deleteDaemonState } from "../../common-utils/daemon-state.js";
 import fs from "fs";
 import fsPromise from "fs/promises";
 
@@ -260,6 +261,13 @@ export default class Daemon extends Command {
         // Migrate data directory before creating PKC instance
         migrateDataDirectory(mergedPkcOptions.dataPath!);
 
+        // Prune stale daemon state files (dead PIDs from crashed daemons)
+        await pruneStaleStates();
+
+        // Persist this daemon's PID and startup args so `bitsocial update install --restart-daemons` can stop and restart it
+        const daemonArgv = process.argv.slice(process.argv.indexOf("daemon") + 1);
+        await writeDaemonState({ pid: process.pid, startedAt: new Date().toISOString(), argv: daemonArgv, pkcRpcUrl: pkcRpcUrl.toString() });
+
         // Create BSO name resolvers for .bso/.eth domain resolution
         const bsoResolvers = createBsoResolvers(flags.chainProviderUrls, mergedPkcOptions.dataPath);
         mergedPkcOptions.nameResolvers = [...(mergedPkcOptions.nameResolvers || []), ...bsoResolvers];
@@ -480,6 +488,9 @@ export default class Daemon extends Command {
                 log("Received signal to exit, shutting down both kubo and pkc rpc. Please wait, it may take a few seconds");
 
                 mainProcessExited = true;
+
+                // Remove daemon state file so update install knows we're gone
+                await deleteDaemonState(process.pid).catch(() => {});
 
                 // Start killing Kubo immediately, in parallel with daemon server destroy.
                 // This way Kubo receives SIGINT right away, even if daemonServer.destroy() hangs.
