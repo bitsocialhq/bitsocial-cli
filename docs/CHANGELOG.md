@@ -1,5 +1,20 @@
 # Changelog
 
+## <small>0.19.41 (2026-04-18)</small>
+
+* fix: delete postinstall script in Docker deps stage to prevent build failure ([0ea2eed](https://github.com/bitsocialnet/bitsocial-cli/commit/0ea2eed))
+* fix: show clear error when daemon is offline instead of dumping websocket error object ([8a938bd](https://github.com/bitsocialnet/bitsocial-cli/commit/8a938bd)), closes [#17](https://github.com/bitsocialnet/bitsocial-cli/issues/17)
+* fix: strip devDependencies before npm install to avoid ETARGET on unresolvable devDeps ([6957efc](https://github.com/bitsocialnet/bitsocial-cli/commit/6957efc)), closes [#14](https://github.com/bitsocialnet/bitsocial-cli/issues/14)
+* fix(ci): gate npm publish on successful GitHub release and fix Docker build ([3c64747](https://github.com/bitsocialnet/bitsocial-cli/commit/3c64747))
+* feat: add --name and --publicKey flags to community get command ([84e4dc0](https://github.com/bitsocialnet/bitsocial-cli/commit/84e4dc0))
+* feat: add `bitsocial update` command and switch distribution to npm ([78ce677](https://github.com/bitsocialnet/bitsocial-cli/commit/78ce677))
+* feat: log timing expectation at start of challenge install ([83fb082](https://github.com/bitsocialnet/bitsocial-cli/commit/83fb082))
+* feat: switch to postinstall webui downloads and remove tarball infrastructure ([504ded0](https://github.com/bitsocialnet/bitsocial-cli/commit/504ded0))
+* chore(release): 0.19.40 [skip ci] ([fb903b1](https://github.com/bitsocialnet/bitsocial-cli/commit/fb903b1))
+* refactor: replace dynamic import of pkc-logger with static import ([250415b](https://github.com/bitsocialnet/bitsocial-cli/commit/250415b))
+* docs: require user confirmation before closing GitHub issues ([6277e7b](https://github.com/bitsocialnet/bitsocial-cli/commit/6277e7b))
+* test: add failing test for challenge install with unresolvable devDependencies ([5b69a75](https://github.com/bitsocialnet/bitsocial-cli/commit/5b69a75))
+
 * fix: show clear error when daemon is offline instead of dumping websocket error object (8a938bd)
 * fix: delete postinstall script in Docker deps stage to prevent build failure (0ea2eed)
 * Merge branch 'master' of github.com:bitsocialnet/bitsocial-cli (6515c41)
