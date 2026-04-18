@@ -15,6 +15,7 @@ import {
 } from "../../util.js";
 import type { PKCLoggerType } from "../../util.js";
 import { startDaemonServer } from "../../webui/daemon-server.js";
+import { printBanner } from "../ascii-banner.js";
 import { loadChallengesIntoPKC } from "../../challenge-packages/challenge-utils.js";
 import { migrateDataDirectory } from "../../common-utils/data-migration.js";
 import { createBsoResolvers } from "../../common-utils/resolvers.js";
@@ -186,6 +187,7 @@ export default class Daemon extends Command {
     }
 
     async run() {
+        printBanner();
         // Non-blocking update check — fire-and-forget, won't delay startup
         import("../../update/npm-registry.js")
             .then(({ fetchLatestVersion }) =>
