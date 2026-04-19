@@ -60,7 +60,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TARBALL=$(npm pack)
+          TARBALL=$(npm pack | tail -1)
           npm install -g "./$TARBALL"
           bitsocial --version
 
