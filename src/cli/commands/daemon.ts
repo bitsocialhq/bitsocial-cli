@@ -18,7 +18,7 @@ import { startDaemonServer } from "../../webui/daemon-server.js";
 import { printBanner } from "../ascii-banner.js";
 import { loadChallengesIntoPKC } from "../../challenge-packages/challenge-utils.js";
 import { migrateDataDirectory } from "../../common-utils/data-migration.js";
-import { createBsoResolvers } from "../../common-utils/resolvers.js";
+import { createBsoResolvers, DEFAULT_PROVIDERS } from "../../common-utils/resolvers.js";
 import { pruneStaleStates, writeDaemonState, deleteDaemonState } from "../../common-utils/daemon-state.js";
 import fs from "fs";
 import fsPromise from "fs/promises";
@@ -66,10 +66,9 @@ export default class Daemon extends Command {
         }),
 
         chainProviderUrls: Flags.string({
-            description:
-                'Ethereum RPC URL(s) for .bso/.eth name resolution. Can be specified multiple times. Defaults to viem public transport and https://ethrpc.xyz',
+            description: "RPC URL(s) for .bso name resolution. Can be specified multiple times.",
             multiple: true,
-            default: ["viem", "https://ethrpc.xyz"]
+            default: DEFAULT_PROVIDERS
         })
     };
 
@@ -79,7 +78,6 @@ export default class Daemon extends Command {
         "bitsocial daemon --pkcOptions.dataPath /tmp/bitsocial-datapath/",
         "bitsocial daemon --pkcOptions.kuboRpcClientsOptions[0] https://remoteipfsnode.com",
         "bitsocial daemon --chainProviderUrls https://mainnet.infura.io/v3/YOUR_KEY",
-        "bitsocial daemon --chainProviderUrls viem --chainProviderUrls https://mainnet.infura.io/v3/YOUR_KEY"
     ];
 
     private _setupLogger(Logger: PKCLoggerType) {
@@ -107,7 +105,11 @@ export default class Daemon extends Command {
             await fsPromise.rm(path.join(logPath, logFileToDelete));
         }
 
-        return { logFilePath: path.join(logPath, `bitsocial_cli_daemon_${new Date().toISOString().replace(/:/g, "-")}.log`), deletedLogFile, logfilesCapacity };
+        return {
+            logFilePath: path.join(logPath, `bitsocial_cli_daemon_${new Date().toISOString().replace(/:/g, "-")}.log`),
+            deletedLogFile,
+            logfilesCapacity
+        };
     }
 
     private async _pipeDebugLogsToLogFile(
@@ -211,330 +213,336 @@ export default class Daemon extends Command {
         const log = PKCLogger("bitsocial-cli:daemon");
 
         try {
-        // Log debug info after pipe is set up so it goes to the log file, not terminal
-        const envDebug: string | undefined = process.env["_PKC_DEBUG"] || process.env["DEBUG"];
-        const debugNamespace = envDebug === "0" || envDebug === "" ? undefined : envDebug;
-        if (debugNamespace) {
-            const debugDepth = process.env["DEBUG_DEPTH"] ? parseInt(process.env["DEBUG_DEPTH"]) : 10;
-            log("Debug logs is on with namespace", `"${debugNamespace}"`);
-            log("Debug depth is set to", debugDepth);
-        }
+            // Log debug info after pipe is set up so it goes to the log file, not terminal
+            const envDebug: string | undefined = process.env["_PKC_DEBUG"] || process.env["DEBUG"];
+            const debugNamespace = envDebug === "0" || envDebug === "" ? undefined : envDebug;
+            if (debugNamespace) {
+                const debugDepth = process.env["DEBUG_DEPTH"] ? parseInt(process.env["DEBUG_DEPTH"]) : 10;
+                log("Debug logs is on with namespace", `"${debugNamespace}"`);
+                log("Debug depth is set to", debugDepth);
+            }
 
-        log(`flags: `, flags);
+            log(`flags: `, flags);
 
-        const pkcRpcUrl = new URL(flags.pkcRpcUrl);
+            const pkcRpcUrl = new URL(flags.pkcRpcUrl);
 
-        const pkcOptionsFlagNames = Object.keys(flags).filter((flag) => flag.startsWith("pkcOptions"));
-        const pkcOptionsFromFlag: InputPKCOptions | undefined =
-            pkcOptionsFlagNames.length > 0
-                ? DataObjectParser.transpose(remeda.pick(flags, pkcOptionsFlagNames))["_data"]?.["pkcOptions"]
-                : undefined;
+            const pkcOptionsFlagNames = Object.keys(flags).filter((flag) => flag.startsWith("pkcOptions"));
+            const pkcOptionsFromFlag: InputPKCOptions | undefined =
+                pkcOptionsFlagNames.length > 0
+                    ? DataObjectParser.transpose(remeda.pick(flags, pkcOptionsFlagNames))["_data"]?.["pkcOptions"]
+                    : undefined;
 
-        if (pkcOptionsFromFlag?.pkcRpcClientsOptions && pkcRpcUrl.toString() !== defaults.PKC_RPC_URL.toString()) {
-            this.error(
-                "Can't provide pkcOptions.pkcRpcClientsOptions and --pkcRpcUrl simultaneously. You have to choose between connecting to an RPC or starting up a new RPC"
-            );
-        }
-
-        if (pkcOptionsFromFlag?.kuboRpcClientsOptions && pkcOptionsFromFlag.kuboRpcClientsOptions.length !== 1)
-            this.error("Can't provide pkcOptions.kuboRpcClientsOptions as an array with more than 1 element, or as a non array");
-
-        if (pkcOptionsFromFlag?.ipfsGatewayUrls && pkcOptionsFromFlag.ipfsGatewayUrls.length !== 1)
-            this.error("Can't provide pkcOptions.ipfsGatewayUrls as an array with more than 1 element, or as a non array");
-
-        const ipfsConfig = await loadKuboConfigFile(pkcOptionsFromFlag?.dataPath || defaultPkcOptions.dataPath!);
-        const kuboRpcEndpoint = pkcOptionsFromFlag?.kuboRpcClientsOptions
-            ? new URL(pkcOptionsFromFlag.kuboRpcClientsOptions[0]!.toString())
-            : ipfsConfig?.["Addresses"]?.["API"]
-              ? await parseMultiAddrKuboRpcToUrl(ipfsConfig?.["Addresses"]?.["API"])
-              : defaults.KUBO_RPC_URL;
-        const ipfsGatewayEndpoint = pkcOptionsFromFlag?.ipfsGatewayUrls
-            ? new URL(pkcOptionsFromFlag.ipfsGatewayUrls[0])
-            : ipfsConfig?.["Addresses"]?.["Gateway"]
-              ? await parseMultiAddrIpfsGatewayToUrl(ipfsConfig?.["Addresses"]?.["Gateway"])
-              : defaults.IPFS_GATEWAY_URL;
-
-        defaultPkcOptions.kuboRpcClientsOptions = [kuboRpcEndpoint.toString()];
-        const mergedPkcOptions = { ...defaultPkcOptions, ...pkcOptionsFromFlag };
-        log("Merged pkc options that will be used for this node", mergedPkcOptions);
-        const { nameResolvers: _nr, ...printablePkcOptions } = mergedPkcOptions;
-        console.log("PKC options:", JSON.stringify(printablePkcOptions, null, 2));
-
-        // Migrate data directory before creating PKC instance
-        migrateDataDirectory(mergedPkcOptions.dataPath!);
-
-        // Prune stale daemon state files (dead PIDs from crashed daemons)
-        await pruneStaleStates();
-
-        // Persist this daemon's PID and startup args so `bitsocial update install --restart-daemons` can stop and restart it
-        const daemonArgv = process.argv.slice(process.argv.indexOf("daemon") + 1);
-        await writeDaemonState({ pid: process.pid, startedAt: new Date().toISOString(), argv: daemonArgv, pkcRpcUrl: pkcRpcUrl.toString() });
-
-        // Create BSO name resolvers for .bso/.eth domain resolution
-        const bsoResolvers = createBsoResolvers(flags.chainProviderUrls, mergedPkcOptions.dataPath);
-        mergedPkcOptions.nameResolvers = [...(mergedPkcOptions.nameResolvers || []), ...bsoResolvers];
-        console.log(".bso name resolvers:", bsoResolvers.map((r) => r.provider).join(", "));
-
-        let mainProcessExited = false;
-        let pendingKuboStart: Promise<ChildProcessWithoutNullStreams> | undefined;
-        // Kubo Node may fail randomly, we need to set a listener so when it exits because of an error we restart it
-        let kuboProcess: ChildProcessWithoutNullStreams | undefined;
-        const keepKuboUp = async () => {
-            if (mainProcessExited) return;
-            const kuboApiPort = Number(kuboRpcEndpoint.port);
-            if (kuboProcess || pendingKuboStart || usingDifferentProcessRpc) return; // already started, no need to intervene
-            const connectHostname = toConnectableHostname(kuboRpcEndpoint.hostname);
-            const isKuboApiPortTaken = await tcpPortUsed.check(kuboApiPort, connectHostname);
-            if (isKuboApiPortTaken) {
-                const connectableEndpoint = new URL(kuboRpcEndpoint.toString());
-                connectableEndpoint.hostname = connectHostname;
-                const versionUrl = new URL("version", connectableEndpoint);
-                const controller = new AbortController();
-                const timer = setTimeout(() => controller.abort(), 2000);
-                let isHealthyKubo = false;
-                try {
-                    const response = await fetch(versionUrl, { method: "POST", signal: controller.signal });
-                    isHealthyKubo = response.ok;
-                } catch {
-                    /* ignore */
-                } finally {
-                    clearTimeout(timer);
-                }
-                if (isHealthyKubo) {
-                    log.trace(
-                        `Kubo API already running on port (${kuboApiPort}) by another program. bitsocial-cli will use the running ipfs daemon instead of starting a new one`
-                    );
-                    return;
-                }
-                throw new Error(
-                    `Cannot start IPFS daemon because the IPFS API port ${
-                        kuboRpcEndpoint.hostname
-                    }:${kuboApiPort} (configured as ${kuboRpcEndpoint.toString()}) is already in use.`
+            if (pkcOptionsFromFlag?.pkcRpcClientsOptions && pkcRpcUrl.toString() !== defaults.PKC_RPC_URL.toString()) {
+                this.error(
+                    "Can't provide pkcOptions.pkcRpcClientsOptions and --pkcRpcUrl simultaneously. You have to choose between connecting to an RPC or starting up a new RPC"
                 );
             }
-            const startPromise = startKuboNode(kuboRpcEndpoint, ipfsGatewayEndpoint, mergedPkcOptions.dataPath!, (process) => {
-                kuboProcess = process;
+
+            if (pkcOptionsFromFlag?.kuboRpcClientsOptions && pkcOptionsFromFlag.kuboRpcClientsOptions.length !== 1)
+                this.error("Can't provide pkcOptions.kuboRpcClientsOptions as an array with more than 1 element, or as a non array");
+
+            if (pkcOptionsFromFlag?.ipfsGatewayUrls && pkcOptionsFromFlag.ipfsGatewayUrls.length !== 1)
+                this.error("Can't provide pkcOptions.ipfsGatewayUrls as an array with more than 1 element, or as a non array");
+
+            const ipfsConfig = await loadKuboConfigFile(pkcOptionsFromFlag?.dataPath || defaultPkcOptions.dataPath!);
+            const kuboRpcEndpoint = pkcOptionsFromFlag?.kuboRpcClientsOptions
+                ? new URL(pkcOptionsFromFlag.kuboRpcClientsOptions[0]!.toString())
+                : ipfsConfig?.["Addresses"]?.["API"]
+                  ? await parseMultiAddrKuboRpcToUrl(ipfsConfig?.["Addresses"]?.["API"])
+                  : defaults.KUBO_RPC_URL;
+            const ipfsGatewayEndpoint = pkcOptionsFromFlag?.ipfsGatewayUrls
+                ? new URL(pkcOptionsFromFlag.ipfsGatewayUrls[0])
+                : ipfsConfig?.["Addresses"]?.["Gateway"]
+                  ? await parseMultiAddrIpfsGatewayToUrl(ipfsConfig?.["Addresses"]?.["Gateway"])
+                  : defaults.IPFS_GATEWAY_URL;
+
+            defaultPkcOptions.kuboRpcClientsOptions = [kuboRpcEndpoint.toString()];
+            const mergedPkcOptions = { ...defaultPkcOptions, ...pkcOptionsFromFlag };
+            log("Merged pkc options that will be used for this node", mergedPkcOptions);
+            const { nameResolvers: _nr, ...printablePkcOptions } = mergedPkcOptions;
+            console.log("PKC options:", JSON.stringify(printablePkcOptions, null, 2));
+
+            // Migrate data directory before creating PKC instance
+            migrateDataDirectory(mergedPkcOptions.dataPath!);
+
+            // Prune stale daemon state files (dead PIDs from crashed daemons)
+            await pruneStaleStates();
+
+            // Persist this daemon's PID and startup args so `bitsocial update install --restart-daemons` can stop and restart it
+            const daemonArgv = process.argv.slice(process.argv.indexOf("daemon") + 1);
+            await writeDaemonState({
+                pid: process.pid,
+                startedAt: new Date().toISOString(),
+                argv: daemonArgv,
+                pkcRpcUrl: pkcRpcUrl.toString()
             });
-            pendingKuboStart = startPromise;
-            let startedProcess: ChildProcessWithoutNullStreams | undefined;
-            try {
-                startedProcess = await startPromise;
-            } catch (error) {
+
+            // Create BSO name resolvers for .bso/.eth domain resolution
+            const bsoResolvers = createBsoResolvers(flags.chainProviderUrls, mergedPkcOptions.dataPath);
+            mergedPkcOptions.nameResolvers = [...(mergedPkcOptions.nameResolvers || []), ...bsoResolvers];
+            console.log(".bso name resolvers:", bsoResolvers.map((r) => r.provider).join(", "));
+
+            let mainProcessExited = false;
+            let pendingKuboStart: Promise<ChildProcessWithoutNullStreams> | undefined;
+            // Kubo Node may fail randomly, we need to set a listener so when it exits because of an error we restart it
+            let kuboProcess: ChildProcessWithoutNullStreams | undefined;
+            const keepKuboUp = async () => {
+                if (mainProcessExited) return;
+                const kuboApiPort = Number(kuboRpcEndpoint.port);
+                if (kuboProcess || pendingKuboStart || usingDifferentProcessRpc) return; // already started, no need to intervene
+                const connectHostname = toConnectableHostname(kuboRpcEndpoint.hostname);
+                const isKuboApiPortTaken = await tcpPortUsed.check(kuboApiPort, connectHostname);
+                if (isKuboApiPortTaken) {
+                    const connectableEndpoint = new URL(kuboRpcEndpoint.toString());
+                    connectableEndpoint.hostname = connectHostname;
+                    const versionUrl = new URL("version", connectableEndpoint);
+                    const controller = new AbortController();
+                    const timer = setTimeout(() => controller.abort(), 2000);
+                    let isHealthyKubo = false;
+                    try {
+                        const response = await fetch(versionUrl, { method: "POST", signal: controller.signal });
+                        isHealthyKubo = response.ok;
+                    } catch {
+                        /* ignore */
+                    } finally {
+                        clearTimeout(timer);
+                    }
+                    if (isHealthyKubo) {
+                        log.trace(
+                            `Kubo API already running on port (${kuboApiPort}) by another program. bitsocial-cli will use the running ipfs daemon instead of starting a new one`
+                        );
+                        return;
+                    }
+                    throw new Error(
+                        `Cannot start IPFS daemon because the IPFS API port ${
+                            kuboRpcEndpoint.hostname
+                        }:${kuboApiPort} (configured as ${kuboRpcEndpoint.toString()}) is already in use.`
+                    );
+                }
+                const startPromise = startKuboNode(kuboRpcEndpoint, ipfsGatewayEndpoint, mergedPkcOptions.dataPath!, (process) => {
+                    kuboProcess = process;
+                });
+                pendingKuboStart = startPromise;
+                let startedProcess: ChildProcessWithoutNullStreams | undefined;
+                try {
+                    startedProcess = await startPromise;
+                } catch (error) {
+                    pendingKuboStart = undefined;
+                    if (!mainProcessExited) kuboProcess = undefined;
+                    throw error;
+                }
                 pendingKuboStart = undefined;
-                if (!mainProcessExited) kuboProcess = undefined;
-                throw error;
-            }
-            pendingKuboStart = undefined;
-            if (mainProcessExited) {
-                if (startedProcess?.pid && !startedProcess.killed) {
-                    // Race condition: Kubo finished starting after mainProcessExited.
-                    // Use SIGKILL + process group kill for immediate termination.
-                    const pid = startedProcess.pid;
-                    if (process.platform !== "win32") {
+                if (mainProcessExited) {
+                    if (startedProcess?.pid && !startedProcess.killed) {
+                        // Race condition: Kubo finished starting after mainProcessExited.
+                        // Use SIGKILL + process group kill for immediate termination.
+                        const pid = startedProcess.pid;
+                        if (process.platform !== "win32") {
+                            try {
+                                process.kill(-pid, "SIGKILL");
+                            } catch {
+                                /* best effort */
+                            }
+                        }
                         try {
-                            process.kill(-pid, "SIGKILL");
+                            process.kill(pid, "SIGKILL");
                         } catch {
                             /* best effort */
                         }
                     }
+                    kuboProcess = undefined;
+                    return;
+                }
+                kuboProcess = startedProcess;
+                log(`Started kubo ipfs process with pid (${kuboProcess.pid})`);
+                console.log(`Kubo IPFS API listening on: ${kuboRpcEndpoint}`);
+                console.log(`Kubo IPFS Gateway listening on: ${ipfsGatewayEndpoint}`);
+                const currentProcess = startedProcess;
+                const onKuboExit = async () => {
+                    // Restart Kubo process because it failed
+                    if (!mainProcessExited) {
+                        log(`Kubo node with pid (${currentProcess?.pid}) exited. Will attempt to restart it`);
+                        kuboProcess = undefined;
+                        try {
+                            await keepKuboUp();
+                        } catch (error) {
+                            log.trace(
+                                `keepKuboUp error after kubo exit (interval will retry): ${error instanceof Error ? error.message : String(error)}`
+                            );
+                        }
+                    } else {
+                        currentProcess.removeAllListeners();
+                    }
+                };
+                currentProcess.once("exit", onKuboExit);
+            };
+
+            let startedOwnRpc = false;
+            let usingDifferentProcessRpc = false;
+            let daemonServer: Awaited<ReturnType<typeof startDaemonServer>> | undefined;
+            const createOrConnectRpc = async () => {
+                if (mainProcessExited) return;
+                if (startedOwnRpc) return;
+                const isRpcPortTaken = await tcpPortUsed.check(Number(pkcRpcUrl.port), pkcRpcUrl.hostname);
+                if (isRpcPortTaken && usingDifferentProcessRpc) return;
+                if (isRpcPortTaken) {
+                    log(
+                        `PKC RPC is already running (${pkcRpcUrl}) by another program. bitsocial-cli will use the running RPC server, and if shuts down, bitsocial-cli will start a new RPC instance`
+                    );
+                    console.log("Using the already started RPC server at:", pkcRpcUrl);
+                    console.log("bitsocial-cli daemon will monitor the PKC RPC and kubo ipfs API to make sure they're always up");
+                    const PKC = await import("@pkcprotocol/pkc-js");
+                    const pkc = await PKC.default({ pkcRpcClientsOptions: [pkcRpcUrl.toString()] });
+                    await new Promise((resolve) => pkc.once("communitieschange", resolve));
+                    pkc.on("error", (error) => console.error("Error from pkc instance", error));
+                    console.log(`Communities in data path: `, pkc.communities);
+                    usingDifferentProcessRpc = true;
+                    return;
+                }
+
+                // Load installed challenge packages before starting the RPC server
+                const loadedChallenges = await loadChallengesIntoPKC(mergedPkcOptions.dataPath);
+                if (loadedChallenges.length > 0) console.log(`Loaded challenge packages: ${loadedChallenges.join(", ")}`);
+
+                daemonServer = await startDaemonServer(pkcRpcUrl, ipfsGatewayEndpoint, mergedPkcOptions);
+
+                usingDifferentProcessRpc = false;
+                startedOwnRpc = true;
+                console.log(`pkc rpc: listening on ${pkcRpcUrl} (local connections only)`);
+                console.log(`pkc rpc: listening on ${pkcRpcUrl}${daemonServer.rpcAuthKey} (secret auth key for remote connections)`);
+
+                console.log(`Bitsocial data path: ${path.resolve(mergedPkcOptions.dataPath!)}`);
+                console.log(`Communities in data path: `, daemonServer.listedSub);
+
+                const localIpAddress = "localhost";
+                const remoteIpAddress = getLanIpV4Address() || localIpAddress;
+                const rpcPort = pkcRpcUrl.port;
+                const webuiDescriptions: Record<string, string> = {
+                    plebones: "A bare bones UI client",
+                    seedit: "Similar to old reddit UI",
+                    "5chan": "Imageboard-style UI"
+                };
+                for (const webui of daemonServer.webuis) {
+                    const desc = webuiDescriptions[webui.name] ? ` - ${webuiDescriptions[webui.name]}` : "";
+                    console.log(`WebUI (${webui.name}${desc}): http://${localIpAddress}:${rpcPort}${webui.endpointRemote}`);
+                    if (remoteIpAddress !== localIpAddress)
+                        console.log(`WebUI (${webui.name}${desc}): http://${remoteIpAddress}:${rpcPort}${webui.endpointRemote}`);
+                }
+            };
+
+            const isRpcPortTaken = await tcpPortUsed.check(Number(pkcRpcUrl.port), pkcRpcUrl.hostname);
+
+            if (!pkcOptionsFromFlag?.kuboRpcClientsOptions && !isRpcPortTaken && !usingDifferentProcessRpc) await keepKuboUp();
+            await createOrConnectRpc();
+
+            let keepKuboUpInterval: NodeJS.Timeout | undefined;
+            const { asyncExitHook } = await import("exit-hook");
+            const killKuboProcessGroup = (pid: number, signal: NodeJS.Signals) => {
+                // Kill the entire process group (negative PID) on non-Windows.
+                // Kubo is spawned with detached: true, so it has its own process group.
+                if (process.platform !== "win32") {
                     try {
-                        process.kill(pid, "SIGKILL");
+                        process.kill(-pid, signal);
                     } catch {
                         /* best effort */
                     }
                 }
-                kuboProcess = undefined;
-                return;
-            }
-            kuboProcess = startedProcess;
-            log(`Started kubo ipfs process with pid (${kuboProcess.pid})`);
-            console.log(`Kubo IPFS API listening on: ${kuboRpcEndpoint}`);
-            console.log(`Kubo IPFS Gateway listening on: ${ipfsGatewayEndpoint}`);
-            const currentProcess = startedProcess;
-            const onKuboExit = async () => {
-                // Restart Kubo process because it failed
-                if (!mainProcessExited) {
-                    log(`Kubo node with pid (${currentProcess?.pid}) exited. Will attempt to restart it`);
-                    kuboProcess = undefined;
-                    try {
-                        await keepKuboUp();
-                    } catch (error) {
-                        log.trace(`keepKuboUp error after kubo exit (interval will retry): ${error instanceof Error ? error.message : String(error)}`);
-                    }
-                } else {
-                    currentProcess.removeAllListeners();
-                }
-            };
-            currentProcess.once("exit", onKuboExit);
-        };
-
-        let startedOwnRpc = false;
-        let usingDifferentProcessRpc = false;
-        let daemonServer: Awaited<ReturnType<typeof startDaemonServer>> | undefined;
-        const createOrConnectRpc = async () => {
-            if (mainProcessExited) return;
-            if (startedOwnRpc) return;
-            const isRpcPortTaken = await tcpPortUsed.check(Number(pkcRpcUrl.port), pkcRpcUrl.hostname);
-            if (isRpcPortTaken && usingDifferentProcessRpc) return;
-            if (isRpcPortTaken) {
-                log(
-                    `PKC RPC is already running (${pkcRpcUrl}) by another program. bitsocial-cli will use the running RPC server, and if shuts down, bitsocial-cli will start a new RPC instance`
-                );
-                console.log("Using the already started RPC server at:", pkcRpcUrl);
-                console.log("bitsocial-cli daemon will monitor the PKC RPC and kubo ipfs API to make sure they're always up");
-                const PKC = await import("@pkcprotocol/pkc-js");
-                const pkc = await PKC.default({ pkcRpcClientsOptions: [pkcRpcUrl.toString()] });
-                await new Promise((resolve) => pkc.once("communitieschange", resolve));
-                pkc.on("error", (error) => console.error("Error from pkc instance", error));
-                console.log(`Communities in data path: `, pkc.communities);
-                usingDifferentProcessRpc = true;
-                return;
-            }
-
-            // Load installed challenge packages before starting the RPC server
-            const loadedChallenges = await loadChallengesIntoPKC(mergedPkcOptions.dataPath);
-            if (loadedChallenges.length > 0) console.log(`Loaded challenge packages: ${loadedChallenges.join(", ")}`);
-
-            daemonServer = await startDaemonServer(pkcRpcUrl, ipfsGatewayEndpoint, mergedPkcOptions);
-
-            usingDifferentProcessRpc = false;
-            startedOwnRpc = true;
-            console.log(`pkc rpc: listening on ${pkcRpcUrl} (local connections only)`);
-            console.log(`pkc rpc: listening on ${pkcRpcUrl}${daemonServer.rpcAuthKey} (secret auth key for remote connections)`);
-
-            console.log(`Bitsocial data path: ${path.resolve(mergedPkcOptions.dataPath!)}`);
-            console.log(`Communities in data path: `, daemonServer.listedSub);
-
-            const localIpAddress = "localhost";
-            const remoteIpAddress = getLanIpV4Address() || localIpAddress;
-            const rpcPort = pkcRpcUrl.port;
-            const webuiDescriptions: Record<string, string> = {
-                plebones: "A bare bones UI client",
-                seedit: "Similar to old reddit UI",
-                "5chan": "Imageboard-style UI"
-            };
-            for (const webui of daemonServer.webuis) {
-                const desc = webuiDescriptions[webui.name] ? ` - ${webuiDescriptions[webui.name]}` : "";
-                console.log(`WebUI (${webui.name}${desc}): http://${localIpAddress}:${rpcPort}${webui.endpointRemote}`);
-                if (remoteIpAddress !== localIpAddress)
-                    console.log(`WebUI (${webui.name}${desc}): http://${remoteIpAddress}:${rpcPort}${webui.endpointRemote}`);
-            }
-        };
-
-        const isRpcPortTaken = await tcpPortUsed.check(Number(pkcRpcUrl.port), pkcRpcUrl.hostname);
-
-        if (!pkcOptionsFromFlag?.kuboRpcClientsOptions && !isRpcPortTaken && !usingDifferentProcessRpc) await keepKuboUp();
-        await createOrConnectRpc();
-
-        let keepKuboUpInterval: NodeJS.Timeout | undefined;
-        const { asyncExitHook } = await import("exit-hook");
-        const killKuboProcessGroup = (pid: number, signal: NodeJS.Signals) => {
-            // Kill the entire process group (negative PID) on non-Windows.
-            // Kubo is spawned with detached: true, so it has its own process group.
-            if (process.platform !== "win32") {
                 try {
-                    process.kill(-pid, signal);
+                    process.kill(pid, signal);
                 } catch {
                     /* best effort */
                 }
-            }
-            try {
-                process.kill(pid, signal);
-            } catch {
-                /* best effort */
-            }
-        };
+            };
 
-        const killKuboProcess = async () => {
-            if (pendingKuboStart) {
-                try {
-                    await pendingKuboStart;
-                } catch {
-                    /* ignore */
-                }
-            }
-            if (kuboProcess?.pid && !kuboProcess.killed) {
-                const pid = kuboProcess.pid;
-                log("Attempting to kill kubo process with pid", pid);
-                try {
-                    killKuboProcessGroup(pid, "SIGINT");
-                    const exited = await new Promise<boolean>((resolve) => {
-                        const timeout = setTimeout(() => resolve(false), 5000);
-                        kuboProcess?.once("exit", () => {
-                            clearTimeout(timeout);
-                            resolve(true);
-                        });
-                    });
-                    if (!exited) {
-                        log("Kubo process did not exit after SIGINT, escalating to SIGKILL");
-                        killKuboProcessGroup(pid, "SIGKILL");
-                    }
-                    log("Kubo process killed with pid", pid);
-                } catch (e) {
-                    if (e instanceof Error && "code" in e && (e as NodeJS.ErrnoException).code === "ESRCH")
-                        log("Kubo process already killed");
-                    else log.error("Error killing kubo process", e);
-                } finally {
-                    kuboProcess?.removeAllListeners();
-                    kuboProcess = undefined;
-                }
-            }
-        };
-
-        asyncExitHook(
-            async () => {
-                if (keepKuboUpInterval) clearInterval(keepKuboUpInterval);
-                if (mainProcessExited) return; // we already exited
-                console.log(
-                    "\nShutting down Bitsocial daemon, it may take a few seconds to shut down all communities and the IPFS node..."
-                );
-                log("Received signal to exit, shutting down both kubo and pkc rpc. Please wait, it may take a few seconds");
-
-                mainProcessExited = true;
-
-                // Remove daemon state file so update install knows we're gone
-                await deleteDaemonState(process.pid).catch(() => {});
-
-                // Start killing Kubo immediately, in parallel with daemon server destroy.
-                // This way Kubo receives SIGINT right away, even if daemonServer.destroy() hangs.
-                const kuboKillPromise = killKuboProcess();
-
-                if (daemonServer)
+            const killKuboProcess = async () => {
+                if (pendingKuboStart) {
                     try {
-                        await daemonServer.destroy();
-                        log("Daemon server shut down");
-                    } catch (e) {
-                        log.error("Error shutting down daemon server", e);
+                        await pendingKuboStart;
+                    } catch {
+                        /* ignore */
                     }
+                }
+                if (kuboProcess?.pid && !kuboProcess.killed) {
+                    const pid = kuboProcess.pid;
+                    log("Attempting to kill kubo process with pid", pid);
+                    try {
+                        killKuboProcessGroup(pid, "SIGINT");
+                        const exited = await new Promise<boolean>((resolve) => {
+                            const timeout = setTimeout(() => resolve(false), 5000);
+                            kuboProcess?.once("exit", () => {
+                                clearTimeout(timeout);
+                                resolve(true);
+                            });
+                        });
+                        if (!exited) {
+                            log("Kubo process did not exit after SIGINT, escalating to SIGKILL");
+                            killKuboProcessGroup(pid, "SIGKILL");
+                        }
+                        log("Kubo process killed with pid", pid);
+                    } catch (e) {
+                        if (e instanceof Error && "code" in e && (e as NodeJS.ErrnoException).code === "ESRCH")
+                            log("Kubo process already killed");
+                        else log.error("Error killing kubo process", e);
+                    } finally {
+                        kuboProcess?.removeAllListeners();
+                        kuboProcess = undefined;
+                    }
+                }
+            };
 
-                await kuboKillPromise;
-            },
-            { wait: 120000 } // could take two minutes to shut down
-        );
+            asyncExitHook(
+                async () => {
+                    if (keepKuboUpInterval) clearInterval(keepKuboUpInterval);
+                    if (mainProcessExited) return; // we already exited
+                    console.log(
+                        "\nShutting down Bitsocial daemon, it may take a few seconds to shut down all communities and the IPFS node..."
+                    );
+                    log("Received signal to exit, shutting down both kubo and pkc rpc. Please wait, it may take a few seconds");
 
-        // Emergency cleanup: if the process force-exits (e.g. double Ctrl+C),
-        // synchronously SIGKILL kubo's process group. This is a no-op if
-        // killKuboProcess() already ran (it sets kuboProcess = undefined).
-        process.on("exit", () => {
-            if (kuboProcess?.pid) {
-                killKuboProcessGroup(kuboProcess.pid, "SIGKILL");
-            }
-        });
+                    mainProcessExited = true;
 
-        keepKuboUpInterval = setInterval(async () => {
-            if (mainProcessExited) return;
-            const isRpcPortTaken = await tcpPortUsed.check(Number(pkcRpcUrl.port), pkcRpcUrl.hostname);
-            try {
-                if (!pkcOptionsFromFlag?.kuboRpcClientsOptions && !isRpcPortTaken && !usingDifferentProcessRpc) await keepKuboUp();
-                else if (pkcOptionsFromFlag?.kuboRpcClientsOptions && !usingDifferentProcessRpc) await keepKuboUp();
-                // Retry if kubo died and onKuboExit's restart attempt failed (e.g. transient port conflict)
-                else if (!kuboProcess && !pendingKuboStart && !usingDifferentProcessRpc) await keepKuboUp();
-            } catch (error) {
-                log.trace(`keepKuboUp error (will retry): ${error instanceof Error ? error.message : String(error)}`);
-            }
-            await createOrConnectRpc();
-        }, 5000);
+                    // Remove daemon state file so update install knows we're gone
+                    await deleteDaemonState(process.pid).catch(() => {});
 
+                    // Start killing Kubo immediately, in parallel with daemon server destroy.
+                    // This way Kubo receives SIGINT right away, even if daemonServer.destroy() hangs.
+                    const kuboKillPromise = killKuboProcess();
+
+                    if (daemonServer)
+                        try {
+                            await daemonServer.destroy();
+                            log("Daemon server shut down");
+                        } catch (e) {
+                            log.error("Error shutting down daemon server", e);
+                        }
+
+                    await kuboKillPromise;
+                },
+                { wait: 120000 } // could take two minutes to shut down
+            );
+
+            // Emergency cleanup: if the process force-exits (e.g. double Ctrl+C),
+            // synchronously SIGKILL kubo's process group. This is a no-op if
+            // killKuboProcess() already ran (it sets kuboProcess = undefined).
+            process.on("exit", () => {
+                if (kuboProcess?.pid) {
+                    killKuboProcessGroup(kuboProcess.pid, "SIGKILL");
+                }
+            });
+
+            keepKuboUpInterval = setInterval(async () => {
+                if (mainProcessExited) return;
+                const isRpcPortTaken = await tcpPortUsed.check(Number(pkcRpcUrl.port), pkcRpcUrl.hostname);
+                try {
+                    if (!pkcOptionsFromFlag?.kuboRpcClientsOptions && !isRpcPortTaken && !usingDifferentProcessRpc) await keepKuboUp();
+                    else if (pkcOptionsFromFlag?.kuboRpcClientsOptions && !usingDifferentProcessRpc) await keepKuboUp();
+                    // Retry if kubo died and onKuboExit's restart attempt failed (e.g. transient port conflict)
+                    else if (!kuboProcess && !pendingKuboStart && !usingDifferentProcessRpc) await keepKuboUp();
+                } catch (error) {
+                    log.trace(`keepKuboUp error (will retry): ${error instanceof Error ? error.message : String(error)}`);
+                }
+                await createOrConnectRpc();
+            }, 5000);
         } catch (err) {
             const errorMsg = err instanceof Error ? err.message : String(err);
             stdoutWrite(`\nDaemon failed to start: ${errorMsg}\n\n`);

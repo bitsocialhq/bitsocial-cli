@@ -11,19 +11,19 @@ describe("createBsoResolvers", () => {
 
     it("creates resolvers with default providers when none specified", () => {
         resolvers = createBsoResolvers(undefined, "/tmp/test-data");
-        expect(resolvers).toHaveLength(2);
-        expect(resolvers[0].key).toBe("bso-viem");
-        expect(resolvers[0].provider).toBe("viem");
+        expect(resolvers).toHaveLength(6);
+        expect(resolvers[0].key).toBe("bso-https://eth.drpc.org");
+        expect(resolvers[0].provider).toBe("https://eth.drpc.org");
         expect(resolvers[0].dataPath).toBe("/tmp/test-data");
-        expect(resolvers[1].key).toBe("bso-https://ethrpc.xyz");
-        expect(resolvers[1].provider).toBe("https://ethrpc.xyz");
+        expect(resolvers[5].key).toBe("bso-https://eth-pokt.nodies.app");
+        expect(resolvers[5].provider).toBe("https://eth-pokt.nodies.app");
     });
 
     it("creates resolvers with default providers when empty array passed", () => {
         resolvers = createBsoResolvers([], "/tmp/test-data");
-        expect(resolvers).toHaveLength(2);
-        expect(resolvers[0].provider).toBe("viem");
-        expect(resolvers[1].provider).toBe("https://ethrpc.xyz");
+        expect(resolvers).toHaveLength(6);
+        expect(resolvers[0].provider).toBe("https://eth.drpc.org");
+        expect(resolvers[5].provider).toBe("https://eth-pokt.nodies.app");
     });
 
     it("creates resolvers from custom provider list", () => {
@@ -70,20 +70,26 @@ describe("daemon wiring: chainProviderUrls -> PKC nameResolvers", () => {
     });
 
     it("default chain provider URLs produce resolvers in pkcOptions.nameResolvers", () => {
-        // Mirrors daemon.ts: flags.chainProviderUrls defaults to ["viem", "https://ethrpc.xyz"]
-        const chainProviderUrls = ["viem", "https://ethrpc.xyz"];
+        const chainProviderUrls = [
+            "https://eth.drpc.org",
+            "https://ethereum.publicnode.com",
+            "https://ethereum-rpc.publicnode.com",
+            "https://rpc.mevblocker.io",
+            "https://1rpc.io/eth",
+            "https://eth-pokt.nodies.app"
+        ];
         const dataPath = "/tmp/test-data";
 
         resolvers = createBsoResolvers(chainProviderUrls, dataPath);
         const pkcOptions: Record<string, any> = { dataPath };
         pkcOptions.nameResolvers = [...(pkcOptions.nameResolvers || []), ...resolvers];
 
-        expect(pkcOptions.nameResolvers).toHaveLength(2);
-        expect(pkcOptions.nameResolvers[0].key).toBe("bso-viem");
-        expect(pkcOptions.nameResolvers[0].provider).toBe("viem");
+        expect(pkcOptions.nameResolvers).toHaveLength(6);
+        expect(pkcOptions.nameResolvers[0].key).toBe("bso-https://eth.drpc.org");
+        expect(pkcOptions.nameResolvers[0].provider).toBe("https://eth.drpc.org");
         expect(pkcOptions.nameResolvers[0].dataPath).toBe(dataPath);
-        expect(pkcOptions.nameResolvers[1].key).toBe("bso-https://ethrpc.xyz");
-        expect(pkcOptions.nameResolvers[1].provider).toBe("https://ethrpc.xyz");
+        expect(pkcOptions.nameResolvers[5].key).toBe("bso-https://eth-pokt.nodies.app");
+        expect(pkcOptions.nameResolvers[5].provider).toBe("https://eth-pokt.nodies.app");
         for (const resolver of pkcOptions.nameResolvers) {
             expect(resolver.canResolve({ name: "test.bso" })).toBe(true);
             expect(typeof resolver.resolve).toBe("function");
