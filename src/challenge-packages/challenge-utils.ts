@@ -225,10 +225,12 @@ export async function runNpmInstall(challengeDir: string): Promise<void> {
     const originalContent = await fs.readFile(pkgJsonPath, "utf-8");
     const pkg = JSON.parse(originalContent);
     const hadDevDeps = pkg.devDependencies !== undefined;
+    const hadScripts = pkg.scripts !== undefined;
 
-    if (hadDevDeps) {
+    if (hadDevDeps || hadScripts) {
         const stripped = { ...pkg };
         delete stripped.devDependencies;
+        delete stripped.scripts;
         await fs.writeFile(pkgJsonPath, JSON.stringify(stripped, null, 2) + "\n");
     }
 
@@ -239,7 +241,7 @@ export async function runNpmInstall(challengeDir: string): Promise<void> {
             // will all use the same Node that's running bitsocial-cli.
             // Use piped stdio and forward explicitly so output is visible even
             // when the parent process has piped stdio (e.g. spawned by tests).
-            const args = [npmCliPath, "install", "--ignore-scripts", "--omit=dev", "--no-audit", "--no-fund"];
+            const args = [npmCliPath, "install", "--omit=dev", "--no-audit", "--no-fund"];
             if (process.platform === "win32") {
                 args.push("--legacy-peer-deps");
             }
@@ -259,7 +261,7 @@ export async function runNpmInstall(challengeDir: string): Promise<void> {
             });
         });
     } finally {
-        if (hadDevDeps) {
+        if (hadDevDeps || hadScripts) {
             await fs.writeFile(pkgJsonPath, originalContent);
         }
     }
