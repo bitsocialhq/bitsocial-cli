@@ -344,7 +344,7 @@ EXAMPLES
   $ bitsocial challenge install ./my-local-challenge
 ```
 
-_See code: [src/cli/commands/challenge/install.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.42/src/cli/commands/challenge/install.ts)_
+_See code: [src/cli/commands/challenge/install.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.43/src/cli/commands/challenge/install.ts)_
 
 ## `bitsocial challenge list`
 
@@ -367,7 +367,7 @@ EXAMPLES
   $ bitsocial challenge list -q
 ```
 
-_See code: [src/cli/commands/challenge/list.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.42/src/cli/commands/challenge/list.ts)_
+_See code: [src/cli/commands/challenge/list.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.43/src/cli/commands/challenge/list.ts)_
 
 ## `bitsocial challenge remove NAME`
 
@@ -392,7 +392,7 @@ EXAMPLES
   $ bitsocial challenge remove @scope/my-challenge
 ```
 
-_See code: [src/cli/commands/challenge/remove.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.42/src/cli/commands/challenge/remove.ts)_
+_See code: [src/cli/commands/challenge/remove.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.43/src/cli/commands/challenge/remove.ts)_
 
 ## `bitsocial community create`
 
@@ -417,7 +417,7 @@ EXAMPLES
     $ bitsocial community create --title 'Hello Plebs' --description 'Welcome'
 ```
 
-_See code: [src/cli/commands/community/create.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.42/src/cli/commands/community/create.ts)_
+_See code: [src/cli/commands/community/create.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.43/src/cli/commands/community/create.ts)_
 
 ## `bitsocial community delete ADDRESSES`
 
@@ -442,7 +442,7 @@ EXAMPLES
   $ bitsocial community delete 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
-_See code: [src/cli/commands/community/delete.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.42/src/cli/commands/community/delete.ts)_
+_See code: [src/cli/commands/community/delete.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.43/src/cli/commands/community/delete.ts)_
 
 ## `bitsocial community edit ADDRESS`
 
@@ -494,7 +494,7 @@ EXAMPLES
     $ bitsocial community edit plebbit.bso --settings.fetchThumbnailUrls=false
 ```
 
-_See code: [src/cli/commands/community/edit.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.42/src/cli/commands/community/edit.ts)_
+_See code: [src/cli/commands/community/edit.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.43/src/cli/commands/community/edit.ts)_
 
 ## `bitsocial community get [ADDRESS]`
 
@@ -525,7 +525,7 @@ EXAMPLES
   $ bitsocial community get --publicKey 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
-_See code: [src/cli/commands/community/get.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.42/src/cli/commands/community/get.ts)_
+_See code: [src/cli/commands/community/get.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.43/src/cli/commands/community/get.ts)_
 
 ## `bitsocial community list`
 
@@ -548,7 +548,7 @@ EXAMPLES
   $ bitsocial community list
 ```
 
-_See code: [src/cli/commands/community/list.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.42/src/cli/commands/community/list.ts)_
+_See code: [src/cli/commands/community/list.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.43/src/cli/commands/community/list.ts)_
 
 ## `bitsocial community start ADDRESSES`
 
@@ -577,7 +577,7 @@ EXAMPLES
     $ bitsocial community start $(bitsocial community list -q)
 ```
 
-_See code: [src/cli/commands/community/start.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.42/src/cli/commands/community/start.ts)_
+_See code: [src/cli/commands/community/start.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.43/src/cli/commands/community/start.ts)_
 
 ## `bitsocial community stop ADDRESSES`
 
@@ -602,7 +602,7 @@ EXAMPLES
   $ bitsocial community stop Qmb99crTbSUfKXamXwZBe829Vf6w5w5TktPkb6WstC9RFW
 ```
 
-_See code: [src/cli/commands/community/stop.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.42/src/cli/commands/community/stop.ts)_
+_See code: [src/cli/commands/community/stop.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.43/src/cli/commands/community/stop.ts)_
 
 ## `bitsocial daemon`
 
@@ -613,9 +613,10 @@ USAGE
   $ bitsocial daemon --pkcRpcUrl <value> --logPath <value> [--chainProviderUrls <value>...]
 
 FLAGS
-  --chainProviderUrls=<value>...  [default: viem,https://ethrpc.xyz] Ethereum RPC URL(s) for .bso/.eth name resolution.
-                                  Can be specified multiple times. Defaults to viem public transport and
-                                  https://ethrpc.xyz
+  --chainProviderUrls=<value>...  [default:
+                                  https://eth.drpc.org,https://ethereum.publicnode.com,https://ethereum-rpc.publicnode.c
+                                  om,https://rpc.mevblocker.io,https://1rpc.io/eth,https://eth-pokt.nodies.app] RPC
+                                  URL(s) for .bso name resolution. Can be specified multiple times.
   --logPath=<value>               (required) [default: /home/runner/.local/state/bitsocial] Specify a directory which
                                   will be used to store logs
   --pkcRpcUrl=<value>             (required) [default: ws://localhost:9138/] Specify PKC RPC URL to listen on
@@ -640,11 +641,9 @@ EXAMPLES
   $ bitsocial daemon --pkcOptions.kuboRpcClientsOptions[0] https://remoteipfsnode.com
 
   $ bitsocial daemon --chainProviderUrls https://mainnet.infura.io/v3/YOUR_KEY
-
-  $ bitsocial daemon --chainProviderUrls viem --chainProviderUrls https://mainnet.infura.io/v3/YOUR_KEY
 ```
 
-_See code: [src/cli/commands/daemon.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.42/src/cli/commands/daemon.ts)_
+_See code: [src/cli/commands/daemon.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.43/src/cli/commands/daemon.ts)_
 
 ## `bitsocial help [COMMAND]`
 
@@ -668,7 +667,7 @@ _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.2.3
 
 ## `bitsocial logs`
 
-View the latest Bitsocial daemon log file. By default dumps the full log and exits. Use --follow to stream new output in real-time (like tail -f).
+View the latest BitSocial daemon log file. By default dumps the full log and exits. Use --follow to stream new output in real-time (like tail -f).
 
 ```
 USAGE
@@ -684,7 +683,7 @@ FLAGS
                          42m, 2h, 1d)
 
 DESCRIPTION
-  View the latest Bitsocial daemon log file. By default dumps the full log and exits. Use --follow to stream new output
+  View the latest BitSocial daemon log file. By default dumps the full log and exits. Use --follow to stream new output
   in real-time (like tail -f).
 
 EXAMPLES
@@ -701,7 +700,7 @@ EXAMPLES
   $ bitsocial logs --since 1h -f
 ```
 
-_See code: [src/cli/commands/logs.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.42/src/cli/commands/logs.ts)_
+_See code: [src/cli/commands/logs.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.43/src/cli/commands/logs.ts)_
 
 ## `bitsocial update check`
 
@@ -718,7 +717,7 @@ EXAMPLES
   $ bitsocial update check
 ```
 
-_See code: [src/cli/commands/update/check.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.42/src/cli/commands/update/check.ts)_
+_See code: [src/cli/commands/update/check.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.43/src/cli/commands/update/check.ts)_
 
 ## `bitsocial update install [VERSION]`
 
@@ -726,13 +725,14 @@ Install a specific version of bitsocial from npm
 
 ```
 USAGE
-  $ bitsocial update install [VERSION] [--force]
+  $ bitsocial update install [VERSION] [--force] [--restart-daemons]
 
 ARGUMENTS
   [VERSION]  [default: latest] Version to install (e.g. "0.19.40" or "latest")
 
 FLAGS
-  --force  Reinstall even if already on the requested version
+  --force                 Reinstall even if already on the requested version
+  --[no-]restart-daemons  Stop all running daemons, update, and restart them with the same settings
 
 DESCRIPTION
   Install a specific version of bitsocial from npm
@@ -745,9 +745,11 @@ EXAMPLES
   $ bitsocial update install 0.19.40
 
   $ bitsocial update install --force
+
+  $ bitsocial update install --no-restart-daemons
 ```
 
-_See code: [src/cli/commands/update/install.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.42/src/cli/commands/update/install.ts)_
+_See code: [src/cli/commands/update/install.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.43/src/cli/commands/update/install.ts)_
 
 ## `bitsocial update versions`
 
@@ -769,7 +771,7 @@ EXAMPLES
   $ bitsocial update versions --limit 5
 ```
 
-_See code: [src/cli/commands/update/versions.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.42/src/cli/commands/update/versions.ts)_
+_See code: [src/cli/commands/update/versions.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.43/src/cli/commands/update/versions.ts)_
 <!-- commandsstop -->
 
 ## Contribution
