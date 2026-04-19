@@ -1,5 +1,13 @@
 # Changelog
 
+## <small>0.19.44 (2026-04-19)</small>
+
+* fix: skip lifecycle scripts during challenge install to avoid husky failures ([9a99238](https://github.com/bitsocialnet/bitsocial-cli/commit/9a99238))
+* fix(ci): strip scripts from challenge package.json instead of --ignore-scripts ([f61c9ff](https://github.com/bitsocialnet/bitsocial-cli/commit/f61c9ff))
+* feat: add update-webuis script and bump 5chan to v0.7.4 ([c822812](https://github.com/bitsocialnet/bitsocial-cli/commit/c822812)), closes [#24](https://github.com/bitsocialnet/bitsocial-cli/issues/24)
+* chore: remove .bso name resolvers console.log from daemon startup ([9580c26](https://github.com/bitsocialnet/bitsocial-cli/commit/9580c26))
+* chore: upgrade @bitsocial/bso-resolver from 0.0.5 to 0.0.6 and run audit fix ([0b83d8f](https://github.com/bitsocialnet/bitsocial-cli/commit/0b83d8f))
+
 ## <small>0.19.43 (2026-04-19)</small>
 
 * chore: upgrade @bitsocial/bso-resolver from 0.0.4 to 0.0.5 ([0209126](https://github.com/bitsocialnet/bitsocial-cli/commit/0209126))
