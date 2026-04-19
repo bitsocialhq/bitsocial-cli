@@ -68,6 +68,10 @@ const traverseObjectToSetAsFlagInOclif = (opts: Parameters<Hook<"prerun">>[0], f
             if (Object.keys(flagsGrouped[flagName]).length !== 0) continue;
         }
 
+        const fullFlagName = path + flagName;
+        // Skip flags that are already statically declared on the command
+        if (opts.Command.flags && fullFlagName in opts.Command.flags) continue;
+
         const flagsIndices = <Record<string, number>>Object.assign({}, ...Object.keys(flagsGrouped).map((flag) => ({ [flag]: 0 })));
         const multipleValues = Array.isArray(flagsGrouped[flagName]) && flagsGrouped[flagName].length > 1;
 
@@ -86,9 +90,19 @@ const traverseObjectToSetAsFlagInOclif = (opts: Parameters<Hook<"prerun">>[0], f
     }
 };
 
+// Tracks original static flags per Command class so dynamic flags can be reset across invocations (e.g. in tests)
+const originalStaticFlags = new WeakMap<object, Record<string, any>>();
+
 const hook: Hook<"prerun"> = async function (opts) {
     // Need to parse flag here and add it to opts.Command._flags
     if (opts.Command.id === "community:edit" || opts.Command.id === "community:create" || opts.Command.id === "daemon") {
+        // Snapshot static flags on first run; restore on subsequent runs (test isolation)
+        if (!originalStaticFlags.has(opts.Command)) {
+            originalStaticFlags.set(opts.Command, opts.Command.flags ? { ...opts.Command.flags } : {});
+        } else {
+            opts.Command.flags = { ...originalStaticFlags.get(opts.Command)! };
+        }
+
         // Parse the dynamic flags and add them to opts.Command.flags so that it wouldn't throw
         if (opts.argv.length <= 1) return; // if no flags are provided, then we don't need to do anything
         for (let i = 0; i < opts.argv.length; i++) if (typeof opts.argv[i] !== "string") opts.argv[i] = String(opts.argv[i]);

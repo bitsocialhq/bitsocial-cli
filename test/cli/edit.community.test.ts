@@ -1,6 +1,8 @@
 import { describe, it, beforeAll, afterAll, afterEach, expect } from "vitest";
 //@ts-ignore
 import Sinon from "sinon";
+import { file as tempFile } from "tempy";
+import fsPromises from "fs/promises";
 import type { CommunityEditOptions } from "../types/communityTypes.js";
 import { currentSubProps } from "../fixtures/communityForEditFixture.js";
 import { clearPkcRpcConnectOverride, setPkcRpcConnectOverride } from "../helpers/pkc-test-overrides.js";
@@ -208,4 +210,80 @@ describe("bitsocial community edit", () => {
 
         expect(mergedEditOptions.settings).toBeNull();
     });
+
+    // --jsonFile flag
+
+    it("Can edit using a JSON file", async () => {
+        const jsonPath = tempFile({ extension: "json" });
+        await fsPromises.writeFile(jsonPath, JSON.stringify({ title: "JSON Title", description: "JSON Desc" }));
+        const { result } = await runEditCommand(`community edit plebbit.bso --jsonFile ${jsonPath}`);
+        expect(result.error).toBeUndefined();
+        expect(editFake.calledOnce).toBe(true);
+        const parsedArgs = <CommunityEditOptions>editFake.args[0][0];
+        expect(parsedArgs.title).toBe("JSON Title");
+        expect(parsedArgs.description).toBe("JSON Desc");
+    });
+
+    it("Can edit nested properties from JSON file", async () => {
+        const jsonPath = tempFile({ extension: "json" });
+        const editData = {
+            settings: {
+                challenges: [{ name: "question", options: { question: "q?", answer: "a" } }],
+                fetchThumbnailUrls: true
+            }
+        };
+        await fsPromises.writeFile(jsonPath, JSON.stringify(editData));
+        const { result } = await runEditCommand(`community edit plebbit.bso --jsonFile ${jsonPath}`);
+        expect(result.error).toBeUndefined();
+        expect(editFake.calledOnce).toBe(true);
+        const parsedArgs = <CommunityEditOptions>editFake.args[0][0];
+        expect(parsedArgs.settings?.challenges![0].name).toBe("question");
+        expect(parsedArgs.settings?.fetchThumbnailUrls).toBe(true);
+    });
+
+    it("CLI flags override JSON file options", async () => {
+        const jsonPath = tempFile({ extension: "json" });
+        await fsPromises.writeFile(jsonPath, JSON.stringify({ title: "JSON Title", description: "JSON Desc" }));
+        const { result } = await runEditCommand(`community edit plebbit.bso --jsonFile ${jsonPath} --title "CLI Title"`);
+        expect(result.error).toBeUndefined();
+        expect(editFake.calledOnce).toBe(true);
+        const parsedArgs = <CommunityEditOptions>editFake.args[0][0];
+        expect(parsedArgs.title).toBe("CLI Title");
+        expect(parsedArgs.description).toBe("JSON Desc");
+    });
+
+    it("Errors on invalid JSON in file", async () => {
+        const jsonPath = tempFile({ extension: "json" });
+        await fsPromises.writeFile(jsonPath, "not valid json {{{");
+        const { result } = await runEditCommand(`community edit plebbit.bso --jsonFile ${jsonPath}`);
+        expect(result.error).toBeDefined();
+        expect(result.error?.message).toContain("Invalid JSON");
+    });
+
+    it("Errors when JSON file contains an array instead of object", async () => {
+        const jsonPath = tempFile({ extension: "json" });
+        await fsPromises.writeFile(jsonPath, JSON.stringify(["not", "an", "object"]));
+        const { result } = await runEditCommand(`community edit plebbit.bso --jsonFile ${jsonPath}`);
+        expect(result.error).toBeDefined();
+        expect(result.error?.message).toContain("JSON object");
+    });
+
+    it("Errors when JSON file contains a string instead of object", async () => {
+        const jsonPath = tempFile({ extension: "json" });
+        await fsPromises.writeFile(jsonPath, JSON.stringify("just a string"));
+        const { result } = await runEditCommand(`community edit plebbit.bso --jsonFile ${jsonPath}`);
+        expect(result.error).toBeDefined();
+        expect(result.error?.message).toContain("JSON object");
+    });
+
+    it("Can use -f as a short alias for --jsonFile", async () => {
+        const jsonPath = tempFile({ extension: "json" });
+        await fsPromises.writeFile(jsonPath, JSON.stringify({ title: "Short Flag Title" }));
+        const { result } = await runEditCommand(`community edit plebbit.bso -f ${jsonPath}`);
+        expect(result.error).toBeUndefined();
+        expect(editFake.calledOnce).toBe(true);
+        const parsedArgs = <CommunityEditOptions>editFake.args[0][0];
+        expect(parsedArgs.title).toBe("Short Flag Title");
+    });
+
 });
