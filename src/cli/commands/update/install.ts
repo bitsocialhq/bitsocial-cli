@@ -4,6 +4,14 @@ import tcpPortUsed from "tcp-port-used";
 import { fetchLatestVersion, installGlobal } from "../../../update/npm-registry.js";
 import { compareVersions } from "../../../update/semver.js";
 import { getAliveDaemonStates, type DaemonState } from "../../../common-utils/daemon-state.js";
+import PKC from "@pkcprotocol/pkc-js";
+type PKCInstance = Awaited<ReturnType<typeof PKC>>;
+type PKCConnectOverride = (pkcRpcUrl: string) => Promise<PKCInstance>;
+
+const getPKCConnectOverride = (): PKCConnectOverride | undefined => {
+    const globalWithOverride = globalThis as { __PKC_RPC_CONNECT_OVERRIDE?: PKCConnectOverride };
+    return globalWithOverride.__PKC_RPC_CONNECT_OVERRIDE;
+};
 
 export default class Install extends Command {
     static override description = "Install a specific version of bitsocial from npm";
@@ -142,9 +150,63 @@ export default class Install extends Command {
             const started = await tcpPortUsed.waitUntilUsed(port, 500, 30000).then(() => true).catch(() => false);
             if (started) {
                 this.log(`  Daemon started (port ${port}).`);
+                await this._reportCommunityStatus(d.pkcRpcUrl);
             } else {
                 this.warn(`  Daemon may not have started — port ${port} not responding after 30s. Check logs with: bitsocial logs`);
             }
+        }
+    }
+
+    private async _connectToRpc(pkcRpcUrl: string): Promise<PKCInstance> {
+        const connectOverride = getPKCConnectOverride();
+        if (connectOverride) {
+            return connectOverride(pkcRpcUrl);
+        }
+        const pkc = await PKC({ pkcRpcClientsOptions: [pkcRpcUrl] });
+        const errors: Error[] = [];
+        pkc.on("error", (err: Error) => {
+            errors.push(err);
+        });
+        await new Promise<void>((resolve, reject) => {
+            const timeout = setTimeout(() => {
+                const lastError = errors[errors.length - 1];
+                reject(lastError ?? new Error(`Timed out waiting for RPC server at ${pkcRpcUrl} to respond`));
+            }, 20000);
+            pkc.once("communitieschange", () => {
+                clearTimeout(timeout);
+                resolve();
+            });
+        });
+        return pkc;
+    }
+
+    private async _reportCommunityStatus(pkcRpcUrl: string): Promise<void> {
+        let pkc: PKCInstance | undefined;
+        try {
+            pkc = await this._connectToRpc(pkcRpcUrl);
+            const communities: string[] = pkc.communities;
+            if (communities.length === 0) return;
+
+            const statuses = await Promise.all(
+                communities.map(async (address: string) => {
+                    const community = await pkc!.createCommunity({ address });
+                    return community.started as boolean;
+                })
+            );
+            const startedCount = statuses.filter(Boolean).length;
+            const total = communities.length;
+
+            if (startedCount === total) {
+                this.log(`  ${startedCount} ${startedCount === 1 ? "community" : "communities"} started.`);
+            } else if (startedCount > 0) {
+                this.log(`  ${startedCount} of ${total} communities started (remaining still loading).`);
+            } else {
+                this.log(`  ${total} ${total === 1 ? "community" : "communities"} in data path (still loading). Check with: bitsocial community list`);
+            }
+        } catch {
+            this.warn("Could not check community status.");
+        } finally {
+            if (pkc) await pkc.destroy().catch(() => {});
         }
     }
 }
