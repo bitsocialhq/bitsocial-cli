@@ -280,7 +280,7 @@ export default class Daemon extends Command {
             // Create BSO name resolvers for .bso/.eth domain resolution
             const bsoResolvers = createBsoResolvers(flags.chainProviderUrls, mergedPkcOptions.dataPath);
             mergedPkcOptions.nameResolvers = [...(mergedPkcOptions.nameResolvers || []), ...bsoResolvers];
-            console.log(".bso name resolvers:", bsoResolvers.map((r) => r.provider).join(", "));
+
 
             let mainProcessExited = false;
             let pendingKuboStart: Promise<ChildProcessWithoutNullStreams> | undefined;
