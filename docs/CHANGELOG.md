@@ -1,5 +1,17 @@
 # Changelog
 
+## <small>0.19.43 (2026-04-19)</small>
+
+* chore: upgrade @bitsocial/bso-resolver from 0.0.4 to 0.0.5 ([0209126](https://github.com/bitsocialnet/bitsocial-cli/commit/0209126))
+* chore: upgrade @pkcprotocol/pkc-js from 0.0.16 to 0.0.17 ([4189f0d](https://github.com/bitsocialnet/bitsocial-cli/commit/4189f0d))
+* fix(ci): extract only tarball filename from npm pack output ([2ad0ca1](https://github.com/bitsocialnet/bitsocial-cli/commit/2ad0ca1))
+* feat: add daemon state files and --restart-daemons flag to update install ([caea9ad](https://github.com/bitsocialnet/bitsocial-cli/commit/caea9ad)), closes [#21](https://github.com/bitsocialnet/bitsocial-cli/issues/21)
+* feat: print PKC options and .bso name resolvers in daemon stdout ([8053c29](https://github.com/bitsocialnet/bitsocial-cli/commit/8053c29))
+* feat: update default chain provider URLs to public RPC endpoints ([ed739f6](https://github.com/bitsocialnet/bitsocial-cli/commit/ed739f6))
+* ci: add global install smoke test to verify npm pack works ([a88539f](https://github.com/bitsocialnet/bitsocial-cli/commit/a88539f))
+* ci: use bitsocial-release-bot for CI releases and update README ([f308210](https://github.com/bitsocialnet/bitsocial-cli/commit/f308210))
+* docs: recommend nvm instead of nodejs.org for installing Node.js ([b0422db](https://github.com/bitsocialnet/bitsocial-cli/commit/b0422db))
+
 ## <small>0.19.42 (2026-04-18)</small>
 
 * feat: show ASCII logo + wordmark banner on bare CLI and daemon start ([5be9873](https://github.com/bitsocialnet/bitsocial-cli/commit/5be9873)), closes [#1a4fd0](https://github.com/bitsocialnet/bitsocial-cli/issues/1a4fd0) [#e5e7eb](https://github.com/bitsocialnet/bitsocial-cli/issues/e5e7eb) [#19](https://github.com/bitsocialnet/bitsocial-cli/issues/19)
