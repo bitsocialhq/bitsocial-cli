@@ -33,6 +33,10 @@ vi.mock("../../src/update/semver.js", () => ({
     compareVersions: vi.fn().mockReturnValue(-1)
 }));
 
+vi.mock("../../src/update/fast-update.js", () => ({
+    fastInstallGlobal: vi.fn().mockResolvedValue(false)
+}));
+
 describe("update install — community status reporting", () => {
     let logOutput: string[];
     let warnOutput: string[];

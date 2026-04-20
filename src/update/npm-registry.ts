@@ -1,7 +1,7 @@
 import { spawn } from "child_process";
 import { getNpmCliPath, getNpmEnv, ensureNpmAvailable } from "../challenge-packages/challenge-utils.js";
 
-const PACKAGE_NAME = "@bitsocial/bitsocial-cli";
+export const PACKAGE_NAME = "@bitsocial/bitsocial-cli";
 
 function runNpmView(args: string[]): Promise<string> {
     return new Promise<string>(async (resolve, reject) => {

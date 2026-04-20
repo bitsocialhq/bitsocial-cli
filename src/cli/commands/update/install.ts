@@ -2,6 +2,7 @@ import { Args, Flags, Command } from "@oclif/core";
 import { spawn } from "child_process";
 import tcpPortUsed from "tcp-port-used";
 import { fetchLatestVersion, installGlobal } from "../../../update/npm-registry.js";
+import { fastInstallGlobal } from "../../../update/fast-update.js";
 import { compareVersions } from "../../../update/semver.js";
 import { getAliveDaemonStates, type DaemonState } from "../../../common-utils/daemon-state.js";
 import PKC from "@pkcprotocol/pkc-js";
@@ -112,10 +113,24 @@ export default class Install extends Command {
 
         this.log(`Installing bitsocial-cli@${targetVersion}...`);
 
-        try {
-            await installGlobal(targetVersion);
-        } catch (err) {
-            this.error(`Update failed: ${(err as Error).message}`, { exit: 1 });
+        let installed = false;
+        if (!flags.force) {
+            try {
+                installed = await fastInstallGlobal(targetVersion, this.config.root, (msg: string) => this.log(msg));
+            } catch {
+                installed = false;
+            }
+        }
+
+        if (!installed) {
+            if (!flags.force) {
+                this.log("Falling back to full install...");
+            }
+            try {
+                await installGlobal(targetVersion);
+            } catch (err) {
+                this.error(`Update failed: ${(err as Error).message}`, { exit: 1 });
+            }
         }
 
         this.log(`Installed bitsocial v${targetVersion} (was v${current}).`);
