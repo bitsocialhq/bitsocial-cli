@@ -319,6 +319,31 @@ describe("bitsocial community edit", () => {
         expect(parsedArgs.title).toBe("Multi Comment Title");
     });
 
+    it("JSON file with more challenges than existing does not produce undefined elements", async () => {
+        const jsonPath = tempFile({ extension: "json" });
+        const editData = {
+            settings: {
+                challenges: [
+                    { name: "publication-match", options: { matches: "[]", error: "err" } },
+                    { name: "whitelist", options: { urls: "https://example.com", error: "err" } },
+                    { name: "captcha-canvas-v3" }
+                ]
+            }
+        };
+        await fsPromises.writeFile(jsonPath, JSON.stringify(editData));
+        const { result } = await runEditCommand(`community edit plebbit.bso --jsonFile ${jsonPath}`);
+        expect(result.error).toBeUndefined();
+        expect(editFake.calledOnce).toBe(true);
+        const parsedArgs = <CommunityEditOptions>editFake.args[0][0];
+        // Must have exactly 3 challenges, no trailing undefined
+        expect(parsedArgs.settings?.challenges).toHaveLength(3);
+        expect(parsedArgs.settings?.challenges).toEqual(editData.settings.challenges);
+        // Explicitly verify no undefined elements
+        for (const challenge of parsedArgs.settings?.challenges ?? []) {
+            expect(challenge).toBeDefined();
+        }
+    });
+
     it("Can edit using a JSONC file with trailing commas after comment stripping", async () => {
         const jsoncPath = tempFile({ extension: "jsonc" });
         const jsoncContent = `{

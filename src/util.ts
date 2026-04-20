@@ -95,7 +95,7 @@ export async function parseMultiAddrIpfsGatewayToUrl(ipfsGatewaymultiAddrString:
  * Custom merge function that implements CLI-specific merge behavior.
  * This matches the expected behavior from the test suite.
  */
-export function mergeDeep(target: any, source: any): any {
+export function mergeDeep(target: any, source: any, arrayStrategy: "concat" | "replace" = "concat"): any {
     function isObject(item: any): boolean {
         return item && typeof item === "object" && !Array.isArray(item);
     }
@@ -106,6 +106,11 @@ export function mergeDeep(target: any, source: any): any {
 
     // Handle arrays with CLI-specific behavior
     if (Array.isArray(target) && Array.isArray(source)) {
+        // RFC 7396 JSON Merge Patch: arrays are replaced entirely
+        if (arrayStrategy === "replace") {
+            return source;
+        }
+
         // Check if source is sparse (has holes/empty items) - indicates indexed assignment like --rules[2]
         const sourceHasHoles = source.length !== Object.keys(source).length;
 
@@ -117,7 +122,7 @@ export function mergeDeep(target: any, source: any): any {
             for (let i = 0; i < maxLength; i++) {
                 if (i in source) {
                     if (i in target && isPlainObject(target[i]) && isPlainObject(source[i])) {
-                        result[i] = mergeDeep(target[i], source[i]);
+                        result[i] = mergeDeep(target[i], source[i], arrayStrategy);
                     } else {
                         result[i] = source[i];
                     }
@@ -160,9 +165,9 @@ export function mergeDeep(target: any, source: any): any {
         for (const key in source) {
             if (source.hasOwnProperty(key)) {
                 if (Array.isArray(target[key]) && Array.isArray(source[key])) {
-                    result[key] = mergeDeep(target[key], source[key]);
+                    result[key] = mergeDeep(target[key], source[key], arrayStrategy);
                 } else if (isPlainObject(target[key]) && isPlainObject(source[key])) {
-                    result[key] = mergeDeep(target[key], source[key]);
+                    result[key] = mergeDeep(target[key], source[key], arrayStrategy);
                 } else {
                     result[key] = source[key];
                 }

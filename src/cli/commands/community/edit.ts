@@ -106,7 +106,9 @@ export default class Edit extends BaseCommand {
             const community = await pkc.createCommunity({ address: args.address });
 
             const mergedState = remeda.pick(community, remeda.keys.strict(editOptions) as (keyof typeof community)[]);
-            const finalMergedState = mergeDeep(mergedState, editOptions);
+            // JSON file edits use RFC 7396 JSON Merge Patch semantics (arrays replace, objects merge).
+            // CLI flag edits use concat semantics (arrays extend with new values).
+            const finalMergedState = mergeDeep(mergedState, editOptions, flags.jsonFile ? "replace" : "concat");
             log("Internal community state after merge:", finalMergedState);
             await community.edit(finalMergedState);
             this.log(community.address);
