@@ -332,6 +332,135 @@ describe("bitsocial logs --stdout/--stderr filtering (synthetic)", () => {
     });
 });
 
+describe("bitsocial logs -f log file rotation (synthetic)", () => {
+    it("switches to new log file when one appears", async () => {
+        const { logDir } = await createLogDir();
+        const file1 = path.join(logDir, "bitsocial_cli_daemon_2026-03-01T00-00-00.000Z.log");
+        await fsPromise.writeFile(file1, buildLogLine(new Date("2026-03-01T00:00:00.000Z"), "INITIAL_MARKER") + "\n");
+
+        const result = await new Promise<{ stdout: string; stderr: string }>((resolve, reject) => {
+            const proc = spawn("node", ["./bin/run", "logs", "--logPath", logDir, "-f"], {
+                stdio: ["pipe", "pipe", "pipe"]
+            });
+
+            let stdout = "";
+            let stderr = "";
+            let createdNewFile = false;
+            proc.stdout.on("data", (data: Buffer) => {
+                stdout += data.toString();
+                // Wait for initial output before creating the new file
+                if (!createdNewFile && stdout.includes("INITIAL_MARKER")) {
+                    createdNewFile = true;
+                    const file2 = path.join(logDir, "bitsocial_cli_daemon_2026-03-01T01-00-00.000Z.log");
+                    fsPromise.writeFile(file2, buildLogLine(new Date("2026-03-01T01:00:00.000Z"), "NEW_FILE_MARKER") + "\n");
+                }
+            });
+            proc.stderr.on("data", (data: Buffer) => { stderr += data.toString(); });
+
+            // Wait long enough for the 3-second new-file check to fire, then kill
+            const timer = setTimeout(() => {
+                proc.kill("SIGINT");
+            }, 8000);
+
+            proc.on("close", () => {
+                clearTimeout(timer);
+                resolve({ stdout, stderr });
+            });
+            proc.on("error", (err) => {
+                clearTimeout(timer);
+                reject(err);
+            });
+        });
+
+        expect(result.stdout).toContain("INITIAL_MARKER");
+        expect(result.stdout).toContain("NEW_FILE_MARKER");
+        expect(result.stderr).toContain("switched to new log file");
+    });
+
+    it("applies --stdout filter after switching to new log file", async () => {
+        const { logDir } = await createLogDir();
+        const file1 = path.join(logDir, "bitsocial_cli_daemon_2026-04-01T00-00-00.000Z.log");
+        await fsPromise.writeFile(file1, buildLogLine(new Date("2026-04-01T00:00:00.000Z"), "initial stdout", "stdout") + "\n");
+
+        const result = await new Promise<{ stdout: string; stderr: string }>((resolve, reject) => {
+            const proc = spawn("node", ["./bin/run", "logs", "--logPath", logDir, "--stdout", "-f"], {
+                stdio: ["pipe", "pipe", "pipe"]
+            });
+
+            let stdout = "";
+            let stderr = "";
+            let createdNewFile = false;
+            proc.stdout.on("data", (data: Buffer) => {
+                stdout += data.toString();
+                if (!createdNewFile && stdout.includes("initial stdout")) {
+                    createdNewFile = true;
+                    const file2 = path.join(logDir, "bitsocial_cli_daemon_2026-04-01T01-00-00.000Z.log");
+                    const content = [
+                        buildLogLine(new Date("2026-04-01T01:00:00.000Z"), "new stdout msg", "stdout"),
+                        buildLogLine(new Date("2026-04-01T01:01:00.000Z"), "new stderr msg", "stderr")
+                    ].join("\n") + "\n";
+                    fsPromise.writeFile(file2, content);
+                }
+            });
+            proc.stderr.on("data", (data: Buffer) => { stderr += data.toString(); });
+
+            const timer = setTimeout(() => {
+                proc.kill("SIGINT");
+            }, 8000);
+
+            proc.on("close", () => {
+                clearTimeout(timer);
+                resolve({ stdout, stderr });
+            });
+            proc.on("error", (err) => {
+                clearTimeout(timer);
+                reject(err);
+            });
+        });
+
+        expect(result.stdout).toContain("initial stdout");
+        expect(result.stdout).toContain("new stdout msg");
+        expect(result.stdout).not.toContain("new stderr msg");
+    });
+
+    it("continues watching old file if no new file appears", async () => {
+        const { logDir } = await createLogDir();
+        const file1 = path.join(logDir, "bitsocial_cli_daemon_2026-05-01T00-00-00.000Z.log");
+        await fsPromise.writeFile(file1, buildLogLine(new Date("2026-05-01T00:00:00.000Z"), "initial line") + "\n");
+
+        const result = await new Promise<{ stdout: string }>((resolve, reject) => {
+            const proc = spawn("node", ["./bin/run", "logs", "--logPath", logDir, "-f"], {
+                stdio: ["pipe", "pipe", "pipe"]
+            });
+
+            let stdout = "";
+            proc.stdout.on("data", (data: Buffer) => { stdout += data.toString(); });
+
+            // Append to same file after a short delay
+            setTimeout(async () => {
+                await fsPromise.appendFile(file1, buildLogLine(new Date("2026-05-01T00:01:00.000Z"), "APPENDED_LINE") + "\n");
+            }, 500);
+
+            // Wait for the appended data to be picked up, then kill
+            const timer = setTimeout(() => {
+                proc.kill("SIGINT");
+            }, 2000);
+
+            proc.on("close", () => {
+                clearTimeout(timer);
+                resolve({ stdout });
+            });
+            proc.on("error", (err) => {
+                clearTimeout(timer);
+                reject(err);
+            });
+        });
+
+        expect(result.stdout).toContain("initial line");
+        expect(result.stdout).toContain("APPENDED_LINE");
+    });
+});
+
 describe("bitsocial logs (live daemon tests)", async () => {
     let daemonProcess: ManagedChildProcess;
     let logDir: string;

@@ -184,7 +184,9 @@ export default class Logs extends Command {
         }
 
         // Follow mode: dump existing content (filtered + tailed) then watch for new data
-        const existingContent = await fsPromise.readFile(latestLogFile, "utf-8");
+        let currentLogFile = latestLogFile;
+
+        const existingContent = await fsPromise.readFile(currentLogFile, "utf-8");
         const entries = this._parseLogEntries(existingContent);
         const filtered = this._filterEntries(entries, since, until);
         const streamFiltered = streamFilter ? this._filterByStream(filtered, streamFilter) : filtered;
@@ -192,16 +194,16 @@ export default class Logs extends Command {
         const initialOutput = tailed.map((e) => e.lines.join("\n")).join("\n");
         if (initialOutput) process.stdout.write(initialOutput + "\n");
 
-        const stat = await fsPromise.stat(latestLogFile);
+        const stat = await fsPromise.stat(currentLogFile);
         let position = stat.size;
         let pendingBuffer = "";
 
         // Watch for new data using polling (works across filesystems including Docker volumes)
         const readNewData = async () => {
             try {
-                const currentStat = await fsPromise.stat(latestLogFile);
+                const currentStat = await fsPromise.stat(currentLogFile);
                 if (currentStat.size > position) {
-                    const fd = await fsPromise.open(latestLogFile, "r");
+                    const fd = await fsPromise.open(currentLogFile, "r");
                     const buf = new Uint8Array(currentStat.size - position);
                     const { bytesRead } = await fd.read(buf, 0, buf.length, position);
                     await fd.close();
@@ -233,15 +235,68 @@ export default class Logs extends Command {
             }
         };
 
-        fs.watchFile(latestLogFile, { interval: 300 }, readNewData);
+        // Periodically check if a newer log file has appeared (e.g. after daemon restart)
+        const checkForNewLogFile = async () => {
+            try {
+                const newestFile = await this._findLatestLogFile(logPath);
+                if (newestFile === currentLogFile) return;
+
+                // Flush any remaining partial line from old file
+                if (pendingBuffer) {
+                    if (!since && !until && !streamFilter) {
+                        process.stdout.write(pendingBuffer + "\n");
+                    } else {
+                        const pbEntries = this._parseLogEntries(pendingBuffer);
+                        const pbFiltered = this._filterEntries(pbEntries, since, until);
+                        const pbStreamFiltered = streamFilter ? this._filterByStream(pbFiltered, streamFilter) : pbFiltered;
+                        const pbOutput = pbStreamFiltered.map((e) => e.lines.join("\n")).join("\n");
+                        if (pbOutput) process.stdout.write(pbOutput + "\n");
+                    }
+                }
+
+                // Switch watchers
+                fs.unwatchFile(currentLogFile, readNewData);
+                currentLogFile = newestFile;
+                pendingBuffer = "";
+
+                process.stderr.write(`\n--- switched to new log file: ${path.basename(newestFile)} ---\n\n`);
+
+                // Read and output entire new file content (with filters, no tail limit)
+                const newContent = await fsPromise.readFile(currentLogFile, "utf-8");
+                if (newContent) {
+                    if (!since && !until && !streamFilter) {
+                        process.stdout.write(newContent);
+                    } else {
+                        const newEntries = this._parseLogEntries(newContent.replace(/\n$/, ""));
+                        const filteredNew = this._filterEntries(newEntries, since, until);
+                        const streamFilteredNew = streamFilter
+                            ? this._filterByStream(filteredNew, streamFilter)
+                            : filteredNew;
+                        const output = streamFilteredNew.map((e) => e.lines.join("\n")).join("\n");
+                        if (output) process.stdout.write(output + "\n");
+                    }
+                }
+
+                const newStat = await fsPromise.stat(currentLogFile);
+                position = newStat.size;
+                fs.watchFile(currentLogFile, { interval: 300 }, readNewData);
+            } catch {
+                // Directory listing failed or file disappeared — retry next cycle
+            }
+        };
+
+        fs.watchFile(currentLogFile, { interval: 300 }, readNewData);
+        const newFileCheckInterval = setInterval(checkForNewLogFile, 3000);
 
         // Keep the process alive and clean up on exit
         process.on("SIGINT", () => {
-            fs.unwatchFile(latestLogFile, readNewData);
+            clearInterval(newFileCheckInterval);
+            fs.unwatchFile(currentLogFile, readNewData);
             process.exit(0);
         });
         process.on("SIGTERM", () => {
-            fs.unwatchFile(latestLogFile, readNewData);
+            clearInterval(newFileCheckInterval);
+            fs.unwatchFile(currentLogFile, readNewData);
             process.exit(0);
         });
 
