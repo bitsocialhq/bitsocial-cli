@@ -52,7 +52,8 @@ const runBitsocialLogs = (args: string[], logDir: string): Promise<{ stdout: str
 };
 
 // Helper to build synthetic log content with ISO timestamps
-const buildLogLine = (date: Date, message: string) => `[${date.toISOString()}] ${message}`;
+const buildLogLine = (date: Date, message: string, stream?: "stdout" | "stderr") =>
+    stream ? `[${date.toISOString()}] [${stream}] ${message}` : `[${date.toISOString()}] ${message}`;
 
 describe("bitsocial logs (synthetic log file tests)", () => {
     let logDir: string;
@@ -207,6 +208,127 @@ describe("bitsocial logs (synthetic log file tests)", () => {
         const { logDir: emptyLogDir } = await createLogDir();
         const result = await runBitsocialLogs([], emptyLogDir);
         expect(result.exitCode).not.toBe(0);
+    });
+});
+
+describe("bitsocial logs --stdout/--stderr filtering (synthetic)", () => {
+    let logDir: string;
+    let logFile: string;
+
+    beforeAll(async () => {
+        ({ logDir } = await createLogDir());
+        logFile = path.join(logDir, "bitsocial_cli_daemon_2026-02-01T00-00-00.000Z.log");
+    });
+
+    it("--stdout filters to only stdout entries", async () => {
+        const ts1 = new Date("2026-02-01T00:00:00.000Z");
+        const ts2 = new Date("2026-02-01T00:01:00.000Z");
+        const ts3 = new Date("2026-02-01T00:02:00.000Z");
+        const lines = [
+            buildLogLine(ts1, "stdout message", "stdout"),
+            buildLogLine(ts2, "stderr message", "stderr"),
+            buildLogLine(ts3, "another stdout", "stdout")
+        ];
+        await fsPromise.writeFile(logFile, lines.join("\n") + "\n");
+
+        const result = await runBitsocialLogs(["--stdout"], logDir);
+        expect(result.exitCode).toBe(0);
+        expect(result.stdout).toContain("stdout message");
+        expect(result.stdout).toContain("another stdout");
+        expect(result.stdout).not.toContain("stderr message");
+    });
+
+    it("--stderr filters to only stderr entries", async () => {
+        const ts1 = new Date("2026-02-01T00:00:00.000Z");
+        const ts2 = new Date("2026-02-01T00:01:00.000Z");
+        const lines = [
+            buildLogLine(ts1, "stdout message", "stdout"),
+            buildLogLine(ts2, "stderr message", "stderr")
+        ];
+        await fsPromise.writeFile(logFile, lines.join("\n") + "\n");
+
+        const result = await runBitsocialLogs(["--stderr"], logDir);
+        expect(result.exitCode).toBe(0);
+        expect(result.stdout).toContain("stderr message");
+        expect(result.stdout).not.toContain("stdout message");
+    });
+
+    it("--stdout excludes untagged (legacy) entries", async () => {
+        const ts1 = new Date("2026-02-01T00:00:00.000Z");
+        const ts2 = new Date("2026-02-01T00:01:00.000Z");
+        const lines = [
+            buildLogLine(ts1, "legacy entry"),
+            buildLogLine(ts2, "stdout entry", "stdout")
+        ];
+        await fsPromise.writeFile(logFile, lines.join("\n") + "\n");
+
+        const result = await runBitsocialLogs(["--stdout"], logDir);
+        expect(result.exitCode).toBe(0);
+        expect(result.stdout).toContain("stdout entry");
+        expect(result.stdout).not.toContain("legacy entry");
+    });
+
+    it("--stdout and --stderr are mutually exclusive", async () => {
+        const lines = [buildLogLine(new Date("2026-02-01T00:00:00.000Z"), "entry", "stdout")];
+        await fsPromise.writeFile(logFile, lines.join("\n") + "\n");
+
+        const result = await runBitsocialLogs(["--stdout", "--stderr"], logDir);
+        expect(result.exitCode).not.toBe(0);
+    });
+
+    it("no stream flag shows all entries including tagged and untagged", async () => {
+        const ts1 = new Date("2026-02-01T00:00:00.000Z");
+        const ts2 = new Date("2026-02-01T00:01:00.000Z");
+        const ts3 = new Date("2026-02-01T00:02:00.000Z");
+        const lines = [
+            buildLogLine(ts1, "legacy entry"),
+            buildLogLine(ts2, "stdout entry", "stdout"),
+            buildLogLine(ts3, "stderr entry", "stderr")
+        ];
+        await fsPromise.writeFile(logFile, lines.join("\n") + "\n");
+
+        const result = await runBitsocialLogs([], logDir);
+        expect(result.exitCode).toBe(0);
+        expect(result.stdout).toContain("legacy entry");
+        expect(result.stdout).toContain("stdout entry");
+        expect(result.stdout).toContain("stderr entry");
+    });
+
+    it("--stdout composes with --since and --tail", async () => {
+        const ts1 = new Date("2026-02-01T00:00:00.000Z");
+        const ts2 = new Date("2026-02-01T01:00:00.000Z");
+        const ts3 = new Date("2026-02-01T02:00:00.000Z");
+        const ts4 = new Date("2026-02-01T03:00:00.000Z");
+        const lines = [
+            buildLogLine(ts1, "old stdout", "stdout"),
+            buildLogLine(ts2, "stderr after cutoff", "stderr"),
+            buildLogLine(ts3, "stdout after cutoff 1", "stdout"),
+            buildLogLine(ts4, "stdout after cutoff 2", "stdout")
+        ];
+        await fsPromise.writeFile(logFile, lines.join("\n") + "\n");
+
+        const result = await runBitsocialLogs(["--stdout", "--since", "2026-02-01T00:30:00.000Z", "-n", "1"], logDir);
+        expect(result.exitCode).toBe(0);
+        expect(result.stdout).not.toContain("old stdout");
+        expect(result.stdout).not.toContain("stderr after cutoff");
+        expect(result.stdout).not.toContain("stdout after cutoff 1");
+        expect(result.stdout).toContain("stdout after cutoff 2");
+    });
+
+    it("multi-line entries preserve stream tag filtering", async () => {
+        const content = [
+            `[2026-02-01T00:00:00.000Z] [stderr] bitsocial-cli:daemon flags:  {`,
+            `  pkcRpcUrl: URL { }`,
+            `} +0ms`,
+            `[2026-02-01T00:01:00.000Z] [stdout] community created successfully`
+        ].join("\n");
+        await fsPromise.writeFile(logFile, content + "\n");
+
+        const result = await runBitsocialLogs(["--stdout"], logDir);
+        expect(result.exitCode).toBe(0);
+        expect(result.stdout).toContain("community created successfully");
+        expect(result.stdout).not.toContain("flags");
+        expect(result.stdout).not.toContain("pkcRpcUrl");
     });
 });
 

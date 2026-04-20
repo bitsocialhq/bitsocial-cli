@@ -6,6 +6,7 @@ import path from "path";
 
 interface LogEntry {
     timestamp: Date | null;
+    stream: "stdout" | "stderr" | null;
     lines: string[];
 }
 
@@ -37,6 +38,16 @@ export default class Logs extends Command {
         logPath: Flags.directory({
             description: "Specify the directory containing log files",
             required: false
+        }),
+        stdout: Flags.boolean({
+            description: "Show only stdout log entries",
+            default: false,
+            exclusive: ["stderr"]
+        }),
+        stderr: Flags.boolean({
+            description: "Show only stderr log entries (output of pkc-logger library)",
+            default: false,
+            exclusive: ["stdout"]
         })
     };
 
@@ -46,7 +57,10 @@ export default class Logs extends Command {
         "bitsocial logs -n 50",
         "bitsocial logs --since 5m",
         "bitsocial logs --since 2026-01-02T13:23:37Z --until 2026-01-02T14:00:00Z",
-        "bitsocial logs --since 1h -f"
+        "bitsocial logs --since 1h -f",
+        "bitsocial logs --stdout",
+        "bitsocial logs --stderr",
+        "bitsocial logs --stdout -f"
     ];
 
     private async _findLatestLogFile(logPath: string): Promise<string> {
@@ -95,6 +109,12 @@ export default class Logs extends Command {
         return new Date(match[1]);
     }
 
+    _extractStream(line: string): "stdout" | "stderr" | null {
+        const match = line.match(/^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\] \[(stdout|stderr)\] /);
+        if (!match) return null;
+        return match[1] as "stdout" | "stderr";
+    }
+
     _parseLogEntries(content: string): LogEntry[] {
         const lines = content.split("\n");
         const entries: LogEntry[] = [];
@@ -103,13 +123,14 @@ export default class Logs extends Command {
             const timestamp = this._extractTimestamp(line);
             if (timestamp !== null) {
                 // New timestamped entry
-                entries.push({ timestamp, lines: [line] });
+                const stream = this._extractStream(line);
+                entries.push({ timestamp, stream, lines: [line] });
             } else if (entries.length > 0) {
                 // Continuation line — belongs to the previous entry
                 entries[entries.length - 1].lines.push(line);
             } else {
                 // Line before any timestamped entry (legacy/header)
-                entries.push({ timestamp: null, lines: [line] });
+                entries.push({ timestamp: null, stream: null, lines: [line] });
             }
         }
 
@@ -126,6 +147,10 @@ export default class Logs extends Command {
             if (until && entry.timestamp > until) return false;
             return true;
         });
+    }
+
+    _filterByStream(entries: LogEntry[], stream: "stdout" | "stderr"): LogEntry[] {
+        return entries.filter((entry) => entry.stream === stream);
     }
 
     _tailEntries(entries: LogEntry[], tailValue: string): LogEntry[] {
@@ -145,12 +170,14 @@ export default class Logs extends Command {
 
         const since = flags.since ? this._parseTimestamp(flags.since) : undefined;
         const until = flags.until ? this._parseTimestamp(flags.until) : undefined;
+        const streamFilter = flags.stdout ? "stdout" as const : flags.stderr ? "stderr" as const : undefined;
 
         if (!flags.follow) {
             const content = await fsPromise.readFile(latestLogFile, "utf-8");
             const entries = this._parseLogEntries(content);
             const filtered = this._filterEntries(entries, since, until);
-            const tailed = this._tailEntries(filtered, flags.tail);
+            const streamFiltered = streamFilter ? this._filterByStream(filtered, streamFilter) : filtered;
+            const tailed = this._tailEntries(streamFiltered, flags.tail);
             const output = tailed.map((e) => e.lines.join("\n")).join("\n");
             if (output) process.stdout.write(output + "\n");
             return;
@@ -160,7 +187,8 @@ export default class Logs extends Command {
         const existingContent = await fsPromise.readFile(latestLogFile, "utf-8");
         const entries = this._parseLogEntries(existingContent);
         const filtered = this._filterEntries(entries, since, until);
-        const tailed = this._tailEntries(filtered, flags.tail);
+        const streamFiltered = streamFilter ? this._filterByStream(filtered, streamFilter) : filtered;
+        const tailed = this._tailEntries(streamFiltered, flags.tail);
         const initialOutput = tailed.map((e) => e.lines.join("\n")).join("\n");
         if (initialOutput) process.stdout.write(initialOutput + "\n");
 
@@ -189,13 +217,14 @@ export default class Logs extends Command {
                     pendingBuffer = chunk.slice(lastNewline + 1);
                     const completeText = chunk.slice(0, lastNewline + 1);
 
-                    if (!since && !until) {
-                        // No time filtering — pass through directly
+                    if (!since && !until && !streamFilter) {
+                        // No filtering — pass through directly
                         process.stdout.write(completeText);
                     } else {
                         const newEntries = this._parseLogEntries(completeText.replace(/\n$/, ""));
                         const filteredNew = this._filterEntries(newEntries, since, until);
-                        const output = filteredNew.map((e) => e.lines.join("\n")).join("\n");
+                        const streamFilteredNew = streamFilter ? this._filterByStream(filteredNew, streamFilter) : filteredNew;
+                        const output = streamFilteredNew.map((e) => e.lines.join("\n")).join("\n");
                         if (output) process.stdout.write(output + "\n");
                     }
                 }

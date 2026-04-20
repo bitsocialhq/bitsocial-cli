@@ -124,10 +124,10 @@ export default class Daemon extends Command {
 
         const isLogFileOverLimit = () => logFile.bytesWritten > 20000000; // 20mb
 
-        const writeTimestampedLine = (text: string) => {
+        const writeTimestampedLine = (text: string, stream: "stdout" | "stderr") => {
             if (isLogFileOverLimit()) return;
             if (!text || text.trim().length === 0) return;
-            const timestamp = `[${new Date().toISOString()}] `;
+            const timestamp = `[${new Date().toISOString()}] [${stream}] `;
             const lines = text.split("\n");
             const timestamped = lines.map((line, i) => (i === 0 ? timestamp + line : line)).join("\n");
             logFile.write(timestamped);
@@ -142,7 +142,7 @@ export default class Daemon extends Command {
         debugModule.inspectOpts.colors = true;
         debugModule.inspectOpts.hideDate = true;
         debugModule.log = (...args: any[]) => {
-            writeTimestampedLine(formatWithOptions({ depth: Logger.inspectOpts?.depth || 10, colors: true }, ...args).trimStart() + EOL);
+            writeTimestampedLine(formatWithOptions({ depth: Logger.inspectOpts?.depth || 10, colors: true }, ...args).trimStart() + EOL, "stderr");
         };
 
         const asString = (data: string | Uint8Array) => (typeof data === "string" ? data : Buffer.from(data).toString());
@@ -150,7 +150,7 @@ export default class Daemon extends Command {
         process.stdout.write = (...args) => {
             //@ts-expect-error
             const res = stdoutWrite(...args);
-            writeTimestampedLine(asString(args[0]));
+            writeTimestampedLine(asString(args[0]), "stdout");
             return res;
         };
 
@@ -159,7 +159,7 @@ export default class Daemon extends Command {
             // Debug output goes to stderr; we want it in logs only.
             // Real errors are caught by uncaughtException/unhandledRejection handlers
             // which use console.error -> stderr.write -> this override -> log file.
-            writeTimestampedLine(asString(args[0]).trimStart());
+            writeTimestampedLine(asString(args[0]).trimStart(), "stderr");
             return true;
         };
 
