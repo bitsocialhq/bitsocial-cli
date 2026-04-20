@@ -1,5 +1,9 @@
 # Changelog
 
+## <small>0.19.49 (2026-04-20)</small>
+
+* fix: suppress verbose npm output during update install ([173793a](https://github.com/bitsocialnet/bitsocial-cli/commit/173793a))
+
 ## <small>0.19.48 (2026-04-20)</small>
 
 * refactor: remove community status polling from update install ([c63e29c](https://github.com/bitsocialnet/bitsocial-cli/commit/c63e29c))
