@@ -167,15 +167,19 @@ export default class Install extends Command {
         pkc.on("error", (err: Error) => {
             errors.push(err);
         });
-        await new Promise<void>((resolve, reject) => {
+        await new Promise<void>((resolve) => {
             const timeout = setTimeout(() => {
-                const lastError = errors[errors.length - 1];
-                reject(lastError ?? new Error(`Timed out waiting for RPC server at ${pkcRpcUrl} to respond`));
-            }, 20000);
-            pkc.once("communitieschange", () => {
-                clearTimeout(timeout);
+                pkc.removeListener("communitieschange", handler);
                 resolve();
-            });
+            }, 20000);
+            const handler = () => {
+                if (pkc.communities.length > 0) {
+                    pkc.removeListener("communitieschange", handler);
+                    clearTimeout(timeout);
+                    resolve();
+                }
+            };
+            pkc.on("communitieschange", handler);
         });
         return pkc;
     }

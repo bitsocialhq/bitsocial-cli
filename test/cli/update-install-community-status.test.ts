@@ -70,13 +70,17 @@ describe("update install — community status reporting", () => {
 
         const { default: PKCMock } = await import("@pkcprotocol/pkc-js");
         const fakePkc = Object.assign(new EventEmitter(), {
-            communities: ["community1.bso", "community2.bso"],
+            communities: [] as string[],
             createCommunity: vi.fn().mockResolvedValue({ started: true }),
             destroy: vi.fn().mockResolvedValue(undefined)
         });
         vi.mocked(PKCMock).mockImplementation(async () => {
-            // Auto-emit communitieschange after a tick
-            setTimeout(() => fakePkc.emit("communitieschange"), 0);
+            // Simulate real pkc-js: first emit with empty communities, then with populated
+            setTimeout(() => {
+                fakePkc.emit("communitieschange");
+                fakePkc.communities = ["community1.bso", "community2.bso"];
+                fakePkc.emit("communitieschange");
+            }, 0);
             return fakePkc as any;
         });
 
@@ -96,7 +100,7 @@ describe("update install — community status reporting", () => {
         const { default: PKCMock } = await import("@pkcprotocol/pkc-js");
         let callCount = 0;
         const fakePkc = Object.assign(new EventEmitter(), {
-            communities: ["community1.bso", "community2.bso", "community3.bso"],
+            communities: [] as string[],
             createCommunity: vi.fn().mockImplementation(async () => {
                 callCount++;
                 return { started: callCount <= 1 };
@@ -104,7 +108,11 @@ describe("update install — community status reporting", () => {
             destroy: vi.fn().mockResolvedValue(undefined)
         });
         vi.mocked(PKCMock).mockImplementation(async () => {
-            setTimeout(() => fakePkc.emit("communitieschange"), 0);
+            setTimeout(() => {
+                fakePkc.emit("communitieschange");
+                fakePkc.communities = ["community1.bso", "community2.bso", "community3.bso"];
+                fakePkc.emit("communitieschange");
+            }, 0);
             return fakePkc as any;
         });
 
@@ -123,12 +131,16 @@ describe("update install — community status reporting", () => {
 
         const { default: PKCMock } = await import("@pkcprotocol/pkc-js");
         const fakePkc = Object.assign(new EventEmitter(), {
-            communities: ["community1.bso", "community2.bso"],
+            communities: [] as string[],
             createCommunity: vi.fn().mockResolvedValue({ started: false }),
             destroy: vi.fn().mockResolvedValue(undefined)
         });
         vi.mocked(PKCMock).mockImplementation(async () => {
-            setTimeout(() => fakePkc.emit("communitieschange"), 0);
+            setTimeout(() => {
+                fakePkc.emit("communitieschange");
+                fakePkc.communities = ["community1.bso", "community2.bso"];
+                fakePkc.emit("communitieschange");
+            }, 0);
             return fakePkc as any;
         });
 
@@ -148,17 +160,23 @@ describe("update install — community status reporting", () => {
 
         const { default: PKCMock } = await import("@pkcprotocol/pkc-js");
         const fakePkc = Object.assign(new EventEmitter(), {
-            communities: [],
+            communities: [] as string[],
             createCommunity: vi.fn(),
             destroy: vi.fn().mockResolvedValue(undefined)
         });
+        // Use the test override to skip the 20s timeout for the no-communities case
+        const globalWithOverride = globalThis as { __PKC_RPC_CONNECT_OVERRIDE?: any };
+        globalWithOverride.__PKC_RPC_CONNECT_OVERRIDE = async () => fakePkc;
         vi.mocked(PKCMock).mockImplementation(async () => {
-            setTimeout(() => fakePkc.emit("communitieschange"), 0);
             return fakePkc as any;
         });
 
         const cmd = await createInstallCommand();
-        await cmd.run();
+        try {
+            await cmd.run();
+        } finally {
+            delete globalWithOverride.__PKC_RPC_CONNECT_OVERRIDE;
+        }
 
         const joined = logOutput.join("\n");
         expect(joined).not.toContain("communities");
@@ -190,12 +208,16 @@ describe("update install — community status reporting", () => {
 
         const { default: PKCMock } = await import("@pkcprotocol/pkc-js");
         const fakePkc = Object.assign(new EventEmitter(), {
-            communities: ["community1.bso"],
+            communities: [] as string[],
             createCommunity: vi.fn().mockResolvedValue({ started: true }),
             destroy: vi.fn().mockResolvedValue(undefined)
         });
         vi.mocked(PKCMock).mockImplementation(async () => {
-            setTimeout(() => fakePkc.emit("communitieschange"), 0);
+            setTimeout(() => {
+                fakePkc.emit("communitieschange");
+                fakePkc.communities = ["community1.bso"];
+                fakePkc.emit("communitieschange");
+            }, 0);
             return fakePkc as any;
         });
 
