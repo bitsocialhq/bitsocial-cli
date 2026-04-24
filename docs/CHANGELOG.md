@@ -1,5 +1,9 @@
 # Changelog
 
+## <small>0.19.50 (2026-04-24)</small>
+
+* chore(deps): upgrade pkc-js to 0.0.20 and kubo to 0.41.0 ([c5dd9d7](https://github.com/bitsocialnet/bitsocial-cli/commit/c5dd9d7))
+
 ## <small>0.19.49 (2026-04-20)</small>
 
 * fix: suppress verbose npm output during update install ([173793a](https://github.com/bitsocialnet/bitsocial-cli/commit/173793a))
