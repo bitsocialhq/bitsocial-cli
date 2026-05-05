@@ -35,7 +35,7 @@ jobs:
           node-version: 22
           cache: 'npm'
           registry-url: 'https://registry.npmjs.org'
-      - run: npm install -g npm@11.13.0
+      - run: corepack enable npm && corepack prepare npm@11.13.0 --activate
 
       # build dist folder
       - run: npm ci

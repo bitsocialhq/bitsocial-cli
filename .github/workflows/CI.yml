@@ -46,7 +46,8 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
-      - run: npm install -g npm@11.13.0
+      - run: corepack enable npm && corepack prepare npm@11.13.0 --activate
+        shell: bash
 
       - name: Smoke test Docker deps stage
         if: matrix.os == 'ubuntu-latest'
