@@ -1,5 +1,10 @@
 # Changelog
 
+## <small>0.19.57 (2026-05-17)</small>
+
+* chore(daemon): label uncaughtException/unhandledRejection log output ([f984cdc](https://github.com/bitsocialnet/bitsocial-cli/commit/f984cdc))
+* chore(deps): upgrade pkc-js to 0.0.34 ([b10881d](https://github.com/bitsocialnet/bitsocial-cli/commit/b10881d))
+
 ## <small>0.19.56 (2026-05-17)</small>
 
 * chore(deps): upgrade pkc-js to 0.0.33, 5chan to v0.8.5 ([9322247](https://github.com/bitsocialnet/bitsocial-cli/commit/9322247))
