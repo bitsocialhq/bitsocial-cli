@@ -17,9 +17,19 @@ const writeConfigToTempFile = async (config: Record<string, any>) => {
 
 describe("mergeCliDefaultsIntoIpfsConfig", () => {
     it("overrides core defaults on freshly initialized config", async () => {
+        const kuboDefaultSwarm = [
+            "/ip4/0.0.0.0/tcp/4001",
+            "/ip6/::/tcp/4001",
+            "/ip4/0.0.0.0/udp/4001/webrtc-direct",
+            "/ip4/0.0.0.0/udp/4001/quic-v1",
+            "/ip4/0.0.0.0/udp/4001/quic-v1/webtransport",
+            "/ip6/::/udp/4001/webrtc-direct",
+            "/ip6/::/udp/4001/quic-v1",
+            "/ip6/::/udp/4001/quic-v1/webtransport"
+        ];
         const initialConfig = {
             Addresses: {
-                Swarm: ["/ip4/0.0.0.0/tcp/4001"],
+                Swarm: kuboDefaultSwarm,
                 Gateway: "/ip4/0.0.0.0/tcp/8080"
             }
         };
@@ -30,14 +40,7 @@ describe("mergeCliDefaultsIntoIpfsConfig", () => {
         const mergedConfig = JSON.parse(await fs.readFile(configPath, "utf-8"));
         expect(mergedConfig.Addresses.API).toBe("/ip4/127.0.0.1/tcp/5001");
         expect(mergedConfig.Addresses.Gateway).toBe("/ip4/127.0.0.1/tcp/8080");
-        expect(mergedConfig.Addresses.Swarm).toEqual([
-            "/ip4/0.0.0.0/tcp/0",
-            "/ip6/::/tcp/0",
-            "/ip4/0.0.0.0/udp/0/quic-v1",
-            "/ip4/0.0.0.0/udp/0/quic-v1/webtransport",
-            "/ip6/::/udp/0/quic-v1",
-            "/ip6/::/udp/0/quic-v1/webtransport"
-        ]);
+        expect(mergedConfig.Addresses.Swarm).toEqual(kuboDefaultSwarm);
         expect(mergedConfig.AutoTLS.Enabled).toBe(true);
     });
 

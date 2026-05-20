@@ -18,9 +18,11 @@ services:
     container_name: bitsocial
     restart: unless-stopped
     ports:
-      - "9138:9138"    # Plebbit RPC + Web UI
-      - "50019:50019"  # Kubo IPFS API
-      - "6473:6473"    # IPFS Gateway
+      - "9138:9138"      # Plebbit RPC + Web UI
+      - "50019:50019"    # Kubo IPFS API
+      - "6473:6473"      # IPFS Gateway
+      - "4001:4001"      # Kubo Swarm (TCP)
+      - "4001:4001/udp"  # Kubo Swarm (QUIC + WebTransport + WebRTC-direct)
     volumes:
       - bitsocial-data:/data
       - bitsocial-logs:/logs
