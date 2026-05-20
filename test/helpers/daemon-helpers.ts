@@ -1,8 +1,10 @@
 import { ChildProcess, spawn } from "child_process";
 import net from "net";
+import path from "path";
 import { directory as randomDirectory } from "tempy";
 import WebSocket from "ws";
 import defaults from "../../dist/common-utils/defaults.js";
+import { preInitKuboWithEphemeralSwarm } from "./kubo-helpers.js";
 
 export type ManagedChildProcess = ChildProcess & { kuboRpcUrl?: URL; capturedStdout?: string; capturedStderr?: string };
 
@@ -72,7 +74,20 @@ export const startPkcDaemon = (args: string[], env?: Record<string, string>): Pr
         const hasCustomDataPath = args.some((arg) => arg.startsWith("--pkcOptions.dataPath"));
         const hasCustomLogPath = args.some((arg) => arg === "--logPath");
         const logPathArgs = hasCustomLogPath ? [] : ["--logPath", randomDirectory()];
-        const daemonArgs = hasCustomDataPath ? args : ["--pkcOptions.dataPath", randomDirectory(), ...args];
+        const dataPath = hasCustomDataPath
+            ? (args[args.findIndex((a) => a.startsWith("--pkcOptions.dataPath")) + 1] as string)
+            : randomDirectory();
+        const daemonArgs = hasCustomDataPath ? args : ["--pkcOptions.dataPath", dataPath, ...args];
+
+        // Pre-init kubo so parallel test daemons don't collide on swarm port 4001.
+        const apiUrl = new URL(env?.KUBO_RPC_URL ?? defaults.KUBO_RPC_URL.toString());
+        const gatewayUrl = new URL(env?.IPFS_GATEWAY_URL ?? defaults.IPFS_GATEWAY_URL.toString());
+        try {
+            await preInitKuboWithEphemeralSwarm(path.join(dataPath, ".bitsocial-cli.ipfs"), apiUrl, gatewayUrl);
+        } catch (error) {
+            return reject(error);
+        }
+
         const daemonProcess = spawn("node", ["./bin/run", "daemon", ...logPathArgs, ...daemonArgs], {
             stdio: ["pipe", "pipe", "pipe"],
             env: env ? { ...process.env, ...env } : undefined

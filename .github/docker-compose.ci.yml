@@ -9,6 +9,8 @@ services:
       - "9138:9138"
       - "50019:50019"
       - "6473:6473"
+      - "4001:4001"
+      - "4001:4001/udp"
     volumes:
       - bitsocial-data:/data
       - bitsocial-logs:/logs
