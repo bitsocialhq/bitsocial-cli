@@ -9,6 +9,7 @@ import { directory as tempDirectory } from "tempy";
 import { setTimeout as delay } from "timers/promises";
 import { promisify } from "util";
 import { startKuboNode } from "../../src/ipfs/startIpfs.js";
+import { preInitKuboWithEphemeralSwarm } from "../helpers/kubo-helpers.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -183,6 +184,8 @@ describe("kubo RPC + gateway integration", { timeout: 120_000 }, () => {
         const gatewayPort = await getAvailablePort();
         apiUrl = new URL(`http://127.0.0.1:${apiPort}`);
         gatewayUrl = new URL(`http://127.0.0.1:${gatewayPort}`);
+
+        await preInitKuboWithEphemeralSwarm(ipfsRepoPath, apiUrl, gatewayUrl);
 
         kuboProcess = await startKuboNode(apiUrl, gatewayUrl, dataPath);
 
